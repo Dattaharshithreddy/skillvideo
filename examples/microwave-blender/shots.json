@@ -1,0 +1,53 @@
+{
+  "title": "How your microwave actually heats food",
+  "look": "C",
+  "voice": {
+    "provider": "kokoro",
+    "kokoro_voice": "am_michael",
+    "speed": 1.08
+  },
+  "style": "clean 3D CGI render, white and lab-blue palette, soft diffused lighting, macro depth of field",
+  "shots": [
+    {
+      "id": "s01",
+      "line": "Your microwave makes",
+      "sfx": "hum",
+      "scene": "scenes/s01.py"
+    },
+    {
+      "id": "s02",
+      "line": "an invisible field flip",
+      "sfx": "whoosh",
+      "scene": "scenes/s02.py"
+    },
+    {
+      "id": "s03",
+      "line": "billions of times a second.",
+      "scene": "scenes/s03.py"
+    },
+    {
+      "id": "s04",
+      "line": "Every water molecule in your food",
+      "sfx": "whoosh",
+      "scene": "scenes/s04.py"
+    },
+    {
+      "id": "s05",
+      "line": "spins to keep up,",
+      "scene": "scenes/s05.py"
+    },
+    {
+      "id": "s06",
+      "line": "slamming into its neighbours,",
+      "sfx": "impact",
+      "scene": "scenes/s06.py"
+    },
+    {
+      "id": "s07",
+      "line": "and that jostling is heat.",
+      "sfx": "rise",
+      "scene": "scenes/s07.py"
+    }
+  ],
+  "engine": "blender"
+}

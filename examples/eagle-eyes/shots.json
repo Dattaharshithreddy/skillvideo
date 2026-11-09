@@ -1,0 +1,172 @@
+{
+  "title": "What if you had eagle eyes",
+  "look": "A",
+  "voice": {
+    "provider": "elevenlabs",
+    "voice_id": "pNInz6obpgDQGcFmaJgB",
+    "stability": 0.5,
+    "style": 0.1,
+    "speed": 1.08
+  },
+  "style": "high-end 3D CGI render, glossy saturated colours, realistic but slightly stylised like a modern video game cinematic, soft even studio lighting, crisp detail, vertical 9:16",
+  "characters": {
+    "guy": {
+      "description": "friendly bald man in his 30s, plain mustard-yellow t-shirt, blue jeans, slim build, light stubble"
+    }
+  },
+  "shots": [
+    {
+      "id": "s01",
+      "line": "If you swapped your eyes",
+      "image": "blue matte nitrile gloved hands holding brushed-steel forceps with micro-scratches that lift a wet, glossy golden eagle eyeball with a visible amber iris and tiny red veins, macro close-up, soft key light with rim highlight on the eyeball, plain lavender studio wall with one darker blue stripe, shallow depth of field",
+      "motion": "slow push-in as the eyeball moves toward camera",
+      "sfx": "whoosh"
+    },
+    {
+      "id": "s02",
+      "line": "for an eagle's,",
+      "image": "majestic golden eagle head in profile, piercing amber eye, plain sky-blue backdrop",
+      "motion": "the eagle snaps its head toward camera"
+    },
+    {
+      "id": "s03",
+      "line": "could you spot a rabbit",
+      "image": "the guy standing on a grassy hilltop shading his eyes with one hand, scanning the distance, bright sky",
+      "motion": "slow orbit around him",
+      "characters": [
+        "guy"
+      ]
+    },
+    {
+      "id": "s04",
+      "line": "from a mile away?",
+      "image": "tiny brown rabbit far away in a vast green field, extreme telephoto look",
+      "motion": "fast zoom in toward the tiny rabbit",
+      "sfx": "whoosh"
+    },
+    {
+      "id": "s05",
+      "line": "Well, you could,",
+      "image": "close-up of the guy's face with large golden eagle eyes, amazed smile, skin with pores and light stubble, amber irises with fine radial texture and wet sheen, soft key light from the left with warm rim, plain lavender backdrop, shallow depth of field",
+      "motion": "slow push-in, his eyes widen",
+      "characters": [
+        "guy"
+      ]
+    },
+    {
+      "id": "s06",
+      "line": "but first your skull",
+      "image": "semi-transparent glossy human skull, eye sockets highlighted, plain lavender backdrop",
+      "motion": "slow orbit around the skull"
+    },
+    {
+      "id": "s07",
+      "line": "would need bigger eye sockets,",
+      "image": "gloved hands holding forceps beside an enlarged skull eye socket, medical illustration style",
+      "motion": "eye socket expands slightly, camera pushes in"
+    },
+    {
+      "id": "s08",
+      "line": "because an eagle's eyes",
+      "image": "cutaway of a golden eagle's head showing two enormous eyeballs filling most of the skull, plain sky-blue backdrop",
+      "motion": "slow orbit around the cutaway"
+    },
+    {
+      "id": "s09",
+      "line": "are huge for its head",
+      "image": "side-by-side comparison of an eagle eyeball and the tiny eagle brain, glossy anatomical render",
+      "motion": "camera drifts between them"
+    },
+    {
+      "id": "s10",
+      "line": "and barely move,",
+      "image": "extreme close-up of the eagle's eye, perfectly still, its head turning instead",
+      "motion": "eagle turns its whole head, eye stays fixed"
+    },
+    {
+      "id": "s11",
+      "line": "meaning you'd have to turn",
+      "image": "the guy in a kitchen looking to the side by turning his entire head stiffly like an owl",
+      "motion": "he snaps his head sideways",
+      "characters": [
+        "guy"
+      ]
+    },
+    {
+      "id": "s12",
+      "line": "your whole head",
+      "image": "the guy at a busy street crossing, rotating his whole head left and right comically",
+      "motion": "quick head turns, slight camera shake",
+      "characters": [
+        "guy"
+      ]
+    },
+    {
+      "id": "s13",
+      "line": "to look at anything,",
+      "image": "the guy reading a book by moving his head along each line, cosy living room",
+      "motion": "his head tracks across the page",
+      "characters": [
+        "guy"
+      ]
+    },
+    {
+      "id": "s14",
+      "line": "and with so many cones",
+      "image": "x-ray view of a human eye from the side, dark navy background, eyeball as translucent glass with cyan fresnel edges, the retina at the back in full glossy pink-red colour, faint blue veins",
+      "motion": "slow push-in toward the retina"
+    },
+    {
+      "id": "s15",
+      "line": "packed into the back",
+      "image": "macro of a retina surface densely packed with millions of glowing cone cells, molecular style",
+      "motion": "camera glides across the cells"
+    },
+    {
+      "id": "s16",
+      "line": "of each eye,",
+      "image": "porthole cutaway: a perfectly clean circular hole through the side of the guy's head, skin layers and bone visible at the edge, revealing a giant glossy eagle eyeball inside, mustard-yellow t-shirt collar in frame, plain sky-blue backdrop",
+      "motion": "slow push-in to the porthole",
+      "characters": [
+        "guy"
+      ]
+    },
+    {
+      "id": "s17",
+      "line": "colours would look so intense",
+      "image": "the guy in a flower garden, the flowers ultra-saturated and glowing, his jaw dropped",
+      "motion": "flowers shimmer, camera pushes in",
+      "characters": [
+        "guy"
+      ]
+    },
+    {
+      "id": "s18",
+      "line": "that a normal sunset",
+      "image": "beach at sunset with an overwhelmingly vivid orange and pink sky, the guy seen from behind",
+      "motion": "slow dolly forward",
+      "characters": [
+        "guy"
+      ]
+    },
+    {
+      "id": "s19",
+      "line": "might feel almost too bright",
+      "image": "close-up of the guy squinting hard, shielding his eagle eyes with both hands, warm orange light",
+      "motion": "he flinches back from the light",
+      "characters": [
+        "guy"
+      ],
+      "sfx": "impact"
+    },
+    {
+      "id": "s20",
+      "line": "to watch.",
+      "image": "the guy putting on comically huge glossy black sunglasses on the beach at sunset, deadpan expression, sand grains on his arms, warm orange backlight with rim on his bald head",
+      "motion": "he slides the sunglasses on and nods",
+      "characters": [
+        "guy"
+      ]
+    }
+  ]
+}
