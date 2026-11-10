@@ -176,7 +176,7 @@ def rocket(g, p, f):
     """A flowerpot firework that has decided to run around. Sparks shoot from the back."""
     g.shape(poly([(-30, 0), (30, 0), (16, -50), (-16, -50)]), (214, 60, 56))
     g.shape(rect(-22, -34, 44, 10), (250, 208, 80), False)
-    for i in range(7):
+    for i in range(7 if p.get('lit', 1.0) > 0.5 else 0):
         a = math.radians(-90 + (i - 3) * 16 + math.sin(f * 1.3 + i) * 10)
         L = 60 + 40 * math.sin(f * 0.9 + i * 2)
         g.shape(poly([(0, -50), (math.cos(a) * L, -50 + math.sin(a) * L)], False), None, True, 5, (255, 220, 90) if i % 2 else (255, 150, 60))
