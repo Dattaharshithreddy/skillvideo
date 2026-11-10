@@ -383,28 +383,64 @@ class Gajju(Character):
     PINK = (255, 170, 186)
     CAP = (255, 201, 60)
     NAIL = (255, 244, 222)
-    POSE = dict(Character.POSE, ear=0.0, trunk=(46.0, 58.0), trunk_bend=0.0, trunk_curl=0.5, cap_dy=0.0,
-                bendL=0.2, bendR=0.2)
+    POSE = dict(Character.POSE, ear=0.0, trunk=(30.0, 92.0), trunk_bend=0.0, trunk_curl=0.7, cap_dy=0.0,
+                bendL=0.12, bendR=0.12)
+
+    def _nails(self, g, cx, cy, ang, half, n=3):
+        """Elephants have no fingers: a round foot with a row of toenails along the front edge."""
+        dx, dy = math.cos(ang), math.sin(ang)
+        nx, ny = -dy, dx
+        for k in ([-1, 0, 1] if n == 3 else [-1.5, -0.5, 0.5, 1.5]):
+            px_, py_ = cx + nx * k * half * 0.62, cy + ny * k * half * 0.62
+            back = 2 + 3 * abs(k)
+            nail = smooth([(px_ - nx * 6 - dx * (9 + back), py_ - ny * 6 - dy * (9 + back)), (px_ - nx * 5.5 - dx * back, py_ - ny * 5.5 - dy * back),
+                           (px_ - dx * (back - 2), py_ - dy * (back - 2)), (px_ + nx * 5.5 - dx * back, py_ + ny * 5.5 - dy * back),
+                           (px_ + nx * 6 - dx * (9 + back), py_ + ny * 6 - dy * (9 + back)), (px_ - dx * (13 + back), py_ - dy * (13 + back))], True, 0.7)
+            self._ink(g, nail, self.NAIL, 2.5)
 
     def _arm(self, g, p, side, key):
+        """Front leg: a soft column that hangs from behind the shoulder and ends in a round, nailed foot."""
         face = p['face']
-        sh = (side * 58 * (1 - 0.5 * abs(face)), -108)
-        rest = (side * 22, 44)
+        sh = (side * 54 * (1 - 0.5 * abs(face)), -112)
+        rest = (side * 30, 66)
         off = p[key]
         hand = (sh[0] + rest[0] + off[0], sh[1] + rest[1] + off[1])
-        c = limb(sh, hand, -p['bendL' if side < 0 else 'bendR'] * side, 8)
-        self._ink(g, tube(c, 19, 12, True), self.SKIN)
+        c = limb(sh, hand, -p['bendL' if side < 0 else 'bendR'] * side, 12)
         ang = math.atan2(c[-1][1] - c[-3][1], c[-1][0] - c[-3][0])
         dx, dy = math.cos(ang), math.sin(ang)
-        for k in (-1, 0, 1):                                                                               # three stubby fingers
-            a1 = ang + k * 0.5 * side
-            fb = (hand[0] + math.cos(a1) * 11, hand[1] + math.sin(a1) * 11)
-            ft = (hand[0] + math.cos(a1) * 27, hand[1] + math.sin(a1) * 27)
-            self._ink(g, tube([fb, ft], 8.5, 7.5), self.SKIN, 4)
-        ta = ang - 1.2 * side
-        self._ink(g, tube([(hand[0] + math.cos(ta) * 9, hand[1] + math.sin(ta) * 9), (hand[0] + math.cos(ta + 0.4 * side) * 23, hand[1] + math.sin(ta + 0.4 * side) * 23)], 8, 7), self.SKIN, 4)
-        self._ink(g, oval(hand[0], hand[1], 17, 16, math.degrees(ang)), self.SKIN, 4)                         # palm
+        prof = [16, 18, 19, 20, 21, 21, 21, 21, 22, 22, 23, 24, 24]
+        L, R = [], []
+        for i, q in enumerate(c):
+            a0, a1 = c[max(i - 1, 0)], c[min(i + 1, 12)]
+            d = math.hypot(a1[0] - a0[0], a1[1] - a0[1]) or 1
+            n = (-(a1[1] - a0[1]) / d, (a1[0] - a0[0]) / d)
+            L.append((q[0] + n[0] * prof[i], q[1] + n[1] * prof[i])); R.append((q[0] - n[0] * prof[i], q[1] - n[1] * prof[i]))
+        end = (hand[0] + dx * 13, hand[1] + dy * 13)
+        shape = smooth(L + [(L[-1][0] + dx * 11, L[-1][1] + dy * 11), end, (R[-1][0] + dx * 11, R[-1][1] + dy * 11)] + R[::-1] + [(sh[0] - (c[1][0] - sh[0]), sh[1] - (c[1][1] - sh[1]))], True, 0.5)
+        self._ink(g, shape, self.SKIN)
+        self._nails(g, end[0], end[1], ang, 24)
+        q = c[7]                                           # one soft wrinkle at the wrist
+        self._ink(g, poly(arc_pts(q[0], q[1], 15, 4, math.degrees(ang) + 60, math.degrees(ang) + 120, 4), False), None, 2.5, a=0.6)
         self.anchors['handL' if side < 0 else 'handR'] = g.pt(*hand)
+
+    def _hindlegs(self, g, p):
+        st, amp, face = p['step'], p['stride'], p['face']
+        for i, hx0 in enumerate((-34, 34)):
+            ph = 2 * math.pi * (st + i * 0.5)
+            key = 'footL' if i == 0 else 'footR'
+            dx = amp * math.cos(ph) + p[key][0]
+            lift = max(0.0, math.sin(ph)) * amp * 0.5 - p[key][1]
+            side = -1 if i == 0 else 1
+            hx = hx0 * (1 - 0.35 * abs(face))
+            fx, fy = hx + dx + face * 5, -lift
+            fo = face * 8
+            k = (fx - hx) * 0.5
+            leg = smooth([(hx - 27, -74), (hx + 27, -74), (hx + 27 + k, -40), (fx + 27, fy - 22),
+                          (fx + 31 + fo, fy - 8), (fx + 27 + fo, fy), (fx - 27 + fo, fy), (fx - 31 + fo, fy - 8),
+                          (fx - 27, fy - 22), (hx - 27 + k, -40)], True, 0.5)
+            self._ink(g, leg, self.SKIN)
+            self._nails(g, fx + fo + face * 8, fy + 1, math.pi / 2, 30)
+            self._ink(g, poly(arc_pts(fx - k * 0.4, fy - 34, 17, 4, 20, 160, 6), False), None, 2.5, a=0.6)
 
     def _ear(self, g, p, s):
         flap = p['ear']
@@ -423,14 +459,24 @@ class Gajju(Character):
             tl = bez((tdir * 52, -64), (tdir * 84, -70), (tdir * 92, -40), (tdir * 104, -30), 8)
             self._ink(g, tube(tl, 5, 4), self.SKIN_D)
             self._ink(g, oval(tdir * 106, -26, 8, 10), self.INK)
-        self._legs(g, p, [(-30, -52), (30, -52)], -15, 31, 17, 23, self.SKIN, toes=self.NAIL)
+        if p['wheel'] > 0.5:
+            self._legs(g, p, [(-30, -52), (30, -52)], -15, 31, 17, 23, self.SKIN, toes=self.NAIL)
+        else:
+            self._hindlegs(g, p)
         g.push(0, bob)
-        far, near = ('armR', 'armL') if face > 0.35 else ('armL', 'armR') if face < -0.35 else (None, None)
-        if far:
-            self._arm(g, p, 1 if far == 'armR' else -1, far)
-        self._ink(g, oval(0, -80, 68, 64), self.SKIN)
-        if not far:
-            self._arm(g, p, -1, 'armL'); self._arm(g, p, 1, 'armR')
+        def in_front(key, side):
+            if abs(face) > 0.35:
+                return (side > 0) != (face > 0)
+            off = p[key]
+            return math.hypot(off[0], off[1]) > 34
+        order = [('armL', -1), ('armR', 1)]
+        for key, side in order:                            # front legs hang from behind the body
+            if not in_front(key, side):
+                self._arm(g, p, side, key)
+        self._ink(g, smooth([(0, -146), (46, -138), (70, -98), (72, -62), (48, -28), (0, -20), (-48, -28), (-72, -62), (-70, -98), (-46, -138)], True, 0.5), self.SKIN)
+        for key, side in order:
+            if in_front(key, side):
+                self._arm(g, p, side, key)
         # ---- head
         g.push(p['head_dx'] + face * 10, -164 + p['head_dy'], p['head_rot'], p['head_sx'], p['head_sy'], 0, 60)
         a = p['yaw'] * 0.62
@@ -470,26 +516,28 @@ class Gajju(Character):
             t = math.radians(p['brow_ang']) * s
             d = (math.cos(t) * 15 * ws, -math.sin(t) * 15)
             self._ink(g, poly([(x - d[0], -36 + py - lift - d[1]), (x + d[0], -36 + py - lift + d[1])], False), None, 6)
-        # trunk
+        # trunk: thick where it grows out of the face, tapering, with soft wrinkles across the front
         tx, ty = p['trunk']
-        root = (tx0, 14 + py)
+        root = (tx0, 6 + py)
         tip = (root[0] + tx, root[1] + ty)
         L = math.hypot(tx, ty) or 1
         nx, ny = -ty / L, tx / L
         b = p['trunk_bend']
-        c1 = (root[0] + tx * 0.15 + nx * b * L, root[1] + ty * 0.55 + ny * b * L + 14)
+        c1 = (root[0] + tx * 0.05 + nx * b * L, root[1] + ty * 0.5 + ny * b * L + 18)
         cu = p['trunk_curl']
-        c2 = (tip[0] - tx * 0.25 + nx * cu * 26 * (1 if tx >= 0 else -1), tip[1] + cu * 30)
+        sgn = 1 if tx >= 0 else -1
+        c2 = (tip[0] - tx * 0.2 - sgn * cu * 30, tip[1] + cu * 34)
         cl = bez(root, c1, c2, tip, 22)
-        R0, R1 = 25, 12
+        R0, R1 = 31, 12
         self._ink(g, tube(cl, R0, R1, True, tip=False), self.SKIN)
-        for i in range(3, 21, 2):   # rings all the way down, like a real trunk
+        self._ink(g, oval(root[0], root[1] - 4, 30, 22), self.SKIN, 0, False)       # the trunk grows out of the face: no seam
+        for i in range(4, 21, 2):
             q, q2 = cl[i], cl[i + 1]
             d = math.hypot(q2[0] - q[0], q2[1] - q[1]) or 1
             n = (-(q2[1] - q[1]) / d, (q2[0] - q[0]) / d)
             r = R0 + (R1 - R0) * i / 22
-            mid = (q[0] + (q2[0] - q[0]) * 0.35, q[1] + (q2[1] - q[1]) * 0.35)
-            self._ink(g, smooth([(q[0] + n[0] * r * 0.92, q[1] + n[1] * r * 0.92), mid, (q[0] - n[0] * r * 0.92, q[1] - n[1] * r * 0.92)], False, 0.9), None, 2.5, a=0.42)
+            mid = (q[0] + (q2[0] - q[0]) * 0.4, q[1] + (q2[1] - q[1]) * 0.4)
+            self._ink(g, smooth([(q[0] + n[0] * r * 0.6, q[1] + n[1] * r * 0.6), mid, (q[0] - n[0] * r * 0.6, q[1] - n[1] * r * 0.6)], False, 0.9), None, 2.2, a=0.5)
         # flared tip with the opening, two nostrils and the little gripping finger
         q, q2 = cl[-2], cl[-1]
         d = math.hypot(q2[0] - q[0], q2[1] - q[1]) or 1
@@ -506,8 +554,6 @@ class Gajju(Character):
         self.anchors['head'] = g.pt(0, 0)
         self.anchors['top'] = g.pt(0, -100)
         g.pop()
-        if far:
-            self._arm(g, p, 1 if near == 'armR' else -1, near)
         self.anchors['belly'] = g.pt(0, -80)
         g.pop()
         self.end(g)
