@@ -216,9 +216,13 @@ class G:
         if fill is not None:
             self.c.drawPath(p, skia.Paint(AntiAlias=True, Color=self._col(fill, a)))
         if ink:
-            self.c.drawPath(p, skia.Paint(AntiAlias=True, Color=self._col(ink_col or self.INK, a),
-                                          Style=skia.Paint.kStroke_Style, StrokeWidth=w or self.ink_w,
-                                          StrokeCap=skia.Paint.kRound_Cap, StrokeJoin=skia.Paint.kRound_Join))
+            pt = skia.Paint(AntiAlias=True, Color=self._col(ink_col or self.INK, a),
+                            Style=skia.Paint.kStroke_Style, StrokeWidth=w or self.ink_w,
+                            StrokeCap=skia.Paint.kRound_Cap, StrokeJoin=skia.Paint.kRound_Join)
+            boil = getattr(self, 'boil', None)
+            if boil is not None:                     # hand-drawn line: it never sits perfectly still
+                pt.setPathEffect(skia.DiscretePathEffect.Make(14.0, 1.25, int(boil)))
+            self.c.drawPath(p, pt)
 
     def line(self, pts, col=None, w=None, a=1.0, closed=False):
         self.shape(poly(pts, closed), None, True, w, col, a)
@@ -410,7 +414,9 @@ class Stage:
                 h = max(0.0, (p.get('ground', GROUND) - p['y']))
                 k = max(0.25, 1 - h / 600)
                 g.soft(oval(p['x'], p.get('ground', GROUND) + 6, a.shadow * k * abs(p['sx']) ** 0.5, 16 * k), (40, 30, 50), 9, 0.32 * k)
+            g.boil = ((f // 3) * 13 + id(a) % 97) if (getattr(self, 'boil', False) and hasattr(a, 'POSE')) else None
             a.draw(g, p, f)
+            g.boil = None
         g.alpha = 1.0
         for e in self.fx:
             e(g, f)

@@ -383,7 +383,7 @@ class Gaju(Character):
     PINK = (255, 170, 186)
     CAP = (255, 201, 60)
     NAIL = (255, 244, 222)
-    POSE = dict(Character.POSE, ear=0.0, trunk=(30.0, 92.0), trunk_bend=0.0, trunk_curl=0.7, cap_dy=0.0,
+    POSE = dict(Character.POSE, gulp=-1.0, ear=0.0, trunk=(30.0, 92.0), trunk_bend=0.0, trunk_curl=0.7, cap_dy=0.0,
                 bendL=0.12, bendR=0.12)
 
     def _nails(self, g, cx, cy, ang, half, n=3):
@@ -529,7 +529,14 @@ class Gaju(Character):
         c2 = (tip[0] - tx * 0.2 - sgn * cu * 30, tip[1] + cu * 34)
         cl = bez(root, c1, c2, tip, 22)
         R0, R1 = 31, 12
+        gp = p['gulp']                                                             # a swallow travelling up the trunk: 0 at the tip, 1 at the face
+        if 0.0 <= gp <= 1.0:
+            gi = cl[min(21, max(1, int(round((1 - gp) * 21))))]
+            gr = (R1 + (R0 - R1) * gp) * 1.55
+            self._ink(g, oval(gi[0], gi[1], gr, gr), self.SKIN)
         self._ink(g, tube(cl, R0, R1, True, tip=False), self.SKIN)
+        if 0.0 <= gp <= 1.0:
+            self._ink(g, oval(gi[0], gi[1], gr - 3, gr - 3), self.SKIN, 0, False)
         self._ink(g, oval(root[0], root[1] - 4, 30, 22), self.SKIN, 0, False)       # the trunk grows out of the face: no seam
         for i in range(4, 21, 2):
             q, q2 = cl[i], cl[i + 1]

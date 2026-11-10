@@ -385,7 +385,7 @@ class Laddu(_Animal):
     CREAM = (255, 236, 200)
     PINK = (250, 150, 150)
     IRIS = (196, 220, 96)
-    POSE = dict(Character.POSE, lid=0.32, smile=0.6, tail=0.0, bendL=0.0, bendR=0.0)
+    POSE = dict(Character.POSE, lid=0.32, smile=0.6, tail=0.0, bendL=0.0, bendR=0.0, tongue=0.0, ear_back=0.0)
 
     def _tail(self, g, tl):
         self._ink(g, tube(tl, 15, 9, True), self.FUR)
@@ -431,7 +431,8 @@ class Laddu(_Animal):
         R = 84
         for s in (-1, 1):
             ex = s * 52 - yw * 14
-            pts = [(ex - s * 26, -44), (ex - s * 4, -84), (ex + s * 18, -114), (ex + s * 32, -74), (ex + s * 36, -30), (ex, -30)]
+            eb = p['ear_back']                                  # ears flatten sideways when he is annoyed
+            pts = [(ex - s * 26, -44), (ex - s * 4 + s * eb * 20, -84 + eb * 22), (ex + s * 18 + s * eb * 44, -114 + eb * 52), (ex + s * 32 + s * eb * 22, -74 + eb * 26), (ex + s * 36, -30), (ex, -30)]
             self._ink(g, smooth(pts, True, 0.4), self.FUR)
             cx_, cy_ = ex + s * 8, -62
             self._ink(g, smooth([(cx_ + (x - cx_) * 0.56, cy_ + (y - cy_) * 0.62) for x, y in pts[:5]], True, 0.4), self.PINK, 0, False)
@@ -455,6 +456,9 @@ class Laddu(_Animal):
         for s in (-1, 1):                                    # whisker pads and chin
             self._ink(g, oval(mx + s * 17 * mw, 38 + py, 22 * mw, 16), self.CREAM, 0, False)
         self._ink(g, oval(mx, 52 + py, 15 * mw, 10), self.CREAM, 0, False)
+        if p['tongue'] > 0.02:                                  # lapping tongue: out, curl, back
+            tl_ = 44 * p['tongue']
+            self._ink(g, tube([(mx, 40 + py), (mx + 1, 40 + py + tl_ * 0.6), (mx - 3 * p['tongue'], 40 + py + tl_)], 8.5, 7), (244, 120, 140), 3)
         if p['mouth_open'] < 0.06:
             sm = p['smile'] * 5
             self._ink(g, poly([(mx, 30 + py), (mx, 38 + py)], False), None, 3)

@@ -124,6 +124,11 @@ def milkpot(g, p, f):
     g.shape(oval(0, -110, 72, 18), (176, 184, 196))
     if lv > 0.03:
         g.shape(oval(0, -110 + (1 - lv) * 8, 62 * (0.6 + 0.4 * lv), 13 * (0.5 + 0.5 * lv)), (255, 255, 250), True, 3)
+    rp = p.get('ripple', 0.0)
+    if rp > 0.02 and lv > 0.05:                             # rings spreading from where a tongue or trunk touched
+        rx_ = p.get('ripple_x', 0.0)
+        for k in (0.35, 0.7, 1.0):
+            g.shape(oval(rx_, -110 + (1 - lv) * 8, 46 * k * rp * (0.6 + 0.4 * lv), 9 * k * rp), None, True, 2.5, (176, 184, 196), a=1 - k * 0.6)
     g.shape(oval(-40, -60, 9, 30), (246, 248, 252), False, a=0.8)
     return {'top': (0, -112)}
 
