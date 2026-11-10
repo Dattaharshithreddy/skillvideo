@@ -1,0 +1,399 @@
+"""chars.py - Momo (panda) and Gullu (baby elephant) as fully parametric 2D characters.
+
+Each character is redrawn every frame from its pose parameters, so it can squash, stretch,
+smear, turn its head, blink and act. Local coordinates: (0,0) is the point between the feet,
+up is negative y.
+"""
+import math
+import skia
+from toon import Actor, oval, poly, smooth, tube, limb, bez, arc_pts, GROUND
+
+
+def _mirror(p):
+    return (-p[0], p[1])
+
+
+class Character(Actor):
+    POSE = dict(
+        face=0.0,                # body turn: -1 = facing screen-left, 0 = front, 1 = screen-right
+        yaw=0.0, pitch=0.0,      # head turn / nod, -1..1 (features slide around the head)
+        head_dx=0.0, head_dy=0.0, head_rot=0.0, head_sx=1.0, head_sy=1.0,
+        eye_open=1.0, eye_pop=1.0, pupil=(0.0, 0.0), pupil_s=1.0, happy=0.0,
+        lid=0.0,                 # upper lid drop 0..1 (sleepy, suspicious)
+        brow=0.0, brow_ang=0.0,  # brow lift (px up) and tilt in degrees: + angry, - sad
+        brow_asym=0.0,           # raises one brow only (cheeky), -1..1
+        mouth_w=1.0, mouth_open=0.0, smile=0.3, cheeks=0.0,
+        armL=(0.0, 0.0), armR=(0.0, 0.0), bendL=0.12, bendR=0.12,  # hand offsets from the rest position
+        handL='mitt', handR='mitt',
+        step=0.0, stride=0.0, wheel=0.0,   # walk cycle phase (cycles), stride px, run-blur amount
+        footL=(0.0, 0.0), footR=(0.0, 0.0),
+        ground=GROUND, sweat=0.0,
+    )
+    INK = (45, 40, 48)
+    smear_from = 46.0  # px per frame where smearing starts
+
+    # ---- shared helpers
+    def begin(self, g, p):
+        g.ink_col = self.INK
+        vx, vy = p['_fx'], p['_fy']
+        sp = math.hypot(vx, vy)
+        self._smear = 0.0
+        if self.smear and sp > self.smear_from:
+            k = min(1.0 + (sp - self.smear_from) / 90.0, 2.3)
+            self._smear = k
+            ang = math.degrees(math.atan2(vy, vx))
+            cx, cy = p['x'] + vx * 0.15, p['y'] - self.HEIGHT * 0.5 * p['sy'] + vy * 0.15
+            m = skia.Matrix()
+            m.setRotate(ang, cx, cy)
+            m.preScale(k, 1 / math.sqrt(k), cx, cy)
+            m.preRotate(-ang, cx, cy)
+            g.push_m(m)
+            self._speedlines(g, p, vx, vy, sp)
+        else:
+            g.push()
+        g.push(p['x'], p['y'], p['rot'], p['sx'], p['sy'])
+
+    def end(self, g):
+        g.pop(); g.pop()
+
+    def _speedlines(self, g, p, vx, vy, sp):
+        cx, cy = p['x'], p['y'] - self.HEIGHT * 0.5
+        d = (-vx / sp, -vy / sp)
+        for i, off in enumerate((-0.38, -0.16, 0.08, 0.3)):
+            ox, oy = -d[1] * off * self.HEIGHT, d[0] * off * self.HEIGHT
+            a = (cx + ox + d[0] * self.HEIGHT * 0.25, cy + oy + d[1] * self.HEIGHT * 0.25)
+            b = (a[0] + d[0] * (120 + 60 * (i % 2)), a[1] + d[1] * (120 + 60 * (i % 2)))
+            g.shape(poly([a, b], False), None, True, 5, self.STREAK, 0.75)
+
+    def _yaw(self, x0, R, a):
+        """Slide a face feature around a round head. Returns (x, width_scale)."""
+        t0 = math.asin(max(-0.98, min(0.98, x0 / R)))
+        t = t0 + a
+        return R * math.sin(t), max(0.12, math.cos(t)) / max(0.3, math.cos(t0))
+
+    def _ink(self, g, path, fill, w=None, ink=True, col=None, a=1.0):
+        g.shape(path, fill, ink, w, col or self.INK, a)
+
+    def _eye(self, g, cx, cy, r, ws, p, lid_col, white=(255, 255, 255), pupil_col=(40, 34, 40), side=1, closed_col=None):
+        e = p['eye_open']; pop = p['eye_pop']
+        r = r * pop
+        rx, ry = r * ws, r * min(e, 1.35)
+        if e <= 0.1:
+            # closed eye: ^ when happy, gentle downward curve otherwise
+            k = 1 if p['happy'] > 0.5 else -0.55
+            pts = [(cx - rx, cy + 3 * k), (cx, cy - 9 * k), (cx + rx, cy + 3 * k)]
+            self._ink(g, smooth(pts, False), None, 6, col=closed_col)
+            return
+        eye = oval(cx, cy, rx, ry)
+        self._ink(g, eye, white, 4)
+        px, py = p['pupil']
+        pr = r * 0.5 * p['pupil_s']
+        ex, ey = cx + px * (rx - pr * ws) * 0.9, cy + py * (ry - min(pr, ry * 0.9)) * 0.9
+        pup = oval(ex, ey, pr * ws, min(pr, ry * 0.92))
+        self._ink(g, pup, pupil_col, 0, False)
+        self._ink(g, oval(ex - pr * 0.3 * ws, ey - pr * 0.35, pr * 0.3 * ws, pr * 0.3), (255, 255, 255), 0, False)
+        lid = p['lid']; ang = p['brow_ang']
+        if lid > 0.02 or abs(ang) > 6:
+            # upper lid: skin-coloured cover above a tilted line, clipped to the eye
+            drop = -ry + 2 * ry * max(lid, 0.18 if abs(ang) > 6 else 0)
+            t = math.radians(ang * 0.8) * side
+            dx, dy = math.cos(t), math.sin(t)
+            a = (cx - dx * 3 * rx, cy + drop - dy * 3 * rx)
+            b = (cx + dx * 3 * rx, cy + drop + dy * 3 * rx)
+            cover = poly([a, b, (b[0], b[1] - 4 * ry), (a[0], a[1] - 4 * ry)])
+            cut = skia.Op(cover, eye, skia.kIntersect_PathOp)
+            if cut is not None:
+                self._ink(g, cut, lid_col, 4)
+
+    def _mouth(self, g, cx, cy, ws, p, w0=22):
+        w = w0 * p['mouth_w'] * ws
+        o = p['mouth_open']; s = p['smile']
+        if o < 0.06:
+            pts = [(cx - w, cy - s * 9), (cx, cy + s * 9), (cx + w, cy - s * 9)]
+            self._ink(g, smooth(pts, False, 0.9), None, 5)
+            return
+        h = 8 + 44 * o
+        top = [(cx - w, cy - s * 7), (cx, cy + 2 - s * 2), (cx + w, cy - s * 7)]
+        bot = [(cx + w * 0.82, cy + h * 0.62), (cx, cy + h), (cx - w * 0.82, cy + h * 0.62)]
+        m = smooth(top + bot, True, 0.7)
+        self._ink(g, m, (96, 28, 44), 5)
+        tongue = skia.Op(oval(cx, cy + h * 0.98, w * 0.7, h * 0.42), m, skia.kIntersect_PathOp)
+        if tongue is not None:
+            self._ink(g, tongue, (240, 120, 130), 0, False)
+        self._ink(g, m, None, 5)
+
+    def _legs(self, g, p, hips, feet_y, foot_rx, foot_ry, leg_r, fill, toes=None):
+        """Draws both legs with the walk cycle. Returns nothing; feet stay near the ground."""
+        st, amp, wh = p['step'], p['stride'], p['wheel']
+        face = p['face']
+        if wh > 0.5:   # run blur: a wheel of feet
+            R = foot_rx * 1.7
+            cy = feet_y - R * 0.62
+            self._ink(g, oval(0, cy, R * 1.3, R), fill, 0, False, a=0.22)
+            for i in range(3):
+                a0 = 360 * (st + i / 3)
+                self._ink(g, poly(arc_pts(0, cy, R * 1.45, R * 1.12, a0, a0 + 80), False), None, 5, col=self.STREAK, a=0.85)
+                self._ink(g, poly(arc_pts(0, cy, R * 0.95, R * 0.72, a0 + 40, a0 + 110), False), None, 4, col=self.INK, a=0.5)
+            for i in range(4):
+                a = 2 * math.pi * (st + i / 4)
+                fx, fy = math.cos(a) * R * 1.12, cy + math.sin(a) * R * 0.86
+                self._ink(g, oval(fx, fy, foot_rx * 0.86, foot_ry * 0.86, math.degrees(a) + 90), fill, 4, a=1.0 if i % 2 == 0 else 0.6)
+            return
+        for i, hip in enumerate(hips):
+            ph = 2 * math.pi * (st + i * 0.5)
+            dx = amp * math.cos(ph) + p['footL' if i == 0 else 'footR'][0]
+            lift = max(0.0, math.sin(ph)) * amp * 0.5 - p['footL' if i == 0 else 'footR'][1]
+            fx = hip[0] * (1 - 0.35 * abs(face)) + dx + face * 8
+            fy = feet_y - lift
+            c = limb((hip[0] * (1 - 0.35 * abs(face)), hip[1]), (fx, fy - foot_ry * 0.4), 0.0, 6)
+            self._ink(g, tube(c, leg_r, leg_r * 0.92, False), fill)
+            foot = oval(fx + face * foot_rx * 0.25, fy, foot_rx, foot_ry, -lift * 0.25 * (face or 1))
+            self._ink(g, foot, fill)
+            if toes:
+                for k in (-1, 0, 1):
+                    tx = fx + face * foot_rx * 0.55 + k * foot_rx * 0.42 * (1 - 0.4 * abs(face))
+                    self._ink(g, oval(tx, fy + foot_ry * 0.42, foot_rx * 0.2, foot_ry * 0.36), toes, 3)
+
+
+# =====================================================================  MOMO
+class Momo(Character):
+    HEIGHT = 500
+    shadow = 150
+    INK = (38, 34, 42)
+    STREAK = (250, 248, 240)
+    WHITE = (250, 247, 240)
+    BLACK = (58, 54, 64)
+    GOLD = (236, 184, 40)
+    SCARF = (255, 138, 76)
+    POSE = dict(Character.POSE, glasses_dy=0.0, glasses_rot=0.0, scarf_fly=0.0)
+
+    def _hand(self, g, c, ang, kind):
+        r = 31
+        dx, dy = math.cos(ang), math.sin(ang)
+        if kind == 'fist':
+            self._ink(g, oval(c[0], c[1], r, r * 0.92), self.BLACK)
+            return
+        spread = {'mitt': 0.36, 'open': 0.62, 'point': 0.0}.get(kind, 0.36)
+        fl = {'mitt': 8, 'open': 24, 'point': 0}.get(kind, 8)
+        for k in (-1, 0, 1):
+            a = ang + k * spread
+            tip = (c[0] + math.cos(a) * (r + fl * 0.5 - 4), c[1] + math.sin(a) * (r + fl * 0.5 - 4))
+            self._ink(g, oval(tip[0], tip[1], 11, 11 + fl * 0.5, math.degrees(a) + 90), self.BLACK)
+        if kind == 'point':
+            tip = (c[0] + dx * (r + 22), c[1] + dy * (r + 22))
+            self._ink(g, tube([c, tip], 12, 10), self.BLACK)
+        ta = ang - 1.25
+        self._ink(g, oval(c[0] + math.cos(ta) * r * 0.82, c[1] + math.sin(ta) * r * 0.82, 10, 14, math.degrees(ta) + 90), self.BLACK)
+        self._ink(g, oval(c[0], c[1], r, r * 0.95), self.BLACK)
+        if kind == 'open':
+            self._ink(g, oval(c[0] + dx * 4, c[1] + dy * 4, 13, 12), (92, 86, 98), 0, False)   # palm pad
+
+    def _arm(self, g, p, side, key):
+        face = p['face']
+        sh = (side * 104 * (1 - 0.5 * abs(face)), -238)
+        rest = (side * 30, 122)
+        off = p[key]
+        hand = (sh[0] + rest[0] + off[0], sh[1] + rest[1] + off[1])
+        bend = -p['bendL' if side < 0 else 'bendR'] * side
+        c = limb(sh, hand, bend, 10)
+        self._ink(g, tube(c, 30, 25, True), self.BLACK)
+        ang = math.atan2(c[-1][1] - c[-3][1], c[-1][0] - c[-3][0])
+        self._hand(g, hand, ang, p['handL' if side < 0 else 'handR'])
+        self.anchors['handL' if side < 0 else 'handR'] = g.pt(hand[0] + math.cos(ang) * 30, hand[1] + math.sin(ang) * 30)
+
+    def draw(self, g, p, f):
+        self.begin(g, p)
+        face = p['face']
+        bob = -abs(math.sin(2 * math.pi * p['step'])) * p['stride'] * 0.10
+        # legs
+        self._legs(g, p, [(-56, -78), (56, -78)], -22, 52, 25, 31, self.BLACK)
+        g.push(0, bob)
+        far, near = ('armR', 'armL') if face > 0.35 else ('armL', 'armR') if face < -0.35 else (None, None)
+        if far:
+            self._arm(g, p, 1 if far == 'armR' else -1, far)
+        # tail nub when turned
+        if abs(face) > 0.35:
+            self._ink(g, oval(-face * 140, -92, 24, 22), self.WHITE)
+        # body
+        body = smooth([(0, -300), (84, -272), (140, -180), (150, -118), (112, -58), (0, -40),
+                       (-112, -58), (-150, -118), (-140, -180), (-84, -272)], True, 0.5)
+        self._ink(g, body, self.WHITE)
+        # scarf
+        kx = face * 46 + p['yaw'] * 20
+        fly = p['scarf_fly'] - p['_vx'] * 0.035
+        tail = bez((kx, -262), (kx + 6 - fly * 40, -230), (kx + 4 - fly * 95, -205 - abs(fly) * 30), (kx + 10 - fly * 130, -176 - abs(fly) * 62))
+        self._ink(g, tube(tail, 15, 21, True), self.SCARF)
+        self._ink(g, smooth([(-104, -286), (0, -262), (104, -286), (112, -262), (60, -238), (0, -232), (-60, -238), (-112, -262)], True, 0.5), self.SCARF)
+        self._ink(g, oval(kx, -256, 21, 19), self.SCARF)
+        if not far:
+            self._arm(g, p, -1, 'armL'); self._arm(g, p, 1, 'armR')
+        # ---- head
+        g.push(p['head_dx'] + face * 14, -372 + p['head_dy'], p['head_rot'], p['head_sx'], p['head_sy'], 0, 96)
+        a = p['yaw'] * 0.6
+        R = 120
+        for s in (-1, 1):
+            self._ink(g, oval(s * 86 - p['yaw'] * 26, -84 + p['pitch'] * 8, 39, 38), self.BLACK)
+        self._ink(g, smooth([(0, -106), (82, -84), (122, -8), (104, 62), (52, 96), (0, 102), (-52, 96), (-104, 62), (-122, -8), (-82, -84)], True, 0.5), self.WHITE)
+        py = p['pitch'] * 16
+        eyes = []
+        for s in (-1, 1):
+            x, ws = self._yaw(s * 50, R, a)
+            self._ink(g, oval(x + s * 3 * ws, 0 + py, 43 * ws, 54, -s * 18), self.BLACK, 0, False)
+            eyes.append((x - s * 3 * ws, -6 + py, ws, s))
+        # muzzle, nose, mouth
+        mx, mw = self._yaw(0, R * 0.95, a)
+        self._ink(g, oval(mx, 46 + py, 46 * max(mw, 0.7), 32), (255, 255, 252), 3, True, (214, 206, 196))
+        self._ink(g, smooth([(mx - 15, 26 + py), (mx + 15, 26 + py), (mx, 42 + py)], True, 0.9), (34, 30, 38))
+        self._mouth(g, mx, 58 + py, max(mw, 0.7), p)
+        self.anchors['mouth'] = g.pt(mx, 66 + py)
+        for x, y, ws, s in eyes:
+            self._eye(g, x, y, 24, ws, p, self.BLACK, side=s, closed_col=(240, 236, 228))
+        # brows
+        for x, y, ws, s in eyes:
+            lift = p['brow'] + (p['brow_asym'] * 14 if s > 0 else -p['brow_asym'] * 6)
+            t = math.radians(p['brow_ang']) * s
+            bx, by = x, -74 + py - lift
+            d = (math.cos(t) * 18 * ws, -math.sin(t) * 18)
+            self._ink(g, smooth([(bx - d[0], by - d[1]), (bx, by - 4), (bx + d[0], by + d[1])], False), None, 9, col=self.BLACK)
+        # glasses
+        gy = p['glasses_dy']
+        g.push(0, gy, p['glasses_rot'])
+        rims = []
+        for x, y, ws, s in eyes:
+            rims.append((x, y + 2, 33 * ws))
+            self._ink(g, oval(x, y + 2, 33 * ws, 33), None, 10, col=self.INK)
+            self._ink(g, oval(x, y + 2, 33 * ws, 33), None, 6, col=self.GOLD)
+        (x0, y0, r0), (x1, y1, r1) = rims
+        self._ink(g, smooth([(x0 + r0, y0 - 6), ((x0 + x1) / 2, y0 - 16), (x1 - r1, y1 - 6)], False), None, 6, col=self.GOLD)
+        self._ink(g, poly([(x0 - r0, y0 - 4), (min(x0 - r0 - 4, -112), y0 - 14)], False), None, 5, col=self.GOLD)
+        self._ink(g, poly([(x1 + r1, y1 - 4), (max(x1 + r1 + 4, 112), y1 - 14)], False), None, 5, col=self.GOLD)
+        g.pop()
+        if p['sweat'] > 0.3:
+            for i in range(3):
+                sx = 104 + i * 22; sy = -70 + i * 26 - (f * 6 % 24)
+                self._ink(g, smooth([(sx, sy - 14), (sx + 8, sy + 4), (sx, sy + 11), (sx - 8, sy + 4)], True), (150, 215, 250), 3)
+        self.anchors['head'] = g.pt(0, 0)
+        self.anchors['top'] = g.pt(0, -112)
+        g.pop()
+        if far:
+            self._arm(g, p, 1 if near == 'armR' else -1, near)
+        self.anchors['belly'] = g.pt(0, -150)
+        g.pop()
+        self.end(g)
+
+
+# =====================================================================  GULLU
+class Gullu(Character):
+    HEIGHT = 250
+    shadow = 80
+    INK = (44, 70, 112)
+    STREAK = (226, 240, 252)
+    SKIN = (150, 198, 236)
+    SKIN_D = (124, 174, 220)
+    PINK = (255, 170, 186)
+    CAP = (255, 201, 60)
+    NAIL = (255, 244, 222)
+    POSE = dict(Character.POSE, ear=0.0, trunk=(46.0, 58.0), trunk_bend=0.0, trunk_curl=0.5, cap_dy=0.0,
+                bendL=0.2, bendR=0.2)
+
+    def _arm(self, g, p, side, key):
+        face = p['face']
+        sh = (side * 58 * (1 - 0.5 * abs(face)), -108)
+        rest = (side * 22, 44)
+        off = p[key]
+        hand = (sh[0] + rest[0] + off[0], sh[1] + rest[1] + off[1])
+        c = limb(sh, hand, -p['bendL' if side < 0 else 'bendR'] * side, 8)
+        self._ink(g, tube(c, 18, 16, True), self.SKIN)
+        self.anchors['handL' if side < 0 else 'handR'] = g.pt(*hand)
+
+    def _ear(self, g, p, s):
+        flap = p['ear']
+        g.push(s * 54 - p['yaw'] * 30, -4, -s * flap * 38, max(0.35, 1 - 0.55 * abs(flap) * (flap < 0)) * (1 - 0.25 * s * p['yaw']), 1)
+        self._ink(g, oval(s * 52, -6, 64, 70), self.SKIN)
+        self._ink(g, oval(s * 46, -4, 43, 49), self.PINK, 0, False)
+        g.pop()
+
+    def draw(self, g, p, f):
+        self.begin(g, p)
+        face = p['face']
+        bob = -abs(math.sin(2 * math.pi * p['step'])) * p['stride'] * 0.12
+        # tail
+        tdir = -1 if face >= 0 else 1
+        if abs(face) > 0.2:
+            tl = bez((tdir * 52, -64), (tdir * 84, -70), (tdir * 92, -40), (tdir * 104, -30), 8)
+            self._ink(g, tube(tl, 5, 4), self.SKIN_D)
+            self._ink(g, oval(tdir * 106, -26, 8, 10), self.INK)
+        self._legs(g, p, [(-30, -52), (30, -52)], -15, 31, 17, 23, self.SKIN, toes=self.NAIL)
+        g.push(0, bob)
+        far, near = ('armR', 'armL') if face > 0.35 else ('armL', 'armR') if face < -0.35 else (None, None)
+        if far:
+            self._arm(g, p, 1 if far == 'armR' else -1, far)
+        self._ink(g, oval(0, -80, 68, 64), self.SKIN)
+        if not far:
+            self._arm(g, p, -1, 'armL'); self._arm(g, p, 1, 'armR')
+        # ---- head
+        g.push(p['head_dx'] + face * 10, -164 + p['head_dy'], p['head_rot'], p['head_sx'], p['head_sy'], 0, 60)
+        a = p['yaw'] * 0.62
+        R = 78
+        self._ear(g, p, -1); self._ear(g, p, 1)
+        ch = p['cheeks']
+        head = smooth([(0, -68), (54, -56), (80, -6), (70 + ch * 16, 36), (36, 62), (0, 66), (-36, 62), (-70 - ch * 16, 36), (-80, -6), (-54, -56)], True, 0.5)
+        self._ink(g, head, self.SKIN)
+        py = p['pitch'] * 10
+        # cap
+        g.push(-p['yaw'] * 6, p['cap_dy'])
+        cap = smooth([(-52, -52), (-44, -84), (0, -102), (44, -84), (52, -52), (0, -60)], True, 0.5)
+        brim = oval(p['yaw'] * 46 + (0 if abs(p['yaw']) > 0.2 else 0), -54, 34 + 22 * abs(p['yaw']), 9)
+        self._ink(g, brim, self.CAP)
+        self._ink(g, cap, self.CAP)
+        self._ink(g, oval(0, -104, 9, 8), self.CAP)
+        g.pop()
+        eyes = []
+        for s in (-1, 1):
+            x, ws = self._yaw(s * 29, R, a)
+            eyes.append((x, -8 + py, ws, s))
+            cx, cw = self._yaw(s * 54, R, a)
+            self._ink(g, oval(cx, 24 + py, 14 * cw * (1 + ch * 0.3), 9), self.PINK, 0, False, a=0.9)
+        tx0, tw = self._yaw(0, R * 0.92, a)
+        # mouth sits under the trunk root
+        self._mouth(g, tx0 - (p['trunk'][0] > 0) * 10 + (p['trunk'][0] < 0) * 10, 40 + py, max(tw, 0.7), p, w0=17)
+        self.anchors['mouth'] = g.pt(tx0, 46 + py)
+        for x, y, ws, s in eyes:
+            self._eye(g, x, y, 18, ws, p, self.SKIN, pupil_col=(70, 46, 40), side=s)
+            if p['eye_open'] > 0.1:   # lashes on the outer side
+                for k in (0, 1, 2):
+                    la = math.radians(-150 + k * 22) if s < 0 else math.radians(-30 - k * 22)
+                    r = 18 * p['eye_pop']
+                    self._ink(g, poly([(x + math.cos(la) * r * ws, y + math.sin(la) * r * min(p['eye_open'], 1.3)),
+                                       (x + math.cos(la) * (r + 9) * ws, y + math.sin(la) * (r + 9))], False), None, 3.5)
+            lift = p['brow'] + (p['brow_asym'] * 12 if s > 0 else -p['brow_asym'] * 5)
+            t = math.radians(p['brow_ang']) * s
+            d = (math.cos(t) * 15 * ws, -math.sin(t) * 15)
+            self._ink(g, poly([(x - d[0], -36 + py - lift - d[1]), (x + d[0], -36 + py - lift + d[1])], False), None, 6)
+        # trunk
+        tx, ty = p['trunk']
+        root = (tx0, 14 + py)
+        tip = (root[0] + tx, root[1] + ty)
+        L = math.hypot(tx, ty) or 1
+        nx, ny = -ty / L, tx / L
+        b = p['trunk_bend']
+        c1 = (root[0] + tx * 0.15 + nx * b * L, root[1] + ty * 0.55 + ny * b * L + 14)
+        cu = p['trunk_curl']
+        c2 = (tip[0] - tx * 0.25 + nx * cu * 26 * (1 if tx >= 0 else -1), tip[1] + cu * 30)
+        cl = bez(root, c1, c2, tip, 14)
+        self._ink(g, tube(cl, 21, 11, True), self.SKIN)
+        for i in (4, 7, 10):   # trunk creases
+            q, q2 = cl[i], cl[i + 1]
+            d = math.hypot(q2[0] - q[0], q2[1] - q[1]) or 1
+            n = (-(q2[1] - q[1]) / d, (q2[0] - q[0]) / d)
+            r = 21 - 10 * i / 14
+            self._ink(g, poly([(q[0] + n[0] * r * 0.9, q[1] + n[1] * r * 0.9), (q[0] + n[0] * r * 0.25, q[1] + n[1] * r * 0.25)], False), None, 3)
+        self.anchors['trunk'] = g.pt(*tip)
+        self.anchors['head'] = g.pt(0, 0)
+        self.anchors['top'] = g.pt(0, -100)
+        g.pop()
+        if far:
+            self._arm(g, p, 1 if near == 'armR' else -1, near)
+        self.anchors['belly'] = g.pt(0, -80)
+        g.pop()
+        self.end(g)
