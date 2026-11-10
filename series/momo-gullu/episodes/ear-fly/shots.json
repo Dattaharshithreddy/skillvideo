@@ -1,0 +1,13 @@
+{
+  "title": "Momo & Gullu: Ear Fly",
+  "engine": "blender",
+  "silent": true,
+  "fps": 24,
+  "shots": [
+    {"id": "s01", "seconds": 2.5, "scene": "scenes/s01.py"},
+    {"id": "s02", "seconds": 2.0, "scene": "scenes/s02.py"},
+    {"id": "s03", "seconds": 2.5, "scene": "scenes/s03.py"},
+    {"id": "s04", "seconds": 2.5, "scene": "scenes/s04.py"},
+    {"id": "s05", "seconds": 2.5, "scene": "scenes/s05.py"}
+  ]
+}

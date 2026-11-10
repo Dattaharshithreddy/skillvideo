@@ -57,11 +57,12 @@ def mat_metal(name, hexcode, rough=0.28):
 
 
 def add_fuzz(obj, length=0.012, count=10000, radius=0.0007):
-    """Visible short fur: a hair particle system using the object's own material."""
+    """Visible short fur: a hair particle system using the object's own material.
+    CZ_FUR env var scales strand counts globally (render-budget knob)."""
     obj.modifiers.new("fuzz", "PARTICLE_SYSTEM")
     ps = obj.particle_systems[-1].settings
     ps.type = "HAIR"
-    ps.count = count
+    ps.count = max(200, int(count * float(os.environ.get("CZ_FUR", "1"))))
     ps.hair_length = length
     ps.use_advanced_hair = True
     ps.brownian_factor = 0.0

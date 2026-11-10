@@ -82,16 +82,20 @@ def build(loc=(0, 0, 0)):
     cl.add_fuzz(chest, length=0.014, count=10000)
     cl.add_fuzz(head, length=0.012, count=12000)
     cl.add_fuzz(muzzle, length=0.007, count=2500)
-    # glasses: two closed round gold rims centred on the eyes, bridge, temples back to the ears
-    reg("head",
-        cl.capsule((-0.058, -0.300, 1.383), (0.058, -0.300, 1.383), 0.0055, gold))
+    # glasses: two closed round gold rims centred on the eyes, bridge, temples back to the ears;
+    # grouped under one empty so episodes can animate them slipping down the nose
+    glasses = [cl.capsule((-0.058, -0.300, 1.383), (0.058, -0.300, 1.383), 0.0055, gold)]
     for s in (1, -1):
-        reg("head",
+        glasses += [
             cl.torus(0.052, 0.0060, (0.108 * s, -0.302, 1.383), gold, rot=(math.pi / 2, 0, 0)),
             cl.tube([(0.161 * s, -0.296, 1.383), (0.212 * s, -0.190, 1.383),
                      (0.246 * s, -0.095, 1.383), (0.268 * s, -0.010, 1.383),
                      (0.266 * s, 0.030, 1.381), (0.258 * s, 0.044, 1.360),
-                     (0.262 * s, 0.048, 1.338)], [0.0060] * 7, gold, name="temple"))
+                     (0.262 * s, 0.048, 1.338)], [0.0060] * 7, gold, name="temple")]
+    gl_root = cz.empty((0, -0.30, 1.383))
+    gl_root.name = "momo_glasses"
+    for o in glasses:
+        cz.parent(o, gl_root)
     # scarf (the only outfit)
     reg("chest",
         cl.torus(0.21, 0.065, (0, 0, 1.13), scarf, scale=(1, 0.95, 0.6)),
@@ -162,13 +166,13 @@ def build(loc=(0, 0, 0)):
     arm = cl.build_armature("momo_rig", bones)
     for bone, objs in P.items():
         cl.bone_parent(arm, bone, *objs)
-    cl.bone_parent(arm, "head", face)
+    cl.bone_parent(arm, "head", face, gl_root)
 
     root = cz.empty((0, 0, 0))
     root.name = "momo_root"
     cz.parent(arm, root)
     root.location = loc
-    return {"root": root, "arm": arm, "face": face, "H": H}
+    return {"root": root, "arm": arm, "face": face, "glasses": gl_root, "H": H}
 
 
 HAND_POSES = {   # (prox, dist) rotations on top of the relaxed-curl rest pose
