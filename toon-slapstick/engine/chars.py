@@ -164,66 +164,62 @@ class Character(Actor):
                     self._ink(g, smooth([(tx - foot_rx * 0.2, fy + foot_ry * 0.7), (tx - foot_rx * 0.17, fy + foot_ry * 0.1), (tx, fy - foot_ry * 0.12), (tx + foot_rx * 0.17, fy + foot_ry * 0.1), (tx + foot_rx * 0.2, fy + foot_ry * 0.7)], True, 0.7), toes, 3)
                 kx, ky = c[4]
                 self._ink(g, poly(arc_pts(kx, ky, leg_r * 0.6, 5, 20, 160, 6), False), None, 2.5, a=0.7)      # knee wrinkle
-            else:         # paw: toe lines on the front of the foot
-                for k in (-0.38, 0.0, 0.38):
-                    tx = cx0 + face * foot_rx * 0.35 + k * foot_rx * (1 - 0.3 * abs(face))
-                    self._ink(g, poly([(tx, fy - foot_ry * 0.1), (tx + k * 4, fy + foot_ry * 0.62)], False), None, 3, col=(104, 98, 112))
+            else:         # paw: three round toes along the front of the foot
+                for k in (-0.5, 0.0, 0.5):
+                    tx = cx0 + face * foot_rx * 0.45 + k * foot_rx * 1.05 * (1 - 0.35 * abs(face))
+                    self._ink(g, oval(tx, fy + foot_ry * 0.42, foot_rx * 0.25, foot_ry * 0.5), fill, 3.5)
 
 
 # =====================================================================  PANDU
 class Pandu(Character):
     HEIGHT = 500
     shadow = 150
-    INK = (38, 34, 42)
+    INK = (30, 26, 38)
     STREAK = (250, 248, 240)
     WHITE = (250, 247, 240)
-    BLACK = (58, 54, 64)
+    BLACK = (78, 76, 96)        # charcoal, not true black: dark ink lines must stay visible on it
     GOLD = (236, 184, 40)
     SCARF = (255, 138, 76)
     POSE = dict(Character.POSE, glasses_dy=0.0, glasses_rot=0.0, scarf_fly=0.0)
 
     def _hand(self, g, c, ang, kind, side=1):
         """Cartoon paw: a palm, three separate fingers and a thumb. kind: mitt (relaxed), open, fist, point, grip."""
-        r = 27
+        r = 31
         dx, dy = math.cos(ang), math.sin(ang)
         nx, ny = -dy, dx
-        HL = (104, 98, 112)                      # light line so fingers read on black fur
+        HL = self.INK
         spec = {                                 # per finger: (angle offset, length, curl)
-            'mitt': [(-0.4, 27, 0.12), (0.0, 31, 0.1), (0.4, 27, 0.12)],
-            'open': [(-0.62, 34, 0.0), (0.0, 38, 0.0), (0.62, 34, 0.0)],
-            'point': [(-0.2, 44, 0.0), (0.25, 13, 0.9), (0.6, 12, 0.9)],
-            'grip': [(-0.3, 22, 0.9), (0.0, 24, 0.9), (0.3, 22, 0.9)],
+            'mitt': [(-0.36, 24, 0.2), (0.0, 28, 0.15), (0.36, 24, 0.2)],
+            'open': [(-0.55, 31, 0.0), (0.0, 35, 0.0), (0.55, 31, 0.0)],
+            'point': [(-0.15, 46, 0.0), (0.25, 13, 0.9), (0.6, 12, 0.9)],
+            'grip': [(-0.3, 26, 0.9), (0.0, 28, 0.9), (0.3, 26, 0.9)],
             'fist': [],
         }.get(kind, [])
-        for off, ln, curl in spec:
-            a0 = ang + off * side
-            base = (c[0] + math.cos(a0) * r * 0.72, c[1] + math.sin(a0) * r * 0.72)
-            a1 = a0 + curl * 0.9 * side
-            mid = (base[0] + math.cos(a0) * ln * 0.55, base[1] + math.sin(a0) * ln * 0.55)
-            tip = (mid[0] + math.cos(a1) * ln * 0.5, mid[1] + math.sin(a1) * ln * 0.5)
-            self._ink(g, tube([base, mid, tip], 10.5, 9), self.BLACK)
-        # thumb sits on the inner side
-        ta = ang - 1.15 * side
-        tb = (c[0] + math.cos(ta) * r * 0.6, c[1] + math.sin(ta) * r * 0.6)
-        tl = 20 if kind != 'fist' else 12
-        tt = (tb[0] + math.cos(ta + 0.5 * side) * tl, tb[1] + math.sin(ta + 0.5 * side) * tl)
-        self._ink(g, tube([tb, tt], 10, 8.5), self.BLACK)
         palm = smooth([(c[0] + dx * r + nx * r * 0.8, c[1] + dy * r + ny * r * 0.8), (c[0] + dx * r - nx * r * 0.8, c[1] + dy * r - ny * r * 0.8),
                        (c[0] - dx * r * 0.9 - nx * r * 0.85, c[1] - dy * r * 0.9 - ny * r * 0.85), (c[0] - dx * r * 0.9 + nx * r * 0.85, c[1] - dy * r * 0.9 + ny * r * 0.85)], True, 0.9)
         self._ink(g, palm, self.BLACK)
+        # fingers grow out of the far edge of the palm and are drawn over it, so each one keeps its outline
+        for i, (off, ln, curl) in enumerate(spec):
+            a0 = ang + off * side
+            k = (i - 1) * 0.62 * side
+            base = (c[0] + dx * r * 0.62 + nx * k * r, c[1] + dy * r * 0.62 + ny * k * r)
+            a1 = a0 + curl * 0.9 * side
+            mid = (base[0] + math.cos(a0) * (ln * 0.55 + r * 0.3), base[1] + math.sin(a0) * (ln * 0.55 + r * 0.3))
+            tip = (mid[0] + math.cos(a1) * ln * 0.5, mid[1] + math.sin(a1) * ln * 0.5)
+            self._ink(g, tube([base, mid, tip], 13.5, 12), self.BLACK)
+        ta = ang - 1.2 * side
+        tb = (c[0] - dx * r * 0.1 - nx * side * r * 0.55, c[1] - dy * r * 0.1 - ny * side * r * 0.55)
+        tl = 26 if kind != 'fist' else 16
+        tm = (tb[0] + math.cos(ta) * tl * 0.6, tb[1] + math.sin(ta) * tl * 0.6)
+        tt = (tm[0] + math.cos(ta + 0.7 * side) * tl * 0.5, tm[1] + math.sin(ta + 0.7 * side) * tl * 0.5)
+        self._ink(g, tube([tb, tm, tt], 12.5, 10.5), self.BLACK)
+        self._ink(g, oval(c[0] + dx * r * 0.2, c[1] + dy * r * 0.2, r * 0.74, r * 0.7), self.BLACK, 0, False)     # hide the joins
         if kind == 'fist':                       # knuckles
             for k in (-1, 0, 1):
                 kx, ky = c[0] + dx * r * 0.75 + nx * k * r * 0.5, c[1] + dy * r * 0.75 + ny * k * r * 0.5
                 self._ink(g, poly(arc_pts(kx, ky, 8, 8, math.degrees(ang) - 80, math.degrees(ang) + 80, 6), False), None, 3, col=HL)
         elif kind == 'open':                     # paw pads
-            self._ink(g, oval(c[0] - dx * 2, c[1] - dy * 2, 13, 11), (232, 150, 160), 0, False)
-            for off, ln, curl in spec:
-                a0 = ang + off * side
-                self._ink(g, oval(c[0] + math.cos(a0) * (r * 0.72 + ln * 0.8), c[1] + math.sin(a0) * (r * 0.72 + ln * 0.8), 5, 5), (232, 150, 160), 0, False)
-        else:                                    # finger creases
-            for k in (-0.5, 0.5):
-                kx, ky = c[0] + dx * r * 0.8 + nx * k * r * 0.62, c[1] + dy * r * 0.8 + ny * k * r * 0.62
-                self._ink(g, poly([(kx, ky), (kx - dx * 9, ky - dy * 9)], False), None, 3, col=HL)
+            self._ink(g, oval(c[0] - dx * 2, c[1] - dy * 2, 15, 13), (240, 160, 170), 0, False)
 
     def _arm(self, g, p, side, key):
         face = p['face']
@@ -233,30 +229,27 @@ class Pandu(Character):
         hand = (sh[0] + rest[0] + off[0], sh[1] + rest[1] + off[1])
         bend = -p['bendL' if side < 0 else 'bendR'] * side
         c = limb(sh, hand, bend, 10)
-        self._ink(g, tube(c, 30, 25, True), self.BLACK)
+        self._ink(g, tube(c, 29, 17, True), self.BLACK)
         ang = math.atan2(c[-1][1] - c[-3][1], c[-1][0] - c[-3][0])
         self._hand(g, hand, ang, p['handL' if side < 0 else 'handR'], side)
         self.anchors['handL' if side < 0 else 'handR'] = g.pt(hand[0] + math.cos(ang) * 30, hand[1] + math.sin(ang) * 30)
-        # wrist cuff line
-        w0 = c[-3]
-        self._ink(g, poly([(w0[0] - math.sin(ang) * 20, w0[1] + math.cos(ang) * 20), (w0[0] + math.sin(ang) * 20, w0[1] - math.cos(ang) * 20)], False), None, 3, col=(104, 98, 112))
 
     def draw(self, g, p, f):
         self.begin(g, p)
         face = p['face']
         bob = -abs(math.sin(2 * math.pi * p['step'])) * p['stride'] * 0.10
         # legs
-        self._legs(g, p, [(-56, -78), (56, -78)], -22, 52, 25, 31, self.BLACK)
+        self._legs(g, p, [(-58, -112), (58, -112)], -24, 60, 27, 27, self.BLACK)
         g.push(0, bob)
         far, near = ('armR', 'armL') if face > 0.35 else ('armL', 'armR') if face < -0.35 else (None, None)
         if far:
             self._arm(g, p, 1 if far == 'armR' else -1, far)
         # tail nub when turned
         if abs(face) > 0.35:
-            self._ink(g, oval(-face * 140, -92, 24, 22), self.WHITE)
+            self._ink(g, oval(-face * 138, -116, 24, 22), self.WHITE)
         # body
-        body = smooth([(0, -300), (84, -272), (140, -180), (150, -118), (112, -58), (0, -40),
-                       (-112, -58), (-150, -118), (-140, -180), (-84, -272)], True, 0.5)
+        body = smooth([(0, -300), (84, -272), (140, -190), (148, -138), (108, -90), (0, -76),
+                       (-108, -90), (-148, -138), (-140, -190), (-84, -272)], True, 0.5)
         self._ink(g, body, self.WHITE)
         # scarf
         kx = face * 46 + p['yaw'] * 20
@@ -343,16 +336,17 @@ class Gajju(Character):
         off = p[key]
         hand = (sh[0] + rest[0] + off[0], sh[1] + rest[1] + off[1])
         c = limb(sh, hand, -p['bendL' if side < 0 else 'bendR'] * side, 8)
-        self._ink(g, tube(c, 19, 15, True), self.SKIN)
+        self._ink(g, tube(c, 19, 12, True), self.SKIN)
         ang = math.atan2(c[-1][1] - c[-3][1], c[-1][0] - c[-3][0])
         dx, dy = math.cos(ang), math.sin(ang)
-        self._ink(g, oval(hand[0] + dx * 4, hand[1] + dy * 4, 19, 17, math.degrees(ang)), self.SKIN)          # rounded front foot
-        for k in (-1, 0, 1):                                                                               # three nails
-            a1 = ang + k * 0.55
-            nx_, ny_ = hand[0] + dx * 4 + math.cos(a1) * 15, hand[1] + dy * 4 + math.sin(a1) * 15
-            self._ink(g, oval(nx_, ny_, 6.5, 5, math.degrees(a1) + 90), self.NAIL, 2.5)
-        w0 = c[-4]
-        self._ink(g, poly(arc_pts(w0[0], w0[1], 13, 5, math.degrees(ang) + 60, math.degrees(ang) + 120, 4), False), None, 2.5, a=0.7)
+        for k in (-1, 0, 1):                                                                               # three stubby fingers
+            a1 = ang + k * 0.5 * side
+            fb = (hand[0] + math.cos(a1) * 11, hand[1] + math.sin(a1) * 11)
+            ft = (hand[0] + math.cos(a1) * 27, hand[1] + math.sin(a1) * 27)
+            self._ink(g, tube([fb, ft], 8.5, 7.5), self.SKIN, 4)
+        ta = ang - 1.2 * side
+        self._ink(g, tube([(hand[0] + math.cos(ta) * 9, hand[1] + math.sin(ta) * 9), (hand[0] + math.cos(ta + 0.4 * side) * 23, hand[1] + math.sin(ta + 0.4 * side) * 23)], 8, 7), self.SKIN, 4)
+        self._ink(g, oval(hand[0], hand[1], 17, 16, math.degrees(ang)), self.SKIN, 4)                         # palm
         self.anchors['handL' if side < 0 else 'handR'] = g.pt(*hand)
 
     def _ear(self, g, p, s):

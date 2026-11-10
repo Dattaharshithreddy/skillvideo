@@ -53,7 +53,7 @@ Common parameters: `x y rot sx sy alpha z show`. `z` sets draw order (higher is 
 | `mouth_w`, `mouth_open`, `smile` | width factor, open 0..1, smile -1..1 |
 | `cheeks` | full cheeks 0..1 (chewing) |
 | `armL`, `armR` | hand offset `(dx, dy)` from the rest position; `bendL/R` elbow bow |
-| `handL`, `handR` | `'mitt'`, `'fist'`, `'open'`, `'point'` (Pandu) |
+| `handL`, `handR` | `'mitt'` (relaxed), `'open'`, `'fist'`, `'point'`, `'grip'` (Pandu) |
 | `step`, `stride`, `wheel` | walk phase in cycles, stride px, `wheel=1` for the run blur |
 | `footL`, `footR` | extra foot offset `(dx, lift)` |
 | `sweat` | 1 shows sweat drops |

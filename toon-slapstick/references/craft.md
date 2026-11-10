@@ -111,6 +111,19 @@ Frame-by-frame measurement of 3.7 minutes (5,274 frames) of an official studio u
 Method limits: one compilation, automatic thresholds on a 96x54 greyscale copy; compression noise makes
 "something changed" slightly over-counted. Treat the numbers as ranges, not constants.
 
+### Seen frame by frame in the same footage
+
+- **Hands and feet are built to read.** They are large, a lighter or clearly outlined shape against the
+  body, with three chunky fingers and a thumb, a narrow wrist and a wide hand. Fur is a mid-tone, never
+  true black, so the ink lines stay visible on it. Arms taper; legs are long enough to show a stride.
+- **A repeated hit has no in-betweens.** Fist held up for 2 frames, on the target the very next frame,
+  contact held 2 frames, back up in 1. About 4-5 frames per blow. The whole body leans into each hit.
+- **A fast prop move is 3 frames:** one smeared in-between, an overshoot past the final position, then
+  the settle. After that it is a moving hold: the prop keeps wobbling slightly every second frame.
+- **A cocky walk is 8 frames per step on twos,** with a big body tilt and bob, long strides, and the
+  hands held up in front of the chest where their silhouette is clear.
+- **Silhouette first.** In every key pose the active hand is held away from the head and body.
+
 ## 7. Checklist before rendering
 
 - Does every action have an anticipation and every hit a reaction?
