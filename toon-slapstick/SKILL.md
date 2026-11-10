@@ -1,6 +1,6 @@
 ---
 name: toon-slapstick
-description: Make original 2D slapstick cartoons (classic cat-and-mouse chase style, no dialogue) with the Momo & Gullu characters or new ones. Use when asked for a 2D cartoon, a chase gag, a Momo & Gullu episode, or "Tom and Jerry style" animation. Renders on CPU in about real time; no GPU needed.
+description: Make original 2D slapstick cartoons (classic cat-and-mouse chase style, no dialogue) with the Pandu & Gajju characters or new ones. Use when asked for a 2D cartoon, a chase gag, a Pandu & Gajju episode, or "Tom and Jerry style" animation. Renders on CPU in about real time; no GPU needed.
 ---
 
 # toon-slapstick
@@ -50,7 +50,7 @@ Setup: `pip install skia-python numpy scipy` and `ffmpeg` on the path.
 ## Files
 
 - `engine/toon.py` core: timeline, easing, camera, stage, render, contact sheets
-- `engine/chars.py` Momo and Gullu (pose parameters listed at the top of the file)
+- `engine/chars.py` Pandu and Gajju (pose parameters listed at the top of the file)
 - `engine/acting.py` reusable moves: `take`, `zip_off`, `scramble`, `walk`, `arc`, `squash`, `blink`...
 - `engine/scene.py` painted kitchen, props, dust puffs, impact stars, speed lines, iris, title card
 - `engine/sound.py` synth orchestra, sound effects, music beds, `Score`

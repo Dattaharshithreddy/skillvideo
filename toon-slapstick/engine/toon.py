@@ -3,8 +3,8 @@
 World units are pixels on a 1920x1080 stage, y grows downward, 24 frames per second.
 An Actor has a timeline of pose parameters. You animate pose-to-pose:
 
-    momo.move(10, 16, 'snap', x=900, sy=1.2)   # from frame 10 to 16, snap to the new pose
-    momo.set(40, mouth_open=0.8)               # instant change on frame 40
+    pandu.move(10, 16, 'snap', x=900, sy=1.2)   # from frame 10 to 16, snap to the new pose
+    pandu.set(40, mouth_open=0.8)               # instant change on frame 40
 
 Everything not mentioned holds its last value. See references/api.md.
 """
@@ -277,7 +277,7 @@ def bez(p0, p1, p2, p3, n=14):
     return out
 
 
-def tube(pts, r0, r1=None, cap=True):
+def tube(pts, r0, r1=None, cap=True, tip=True):
     """Tapered tube around a centre line (limbs, trunks, tails). Returns a closed path."""
     r1 = r0 if r1 is None else r1
     n = len(pts)
@@ -292,7 +292,7 @@ def tube(pts, r0, r1=None, cap=True):
         L.append((x + nx * r, y + ny * r))
         R.append((x - nx * r, y - ny * r))
     out = L
-    if cap:  # round the tip and the root
+    if cap and tip:  # round the tip and the root
         (x, y), a = pts[-1], pts[-2]
         dx, dy = x - a[0], y - a[1]
         d = math.hypot(dx, dy) or 1

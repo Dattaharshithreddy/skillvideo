@@ -1,4 +1,4 @@
-"""chars.py - Momo (panda) and Gullu (baby elephant) as fully parametric 2D characters.
+"""chars.py - Pandu (panda) and Gajju (baby elephant) as fully parametric 2D characters.
 
 Each character is redrawn every frame from its pose parameters, so it can squash, stretch,
 smear, turn its head, blink and act. Local coordinates: (0,0) is the point between the feet,
@@ -143,20 +143,35 @@ class Character(Actor):
             ph = 2 * math.pi * (st + i * 0.5)
             dx = amp * math.cos(ph) + p['footL' if i == 0 else 'footR'][0]
             lift = max(0.0, math.sin(ph)) * amp * 0.5 - p['footL' if i == 0 else 'footR'][1]
-            fx = hip[0] * (1 - 0.35 * abs(face)) + dx + face * 8
+            hx = hip[0] * (1 - 0.35 * abs(face))
+            fx = hx + dx + face * 8
             fy = feet_y - lift
-            c = limb((hip[0] * (1 - 0.35 * abs(face)), hip[1]), (fx, fy - foot_ry * 0.4), 0.0, 6)
-            self._ink(g, tube(c, leg_r, leg_r * 0.92, False), fill)
-            foot = oval(fx + face * foot_rx * 0.25, fy, foot_rx, foot_ry, -lift * 0.25 * (face or 1))
+            side = -1 if i == 0 else 1
+            knee = 0.16 * side * (1 - abs(face)) + 0.22 * face + lift * 0.004 * (face or side)
+            c = limb((hx, hip[1]), (fx, fy - foot_ry * 0.5), knee, 8)
+            self._ink(g, tube(c, leg_r * 1.12, leg_r * 0.86, False), fill)
+            tilt = -lift * 0.3 * (face or side)
+            foot = smooth([(fx - foot_rx * 0.9 + face * foot_rx * 0.3, fy + foot_ry * 0.75), (fx - foot_rx + face * foot_rx * 0.3, fy - foot_ry * 0.2),
+                           (fx - foot_rx * 0.45 + face * foot_rx * 0.3, fy - foot_ry), (fx + foot_rx * 0.45 + face * foot_rx * 0.3, fy - foot_ry),
+                           (fx + foot_rx + face * foot_rx * 0.3, fy - foot_ry * 0.2), (fx + foot_rx * 0.9 + face * foot_rx * 0.3, fy + foot_ry * 0.75)], True, 0.7)
+            if tilt:
+                m = skia.Matrix(); m.setRotate(tilt, fx, fy); q = skia.Path(); foot.transform(m, q); foot = q
             self._ink(g, foot, fill)
-            if toes:
+            cx0 = fx + face * foot_rx * 0.3
+            if toes:      # elephant: three toenails
                 for k in (-1, 0, 1):
-                    tx = fx + face * foot_rx * 0.55 + k * foot_rx * 0.42 * (1 - 0.4 * abs(face))
-                    self._ink(g, oval(tx, fy + foot_ry * 0.42, foot_rx * 0.2, foot_ry * 0.36), toes, 3)
+                    tx = cx0 + face * foot_rx * 0.3 + k * foot_rx * 0.52 * (1 - 0.4 * abs(face))
+                    self._ink(g, smooth([(tx - foot_rx * 0.2, fy + foot_ry * 0.7), (tx - foot_rx * 0.17, fy + foot_ry * 0.1), (tx, fy - foot_ry * 0.12), (tx + foot_rx * 0.17, fy + foot_ry * 0.1), (tx + foot_rx * 0.2, fy + foot_ry * 0.7)], True, 0.7), toes, 3)
+                kx, ky = c[4]
+                self._ink(g, poly(arc_pts(kx, ky, leg_r * 0.6, 5, 20, 160, 6), False), None, 2.5, a=0.7)      # knee wrinkle
+            else:         # paw: toe lines on the front of the foot
+                for k in (-0.38, 0.0, 0.38):
+                    tx = cx0 + face * foot_rx * 0.35 + k * foot_rx * (1 - 0.3 * abs(face))
+                    self._ink(g, poly([(tx, fy - foot_ry * 0.1), (tx + k * 4, fy + foot_ry * 0.62)], False), None, 3, col=(104, 98, 112))
 
 
-# =====================================================================  MOMO
-class Momo(Character):
+# =====================================================================  PANDU
+class Pandu(Character):
     HEIGHT = 500
     shadow = 150
     INK = (38, 34, 42)
@@ -167,26 +182,48 @@ class Momo(Character):
     SCARF = (255, 138, 76)
     POSE = dict(Character.POSE, glasses_dy=0.0, glasses_rot=0.0, scarf_fly=0.0)
 
-    def _hand(self, g, c, ang, kind):
-        r = 31
+    def _hand(self, g, c, ang, kind, side=1):
+        """Cartoon paw: a palm, three separate fingers and a thumb. kind: mitt (relaxed), open, fist, point, grip."""
+        r = 27
         dx, dy = math.cos(ang), math.sin(ang)
-        if kind == 'fist':
-            self._ink(g, oval(c[0], c[1], r, r * 0.92), self.BLACK)
-            return
-        spread = {'mitt': 0.36, 'open': 0.62, 'point': 0.0}.get(kind, 0.36)
-        fl = {'mitt': 8, 'open': 24, 'point': 0}.get(kind, 8)
-        for k in (-1, 0, 1):
-            a = ang + k * spread
-            tip = (c[0] + math.cos(a) * (r + fl * 0.5 - 4), c[1] + math.sin(a) * (r + fl * 0.5 - 4))
-            self._ink(g, oval(tip[0], tip[1], 11, 11 + fl * 0.5, math.degrees(a) + 90), self.BLACK)
-        if kind == 'point':
-            tip = (c[0] + dx * (r + 22), c[1] + dy * (r + 22))
-            self._ink(g, tube([c, tip], 12, 10), self.BLACK)
-        ta = ang - 1.25
-        self._ink(g, oval(c[0] + math.cos(ta) * r * 0.82, c[1] + math.sin(ta) * r * 0.82, 10, 14, math.degrees(ta) + 90), self.BLACK)
-        self._ink(g, oval(c[0], c[1], r, r * 0.95), self.BLACK)
-        if kind == 'open':
-            self._ink(g, oval(c[0] + dx * 4, c[1] + dy * 4, 13, 12), (92, 86, 98), 0, False)   # palm pad
+        nx, ny = -dy, dx
+        HL = (104, 98, 112)                      # light line so fingers read on black fur
+        spec = {                                 # per finger: (angle offset, length, curl)
+            'mitt': [(-0.4, 27, 0.12), (0.0, 31, 0.1), (0.4, 27, 0.12)],
+            'open': [(-0.62, 34, 0.0), (0.0, 38, 0.0), (0.62, 34, 0.0)],
+            'point': [(-0.2, 44, 0.0), (0.25, 13, 0.9), (0.6, 12, 0.9)],
+            'grip': [(-0.3, 22, 0.9), (0.0, 24, 0.9), (0.3, 22, 0.9)],
+            'fist': [],
+        }.get(kind, [])
+        for off, ln, curl in spec:
+            a0 = ang + off * side
+            base = (c[0] + math.cos(a0) * r * 0.72, c[1] + math.sin(a0) * r * 0.72)
+            a1 = a0 + curl * 0.9 * side
+            mid = (base[0] + math.cos(a0) * ln * 0.55, base[1] + math.sin(a0) * ln * 0.55)
+            tip = (mid[0] + math.cos(a1) * ln * 0.5, mid[1] + math.sin(a1) * ln * 0.5)
+            self._ink(g, tube([base, mid, tip], 10.5, 9), self.BLACK)
+        # thumb sits on the inner side
+        ta = ang - 1.15 * side
+        tb = (c[0] + math.cos(ta) * r * 0.6, c[1] + math.sin(ta) * r * 0.6)
+        tl = 20 if kind != 'fist' else 12
+        tt = (tb[0] + math.cos(ta + 0.5 * side) * tl, tb[1] + math.sin(ta + 0.5 * side) * tl)
+        self._ink(g, tube([tb, tt], 10, 8.5), self.BLACK)
+        palm = smooth([(c[0] + dx * r + nx * r * 0.8, c[1] + dy * r + ny * r * 0.8), (c[0] + dx * r - nx * r * 0.8, c[1] + dy * r - ny * r * 0.8),
+                       (c[0] - dx * r * 0.9 - nx * r * 0.85, c[1] - dy * r * 0.9 - ny * r * 0.85), (c[0] - dx * r * 0.9 + nx * r * 0.85, c[1] - dy * r * 0.9 + ny * r * 0.85)], True, 0.9)
+        self._ink(g, palm, self.BLACK)
+        if kind == 'fist':                       # knuckles
+            for k in (-1, 0, 1):
+                kx, ky = c[0] + dx * r * 0.75 + nx * k * r * 0.5, c[1] + dy * r * 0.75 + ny * k * r * 0.5
+                self._ink(g, poly(arc_pts(kx, ky, 8, 8, math.degrees(ang) - 80, math.degrees(ang) + 80, 6), False), None, 3, col=HL)
+        elif kind == 'open':                     # paw pads
+            self._ink(g, oval(c[0] - dx * 2, c[1] - dy * 2, 13, 11), (232, 150, 160), 0, False)
+            for off, ln, curl in spec:
+                a0 = ang + off * side
+                self._ink(g, oval(c[0] + math.cos(a0) * (r * 0.72 + ln * 0.8), c[1] + math.sin(a0) * (r * 0.72 + ln * 0.8), 5, 5), (232, 150, 160), 0, False)
+        else:                                    # finger creases
+            for k in (-0.5, 0.5):
+                kx, ky = c[0] + dx * r * 0.8 + nx * k * r * 0.62, c[1] + dy * r * 0.8 + ny * k * r * 0.62
+                self._ink(g, poly([(kx, ky), (kx - dx * 9, ky - dy * 9)], False), None, 3, col=HL)
 
     def _arm(self, g, p, side, key):
         face = p['face']
@@ -198,8 +235,11 @@ class Momo(Character):
         c = limb(sh, hand, bend, 10)
         self._ink(g, tube(c, 30, 25, True), self.BLACK)
         ang = math.atan2(c[-1][1] - c[-3][1], c[-1][0] - c[-3][0])
-        self._hand(g, hand, ang, p['handL' if side < 0 else 'handR'])
+        self._hand(g, hand, ang, p['handL' if side < 0 else 'handR'], side)
         self.anchors['handL' if side < 0 else 'handR'] = g.pt(hand[0] + math.cos(ang) * 30, hand[1] + math.sin(ang) * 30)
+        # wrist cuff line
+        w0 = c[-3]
+        self._ink(g, poly([(w0[0] - math.sin(ang) * 20, w0[1] + math.cos(ang) * 20), (w0[0] + math.sin(ang) * 20, w0[1] - math.cos(ang) * 20)], False), None, 3, col=(104, 98, 112))
 
     def draw(self, g, p, f):
         self.begin(g, p)
@@ -282,8 +322,8 @@ class Momo(Character):
         self.end(g)
 
 
-# =====================================================================  GULLU
-class Gullu(Character):
+# =====================================================================  GAJJU
+class Gajju(Character):
     HEIGHT = 250
     shadow = 80
     INK = (44, 70, 112)
@@ -303,7 +343,16 @@ class Gullu(Character):
         off = p[key]
         hand = (sh[0] + rest[0] + off[0], sh[1] + rest[1] + off[1])
         c = limb(sh, hand, -p['bendL' if side < 0 else 'bendR'] * side, 8)
-        self._ink(g, tube(c, 18, 16, True), self.SKIN)
+        self._ink(g, tube(c, 19, 15, True), self.SKIN)
+        ang = math.atan2(c[-1][1] - c[-3][1], c[-1][0] - c[-3][0])
+        dx, dy = math.cos(ang), math.sin(ang)
+        self._ink(g, oval(hand[0] + dx * 4, hand[1] + dy * 4, 19, 17, math.degrees(ang)), self.SKIN)          # rounded front foot
+        for k in (-1, 0, 1):                                                                               # three nails
+            a1 = ang + k * 0.55
+            nx_, ny_ = hand[0] + dx * 4 + math.cos(a1) * 15, hand[1] + dy * 4 + math.sin(a1) * 15
+            self._ink(g, oval(nx_, ny_, 6.5, 5, math.degrees(a1) + 90), self.NAIL, 2.5)
+        w0 = c[-4]
+        self._ink(g, poly(arc_pts(w0[0], w0[1], 13, 5, math.degrees(ang) + 60, math.degrees(ang) + 120, 4), False), None, 2.5, a=0.7)
         self.anchors['handL' if side < 0 else 'handR'] = g.pt(*hand)
 
     def _ear(self, g, p, s):
@@ -380,14 +429,28 @@ class Gullu(Character):
         c1 = (root[0] + tx * 0.15 + nx * b * L, root[1] + ty * 0.55 + ny * b * L + 14)
         cu = p['trunk_curl']
         c2 = (tip[0] - tx * 0.25 + nx * cu * 26 * (1 if tx >= 0 else -1), tip[1] + cu * 30)
-        cl = bez(root, c1, c2, tip, 14)
-        self._ink(g, tube(cl, 21, 11, True), self.SKIN)
-        for i in (4, 7, 10):   # trunk creases
+        cl = bez(root, c1, c2, tip, 22)
+        R0, R1 = 25, 12
+        self._ink(g, tube(cl, R0, R1, True, tip=False), self.SKIN)
+        for i in range(3, 21, 2):   # rings all the way down, like a real trunk
             q, q2 = cl[i], cl[i + 1]
             d = math.hypot(q2[0] - q[0], q2[1] - q[1]) or 1
             n = (-(q2[1] - q[1]) / d, (q2[0] - q[0]) / d)
-            r = 21 - 10 * i / 14
-            self._ink(g, poly([(q[0] + n[0] * r * 0.9, q[1] + n[1] * r * 0.9), (q[0] + n[0] * r * 0.25, q[1] + n[1] * r * 0.25)], False), None, 3)
+            r = R0 + (R1 - R0) * i / 22
+            mid = (q[0] + (q2[0] - q[0]) * 0.35, q[1] + (q2[1] - q[1]) * 0.35)
+            self._ink(g, smooth([(q[0] + n[0] * r * 0.92, q[1] + n[1] * r * 0.92), mid, (q[0] - n[0] * r * 0.92, q[1] - n[1] * r * 0.92)], False, 0.9), None, 2.5, a=0.42)
+        # flared tip with the opening, two nostrils and the little gripping finger
+        q, q2 = cl[-2], cl[-1]
+        d = math.hypot(q2[0] - q[0], q2[1] - q[1]) or 1
+        tdx, tdy = (q2[0] - q[0]) / d, (q2[1] - q[1]) / d
+        ta = math.degrees(math.atan2(tdy, tdx))
+        self._ink(g, oval(tip[0] + tdx * 1, tip[1] + tdy * 1, 8, R1 * 1.22, ta), self.SKIN)
+        self._ink(g, oval(tip[0] + tdx * 3, tip[1] + tdy * 3, 4.5, R1 * 0.8, ta), self.PINK, 2.5)
+        for k in (-1, 1):
+            self._ink(g, oval(tip[0] + tdx * 3 - tdy * k * 4.5, tip[1] + tdy * 3 + tdx * k * 4.5, 1.6, 2.4, ta), self.INK, 0, False)
+        up = -1 if tx >= 0 else 1
+        fb = (tip[0] - tdy * up * R1 * 0.9, tip[1] + tdx * up * R1 * 0.9)
+        self._ink(g, tube([fb, (fb[0] + tdx * 9, fb[1] + tdy * 9)], 5, 3.5), self.SKIN, 3)
         self.anchors['trunk'] = g.pt(*tip)
         self.anchors['head'] = g.pt(0, 0)
         self.anchors['top'] = g.pt(0, -100)

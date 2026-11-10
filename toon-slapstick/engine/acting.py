@@ -1,5 +1,5 @@
 """acting.py - reusable slapstick moves. Each helper writes keys on an actor's timeline and
-returns the frame where the move ends, so moves chain:  f = take(momo, f)
+returns the frame where the move ends, so moves chain:  f = take(pandu, f)
 
 Frame counts follow the timing table in references/craft.md (24 fps).
 """

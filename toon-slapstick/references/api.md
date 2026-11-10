@@ -7,18 +7,18 @@ an actor's `(x, y)` is the point between its feet.
 
 ```python
 from toon import Stage, GROUND
-from chars import Momo, Gullu
+from chars import Pandu, Gajju
 from scene import Painted, kitchen, Prop, table, puffs, stars, iris, title_card
 from acting import take, zip_off, walk, arc, squash, blink, look, bob
 from sound import Score, xylo, pizz
 
 st = Stage(480, bg=Painted(5800, kitchen))   # 480 frames = 20 s
 sc = Score(480)
-momo = Momo(x=700, z=3); gullu = Gullu(x=1400, z=2)
-st.add(momo, gullu)
+pandu = Pandu(x=700, z=3); gajju = Gajju(x=1400, z=2)
+st.add(pandu, gajju)
 
-momo.move(24, 28, 'snap', yaw=0.8, pupil=(0.8, 0))     # frames 24-28: snap the head right
-f = take(st, momo, 40)                                 # helpers return their end frame
+pandu.move(24, 28, 'snap', yaw=0.8, pupil=(0.8, 0))     # frames 24-28: snap the head right
+f = take(st, pandu, 40)                                 # helpers return their end frame
 sc.music(0, 240, 'calm'); sc.hit(43, 'timp')
 
 st.sheet([24, 28, 40, 45, 52], 'check.png')            # look before rendering
@@ -53,14 +53,14 @@ Common parameters: `x y rot sx sy alpha z show`. `z` sets draw order (higher is 
 | `mouth_w`, `mouth_open`, `smile` | width factor, open 0..1, smile -1..1 |
 | `cheeks` | full cheeks 0..1 (chewing) |
 | `armL`, `armR` | hand offset `(dx, dy)` from the rest position; `bendL/R` elbow bow |
-| `handL`, `handR` | `'mitt'`, `'fist'`, `'open'`, `'point'` (Momo) |
+| `handL`, `handR` | `'mitt'`, `'fist'`, `'open'`, `'point'` (Pandu) |
 | `step`, `stride`, `wheel` | walk phase in cycles, stride px, `wheel=1` for the run blur |
 | `footL`, `footR` | extra foot offset `(dx, lift)` |
 | `sweat` | 1 shows sweat drops |
-| Momo only | `glasses_dy`, `glasses_rot`, `scarf_fly` |
-| Gullu only | `ear` (-1 folded .. 1 up; alternate for flapping), `trunk` (tip offset from its root), `trunk_bend`, `trunk_curl`, `cap_dy` |
+| Pandu only | `glasses_dy`, `glasses_rot`, `scarf_fly` |
+| Gajju only | `ear` (-1 folded .. 1 up; alternate for flapping), `trunk` (tip offset from its root), `trunk_bend`, `trunk_curl`, `cap_dy` |
 
-Anchors published each frame: `handL handR head top mouth belly`, and `trunk` for Gullu.
+Anchors published each frame: `handL handR head top mouth belly`, and `trunk` for Gajju.
 
 ## Acting helpers (`acting.py`)
 

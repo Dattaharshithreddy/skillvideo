@@ -94,7 +94,24 @@ for fast action and whenever the camera pans. The engine switches automatically.
 - Sound effects are exaggerated and musical, not realistic: boing, bonk, zip, pop, gulp, crash with
   rattling crockery after it.
 
-## 6. Checklist before rendering
+## 6. Measured from an official classic compilation
+
+Frame-by-frame measurement of 3.7 minutes (5,274 frames) of an official studio upload on YouTube
+(24 fps source), comparing each frame with the one before it:
+
+| Measure | Result | What to do with it |
+|---|---|---|
+| Shot length | median 4.3 s, mean 8.5 s, 10% under 1.9 s, 10% over 16 s | Long takes. Let the acting play; do not cut every second |
+| Frames where nothing at all moves | 14% | The screen is almost never frozen |
+| Fully frozen holds (3+ frames) | median 4 frames, 90% under 9, longest 15 | A "hold" is a moving hold: keep a bob, blink, ear or tail alive |
+| Drawing held exactly 1 extra frame | by far the most common hold (385 of 473) | Normal acting is on twos |
+| Big-motion bursts | 78% last only 1-2 frames, median 1 | Fast actions really are 1-2 frames. Snap, do not glide |
+| Long continuous motion (10+ frames) | rare, mostly pans and chases | Save sustained motion for the chase |
+
+Method limits: one compilation, automatic thresholds on a 96x54 greyscale copy; compression noise makes
+"something changed" slightly over-counted. Treat the numbers as ranges, not constants.
+
+## 7. Checklist before rendering
 
 - Does every action have an anticipation and every hit a reaction?
 - Is there a held pose before each big moment, and after each hit?
