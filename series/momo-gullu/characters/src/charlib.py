@@ -363,9 +363,9 @@ class FaceKit:
                         c, w = meta["center"], meta["w"]
                         for i in idx:
                             dx = base[i].x - c.x
-                            dz = (amp * 1.5 * (max(dx, 0) / w) ** 2
-                                  - amp * 0.35 * (max(-dx, 0) / w) ** 2)
-                            kb.data[i].co = base[i] + Vector((0.15 * max(dx, 0), 0, dz))
+                            dz = (amp * 0.55 * (max(dx, 0) / w) ** 2
+                                  - amp * 0.20 * (max(-dx, 0) / w) ** 2)
+                            kb.data[i].co = base[i] + Vector((0.06 * max(dx, 0), 0, dz))
                         continue
                     else:
                         continue

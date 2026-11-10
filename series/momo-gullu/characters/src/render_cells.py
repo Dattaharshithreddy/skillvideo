@@ -50,7 +50,7 @@ def still(path, rx, ry):
 def momo_cells():
     fresh()
     ch = build_momo.build()
-    cl.stage(bottom="#BEE3F2", top="#E7F5EC", floor="#CFE8DB", target=(0, 0, 0.9), scale=1.0, key=1000)
+    cl.stage(bottom="#BEE3F2", top="#E7F5EC", floor="#CFE8DB", target=(0, 0, 0.9), scale=1.0, key=680)
     cam = cz.camera(lens=60)
     cz.aim(cam, (0, -3.3, 0.95), (0, 0, 0.80))
     for name, ang in TURN:
@@ -113,7 +113,7 @@ def lineup():
     cl.apply_expression(momo["face"], "happy")
     cl.apply_expression(gullu["face"], "laugh")
     curl_trunk(gullu["arm"])
-    cl.stage(bottom="#BEE3F2", top="#E7F5EC", floor="#CFE8DB", target=(0, 0, 0.8), scale=1.0, key=1100)
+    cl.stage(bottom="#BEE3F2", top="#E7F5EC", floor="#CFE8DB", target=(0, 0, 0.8), scale=1.0, key=780)
     cam = cz.camera(lens=50)
     cz.aim(cam, (0, -5.0, 0.98), (-0.03, 0, 0.84))
     still(f"{CELLS}/lineup_raw.png", 1920, 1150)

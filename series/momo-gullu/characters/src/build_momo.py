@@ -18,7 +18,7 @@ from mathutils import Vector, Euler
 import czlib as cz
 import charlib as cl
 
-WHITE, BLACK, ORANGE, GOLD = "#F4F1EA", "#1E1E24", "#FF7A1A", "#C9A227"
+WHITE, BLACK, ORANGE, GOLD = "#EDEAE4", "#1E1E24", "#FF7A1A", "#C9A227"
 PAD = "#2F2F36"
 H = 1.61                      # to ear tops; head top 1.58
 
@@ -27,13 +27,13 @@ FINGER_X = [-0.040, -0.0135, 0.0135, 0.040]   # knuckle offsets across the palm
 
 def _finger_pts(s):
     """(knuckle, mid, tip) for 4 fingers + thumb on the +s side hand."""
-    hx, hy, hz = 0.345 * s, -0.075, 0.525
+    hx, hy, hz = 0.405 * s, -0.098, 0.513
     fingers = []
     for dx in FINGER_X:
         k = Vector((hx + dx * s, hy, hz))
         fingers.append((k, k + Vector((0, -0.004, -0.047)), k + Vector((0, -0.008, -0.088))))
-    th = (Vector((0.298 * s, -0.068, 0.565)), Vector((0.276 * s, -0.076, 0.531)),
-          Vector((0.258 * s, -0.083, 0.504)))
+    th = (Vector((0.352 * s, -0.090, 0.553)), Vector((0.330 * s, -0.098, 0.519)),
+          Vector((0.312 * s, -0.105, 0.492)))
     return fingers, th
 
 
@@ -86,9 +86,10 @@ def build(loc=(0, 0, 0)):
     for s in (1, -1):
         reg("head",
             cl.torus(0.052, 0.0060, (0.108 * s, -0.302, 1.383), gold, rot=(math.pi / 2, 0, 0)),
-            cl.tube([(0.162 * s, -0.290, 1.383), (0.215 * s, -0.200, 1.388),
-                     (0.258 * s, -0.100, 1.395), (0.276 * s, -0.010, 1.415),
-                     (0.255 * s, 0.040, 1.470), (0.215 * s, 0.050, 1.500)], [0.0060] * 6, gold, name="temple"))
+            cl.tube([(0.161 * s, -0.296, 1.383), (0.212 * s, -0.190, 1.390),
+                     (0.240 * s, -0.095, 1.405), (0.249 * s, -0.020, 1.425),
+                     (0.233 * s, 0.008, 1.452), (0.222 * s, 0.015, 1.468),
+                     (0.214 * s, 0.028, 1.446)], [0.0060] * 7, gold, name="temple"))
     # scarf (the only outfit)
     reg("chest",
         cl.torus(0.21, 0.065, (0, 0, 1.13), scarf, scale=(1, 0.95, 0.6)),
@@ -97,20 +98,20 @@ def build(loc=(0, 0, 0)):
                 rot=(math.radians(-8), 0, math.radians(16))))
     # arms + hands: 4 fingers + thumb, palm pads
     for s, side in ((1, "L"), (-1, "R")):
-        sh, el, wr = (0.265 * s, 0, 1.06), (0.33 * s, -0.02, 0.84), (0.345 * s, -0.05, 0.645)
+        sh, el, wr = (0.265 * s, 0, 1.06), (0.345 * s, -0.035, 0.83), (0.398 * s, -0.075, 0.635)
         reg("chest", cl.blob(0.095, sh, fur_b))                                    # black shoulder
         ua = cl.capsule(sh, el, 0.075, fur_b)
         cl.add_fuzz(ua, length=0.009, count=2500)
         reg(f"upperarm.{side}", ua)
         reg(f"forearm.{side}", cl.capsule(el, wr, 0.065, fur_b), cl.blob(0.068, el, fur_b))
-        hand = cl.blob(0.072, (0.345 * s, -0.055, 0.59), fur_b, scale=(0.95, 0.8, 1.0))
-        bigpad = cl.blob(1, (0.345 * s, -0.114, 0.585), pad, scale=(0.030, 0.010, 0.038))
+        hand = cl.blob(0.072, (0.405 * s, -0.080, 0.578), fur_b, scale=(0.95, 0.8, 1.0))
+        bigpad = cl.blob(1, (0.405 * s, -0.139, 0.573), pad, scale=(0.030, 0.010, 0.038))
         reg(f"hand.{side}", hand, bigpad)
         fingers, th = _finger_pts(s)
         for i, (k, mid, tip) in enumerate(fingers):
             reg(f"f{i + 1}.prox.{side}", cl.capsule(k, mid, 0.0165, fur_b))
             reg(f"f{i + 1}.dist.{side}", cl.capsule(mid, tip, 0.0148, fur_b))
-            reg(f"hand.{side}", cl.blob(1, (k.x, -0.108, 0.545), pad, scale=(0.010, 0.006, 0.012)))
+            reg(f"hand.{side}", cl.blob(1, (k.x, -0.131, 0.533), pad, scale=(0.010, 0.006, 0.012)))
         reg(f"thumb.prox.{side}", cl.capsule(th[0], th[1], 0.018, fur_b))
         reg(f"thumb.dist.{side}", cl.capsule(th[1], th[2], 0.016, fur_b))
     # legs
@@ -146,9 +147,9 @@ def build(loc=(0, 0, 0)):
              ("head", (0, 0, 1.18), (0, 0, 1.50), "chest")]
     for s, side in ((1, "L"), (-1, "R")):
         bones += [(f"ear.{side}", (0.180 * s, 0.02, 1.50), (0.205 * s, 0.02, 1.60), "head"),
-                  (f"upperarm.{side}", (0.265 * s, 0, 1.06), (0.33 * s, -0.02, 0.84), "chest"),
-                  (f"forearm.{side}", (0.33 * s, -0.02, 0.84), (0.345 * s, -0.05, 0.645), f"upperarm.{side}"),
-                  (f"hand.{side}", (0.345 * s, -0.05, 0.645), (0.345 * s, -0.06, 0.52), f"forearm.{side}"),
+                  (f"upperarm.{side}", (0.265 * s, 0, 1.06), (0.345 * s, -0.035, 0.83), "chest"),
+                  (f"forearm.{side}", (0.345 * s, -0.035, 0.83), (0.398 * s, -0.075, 0.635), f"upperarm.{side}"),
+                  (f"hand.{side}", (0.398 * s, -0.075, 0.635), (0.405 * s, -0.085, 0.50), f"forearm.{side}"),
                   (f"thigh.{side}", (0.155 * s, 0.01, 0.30), (0.165 * s, 0, 0.10), "root")]
         fingers, th = _finger_pts(s)
         for i, (k, mid, tip) in enumerate(fingers):

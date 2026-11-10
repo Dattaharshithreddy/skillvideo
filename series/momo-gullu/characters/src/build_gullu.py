@@ -17,7 +17,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.expanduser("~/.claude/skills/cgi-shorts/blender"))
 import bpy
-from mathutils import Vector
+from mathutils import Vector, Euler
 import czlib as cz
 import charlib as cl
 
@@ -55,13 +55,18 @@ def build(loc=(0, 0, 0)):
     cl.add_fuzz(head, length=0.007, count=9000)
     reg("body", body)
     reg("head", head)
-    # huge floppy ears, wider than the body, pink inside
+    # huge floppy ears: curved spherical shells with real thickness, swept back ~30deg
+    # so they read edge-on in profile; pink inner shell on the concave (front) side
+    EAR_R, EAR_SWEEP = 0.42, 15
     for s, side in ((1, "L"), (-1, "R")):
-        rot = (0, math.radians(20 * s), math.radians(-25 * s))
-        ear = cl.blob(1, (0.27 * s, 0.015, 0.465), skin, scale=(0.145, 0.022, 0.185), rot=rot)
-        cl.add_fuzz(ear, length=0.005, count=2500)
-        reg(f"ear.{side}", ear,
-            cl.blob(1, (0.265 * s, 0.001, 0.462), pink, scale=(0.108, 0.013, 0.148), rot=rot))
+        eul = (math.radians(-90), 0, math.radians(-EAR_SWEEP * s))
+        n = Euler(eul).to_matrix() @ Vector((0, 0, 1))       # shell bulge direction (back + out)
+        eloc = Vector((0.250 * s, 0.050, 0.475)) - n * EAR_R   # cap centre sits beside the head
+        ear = cl.dome(EAR_R, eloc, skin, min_elev_deg=62, rot=eul, seg=48)
+        ear.modifiers.new("thick", "SOLIDIFY").thickness = 0.022
+        cl.add_fuzz(ear, length=0.005, count=2200)
+        inner = cl.dome(EAR_R - 0.028, eloc, pink, min_elev_deg=67, rot=eul, seg=40)
+        reg(f"ear.{side}", ear, inner)
     # trunk: his "hand" — a long smooth tube weighted to a 4-bone chain
     trunk = cl.tube(TRUNK, [0.055, 0.047, 0.038, 0.030, 0.023], skin, name="gullu_trunk")
     reg(None, trunk)   # handled by rig_chain_weights
