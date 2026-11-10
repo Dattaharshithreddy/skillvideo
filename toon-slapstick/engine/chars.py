@@ -183,8 +183,8 @@ class Pandu(Character):
     """The original Pandu face and body (round head, big eye patches, gold glasses, orange scarf)
     on natural panda limbs: thick forelegs that hang from behind the shoulders and end in a broad
     paw with short toes, and sturdy straight hind legs with flat, toed feet."""
-    HEIGHT = 520
-    shadow = 165
+    HEIGHT = 580
+    shadow = 140
     INK = (38, 34, 42)
     STREAK = (250, 248, 240)
     WHITE = (250, 247, 240)
@@ -193,13 +193,13 @@ class Pandu(Character):
     PAD = (226, 158, 168)
     GOLD = (236, 184, 40)
     SCARF = (255, 138, 76)
-    UP = 22                     # how far the upper body sits above the old short-legged design
+    UP = 100                    # how far the upper body sits above the old short-legged design
     POSE = dict(Character.POSE, glasses_dy=0.0, glasses_rot=0.0, scarf_fly=0.0, sit=0.0, glasses=1.0, bendL=0.14, bendR=0.14)
 
     def _arm(self, g, p, side, key):
         face = p['face']
-        sh = (side * 112 * (1 - 0.5 * abs(face)), -238 - self.UP)
-        rest = (side * 80, 138)
+        sh = (side * 100 * (1 - 0.5 * abs(face)), -238 - self.UP)
+        rest = (side * 52, 192)
         off = p[key]
         hand = (sh[0] + rest[0] + off[0], sh[1] + rest[1] + off[1])
         bend = -p['bendL' if side < 0 else 'bendR'] * side
@@ -210,7 +210,7 @@ class Pandu(Character):
         deg = math.degrees(ang)
         kind = p['handL' if side < 0 else 'handR']
         # slim at the shoulder, heavy through the forearm, widest at the paw: a real panda foreleg
-        prof = [26, 29, 32, 34, 36, 37, 38, 38, 39, 39, 40, 40, 39]
+        prof = [22, 25, 28, 30, 32, 33, 34, 34, 35, 35, 35, 34, 33]
         L, R = [], []
         for i, q in enumerate(c):
             a0, a1 = c[max(i - 1, 0)], c[min(i + 1, 12)]
@@ -246,7 +246,7 @@ class Pandu(Character):
         st, amp, face = p['step'], p['stride'], p['face']
         T = -(self.UP + 84)                              # top of the leg, hidden inside the body
         M = T * 0.5
-        for i, hx0 in enumerate((-80, 80)):
+        for i, hx0 in enumerate((-66, 66)):
             ph = 2 * math.pi * (st + i * 0.5)
             key = 'footL' if i == 0 else 'footR'
             dx = amp * math.cos(ph) + p[key][0]
@@ -256,9 +256,9 @@ class Pandu(Character):
             fx, fy = hx + dx + face * 6, -lift
             fo = face * 20 + (0 if abs(face) > 0.2 else side * 8)
             k = (fx - hx) * 0.5
-            leg = smooth([(hx - 50, T), (hx + 50, T), (hx + 49 + k, M), (fx + 46, fy - 38),
+            leg = smooth([(hx - 46, T), (hx + 46, T), (hx + 45 + k, M), (fx + 43, fy - 38),
                           (fx + 54 + fo, fy - 28), (fx + 58 + fo, fy - 10), (fx + 48 + fo, fy), (fx - 48 + fo, fy), (fx - 58 + fo, fy - 10), (fx - 54 + fo, fy - 28),
-                          (fx - 46, fy - 38), (hx - 49 + k, M)], True, 0.5)
+                          (fx - 43, fy - 38), (hx - 45 + k, M)], True, 0.5)
             for kk in (-1.5, -0.5, 0.5, 1.5):               # four toes across the front of the foot
                 tx = fx + fo + face * 22 + kk * 25 * (1 - 0.35 * abs(face))
                 u = skia.Op(leg, oval(tx, fy - 5, 13, 11), skia.kUnion_PathOp)
@@ -288,12 +288,12 @@ class Pandu(Character):
         sit = p['sit'] > 0.5
         if sit:
             for s in (-1, 1):
-                self._ink(g, oval(s * 150, -56, 70, 56), self.BLACK)
+                self._ink(g, oval(s * 116, -54, 64, 54), self.BLACK)
         elif p['wheel'] > 0.5:
-            self._legs(g, p, [(-80, -(self.UP + 70)), (80, -(self.UP + 70))], -26, 56, 26, 40, self.BLACK)
+            self._legs(g, p, [(-66, -(self.UP + 40)), (66, -(self.UP + 40))], -26, 56, 26, 38, self.BLACK)
         else:
             self._hindlegs(g, p)
-        g.push(0, bob + (U + 16 if sit else 0))
+        g.push(0, bob + (84 if sit else 0))
 
         def in_front(key, side):
             if abs(face) > 0.35:
@@ -305,9 +305,10 @@ class Pandu(Character):
             if not in_front(key, side):
                 self._arm(g, p, side, key)
         if abs(face) > 0.35:
-            self._ink(g, oval(-face * 170, -84 - U, 24, 22), self.WHITE)
-        body = smooth([(0, -300 - U), (88, -276 - U), (154, -196 - U), (182, -114 - U), (146, -42 - U), (0, -18 - U),
-                       (-146, -42 - U), (-182, -114 - U), (-154, -196 - U), (-88, -276 - U)], True, 0.5)
+            self._ink(g, oval(-face * 128, -130, 22, 20), self.WHITE)
+        # long pear: narrow sloping shoulders, widest low down, rounded underneath
+        body = smooth([(0, -392), (66, -380), (106, -334), (126, -262), (136, -190), (122, -128), (74, -94), (0, -86),
+                       (-74, -94), (-122, -128), (-136, -190), (-126, -262), (-106, -334), (-66, -380)], True, 0.5)
         self._ink(g, body, self.WHITE)
         # scarf
         kx = face * 46 + p['yaw'] * 20
@@ -367,7 +368,7 @@ class Pandu(Character):
         self.anchors['belly'] = g.pt(0, -150 - U)
         g.pop()
         if sit:
-            self._sole(g, -118, -60, -1); self._sole(g, 118, -60, 1)
+            self._sole(g, -98, -58, -1); self._sole(g, 98, -58, 1)
         self.end(g)
 
 
