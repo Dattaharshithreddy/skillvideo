@@ -189,60 +189,75 @@ class Pandu(Character):
     CLAW = (250, 240, 214)
     GOLD = (236, 184, 40)
     SCARF = (255, 138, 76)
-    POSE = dict(Character.POSE, glasses_dy=0.0, glasses_rot=0.0, scarf_fly=0.0, sit=0.0, bendL=0.1, bendR=0.1)
-
-    def _hand(self, g, c, ang, kind, side=1):
-        """A real panda paw: broad and round, five short toes with small claws, pads underneath.
-        kind: mitt (back of the paw), open (palm and pads showing), fist / grip (toes curled), point."""
-        dx, dy = math.cos(ang), math.sin(ang)
-        nx, ny = -dy, dx
-        deg = math.degrees(ang)
-        curled = kind in ('fist', 'grip')
-        reach = 28 if curled else 41
-        for k in (-2, -1, 0, 1, 2):                       # toes fan round the far edge
-            a1 = ang + k * (0.34 if not curled else 0.3)
-            long = 1.0 - 0.12 * abs(k)
-            if kind == 'point' and k == 0:
-                tip = (c[0] + math.cos(a1) * 78, c[1] + math.sin(a1) * 78)
-                self._ink(g, tube([(c[0] + math.cos(a1) * 30, c[1] + math.sin(a1) * 30), tip], 13, 11), self.BLACK)
-                continue
-            if kind == 'point':
-                long *= 0.7
-            tx, ty = c[0] + math.cos(a1) * reach * long, c[1] + math.sin(a1) * reach * long
-            self._ink(g, oval(tx, ty, 16, 13, math.degrees(a1)), self.BLACK, 4)
-        paw = oval(c[0] - dx * 5, c[1] - dy * 5, 35, 38, deg)
-        self._ink(g, paw, self.BLACK)
-        for k in (-2, -1, 0, 1, 2):                       # toe partings, drawn light so they show on black
-            if kind == 'point' and k == 0:
-                continue
-            a1 = ang + (k + 0.5) * 0.34
-            if k < 2:
-                self._ink(g, poly([(c[0] + math.cos(a1) * 24, c[1] + math.sin(a1) * 24), (c[0] + math.cos(a1) * (reach - 4), c[1] + math.sin(a1) * (reach - 4))], False), None, 2.5, col=self.HL)
-        if kind == 'open':                                # palm side: one big pad and five toe pads
-            self._ink(g, oval(c[0] - dx * 4, c[1] - dy * 4, 14, 19, deg), self.PAD, 0, False)
-            for k in (-2, -1, 0, 1, 2):
-                a1 = ang + k * 0.34
-                rr = (reach - 4) * (1.0 - 0.12 * abs(k))
-                self._ink(g, oval(c[0] + math.cos(a1) * rr, c[1] + math.sin(a1) * rr, 6.5, 5.5, math.degrees(a1)), self.PAD, 0, False)
-        elif curled:
-            for k in (-1.5, -0.5, 0.5, 1.5):
-                a1 = ang + k * 0.3
-                self._ink(g, poly([(c[0] + math.cos(a1) * 14, c[1] + math.sin(a1) * 14), (c[0] + math.cos(a1) * 30, c[1] + math.sin(a1) * 30)], False), None, 3, col=self.HL)
+    POSE = dict(Character.POSE, glasses_dy=0.0, glasses_rot=0.0, scarf_fly=0.0, sit=0.0, glasses=1.0, bendL=0.1, bendR=0.1)
+    SHADE = (228, 218, 210)     # soft shadow tone on the white fur
 
     def _arm(self, g, p, side, key):
+        """Natural panda foreleg: one smooth thick shape that rounds off into the paw. No separate hand."""
         face = p['face']
-        sh = (side * 112 * (1 - 0.5 * abs(face)), -232)
-        rest = (side * 40, 112)
+        sh = (side * 118 * (1 - 0.5 * abs(face)), -236)
+        rest = (side * 40, 128)
         off = p[key]
         hand = (sh[0] + rest[0] + off[0], sh[1] + rest[1] + off[1])
         bend = -p['bendL' if side < 0 else 'bendR'] * side
-        c = limb(sh, hand, bend, 10)
-        self._ink(g, oval(sh[0], sh[1] + 6, 46, 44), self.BLACK)
-        self._ink(g, tube(c[1:], 43, 36, True), self.BLACK)      # thick, stocky foreleg
-        self._ink(g, oval(sh[0], sh[1] + 8, 40, 38), self.BLACK, 0, False)
+        c = limb(sh, hand, bend, 12)
         ang = math.atan2(c[-1][1] - c[-3][1], c[-1][0] - c[-3][0])
-        self._hand(g, hand, ang, p['handL' if side < 0 else 'handR'], side)
-        self.anchors['handL' if side < 0 else 'handR'] = g.pt(hand[0] + math.cos(ang) * 30, hand[1] + math.sin(ang) * 30)
+        dx, dy = math.cos(ang), math.sin(ang)
+        deg = math.degrees(ang)
+        kind = p['handL' if side < 0 else 'handR']
+        shape = tube(c, 37, 32, True)
+        for extra in (oval(sh[0], sh[1] + 4, 40, 38), oval(hand[0], hand[1], 35, 34, deg)):
+            u = skia.Op(shape, extra, skia.kUnion_PathOp)
+            shape = u if u is not None else shape
+        if kind == 'point':
+            tip = (hand[0] + dx * 74, hand[1] + dy * 74)
+            u = skia.Op(shape, tube([hand, tip], 14, 11), skia.kUnion_PathOp)
+            shape = u if u is not None else shape
+        self._ink(g, shape, self.BLACK)
+        # soft light along the outer edge gives the limb some roundness
+        nx, ny = -dy, dx
+        rim = []
+        for i in range(2, 11):
+            a0, a1 = c[i - 1], c[i + 1]
+            d = math.hypot(a1[0] - a0[0], a1[1] - a0[1]) or 1
+            n = (-(a1[1] - a0[1]) / d, (a1[0] - a0[0]) / d)
+            r = 37 + (32 - 37) * i / 12
+            rim.append((c[i][0] - n[0] * r * 0.62 * side, c[i][1] - n[1] * r * 0.62 * side))
+        self._ink(g, smooth(rim, False, 0.6), None, 4, col=self.HL, a=0.55)
+        if kind == 'open':                                # palm side: one big pad and toe pads
+            self._ink(g, oval(hand[0] - dx * 4, hand[1] - dy * 4, 13, 17, deg), self.PAD, 0, False)
+            for k in (-1.5, -0.5, 0.5, 1.5):
+                a1 = ang + k * 0.42
+                self._ink(g, oval(hand[0] + math.cos(a1) * 23, hand[1] + math.sin(a1) * 23, 6, 5, math.degrees(a1)), self.PAD, 0, False)
+        elif kind != 'point':                             # back of the paw: just two short toe marks
+            for k in (-0.5, 0.5):
+                a1 = ang + k * 0.55
+                self._ink(g, poly([(hand[0] + math.cos(a1) * 20, hand[1] + math.sin(a1) * 20), (hand[0] + math.cos(a1) * 31, hand[1] + math.sin(a1) * 31)], False), None, 3, col=self.HL)
+        self.anchors['handL' if side < 0 else 'handR'] = g.pt(hand[0] + dx * 30, hand[1] + dy * 30)
+
+    def _hindlegs(self, g, p):
+        """Thick straight hind legs with rounded feet, drawn as one shape each."""
+        st, amp, face = p['step'], p['stride'], p['face']
+        for i, hx0 in enumerate((-66, 66)):
+            ph = 2 * math.pi * (st + i * 0.5)
+            key = 'footL' if i == 0 else 'footR'
+            dx = amp * math.cos(ph) + p[key][0]
+            lift = max(0.0, math.sin(ph)) * amp * 0.5 - p[key][1]
+            hx = hx0 * (1 - 0.35 * abs(face))
+            fx, fy = hx + dx + face * 8, -30 - lift
+            side = -1 if i == 0 else 1
+            c = limb((hx, -138), (fx, fy - 6), 0.06 * side * (1 - abs(face)) + lift * 0.004 * (face or side), 8)
+            fo = face * 22 + (0 if abs(face) > 0.2 else side * 8)
+            shape = tube(c, 46, 41, True)
+            u = skia.Op(shape, smooth([(fx - 50 + fo, fy + 26), (fx - 54 + fo, fy - 4), (fx - 30 + fo, fy - 22), (fx + 30 + fo, fy - 22), (fx + 54 + fo, fy - 4), (fx + 50 + fo, fy + 26)], True, 0.7), skia.kUnion_PathOp)
+            shape = u if u is not None else shape
+            if lift:
+                m = skia.Matrix(); m.setRotate(-lift * 0.12 * (face or side), hx, -138); q = skia.Path(); shape.transform(m, q); shape = q
+            self._ink(g, shape, self.BLACK)
+            for k in (-0.4, 0.4):
+                tx = fx + fo + face * 20 + k * 40
+                self._ink(g, poly([(tx, fy + 4 - lift * 0.1), (tx + k * 5, fy + 20 - lift * 0.1)], False), None, 3, col=self.HL)
+            self._ink(g, smooth([(c[1][0] - side * 28, c[1][1]), (c[4][0] - side * 28, c[4][1]), (c[6][0] - side * 26, c[6][1])], False), None, 4, col=self.HL, a=0.5)
 
     def _sole(self, g, cx, cy, s):
         """Hind paw seen from underneath (sitting pose)."""
@@ -264,33 +279,44 @@ class Pandu(Character):
         sit = p['sit'] > 0.5
         if sit:      # sitting like a real panda: haunches on the floor, hind paws out in front
             for s in (-1, 1):
-                self._ink(g, oval(s * 128, -58, 70, 58), self.BLACK)
+                self._ink(g, oval(s * 136, -56, 72, 58), self.BLACK)
         else:
-            self._legs(g, p, [(-66, -112), (66, -112)], -27, 68, 30, 40, self.BLACK)
-        g.push(0, bob + (74 if sit else 0))
+            if p['wheel'] > 0.5:
+                self._legs(g, p, [(-66, -138), (66, -138)], -30, 60, 28, 40, self.BLACK)
+            else:
+                self._hindlegs(g, p)
+        g.push(0, bob + (100 if sit else 0))
         far, near = ('armR', 'armL') if face > 0.35 else ('armL', 'armR') if face < -0.35 else (None, None)
         if far:
             self._arm(g, p, 1 if far == 'armR' else -1, far)
         # tail nub when turned
         if abs(face) > 0.35:
-            self._ink(g, oval(-face * 156, -112, 26, 24), self.WHITE)
+            self._ink(g, oval(-face * 162, -140, 26, 24), self.WHITE)
         # body
-        body = smooth([(0, -302), (96, -278), (154, -204), (168, -138), (126, -86), (0, -72),
-                       (-126, -86), (-168, -138), (-154, -204), (-96, -278)], True, 0.5)
-        self._ink(g, body, self.WHITE)
-        # the black band a real panda has across the shoulders and chest, joining the forelegs
-        band = smooth([(-200, -340), (200, -340), (200, -206), (120, -222), (0, -214), (-120, -222), (-200, -206)], True, 0.5)
-        yoke = skia.Op(body, band, skia.kIntersect_PathOp)
-        if yoke is not None:
-            self._ink(g, yoke, self.BLACK, 0, False)
-            self._ink(g, body, None)
-        # scarf
-        kx = face * 46 + p['yaw'] * 20
+        body = smooth([(0, -304), (98, -282), (160, -214), (174, -160), (140, -116), (0, -100),
+                       (-140, -116), (-174, -160), (-160, -214), (-98, -282)], True, 0.5)
+        self._ink(g, body, self.WHITE, 0, False)
+        low = skia.Op(body, smooth([(-220, -150), (-120, -128), (0, -122), (120, -128), (220, -150), (220, -60), (-220, -60)], True, 0.5), skia.kIntersect_PathOp)
+        if low is not None:
+            self._ink(g, low, self.SHADE, 0, False)
+        self._ink(g, body, None)
+        # scarf: a soft wrap with one end hanging down, fringed
+        kx = 34 + face * 30 + p['yaw'] * 16
         fly = p['scarf_fly'] - p['_vx'] * 0.035
-        tail = bez((kx, -262), (kx + 6 - fly * 40, -230), (kx + 4 - fly * 95, -205 - abs(fly) * 30), (kx + 10 - fly * 130, -176 - abs(fly) * 62))
-        self._ink(g, tube(tail, 15, 21, True), self.SCARF)
-        self._ink(g, smooth([(-104, -286), (0, -262), (104, -286), (112, -262), (60, -238), (0, -232), (-60, -238), (-112, -262)], True, 0.5), self.SCARF)
-        self._ink(g, oval(kx, -256, 21, 19), self.SCARF)
+        end = (kx + 14 - fly * 120, -150 - abs(fly) * 70)
+        tl = bez((kx, -266), (kx + 4 - fly * 30, -236), (kx + 10 - fly * 80, -200 - abs(fly) * 30), end)
+        self._ink(g, tube(tl, 30, 32, False), self.SCARF)
+        d0, d1 = tl[-2], tl[-1]
+        dd = math.hypot(d1[0] - d0[0], d1[1] - d0[1]) or 1
+        ux, uy = (d1[0] - d0[0]) / dd, (d1[1] - d0[1]) / dd
+        for k in (-24, -12, 0, 12, 24):                   # fringe
+            bx, by = end[0] - uy * k, end[1] + ux * k
+            self._ink(g, poly([(bx, by), (bx + ux * 22, by + uy * 22)], False), None, 4, col=(232, 110, 50))
+        self._ink(g, poly([(end[0] - uy * 31 - ux * 14, end[1] + ux * 31 - uy * 14), (end[0] + uy * 31 - ux * 14, end[1] - ux * 31 - uy * 14)], False), None, 7, col=(255, 240, 220))
+        wrap = smooth([(-116, -298), (0, -276), (116, -298), (128, -262), (70, -232), (0, -224), (-70, -232), (-128, -262)], True, 0.5)
+        self._ink(g, wrap, self.SCARF)
+        self._ink(g, smooth([(-96, -262), (-30, -246), (40, -248)], False), None, 3.5, col=(214, 98, 44))
+        self._ink(g, smooth([(kx - 26, -270), (kx - 4, -244), (kx + 22, -236)], False), None, 3.5, col=(214, 98, 44))
         if not far:
             self._arm(g, p, -1, 'armL'); self._arm(g, p, 1, 'armR')
         # ---- head
@@ -300,9 +326,13 @@ class Pandu(Character):
         for s in (-1, 1):
             ex, ey = s * 90 - p['yaw'] * 26, -84 + p['pitch'] * 8
             self._ink(g, oval(ex, ey, 42, 40), self.BLACK)
-            self._ink(g, oval(ex + s * 2, ey + 4, 22, 21), (88, 80, 96), 0, False)
-        self._ink(g, smooth([(0, -106), (84, -86), (124, -16), (126, 40), (82, 90), (0, 104), (-82, 90), (-126, 40), (-124, -16), (-84, -86)], True, 0.5), self.WHITE)
-        self._ink(g, smooth([(-20, -102), (-10, -122), (-2, -108), (8, -128), (14, -108), (24, -118), (24, -100)], False, 0.6), self.WHITE, 4)
+            self._ink(g, oval(ex + s * 2, ey + 6, 20, 19), (150, 118, 112), 0, False)
+        head = smooth([(0, -108), (90, -90), (134, -18), (132, 44), (84, 92), (0, 104), (-84, 92), (-132, 44), (-134, -18), (-90, -90)], True, 0.5)
+        self._ink(g, head, self.WHITE, 0, False)
+        chin = skia.Op(head, smooth([(-170, 60), (-80, 82), (0, 88), (80, 82), (170, 60), (170, 140), (-170, 140)], True, 0.5), skia.kIntersect_PathOp)
+        if chin is not None:
+            self._ink(g, chin, self.SHADE, 0, False)
+        self._ink(g, head, None)
         py = p['pitch'] * 16
         eyes = []
         for s in (-1, 1):
@@ -311,14 +341,14 @@ class Pandu(Character):
             eyes.append((x - s * 3 * ws, -6 + py, ws, s))
         # muzzle, nose, mouth
         mx, mw = self._yaw(0, R * 0.95, a)
-        self._ink(g, oval(mx, 48 + py, 50 * max(mw, 0.7), 34), (255, 255, 252), 3, True, (214, 206, 196))
+        self._ink(g, oval(mx, 46 + py, 56 * max(mw, 0.7), 40), (255, 255, 252), 3.5, True, (150, 138, 132))
         self._ink(g, smooth([(mx - 19, 24 + py), (mx, 20 + py), (mx + 19, 24 + py), (mx + 10, 40 + py), (mx, 45 + py), (mx - 10, 40 + py)], True, 0.8), (30, 26, 34))
         self._ink(g, oval(mx - 5, 27 + py, 6, 3), (120, 114, 128), 0, False)
         self._ink(g, poly([(mx, 45 + py), (mx, 56 + py)], False), None, 4)
         self._mouth(g, mx, 58 + py, max(mw, 0.7), p)
         self.anchors['mouth'] = g.pt(mx, 66 + py)
         for x, y, ws, s in eyes:
-            self._eye(g, x, y, 24, ws, p, self.BLACK, side=s, closed_col=(240, 236, 228))
+            self._eye(g, x, y, 20 if p['glasses'] < 0.5 else 23, ws, p, self.BLACK, side=s, closed_col=(240, 236, 228))
         # brows
         for x, y, ws, s in eyes:
             lift = p['brow'] + (p['brow_asym'] * 14 if s > 0 else -p['brow_asym'] * 6)
@@ -330,6 +360,7 @@ class Pandu(Character):
         gy = p['glasses_dy']
         g.push(0, gy, p['glasses_rot'])
         rims = []
+        g.alpha, _al = (g.alpha if p['glasses'] > 0.5 else 0.0), g.alpha
         for x, y, ws, s in eyes:
             rims.append((x, y + 2, 33 * ws))
             self._ink(g, oval(x, y + 2, 33 * ws, 33), None, 10, col=self.INK)
@@ -338,6 +369,7 @@ class Pandu(Character):
         self._ink(g, smooth([(x0 + r0, y0 - 6), ((x0 + x1) / 2, y0 - 16), (x1 - r1, y1 - 6)], False), None, 6, col=self.GOLD)
         self._ink(g, poly([(x0 - r0, y0 - 4), (min(x0 - r0 - 4, -112), y0 - 14)], False), None, 5, col=self.GOLD)
         self._ink(g, poly([(x1 + r1, y1 - 4), (max(x1 + r1 + 4, 112), y1 - 14)], False), None, 5, col=self.GOLD)
+        g.alpha = _al
         g.pop()
         if p['sweat'] > 0.3:
             for i in range(3):
