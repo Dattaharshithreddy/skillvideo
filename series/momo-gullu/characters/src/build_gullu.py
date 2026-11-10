@@ -57,15 +57,16 @@ def build(loc=(0, 0, 0)):
     reg("head", head)
     # huge floppy ears: curved spherical shells with real thickness, swept back ~30deg
     # so they read edge-on in profile; pink inner shell on the concave (front) side
-    EAR_R, EAR_SWEEP = 0.42, 15
+    EAR_R, EAR_SWEEP = 0.62, 5
     for s, side in ((1, "L"), (-1, "R")):
         eul = (math.radians(-90), 0, math.radians(-EAR_SWEEP * s))
         n = Euler(eul).to_matrix() @ Vector((0, 0, 1))       # shell bulge direction (back + out)
         eloc = Vector((0.250 * s, 0.050, 0.475)) - n * EAR_R   # cap centre sits beside the head
-        ear = cl.dome(EAR_R, eloc, skin, min_elev_deg=62, rot=eul, seg=48)
+        ear = cl.dome(EAR_R, eloc, skin, min_elev_deg=73, rot=eul, seg=48)
         ear.modifiers.new("thick", "SOLIDIFY").thickness = 0.022
+        ear.name = f"gullu_ear.{side}"
         cl.add_fuzz(ear, length=0.005, count=2200)
-        inner = cl.dome(EAR_R - 0.028, eloc, pink, min_elev_deg=67, rot=eul, seg=40)
+        inner = cl.dome(EAR_R - 0.028, eloc, pink, min_elev_deg=76, rot=eul, seg=40)
         reg(f"ear.{side}", ear, inner)
     # trunk: his "hand" — a long smooth tube weighted to a 4-bone chain
     trunk = cl.tube(TRUNK, [0.055, 0.047, 0.038, 0.030, 0.023], skin, name="gullu_trunk")

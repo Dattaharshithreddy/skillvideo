@@ -26,14 +26,16 @@ FINGER_X = [-0.040, -0.0135, 0.0135, 0.040]   # knuckle offsets across the palm
 
 
 def _finger_pts(s):
-    """(knuckle, mid, tip) for 4 fingers + thumb on the +s side hand."""
+    """(knuckle, mid, tip): short thick fingers resting in a relaxed curl."""
     hx, hy, hz = 0.405 * s, -0.098, 0.513
     fingers = []
     for dx in FINGER_X:
         k = Vector((hx + dx * s, hy, hz))
-        fingers.append((k, k + Vector((0, -0.004, -0.047)), k + Vector((0, -0.008, -0.088))))
-    th = (Vector((0.352 * s, -0.090, 0.553)), Vector((0.330 * s, -0.098, 0.519)),
-          Vector((0.312 * s, -0.105, 0.492)))
+        mid = k + Vector((0, -0.017, -0.029))
+        fingers.append((k, mid, mid + Vector((0, -0.026, -0.013))))
+    th_k = Vector((0.356 * s, -0.090, 0.549))
+    th_m = th_k + Vector((-0.015 * s, -0.009, -0.022))
+    th = (th_k, th_m, th_m + Vector((-0.011 * s, -0.013, -0.013)))
     return fingers, th
 
 
@@ -86,10 +88,10 @@ def build(loc=(0, 0, 0)):
     for s in (1, -1):
         reg("head",
             cl.torus(0.052, 0.0060, (0.108 * s, -0.302, 1.383), gold, rot=(math.pi / 2, 0, 0)),
-            cl.tube([(0.161 * s, -0.296, 1.383), (0.212 * s, -0.190, 1.390),
-                     (0.240 * s, -0.095, 1.405), (0.249 * s, -0.020, 1.425),
-                     (0.233 * s, 0.008, 1.452), (0.222 * s, 0.015, 1.468),
-                     (0.214 * s, 0.028, 1.446)], [0.0060] * 7, gold, name="temple"))
+            cl.tube([(0.161 * s, -0.296, 1.383), (0.212 * s, -0.190, 1.383),
+                     (0.246 * s, -0.095, 1.383), (0.268 * s, -0.010, 1.383),
+                     (0.266 * s, 0.030, 1.381), (0.258 * s, 0.044, 1.360),
+                     (0.262 * s, 0.048, 1.338)], [0.0060] * 7, gold, name="temple"))
     # scarf (the only outfit)
     reg("chest",
         cl.torus(0.21, 0.065, (0, 0, 1.13), scarf, scale=(1, 0.95, 0.6)),
@@ -109,11 +111,11 @@ def build(loc=(0, 0, 0)):
         reg(f"hand.{side}", hand, bigpad)
         fingers, th = _finger_pts(s)
         for i, (k, mid, tip) in enumerate(fingers):
-            reg(f"f{i + 1}.prox.{side}", cl.capsule(k, mid, 0.0165, fur_b))
-            reg(f"f{i + 1}.dist.{side}", cl.capsule(mid, tip, 0.0148, fur_b))
+            reg(f"f{i + 1}.prox.{side}", cl.capsule(k, mid, 0.0248, fur_b))
+            reg(f"f{i + 1}.dist.{side}", cl.capsule(mid, tip, 0.0222, fur_b))
             reg(f"hand.{side}", cl.blob(1, (k.x, -0.131, 0.533), pad, scale=(0.010, 0.006, 0.012)))
-        reg(f"thumb.prox.{side}", cl.capsule(th[0], th[1], 0.018, fur_b))
-        reg(f"thumb.dist.{side}", cl.capsule(th[1], th[2], 0.016, fur_b))
+        reg(f"thumb.prox.{side}", cl.capsule(th[0], th[1], 0.027, fur_b))
+        reg(f"thumb.dist.{side}", cl.capsule(th[1], th[2], 0.024, fur_b))
     # legs
     for s, side in ((1, "L"), (-1, "R")):
         thigh = cl.capsule((0.155 * s, 0.01, 0.30), (0.165 * s, 0, 0.10), 0.085, fur_b)
@@ -169,11 +171,11 @@ def build(loc=(0, 0, 0)):
     return {"root": root, "arm": arm, "face": face, "H": H}
 
 
-HAND_POSES = {   # (prox, dist) curl in degrees; index may override; splay spreads fingers
-    "open":  {"curl": (0, 0), "thumb": (0, 0), "splay": 20},
-    "relax": {"curl": (-48, -52), "thumb": (-24, -22), "splay": 3},
-    "point": {"curl": (-96, -100), "index": (-4, 0), "thumb": (-50, -42), "splay": 0},
-    "fist":  {"curl": (-98, -104), "thumb": (-62, -52), "splay": 0},
+HAND_POSES = {   # (prox, dist) rotations on top of the relaxed-curl rest pose
+    "open":  {"curl": (26, 58), "thumb": (14, 18), "splay": 16},
+    "relax": {"curl": (0, 0), "thumb": (0, 0), "splay": 3},
+    "point": {"curl": (-52, -46), "index": (26, 58), "thumb": (-28, -24), "splay": 0},
+    "fist":  {"curl": (-55, -48), "thumb": (-38, -32), "splay": 0},
 }
 
 
