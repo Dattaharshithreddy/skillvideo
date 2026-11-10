@@ -98,6 +98,85 @@ def cymbal(d=0.9, v=1.0):
     return v * 0.5 * x * np.exp(-t * 4.5)
 
 
+# ----------------------------------------------------------------- Indian instruments
+def tabla(stroke='na', v=1.0, sa=62):
+    """Tabla strokes. Treble drum tuned to Sa: na (ringing rim), tin (soft open), te (dry slap).
+    Bass drum: ge (deep, with the upward bend of the palm). dha = ge + na, dhin = ge + tin."""
+    f = hz(sa + 12)
+    if stroke in ('dha', 'dhin'):
+        a_ = tabla('ge', v, sa); b_ = tabla('na' if stroke == 'dha' else 'tin', v, sa)
+        n = max(len(a_), len(b_)); out = np.zeros(n); out[:len(a_)] += a_; out[:len(b_)] += b_
+        return out
+    if stroke == 'ge':
+        t = _t(0.42); fr = 78 * (1 + 0.55 * np.sin(np.pi * np.minimum(t / 0.16, 1) / 2))
+        ph = 2 * np.pi * np.cumsum(fr) / SR
+        return v * 1.1 * (np.sin(ph) + 0.25 * np.sin(2 * ph)) * np.exp(-t * 9) * _env(len(t), 0.002, 0.05)
+    if stroke == 'te':
+        t = _t(0.07); x = _noise(len(t), 7)
+        return v * 0.55 * (x - _lp(x, 0.3)) * np.exp(-t * 70) + v * 0.3 * np.sin(2 * np.pi * f * 1.5 * t) * np.exp(-t * 90)
+    d, dec = (0.32, 11) if stroke == 'na' else (0.4, 8)
+    t = _t(d)
+    x = sum(a_ * np.sin(2 * np.pi * f * k * t) * np.exp(-t * dec * (1 + 0.25 * i)) for i, (k, a_) in enumerate(((1, 1.0), (2.0, 0.55), (3.01, 0.4), (4.0, 0.22))))
+    click = 0.35 * _noise(len(t), 3) * np.exp(-t * 260)
+    return v * (0.5 if stroke == 'tin' else 0.62) * (x + click) * _env(len(t), 0.001, 0.03)
+
+
+def bansuri(note, d=0.4, v=1.0, slide_from=None):
+    """Bamboo flute: breathy, with a slow vibrato that arrives late and an optional glide into the note."""
+    t = _t(d); f1 = hz(note)
+    f = np.full(len(t), f1)
+    if slide_from is not None:
+        g_ = np.minimum(t / min(0.09, d * 0.4), 1)
+        f = hz(slide_from) * (f1 / hz(slide_from)) ** g_
+    vib = 1 + 0.008 * np.sin(2 * np.pi * 5.2 * t) * np.minimum(t / 0.25, 1)
+    ph = 2 * np.pi * np.cumsum(f * vib) / SR
+    breath = _lp(_noise(len(t), int(note)), 0.25) * 0.10
+    return v * 0.7 * (np.sin(ph) + 0.22 * np.sin(2 * ph) + 0.06 * np.sin(3 * ph) + breath) * _env(len(t), 0.035, 0.07)
+
+
+def veena(note, d=0.7, v=1.0):
+    """Plucked string with a bright buzz and a small downward bend, veena / sitar family."""
+    f = hz(note); n = int(SR * d); N = max(2, int(SR / f))
+    buf = _noise(N, int(note) + 5); out = np.empty(n)
+    for i in range(n):
+        out[i] = buf[i % N]
+        buf[i % N] = 0.9985 * (0.62 * buf[i % N] + 0.38 * buf[(i + 1) % N])
+    out = np.tanh(out * 2.2) * 0.7
+    return v * out * _env(n, 0.001, 0.06)
+
+
+def manjira(v=1.0):
+    t = _t(0.7)
+    return v * 0.35 * (np.sin(2 * np.pi * 2380 * t) + 0.7 * np.sin(2 * np.pi * 3560 * t) + 0.4 * np.sin(2 * np.pi * 5210 * t)) * np.exp(-t * 6)
+
+
+def ghatam(v=1.0, note=57):
+    t = _t(0.12); f = hz(note)
+    return v * 0.8 * (np.sin(2 * np.pi * f * t) + 0.5 * np.sin(2 * np.pi * f * 2.7 * t)) * np.exp(-t * 45) + v * 0.2 * _noise(len(t), 2) * np.exp(-t * 300)
+
+
+def tanpura(sa, d, v=1.0):
+    """Soft drone of Sa and Pa underneath everything."""
+    t = _t(d); out = np.zeros(len(t))
+    for n_, a_ in ((sa - 12, 1.0), (sa - 5, 0.6), (sa, 0.7), (sa + 12, 0.25)):
+        f = hz(n_)
+        out += a_ * sum(np.sin(2 * np.pi * f * k * t + k) / k ** 1.3 for k in (1, 2, 3, 4, 5)) * (0.75 + 0.25 * np.sin(2 * np.pi * 0.4 * t + n_))
+    return v * 0.07 * out * _env(len(t), 0.3, 0.4)
+
+
+def tihai(v=1.0, sa=62):
+    """Three-fold drum cadence that lands hard on the last beat: the classic way to end."""
+    step = int(SR * 0.105); out = np.zeros(step * 12 + int(SR * 1.0))
+    pat = ['te', 'te', 'dha', None, 'te', 'te', 'dha', None, 'te', 'te', 'dha']
+    for i, s_ in enumerate(pat):
+        if s_:
+            x = tabla(s_, v * (1.25 if i == 10 else 0.9), sa); out[i * step:i * step + len(x)] += x
+    i0 = 10 * step
+    for x in (manjira(0.9 * v), bansuri(sa + 12, 0.8, 0.6 * v, slide_from=sa + 7)):
+        out[i0:i0 + len(x)] += x[:len(out) - i0]
+    return out
+
+
 # ----------------------------------------------------------------- sound effects
 def slide(n0, n1, d=0.5, v=1.0):
     """Slide whistle: rises and falls, jumps, drooping ears."""
@@ -189,7 +268,7 @@ def tada(v=1.0):
     return v * out
 
 
-SFX = dict(bonk=bonk, crash=crash, whoosh=whoosh, zip=zipp, munch=munch, gulp=gulp, pop=pop, flap=flap, sniff=sniff,
+SFX = dict(tihai=tihai, manjira=manjira, ghatam=ghatam, bonk=bonk, crash=crash, whoosh=whoosh, zip=zipp, munch=munch, gulp=gulp, pop=pop, flap=flap, sniff=sniff,
            skid=skid, boing=boing, wah=wah_fail, tada=tada, timp=timp, cymbal=cymbal)
 
 
@@ -275,6 +354,61 @@ class Score:
                             self._add(self.mus, f + q * B / 4, brass(root + 12 + k, 0.08, 0.16 * v))
                 if b % 4 == 0:
                     self._add(self.mus, f, cymbal(0.3, 0.25 * v))
+
+    # -- Indian music beds (default). Sa = D (midi 62). Raga Mohanam: S R2 G3 P D2, a bright five-note scale.
+    MOHANAM = (0, 2, 4, 7, 9)
+
+    def _deg(self, sa, d, scale=None):
+        scale = scale or self.MOHANAM
+        return sa + 12 * (d // len(scale)) + scale[d % len(scale)]
+
+    def raga(self, f0, f1, mood='calm', sa=62, v=1.0):
+        """Indian score on the same beat grid. One matra = half a beat = 6 frames; the groove is an 8-matra cycle.
+        moods: calm (flute tune over tabla), sneak (low veena and clay-pot ticks), chase (fast tabla, flute runs),
+        sweet (slow flute and veena)."""
+        M = self.BEAT / 2
+        n = int((f1 - f0) / M)
+        self._add(self.mus, f0, tanpura(sa, (f1 - f0) / self.fps + 0.4, v * (0.5 if mood == 'sneak' else 1.0)))
+        groove = {'calm': ['dha', 'ge', 'na', 'te', 'na', 'te', 'dhin', 'na'],
+                  'sweet': ['dhin', None, 'na', None, 'tin', None, 'na', 'te'],
+                  'chase': ['dha', 'te', 'te', 'na', 'ge', 'te', 'na', 'te'],
+                  'sneak': [None, None, None, None, None, None, None, None]}[mood]
+        tune = {  # (scale degree or None for a rest, length in matras)
+            'calm': [(2, 2), (3, 1), (4, 1), (3, 2), (2, 2), (1, 1), (2, 1), (0, 2), (None, 2), (4, 2), (5, 1), (4, 1), (3, 2), (2, 1), (3, 1), (2, 2), (None, 2), (None, 2)],
+            'sweet': [(4, 4), (3, 2), (2, 2), (3, 3), (2, 1), (0, 4), (2, 4), (3, 2), (4, 2), (5, 6), (None, 2)],
+        }
+        for i in range(n):
+            f = f0 + i * M
+            s_ = groove[i % 8]
+            if s_:
+                self._add(self.mus, f, tabla(s_, 0.62 * v, sa))
+            if mood == 'chase':
+                if i % 2 == 0:
+                    self._add(self.mus, f + M / 2, tabla('te', 0.4 * v, sa))
+                run = [0, 1, 2, 3, 4, 5, 4, 3, 2, 3, 4, 5, 6, 7, 6, 5]
+                self._add(self.mus, f, bansuri(self._deg(sa + 12, run[i % 16]), 0.13, 0.5 * v))
+                self._add(self.mus, f + M / 2, bansuri(self._deg(sa + 12, run[(i + 1) % 16]), 0.11, 0.38 * v))
+                if i % 4 == 0:
+                    self._add(self.mus, f, manjira(0.5 * v)); self._add(self.mus, f, veena(sa - 12, 0.3, 0.6 * v))
+            elif mood == 'sneak':
+                walk = [0, None, 1, None, 4, None, 1, None]
+                if walk[i % 8] is not None:
+                    self._add(self.mus, f, veena(sa - 12 + walk[i % 8], 0.5, 0.75 * v))
+                if i % 8 in (3, 7):
+                    self._add(self.mus, f, ghatam(0.45 * v))
+            elif i % 8 == 0:
+                self._add(self.mus, f, veena(sa - 12, 0.9, 0.5 * v)); self._add(self.mus, f + M * 4, veena(sa - 5, 0.7, 0.4 * v))
+        if mood in tune:
+            f = f0; prev = None; k = 0
+            while f < f1 - M:
+                d, ln = tune[mood][k % len(tune[mood])]
+                if d is not None:
+                    note = self._deg(sa + 12, d)
+                    self._add(self.mus, f, bansuri(note, ln * M / self.fps * 0.96, 0.6 * v, slide_from=prev))
+                    prev = note
+                else:
+                    prev = None
+                f += ln * M; k += 1
 
     def duck(self, f0, f1, amount=0.25):
         """Pull the music down between two frames (before a big hit, or for a silent beat)."""

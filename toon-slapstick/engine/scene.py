@@ -10,8 +10,8 @@ class Painted:
     """A wide background painted once (soft, no ink lines) so inked characters pop in front of it.
     paint(g, width) draws flat shapes; this class adds brush dabs, a soft blur and paper tooth."""
 
-    def __init__(self, width, paint, seed=3, dabs=500, blur=1.2):
-        self.width = width
+    def __init__(self, width, paint, seed=3, dabs=500, blur=1.2, top=(112, 70, 50), bottom=(126, 42, 36)):
+        self.width, self.top, self.bottom = width, top, bottom
         surf = skia.Surface(width, H)
         c = surf.getCanvas()
         g = G(c)
@@ -35,6 +35,8 @@ class Painted:
     def __call__(self, canvas, cam, f):
         canvas.save()
         canvas.concat(cam.matrix(f))
+        canvas.drawRect(skia.Rect(-6000, -4000, self.width + 6000, 4), skia.Paint(Color=skia.Color(*self.top)))          # above the painting
+        canvas.drawRect(skia.Rect(-6000, H - 4, self.width + 6000, H + 4000), skia.Paint(Color=skia.Color(*self.bottom)))  # below it
         canvas.drawImage(self.img, 0, 0, skia.SamplingOptions(skia.FilterMode.kLinear))
         canvas.restore()
 
@@ -290,7 +292,7 @@ def marks(stage, f0, x, y, life=10, n=3, col=(255, 255, 255)):
 
 
 # ----------------------------------------------------------------- screen-space overlays
-def iris(stage, f0, f1, cx, cy, closing=True, r_max=1300):
+def iris(stage, f0, f1, cx, cy, closing=True, r_max=2300):
     """Classic iris-out (closing) or iris-in on a point of interest."""
     def ov(g, f):
         if f < f0:
@@ -307,19 +309,24 @@ def iris(stage, f0, f1, cx, cy, closing=True, r_max=1300):
     stage.overlays.append(ov)
 
 
-def title_card(stage, f0, f1, title, sub=''):
+def title_card(stage, f0, f1, title, sub='', bg=(126, 30, 44), ray=(160, 46, 52)):
+    """Opening card: series title and episode name on a slowly turning sunburst."""
     def ov(g, f):
         if f0 <= f < f1:
             a = min(1, (f1 - f) / 8)
-            g.c.drawRect(skia.Rect(0, 0, W, H), skia.Paint(Color=skia.Color(30, 62, 110, int(255 * a))))
-            for i in range(9):   # sunburst
+            g.c.drawRect(skia.Rect(0, 0, W, H), skia.Paint(Color=skia.Color(*bg, int(255 * a))))
+            for i in range(9):
                 ang = i * 40 + f * 0.6
-                p = poly([(W / 2, H / 2), (W / 2 + math.cos(math.radians(ang)) * 1600, H / 2 + math.sin(math.radians(ang)) * 1600), (W / 2 + math.cos(math.radians(ang + 20)) * 1600, H / 2 + math.sin(math.radians(ang + 20)) * 1600)])
-                g.c.drawPath(p, skia.Paint(AntiAlias=True, Color=skia.Color(52, 92, 150, int(255 * a))))
+                p = poly([(W / 2, H / 2), (W / 2 + math.cos(math.radians(ang)) * 2600, H / 2 + math.sin(math.radians(ang)) * 2600), (W / 2 + math.cos(math.radians(ang + 20)) * 2600, H / 2 + math.sin(math.radians(ang + 20)) * 2600)])
+                g.c.drawPath(p, skia.Paint(AntiAlias=True, Color=skia.Color(*ray, int(255 * a))))
             tf = skia.Typeface('DejaVu Serif', skia.FontStyle.BoldItalic())
-            for txt, size, y, col in ((title, 150, H / 2 + 20, (255, 214, 80)), (sub, 60, H / 2 + 120, (255, 250, 235))):
+            y = H / 2 - 40
+            for txt, size, col in ((title, 170, (255, 206, 72)), (sub, 76, (255, 246, 226))):
                 font = skia.Font(tf, size)
+                while font.measureText(txt) > W * 0.88 and size > 20:
+                    size -= 4; font = skia.Font(tf, size)
                 wdt = font.measureText(txt)
-                for dx, dy, c in ((6, 7, (20, 20, 40)), (0, 0, col)):
+                for dx, dy, c in ((6, 7, (40, 10, 20)), (0, 0, col)):
                     g.c.drawString(txt, W / 2 - wdt / 2 + dx, y + dy, font, skia.Paint(AntiAlias=True, Color=skia.Color(*c, int(255 * a))))
+                y += size * 0.95 + 30
     stage.overlays.append(ov)

@@ -1,6 +1,6 @@
 """toon.py - core of the 2D slapstick engine.
 
-World units are pixels on a 1920x1080 stage, y grows downward, 24 frames per second.
+World units are pixels on a 1080x1920 (vertical) stage, y grows downward, 24 frames per second.
 An Actor has a timeline of pose parameters. You animate pose-to-pose:
 
     pandu.move(10, 16, 'snap', x=900, sy=1.2)   # from frame 10 to 16, snap to the new pose
@@ -12,8 +12,8 @@ import math, os, subprocess, random
 import numpy as np
 import skia
 
-W, H, FPS = 1920, 1080, 24
-GROUND = 900
+W, H, FPS = 1080, 1920, 24      # vertical 9:16 for Shorts and Reels
+GROUND = 1480
 
 
 # ----------------------------------------------------------------- easing

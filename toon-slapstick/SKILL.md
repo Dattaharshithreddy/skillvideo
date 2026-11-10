@@ -21,7 +21,7 @@ studio's characters, designs, scores or specific gag sequences. Study the craft,
    topper, ending. One location, two characters, one object they both want. No dialogue.
 3. **Put it on a beat grid.** 24 fps, 12 frames = one musical beat. Start actions on beats and land
    hits on beats.
-4. **Write `episodes/<name>/episode.py`** by copying `episodes/dosa-snatch/episode.py`. API in
+4. **Write `episodes/<name>/episode.py`** by copying `episodes/01-dosa-snatch/episode.py`. API in
    `references/api.md`.
 5. **Check contact sheets before rendering**: `python3 episode.py sheet 40,52,63,110 check.png`
    and LOOK at the image. Fix staging (who overlaps what, what is off-screen, what reads at
@@ -30,7 +30,8 @@ studio's characters, designs, scores or specific gag sequences. Study the craft,
    A 30 second short renders in about 1 minute at half size and about 4 minutes at 1080p on 2 CPU cores.
 7. **Watch the stills from the final file** at the hits and the takes. Deliver the MP4.
 
-Setup: `pip install skia-python numpy scipy` and `ffmpeg` on the path.
+Setup: `pip install skia-python numpy scipy uharfbuzz` and `ffmpeg` on the path.
+Format: vertical 1080x1920. Music: use `sc.raga(f0, f1, mood)` (tabla, flute, veena) and end on `sc.hit(END - 25, 'tihai')`.
 
 ## Rules that make it look right
 
@@ -54,6 +55,9 @@ Setup: `pip install skia-python numpy scipy` and `ffmpeg` on the path.
 - `engine/acting.py` reusable moves: `take`, `zip_off`, `scramble`, `walk`, `arc`, `squash`, `blink`...
 - `engine/scene.py` painted kitchen, props, dust puffs, impact stars, speed lines, iris, title card
 - `engine/sound.py` synth orchestra, sound effects, music beds, `Score`
-- `episodes/dosa-snatch/` complete 32-second example
+- `engine/india.py` the Telugu home set, Indian props, and `telugu()` for correctly shaped Telugu lettering
+- `engine/cast.py` Ammamma, Chintu, Laddu the cat, Bujji the rabbit
+- `series/pandu-gajju.md` the world, the cast and the ten-episode plan
+- `episodes/01-dosa-snatch/` complete 32-second vertical example
 - `references/craft.md` what makes the style work, with frame counts
 - `references/api.md` engine reference and how to add characters, props and sets
