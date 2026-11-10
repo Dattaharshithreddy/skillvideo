@@ -16,6 +16,8 @@ argv = sys.argv[sys.argv.index("--") + 1:]
 shot_py, out, secs = argv[0], argv[1], float(argv[2])
 quality = argv[argv.index("--quality") + 1] if "--quality" in argv else "final"
 still = float(argv[argv.index("--still") + 1]) if "--still" in argv else None
+if "--fps" in argv:
+    cz.FPS = int(argv[argv.index("--fps") + 1])
 
 cz.reset()
 device = cz.gpu_setup()

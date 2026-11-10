@@ -204,6 +204,9 @@ def tts_kokoro(spec, cfg, text, mp3):
 
 
 def stage_tts(p, spec, cfg, a):
+    if spec.get("silent"):
+        log("silent mode: no narration")
+        return
     text = full_text(spec)
     mp3, js = p / "audio" / "narration.mp3", p / "audio" / "narration.json"
     if mp3.exists() and js.exists() and not a.force and json.loads(js.read_text()).get("text") == text:
@@ -228,7 +231,15 @@ def stage_tts(p, spec, cfg, a):
 
 
 def timing(p, spec, cfg):
-    """Return {shot_id: (start, end)} cut on word timings, plus the word list."""
+    """Return {shot_id: (start, end)} cut on word timings, plus the word list.
+    Silent mode: each shot carries "seconds" in shots.json instead of a narration line."""
+    if spec.get("silent"):
+        out, t = {}, 0.0
+        for s in spec["shots"]:
+            d = float(s["seconds"])
+            out[s["id"]] = (t, t + d)
+            t += d
+        return out, []
     data = json.loads((p / "audio" / "narration.json").read_text())
     words, total = data["words"], duration(p / "audio" / "narration.mp3") + cfg["tail"]
     starts, off = [], 0
@@ -327,7 +338,7 @@ def stage_animate_blender(p, spec, cfg, a):
         secs = tm[s["id"]][1] - tm[s["id"]][0] + 0.35
         log(f"blender {s['id']} ({secs:.2f}s, {q})")
         r = subprocess.run([blender, "-b", "--factory-startup", "-P", str(drv), "--", str(scene), str(out), f"{secs:.3f}",
-                            "--quality", q], capture_output=True, text=True)
+                            "--quality", q, "--fps", str(FPS)], capture_output=True, text=True)
         for ln in r.stdout.splitlines():
             if ln.startswith("[render]") or "Error" in ln:
                 log(ln)
@@ -455,8 +466,12 @@ def stage_assemble(p, spec, cfg, a):
     lst = tmp / "video.txt"
     lst.write_text("".join(f"file '{x.resolve()}'\n" for x in vlist))
     run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(tmp / "video.mp4")])
-    run(["ffmpeg", "-y", "-i", str(p / "audio" / "narration.mp3"), "-af", f"aresample=44100,apad,atrim=0:{t:.3f}",
-         "-ac", "2", str(tmp / "voice.wav")])
+    if spec.get("silent"):
+        run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo", "-t", f"{t:.3f}",
+             str(tmp / "voice.wav")])
+    else:
+        run(["ffmpeg", "-y", "-i", str(p / "audio" / "narration.mp3"), "-af", f"aresample=44100,apad,atrim=0:{t:.3f}",
+             "-ac", "2", str(tmp / "voice.wav")])
 
     # audio mix: voice + sfx (+ looping music, faded out)
     inputs, filt, mix = ["-i", str(tmp / "voice.wav")], [], ["[0:a]"]
@@ -476,13 +491,18 @@ def stage_assemble(p, spec, cfg, a):
     run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(filt), "-map", "[aout]", "-t", f"{t:.3f}",
          str(tmp / "mix.wav")])
 
-    ass = tmp / "captions.ass"
-    write_captions(ass, cfg, words, t)
     final = p / "out" / "final.mp4"
-    run(["ffmpeg", "-y", "-i", str(tmp / "video.mp4"), "-i", str(tmp / "mix.wav"),
-         "-vf", f"subtitles={ass.as_posix()}" + (f":fontsdir={(p / 'fonts').as_posix()}" if (p / "fonts").exists() else ""), "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
-         "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", str(final)])
-    shutil.copy(ass, p / "out" / "captions.ass")
+    if spec.get("silent"):                      # silent comedy: no captions to burn
+        run(["ffmpeg", "-y", "-i", str(tmp / "video.mp4"), "-i", str(tmp / "mix.wav"),
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+             "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", str(final)])
+    else:
+        ass = tmp / "captions.ass"
+        write_captions(ass, cfg, words, t)
+        run(["ffmpeg", "-y", "-i", str(tmp / "video.mp4"), "-i", str(tmp / "mix.wav"),
+             "-vf", f"subtitles={ass.as_posix()}" + (f":fontsdir={(p / 'fonts').as_posix()}" if (p / "fonts").exists() else ""), "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+             "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", str(final)])
+        shutil.copy(ass, p / "out" / "captions.ass")
 
     u = json.loads((p / "out" / "usage.json").read_text()) if (p / "out" / "usage.json").exists() else {}
     ce = cfg["cost_estimate"]
@@ -504,6 +524,8 @@ def main():
     a.only = set(a.only.split(",")) if a.only else None
     p = Path(a.project).resolve()
     spec, cfg = load_project(p)
+    global FPS
+    FPS = int(spec.get("fps", FPS))
     fns = {"tts": stage_tts, "refs": stage_refs, "images": stage_images,
            "animate": stage_animate, "assemble": stage_assemble}
     for st in ([a.stage] if a.stage else STAGES):

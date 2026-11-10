@@ -83,6 +83,10 @@ project/
 - `sfx`: optional sound in `sfx/`, played at the shot's first word.
 - `still: true`: skip AI video and use a slow zoom on the still instead (cheap).
 - `clip_start`: seconds into the generated clip to start from (pick the best moment).
+- **Silent mode**: `"silent": true` at the top level skips TTS and caption burn-in (for dialogue-free
+  comedy shorts). Each shot then carries `"seconds": <float>` instead of `line`, and shots cut on those
+  durations. Optional `"fps": 24` overrides the default 30 end to end (Blender render + assemble).
+  Music/SFX still work: drop a pre-mixed `music.wav` bed and/or per-shot `sfx` entries.
 
 ## 4. Quality bar
 - First frame already shows the action; the first words state the hook.
