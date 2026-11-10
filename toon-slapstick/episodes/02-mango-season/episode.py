@@ -15,7 +15,7 @@ from india import mango
 from sets import garden, SKY
 from acting import blink, look, bob, walk, squash, take, shake, zip_off, chew, flap, arc
 from sound import veena, bansuri, xylo
-from show import Show, face, hop, laugh, enter, ladle, word, CALM, HAPPY, LAUGH, ANGRY, SHOCK, SORRY, SLY
+from show import Show, board, face, hop, laugh, enter, ladle, word, CALM, HAPPY, LAUGH, ANGRY, SHOCK, SORRY, SLY
 
 G0 = GROUND
 ep = Show(2, 'Mango Season', 'mango_season', 846, Painted(2700, garden, top=SKY, bottom=(112, 136, 70)))
@@ -197,8 +197,8 @@ sc.raga(S, S + 110, 'sweet', v=0.9)
 bujji.move(S, S + 3, 'over', armL=(0, 0), yaw=0.4, **HAPPY); sc.hit(S + 2, 'pop', 0.9)
 ripe.set(S + 2, show=0.0)
 hx, hy = st.probe(S, gaju, 'head')
-gaju.move(S + 2, S + 8, 'over', trunk=(-70, -40), trunk_curl=-0.5, face=-0.3, yaw=-0.3, sweat=0.0, **HAPPY)
-bheemu.move(S + 2, S + 8, 'over', armL=(30, -150), handL='grip', bendL=0.5, face=-0.2, yaw=-0.3, sweat=0.0, **HAPPY)
+gaju.move(S + 2, S + 8, 'over', trunk=(-70, -40), trunk_curl=-0.5, face=-0.3, yaw=-0.3, **HAPPY)
+bheemu.move(S + 2, S + 8, 'over', armL=(30, -150), handL='grip', bendL=0.5, face=-0.2, yaw=-0.3, **HAPPY)
 slices[0].set(S + 2, show=1.0, x=572, y=G0 - 60); slices[0].attach(S + 3, 900, bujji, 'handL', 0, -8)
 slices[1].set(S + 2, show=1.0, x=572, y=G0 - 60); arc(slices[1], S + 2, S + 9, 740, G0 - 200, 120, spin=360); slices[1].attach(S + 9, 900, gaju, 'trunk', 0, -6)
 slices[2].set(S + 3, show=1.0, x=572, y=G0 - 60); arc(slices[2], S + 3, S + 12, 1030, G0 - 330, 160, spin=360); slices[2].attach(S + 12, 900, bheemu, 'handL', 0, -20)
@@ -224,6 +224,12 @@ face(amma, A + 52, 5, **HAPPY); amma.move(A + 52, A + 57, 'over', armR=(10, -40)
 for a in (bujji, gaju, bheemu):
     face(a, A + 58, 4, **HAPPY)
 END = A + 72
+
+# ------------------------------------------------------------------ what they say, on boards
+board(ep, bheemu, 352, 'పక్కకి జరుగు.\nటెక్నిక్ చూడు!', 28, side=1)             # "Move aside. Watch the technique!"
+board(ep, gaju, BIG + 8, 'సూపర్ టెక్నిక్\nఅన్నా!', 32, side=1)                   # "Super technique, brother!"
+board(ep, bujji, P + 2, 'నేను కోయలేదు.\nఅదే పడింది!', 40, side=-1)               # "I didn't pluck it. It fell by itself!"
+board(ep, amma, A + 26, 'నా వాటా ఎక్కడ?', 30, side=1, up=-150)                  # "Where is my share?"
 ep.close(END, 640, G0 - 300)
 print('frames needed', END + 34)
 

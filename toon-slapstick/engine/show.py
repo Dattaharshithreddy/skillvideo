@@ -260,3 +260,40 @@ def sparks(stage, f0, x, y, n=18, life=22, r=420):
                 d0, d1 = r * (t ** 0.5) * 0.7, r * (t ** 0.5)
                 g.shape(poly([(x + math.cos(a) * d0, y + math.sin(a) * d0 + 80 * t * t), (x + math.cos(a) * d1, y + math.sin(a) * d1 + 80 * t * t)], False), None, True, 7, cols[i % 4], a=1 - t)
     stage.fx.append(fx)
+
+
+# ----------------------------------------------------------------- hand-held boards
+def _width(text, size, font):
+    import uharfbuzz as hb
+    from india import _font
+    hbf, tf, upem = _font(font)
+    buf = hb.Buffer(); buf.add_str(text); buf.guess_segment_properties(); hb.shape(hbf, buf)
+    return sum(p.x_advance for p in buf.glyph_positions) * size / upem
+
+
+def board(show, a, f0, text, hold=40, side=1, size=50, font='Ramabhadra', col=(126, 30, 44), up=0):
+    """The silent-cartoon way to talk: the character holds up a wooden board with a Telugu line on it.
+    It pops up beside them, wobbles, and drops. No speech bubbles in this series (Harshith's rule).
+    Use '\n' for a second line; two to four words a line; hold 36 frames or more."""
+    lines = text.split('\n')
+    bw = max(_width(l, size, font) for l in lines) + 64
+    bh = len(lines) * size * 1.3 + 40
+
+    def fx(g, f):
+        if not (f0 <= f < f0 + hold):
+            return
+        t = f - f0
+        rise = (0.25, 0.7, 1.08, 1.0)[t] if t < 4 else (max(0.0, (f0 + hold - f) / 3) if f0 + hold - f < 3 else 1.0)
+        x = a.value('x', f) + side * (a.HEIGHT * 0.22 + bw / 2 + 30)
+        y0 = a.value('y', f)
+        top = y0 - (a.HEIGHT + 60 + up + bh) * rise
+        g.push(x, y0, math.sin(t * 0.5) * 2.5 * max(0, 1 - t / 16))
+        g.shape(rect(-9, top - y0 + bh - 6, 18, (y0 - top) - bh + 6, 4), (150, 100, 66), True, 4, INK)
+        g.shape(rect(-bw / 2, top - y0, bw, bh, 12), (255, 250, 236), True, 5, INK)
+        g.shape(rect(-bw / 2 + 10, top - y0 + 10, bw - 20, bh - 20, 6), None, True, 3, (214, 160, 90))
+        for i, l in enumerate(lines):
+            telugu(g, l, 0, top - y0 + 20 + size * 0.95 + i * size * 1.3, size, col, font)
+        g.pop()
+    show.st.fx.append(fx)
+    show.sc.hit(f0, 'pop', 0.5, note=76)
+    return f0 + hold
