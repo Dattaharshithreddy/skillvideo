@@ -223,6 +223,13 @@ class G:
     def line(self, pts, col=None, w=None, a=1.0, closed=False):
         self.shape(poly(pts, closed), None, True, w, col, a)
 
+    def shade(self, clip, path, col, blur=14, a=1.0):
+        """Soft tone painted inside another shape (form shading that stays within the outline)."""
+        self.c.save()
+        self.c.clipPath(self._tx(clip), skia.ClipOp.kIntersect, True)
+        self.soft(path, col, blur, a)
+        self.c.restore()
+
     def soft(self, path, col, blur=12, a=1.0):
         p = self._tx(path)
         self.c.drawPath(p, skia.Paint(AntiAlias=True, Color=self._col(col, a),
