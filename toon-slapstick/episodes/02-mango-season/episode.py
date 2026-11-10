@@ -15,7 +15,8 @@ from india import mango
 from sets import garden, SKY
 from acting import blink, look, bob, walk, squash, take, shake, zip_off, chew, flap, arc
 from sound import veena, bansuri, xylo
-from show import Show, board, face, hop, laugh, enter, ladle, word, CALM, HAPPY, LAUGH, ANGRY, SHOCK, SORRY, SLY
+from voice import speak
+from show import Show, face, hop, laugh, enter, ladle, word, CALM, HAPPY, LAUGH, ANGRY, SHOCK, SORRY, SLY
 
 G0 = GROUND
 ep = Show(2, 'Mango Season', 'mango_season', 846, Painted(2700, garden, top=SKY, bottom=(112, 136, 70)))
@@ -225,11 +226,7 @@ for a in (bujji, gaju, bheemu):
     face(a, A + 58, 4, **HAPPY)
 END = A + 72
 
-# ------------------------------------------------------------------ what they say, on boards
-board(ep, bheemu, 352, 'పక్కకి జరుగు.\nటెక్నిక్ చూడు!', 28, side=1)             # "Move aside. Watch the technique!"
-board(ep, gaju, BIG + 8, 'సూపర్ టెక్నిక్\nఅన్నా!', 32, side=1)                   # "Super technique, brother!"
-board(ep, bujji, P + 2, 'నేను కోయలేదు.\nఅదే పడింది!', 40, side=-1)               # "I didn't pluck it. It fell by itself!"
-board(ep, amma, A + 26, 'నా వాటా ఎక్కడ?', 30, side=1, up=-150)                  # "Where is my share?"
+speak(ep, amma, A + 26, 'a_vata')                                    # "Where is my share?"
 ep.close(END, 640, G0 - 300)
 print('frames needed', END + 34)
 

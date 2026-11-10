@@ -273,7 +273,8 @@ def _width(text, size, font):
 
 def board(show, a, f0, text, hold=40, side=1, size=50, font='Ramabhadra', col=(126, 30, 44), up=0):
     """The silent-cartoon way to talk: the character holds up a wooden board with a Telugu line on it.
-    It pops up beside them, wobbles, and drops. No speech bubbles in this series (Harshith's rule).
+    It pops up beside them, wobbles, and drops. NOT USED in this series: Harshith wants silent comedy
+    with Telugu lines only on walls, posters, shop boards and autos, never characters talking.
     Use '\n' for a second line; two to four words a line; hold 36 frames or more."""
     lines = text.split('\n')
     bw = max(_width(l, size, font) for l in lines) + 64
