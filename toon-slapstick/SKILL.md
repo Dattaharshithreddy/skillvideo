@@ -1,6 +1,6 @@
 ---
 name: toon-slapstick
-description: Make original 2D slapstick cartoons (classic cat-and-mouse chase style, no dialogue) with the Pandu & Gajju characters or new ones. Use when asked for a 2D cartoon, a chase gag, a Pandu & Gajju episode, or "Tom and Jerry style" animation. Renders on CPU in about real time; no GPU needed.
+description: Make original 2D slapstick cartoons (classic cat-and-mouse chase style, no dialogue) with the Bheemu & Gaju characters or new ones. Use when asked for a 2D cartoon, a chase gag, a Bheemu & Gaju episode, or "Tom and Jerry style" animation. Renders on CPU in about real time; no GPU needed.
 ---
 
 # toon-slapstick
@@ -51,13 +51,13 @@ Format: vertical 1080x1920. Music: use `sc.raga(f0, f1, mood)` (tabla, flute, ve
 ## Files
 
 - `engine/toon.py` core: timeline, easing, camera, stage, render, contact sheets
-- `engine/chars.py` Pandu and Gajju (pose parameters listed at the top of the file)
+- `engine/chars.py` Bheemu and Gaju (pose parameters listed at the top of the file)
 - `engine/acting.py` reusable moves: `take`, `zip_off`, `scramble`, `walk`, `arc`, `squash`, `blink`...
 - `engine/scene.py` painted kitchen, props, dust puffs, impact stars, speed lines, iris, title card
 - `engine/sound.py` synth orchestra, sound effects, music beds, `Score`
 - `engine/india.py` the Telugu home set, Indian props, and `telugu()` for correctly shaped Telugu lettering
 - `engine/cast.py` Ammamma, Chintu, Laddu the cat, Bujji the rabbit
-- `series/pandu-gajju.md` the world, the cast and the ten-episode plan
+- `series/bheemu-gaju.md` the world, the cast and the ten-episode plan
 - `episodes/01-dosa-snatch/` complete 32-second vertical example
 - `references/craft.md` what makes the style work, with frame counts
 - `references/api.md` engine reference and how to add characters, props and sets

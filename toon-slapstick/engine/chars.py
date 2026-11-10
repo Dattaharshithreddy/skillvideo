@@ -1,4 +1,4 @@
-"""chars.py - Pandu (panda) and Gajju (baby elephant) as fully parametric 2D characters.
+"""chars.py - Bheemu (panda) and Gaju (baby elephant) as fully parametric 2D characters.
 
 Each character is redrawn every frame from its pose parameters, so it can squash, stretch,
 smear, turn its head, blink and act. Local coordinates: (0,0) is the point between the feet,
@@ -178,9 +178,9 @@ class Character(Actor):
                     self._ink(g, poly([(tx, fy + foot_ry * 0.25), (tx, fy + foot_ry * 0.8)], False), None, 2.5, col=hl)
 
 
-# =====================================================================  PANDU
-class Pandu(Character):
-    """The original Pandu face and body (round head, big eye patches, gold glasses, orange scarf)
+# =====================================================================  BHEEMU
+class Bheemu(Character):
+    """The original Bheemu face and body (round head, big eye patches, gold glasses, orange scarf)
     on natural panda limbs: thick forelegs that hang from behind the shoulders and end in a broad
     paw with short toes, and sturdy straight hind legs with flat, toed feet."""
     HEIGHT = 580
@@ -372,8 +372,8 @@ class Pandu(Character):
         self.end(g)
 
 
-# =====================================================================  GAJJU
-class Gajju(Character):
+# =====================================================================  GAJU
+class Gaju(Character):
     HEIGHT = 250
     shadow = 80
     INK = (44, 70, 112)

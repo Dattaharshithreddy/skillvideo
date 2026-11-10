@@ -1,7 +1,7 @@
-"""india.py - the Telugu small-town home where Pandu and Gajju live: painted sets and props.
+"""india.py - the Telugu small-town home where Bheemu and Gaju live: painted sets and props.
 
 Sets are painted relative to GROUND so characters stand in front of the furniture.
-Furniture tops sit about 270-290 px above GROUND (Pandu's waist).
+Furniture tops sit about 270-290 px above GROUND (Bheemu's waist).
 """
 import math, random
 import skia

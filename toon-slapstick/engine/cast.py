@@ -1,5 +1,5 @@
 """cast.py - the rest of the household: Ammamma (grandmother), Chintu (the boy next door),
-Laddu (the fat orange cat) and Bujji (the white rabbit). Same pose parameters as Pandu and Gajju.
+Laddu (the fat orange cat) and Bujji (the white rabbit). Same pose parameters as Bheemu and Gaju.
 """
 import math
 import skia
@@ -154,7 +154,7 @@ class Ammamma(_Biped):
 # =====================================================================  CHINTU
 class Chintu(_Biped):
     """The boy next door, about seven. Striped T-shirt, shorts, a tuft of hair that never lies flat.
-    Gajju's partner in mischief."""
+    Gaju's partner in mischief."""
     HEIGHT = 390
     shadow = 90
     INK = (60, 36, 34)

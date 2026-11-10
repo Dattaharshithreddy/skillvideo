@@ -3,8 +3,8 @@
 World units are pixels on a 1080x1920 (vertical) stage, y grows downward, 24 frames per second.
 An Actor has a timeline of pose parameters. You animate pose-to-pose:
 
-    pandu.move(10, 16, 'snap', x=900, sy=1.2)   # from frame 10 to 16, snap to the new pose
-    pandu.set(40, mouth_open=0.8)               # instant change on frame 40
+    bheemu.move(10, 16, 'snap', x=900, sy=1.2)   # from frame 10 to 16, snap to the new pose
+    bheemu.set(40, mouth_open=0.8)               # instant change on frame 40
 
 Everything not mentioned holds its last value. See references/api.md.
 """
