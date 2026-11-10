@@ -61,3 +61,22 @@ Format: vertical 1080x1920. Music: use `sc.raga(f0, f1, mood)` (tabla, flute, ve
 - `episodes/01-dosa-snatch/` complete 32-second vertical example
 - `references/craft.md` what makes the style work, with frame counts
 - `references/api.md` engine reference and how to add characters, props and sets
+
+## House rules for Bheemu & Gaju (set by Harshith, November 2026)
+
+- Silent comedy like episode 1. No speech bubbles, no boards held by characters, no captions.
+- Telugu lines appear only as part of the scenery: wall paint, posters, shop boards, notices, banners, the auto.
+- Bheemu, Gaju, Laddu and Bujji never talk. Only the humans (Ammamma, Chintu) may speak, with `voice.speak()`.
+  Voice files live in `voice/`; make new ones with `tools/tts_telugu.py` (free AI4Bharat Indic-TTS Telugu model,
+  downloaded from the AI4Bharat/Indic-TTS GitHub release `v1-checkpoints-release/te.zip`; needs `pip install coqui-tts torch torchaudio torchcodec`).
+- Draw anatomy, not shapes: fingers and thumbs, elbows, knees, toes, paws, a real trunk.
+- Do not change episode 1.
+
+## Shared helpers added for episodes 2-10
+
+- `engine/show.py`: `Show` (title card, camera shortcuts, closing iris, command line and re-encode), expression
+  presets (`CALM HAPPY LAUGH ANGRY SHOCK SORRY SLY SLEEP`), `hop`, `laugh`, `enter`, props (ladle, milk pot, ball,
+  umbrella, kite, papad, diya, rocket, cot) and effects (`rain`, `zzz`, `splash`, `sparks`, `word`).
+- `engine/sets.py`: `garden`, `lane`, `terrace`, `courtyard(night=True)` and the `auto` prop.
+- `engine/voice.py`: `speak(ep, actor, frame, name)` plays a line and moves the speaker's mouth.
+- Episodes 2-10 in `episodes/` are short (about 150 lines each) and are the best templates to copy.
