@@ -45,6 +45,8 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 36 | 2026-11-11 | Plan with approved production assets and existing controls. Restage or change the angle when a view is missing; do not wait for review-only assets. | Decision 5 |
 | 37 | 2026-11-11 | Validation scripts may be built if they only read project files and report. They must not modify production files, approved assets, presets or baselines, and they are kept isolated and tested. | Decision 6 |
 | 38 | 2026-11-11 | Verify the actual configuration before correcting documentation. Fix verified errors; keep proposals separate when evidence is insufficient. Do not change staging on unofficial estimates. | "Verify the actual engine configuration before changing documentation" |
+| 39 | 2026-11-11 | Before posing or animating an action, study real footage of the animal and how good animation handles it, frame by frame, and write down what was learned. Do not iterate by guesswork. | "Instead of going back and forth, go through the panda videos frame by frame" |
+| 40 | 2026-11-11 | A paw or hand holds an object as a closed fist the object passes through: palm and arm behind it, fingers curled over the front, forearm visible reaching it. Never paste a paw flat on top of an object or draw fingers onto the object. | Pilot reviews of v002 to v005; panda reference study |
 
 ## Experimental (being tested)
 
@@ -71,6 +73,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rules 39-40 (reference study before animating; how a paw holds an object).
 - 2026-11-11: added confirmed rules 33-38 from the knowledge-base completion decisions.
 - 2026-11-11: added confirmed rules 29-32 from the document 3 review and the document 4 authorisation.
 - 2026-11-11: added confirmed rules 23-26 from the Stage 1 review (character life test, evidence kinds, engine limits, review branch).

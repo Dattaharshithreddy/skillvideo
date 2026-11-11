@@ -8,7 +8,7 @@ Harshith has reviewed this (gate B in cartoon-animation-director/knowledge/Produ
 
 Run:  python3 animatic.py board     writes ../storyboard/board.png (one panel per shot beat)
       python3 animatic.py hookups   writes ../storyboard/hookups.png (frame before and after each cut)
-      python3 animatic.py render    writes one_more_page_animatic_v005.mp4 (half size) beside this file
+      python3 animatic.py render    writes one_more_page_animatic_v006.mp4 (half size) beside this file
 
 Version 002 (2026-11-11), after the hold at the animatic gate: wait shortened from 58 to 42 frames; the ball's
 return in view for 10 frames with a soft falling note; gentler landing (no squash of Bheemu); the reveal of his
@@ -25,12 +25,17 @@ the paw or trunk moves with the ball.
 Version 005 (2026-11-11), after his review of v004 ("the fingers are mixed in the book"): the toe tips drawn on
 the prop are gone. Bheemu's own approved forelegs are drawn a second time above the book, using the model's own
 drawing method and pose, so the real paw with its real toes is in front of what it holds.
+Version 006 (2026-11-11), after Harshith asked for a proper study of real pandas and animated pandas instead of
+back-and-forth: grips are layered as "object through a closed fist" (arm and palm behind, only the finger end of
+the approved paw in front, clipped), paws placed so the fist straddles the book's edge with the forearm visible.
+Study: cartoon-animation-director/pilot/Panda_Reference_Study.md.
 Version 001 is the committed v001 file and this script's previous revision in Git.
 """
 import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', '..', '..', 'engine'))
 from toon import GROUND, W, H, Actor
+import skia
 import math
 from chars import Bheemu, Gaju
 from cast import Chintu
@@ -67,34 +72,39 @@ def the_book(g, p, f):
 
 
 class PawsOver(Actor):
-    """v005. Draws Bheemu's OWN forelegs a second time, above the book, by calling the approved model's own
-    drawing method with his own pose for this frame. Nothing is redrawn or invented: it is the approved paw,
-    with its real toes, in front of the thing it holds. chars.py is not changed. A foreleg is repeated only
-    while its paw is at the book."""
+    """v006: the grip, layered the way real pandas and well-made animated pandas hold things (study in
+    pilot/Panda_Reference_Study.md): the object passes THROUGH a closed fist. The arm and palm stay behind the
+    object (normal draw order); then only the curled finger end of Bheemu's own approved paw is drawn again,
+    clipped to a small disc at his hand anchor, so the fingers wrap over the front of the book or ball.
+    chars.py is not changed and no new paw shape is drawn."""
     twos = False
+    R = 30                                       # radius of the finger disc, in world px
 
     def draw(self, g, p, f):
         bp = bheemu.frame_pose(f)
-        if 'c' not in bk.anchors:
-            return
-        kp = bk.frame_pose(f); cx, cy = bk.anchors['c']
-        near = []
+        held = []
         for key, side, anchor in (('armL', -1, 'handL'), ('armR', 1, 'handR')):
+            if bp['handL' if side < 0 else 'handR'] not in ('grip', 'fist', 'mitt'):
+                continue
             ax, ay = bheemu.anchors.get(anchor, (1e9, 1e9))
-            if abs(ax - cx) < 175 * kp['sx'] and abs(ay - cy) < 135 * kp['sy']:
-                near.append((key, side))
-        if not near:
-            return
-        bheemu.begin(g, bp)
-        g.push(0, -abs(math.sin(2 * math.pi * bp['step'])) * bp['stride'] * 0.10)      # the same bob the model applies
-        for key, side in near:
+            for prop, reach in ((bk, 150), (bl, 40)):
+                if 'c' in prop.anchors and prop.frame_pose(f)['show'] >= 0.5:
+                    kx, ky = prop.anchors['c']; kp = prop.frame_pose(f)
+                    if abs(ax - kx) < reach * kp['sx'] and abs(ay - ky) < reach * kp['sy'] * (0.9 if prop is bk else 1.0):
+                        held.append((key, side, ax, ay)); break
+        for key, side, ax, ay in held:
+            g.c.save()
+            g.c.clipPath(g._tx(oval(ax, ay, self.R, self.R)), skia.ClipOp.kIntersect, True)
+            bheemu.begin(g, bp)
+            g.push(0, -abs(math.sin(2 * math.pi * bp['step'])) * bp['stride'] * 0.10)
             bheemu._arm(g, bp, side, key)
-        g.pop(); bheemu.end(g)
+            g.pop(); bheemu.end(g)
+            g.c.restore()
 
 
-bk = Prop(the_book, z=4, sx=1.1, sy=1.1, shut=0.0); bl = Prop(ball, z=5); paws = PawsOver(z=4.5)
+bk = Prop(the_book, z=4, sx=1.1, sy=1.1, shut=0.0); bl = Prop(ball, z=5); paws = PawsOver(z=6)
 st.add(bheemu, gaju, chintu, bk, bl, paws)
-READ = dict(armL=(16, -115), armR=(-16, -115), handL='grip', handR='grip')        # both hands hold the book at the chest
+READ = dict(armL=(30, -146), armR=(-30, -146), handL='grip', handR='grip')        # both hands hold the book at the chest
 EYES_DOWN = dict(pupil=(0.0, 0.8), lid=0.25, smile=0.3)
 BOOK_AT = (0, -35)                        # book offset from Bheemu's belly anchor
 SHOTS = []                                # (first frame, name, size, note) for the burn-in and the board
@@ -143,7 +153,7 @@ sc.hit(T + 90, 'pop', 0.5, note=79)
 
 # ------------------------------------------------------------ S3 medium close on Bheemu: he turns a page  (108-131)
 shot(108, 'S3', 'MED CLOSE', BX, 2.8, up=230, note='No reaction. He turns a page')
-P(bheemu, 114, 2, armR=(-50, -135), handR='grip'); P(bheemu, 118, 3, 'io', armR=(-16, -115), handR='grip'); sc.hit(T + 116, 'ghatam', 0.5)
+P(bheemu, 114, 2, armR=(-50, -135), handR='grip'); P(bheemu, 118, 3, 'io', armR=(-30, -146), handR='grip'); sc.hit(T + 116, 'ghatam', 0.5)
 P(bheemu, 122, 2, pupil=(0.3, 0.8)); P(bheemu, 126, 2, pupil=(-0.3, 0.8))                              # eyes travel along the line
 
 # ------------------------------------------------------------ S4 wide: attempt 2 (bigger), then attempt 3 (far too hard)  (132-203)
@@ -155,7 +165,7 @@ for t0 in (134, 146, 158):                                                    # 
 for f in flap(gaju, T + 134, T + 168, 4, 0.9):
     sc.hit(f, 'flap', 0.35)
 P(gaju, 168, 2, ear=0.0)
-P(bheemu, 150, 3, 'out', armL=(24, -300), armR=(-24, -300))                    # without looking, the book rises between them
+P(bheemu, 150, 3, 'out', armL=(35, -320), armR=(-35, -320))                    # without looking, the book rises between them
 bk.attach(T + 150, T + 228, bheemu, 'belly', 0, -235)
 P(gaju, 172, 3, sy=1.0, sx=1.0, yaw=-0.2, pupil=(-0.6, 0.0), ear=-0.5, smile=-0.2, happy=0.0, eye_open=1.0)   # hm.
 P(gaju, 182, 6, 'out', sy=0.8, sx=1.2, trunk=(0, -120), trunk_curl=-0.2, brow_ang=14)                 # wind-up
@@ -173,7 +183,7 @@ shot(204, 'S5', 'WIDE HIGH', MID, 1.0, note='The wait, shortened. Gaju gives up.
 P(gaju, 214, 4, 'io', pupil=(0.0, 0.0), head_dy=0, **CALM)                                              # nothing came down
 P(gaju, 222, 5, 'io', sy=0.93, sx=1.05, ear=-0.9, yaw=0.3, pupil=(0.5, 0.6), trunk=(30, 92), trunk_curl=0.7, **SORRY); gaju.set(T + 222, sweat=0.0)   # sulks, turns away
 sc.hit(T + 224, 'ghatam', 0.4)
-P(bheemu, 228, 4, 'io', armL=(16, -115), armR=(-16, -115)); bk.attach(T + 228, T + 342, bheemu, 'belly', *BOOK_AT)   # the book comes down
+P(bheemu, 228, 4, 'io', armL=(30, -146), armR=(-30, -146)); bk.attach(T + 228, T + 342, bheemu, 'belly', *BOOK_AT)   # the book comes down
 P(bheemu, 234, 3, 'io', pupil=(0.9, 0.3), lid=0.1, yaw=0.3)                                            # his first look at Gaju
 P(bheemu, 240, 3, 'io', smile=0.6)                                                                     # he softens...
 bl.set(T + 246, x=BX, y=G0 - 1540, sy=1.0, sx=1.0)                                                    # v002: enters at the top edge and is in view for 10 frames
@@ -291,5 +301,5 @@ if __name__ == '__main__':
         print('cuts at engine frames:', cuts)
     elif mode == 'render':
         wav = sc.write(os.path.join(HERE, 'scratch_audio.wav'))
-        st.render(os.path.join(HERE, 'one_more_page_animatic_v005.mp4'), audio=wav, scale=0.5)
+        st.render(os.path.join(HERE, 'one_more_page_animatic_v006.mp4'), audio=wav, scale=0.5)
     print('shots:', [(s[1], s[0] + 1, s[2]) for s in SHOTS], 'total frames', TOTAL)
