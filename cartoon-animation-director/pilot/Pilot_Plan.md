@@ -1,16 +1,56 @@
 # Pilot Plan: "One More Page"
 
-**Status: at gate B. The animatic is ready for review. No detailed animation has been started.**
-Version 1.0, 2026-11-11.
+**Status: HOLD at gate B (review of 2026-11-11). Animatic v002 is ready for review. No detailed animation has been started.**
+Version 1.1, 2026-11-11.
 
 Everything here uses the approved production models, the existing presets, existing props and existing engine controls. No engine file, character code, preset or baseline was changed. Nothing from the review branch is used.
 
 | Item | Where |
 |---|---|
-| Animatic (540 x 960, 25.9 s, scratch sound) | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v001.mp4` |
+| Animatic v002 (540 x 960, 27.8 s, scratch sound) | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v002.mp4` |
+| Animatic v001 (25.9 s), kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v001.mp4` |
 | Animatic source | `toon-slapstick/episodes/11-one-more-page/animatic/animatic.py` |
 | Storyboard panels | `toon-slapstick/episodes/11-one-more-page/storyboard/board.png` |
 | Hook-up frames for every cut | `toon-slapstick/episodes/11-one-more-page/storyboard/hookups.png` |
+
+## Revision 2: what changed after the hold
+
+Review verdict on v001: the story is worth pursuing; revise the animatic before detailed animation. Changes made in `one_more_page_animatic_v002.mp4` (27.8 s, 668 frames). v001 is kept for comparison.
+
+| Review point | v001 | v002 |
+|---|---|---|
+| The wait | 58 frames (2.4 s) | 42 frames (1.75 s). It still holds Gaju giving up and Bheemu softening |
+| Ball's return unmistakable | In view about 4 frames, silent | Enters at the top edge and is in view for 10 frames, with a soft falling note |
+| Gentle landing | Book and Bheemu both squashed; loud `pop` | The book closes and the ball settles; Bheemu is not squashed; a quieter, higher `pop`. No burst, stars or shake |
+| Bheemu's skill: a clear reveal | Inside a wide shot | Its own full shot (S8a): book under his arm, two calm bounces. Then a single on Gaju's take (S8b) |
+| Reversal tightened | 96 frames, two passes | 90 frames across three shots, one pass |
+| Chintu delivers the final joke | He asks; they hand it back | He asks; Gaju at once passes the ball to Bheemu and studies the sky; Bheemu is left holding it, caught; then he hands it back |
+| Chintu's line and the action | The hand-back began before the line ended | Everyone is still for the line (film frames 489 to 539); 8 frames of pause; then the action |
+| Book cut by the frame edge | On the floor at the left edge | Never on the floor: it stays in his left hand, and he opens it again for the closing image |
+| Stiff arm | Long straight arm | Shorter reach with a bent elbow. Improved in my stills; still an animatic pose |
+
+**v002 shot list (film frames).**
+
+| Shot | Frames | Length | Size (zoom) | Content |
+|---|---|---|---|---|
+| S1 | 37-96 | 60 | Wide (1.1) | Unchanged |
+| S2 | 97-144 | 48 | Full on Gaju (2.2) | Unchanged |
+| S3 | 145-168 | 24 | Medium close on Bheemu (2.8) | Unchanged |
+| S4 | 169-240 | 72 | Wide (1.1) | Unchanged |
+| S5 | 241-308 | 68 | Wide, more sky (1.0) | Wait 241-282; fall 283-292; soft landing on film frame 293 (engine 292, even); hold to 308 |
+| S6 | 309-348 | 40 | Medium close on Bheemu (2.6) | Slow burn |
+| S7 | 349-372 | 24 | Medium on Gaju (3.0) | Guilt |
+| S8a | 373-416 | 44 | Full on Bheemu (1.8) | The reveal: two bounces |
+| S8b | 417-434 | 18 | Medium on Gaju (3.0) | The take |
+| S8c | 435-462 | 28 | Wide (1.1) | One pass; Gaju catches |
+| S9 | 463-634 | 172 | Wide, shifted right (1.0) | Chintu in; the line; pause; Gaju passes the blame; Bheemu caught; hand-back; the book opens; Gaju leans in |
+| End | 635-668 | 34 | | Iris on the book |
+
+**Automatic results for v002.** `qc_frames.py video`: pass; the eleven large frame jumps are the title card's end and the ten cuts. `check_keys.py --contacts 292`: no findings. `check_audio.py`: -14.0 LUFS, true peak -0.7 dBTP. Two holds of about 25 frames are reported: they are the stillness under Chintu's line. `check_protected.py --drift`: protected files unchanged, all six models pass.
+
+**Still not done.** Nobody has listened to the audio: the reviewer of v001 could not play it either. The phone safe area is not approved and still needs a look in a real player with controls visible. Both are needed before this gate can be passed.
+
+**Not changed, by choice.** S3 (the page turn) and the length of the slow burn were not raised in the review. Sections 3 and 4 below describe v001 and are kept as the record.
 
 **Evidence level.** The board is stills. The animatic is a rendered file that passed the automatic file checks. **Nobody has watched it at speed or listened to it.** I looked at the board panels; I cannot watch or hear.
 
@@ -237,4 +277,5 @@ Watch once at full speed with sound, on a phone, before reading anything else.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.1. Hold at gate B recorded. Animatic v002 made with the nine review changes; v001 kept. Not heard; safe area not checked on a device. |
 | 2026-11-11 | Version 1.0. Story, shot list, timing, assets, issues and checklists. Animatic v001 rendered and checked automatically. Not watched, not heard, not reviewed. |
