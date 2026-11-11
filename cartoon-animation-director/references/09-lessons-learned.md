@@ -52,6 +52,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 43 | 2026-11-11 | For a sport or skill move, study a real coaching video of that exact technique frame by frame before posing it, and match its ready, contact, give and finish poses. A cricketer's below-chest catch: crouch, arms long, elbows in, hands low in front, palms to the ball, fingers down, little fingers together; give down and in; hold at the belly. | "Not accurate, check references" (v008 catch) |
 | 44 | 2026-11-11 | Before posing a new action, build it the way cartoon drawing lessons do: line of action, big shapes, a stick skeleton with joints (check nothing crosses that should not), mitten hands at the right size, then thumb and four uneven fingers. Make that construction drawing first and pose the model to match it. | "Get the drawing lessons first ... draw like how they build ... and then try" |
 | 45 | 2026-11-11 | When asked for a different look, design new characters (face, hair, clothes, shape language), not a redraw of the old one. Present them the professional way: several options side by side, silhouette test, heavy outer line and light inner lines, cel shadow, palette. A two-hand catch is palms UP, hands side by side, little fingers together, fingers towards the ball (as in dua); show it side-on so the bowl of the hands reads. | "I want different looks, not the same kid ... draw like how professionals draw ... that is not how you catch a ball" |
+| 46 | 2026-11-11 | Before designing in a style Harshith names, study that show's frames and write the style down as rules (`knowledge/Indian_Kids_Cartoon_Style.md`). For Indian TV kids: head about a third of the height, shaped like an upside-down egg (widest at the top, small chin, never widest at the cheeks); big close-set eyes with small pupils; thin brown outline; flat colour; arms bent at the elbow. Learn the style, never copy the characters. | "See Chutki and Bheem ... first train yourself on how to draw like those characters ... and keep that knowledge" |
 
 ## Experimental (being tested)
 
@@ -78,6 +79,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rule 46 (study a named style first; Indian TV kids' style rules).
 - 2026-11-11: added confirmed rule 45 (new looks = new designs, presented professionally; palms-up catch).
 - 2026-11-11: added confirmed rule 44 (construction drawing before posing).
 - 2026-11-11: added confirmed rule 43 (study the real technique; cricketer's fingers-down catch).
