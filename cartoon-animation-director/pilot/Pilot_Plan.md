@@ -1,13 +1,14 @@
 # Pilot Plan: "One More Page"
 
 **Status: HOLD at gate B (review of 2026-11-11). Animatic v002 is ready for review. No detailed animation has been started.**
-Version 2.0, 2026-11-11.
+Version 2.1, 2026-11-11.
 
 Everything here uses the approved production models, the existing presets, existing props and existing engine controls. No engine file, character code, preset or baseline was changed. Nothing from the review branch is used.
 
 | Item | Where |
 |---|---|
-| **Animatic v009 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v009.mp4` |
+| **Animatic v010 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v010.mp4` |
+| Catch construction study (REVIEW ONLY) | `toon-slapstick/episodes/11-one-more-page/storyboard/catch_construction_study.png` |
 | Catch QC report (v009) | `toon-slapstick/episodes/11-one-more-page/qc/catch_v009_qc.md` |
 | Chintu outfit and hair options (REVIEW ONLY) | `toon-slapstick/episodes/11-one-more-page/storyboard/chintu_redesign_options.png` |
 | Animatic v005, kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v005.mp4` |
@@ -21,7 +22,7 @@ Everything here uses the approved production models, the existing presets, exist
 
 ## Pilot Gate Review Checklist: animatic v002 (gate B)
 
-**Gate status: NOT PASSED. Animatic v009 (catch matched to a real cricket coaching video) is waiting for review; Chintu's outfit and hair wait for Harshith's choice. Earlier: animatic v006 answered Harshith's reviews of v002 to v005 and his request for a proper reference study, and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v006; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
+**Gate status: NOT PASSED. Animatic v010 (namaz / dua-hands catch, built from a construction study) is waiting for review; Chintu's outfit and hair wait for Harshith's choice. Earlier: animatic v006 answered Harshith's reviews of v002 to v005 and his request for a proper reference study, and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v006; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
 
 Result words: **PASS** (a named person did the check and accepts it). **REVISE** (done; changes needed, listed). **BLOCKED** (cannot be decided yet; the "needs" column says what is missing).
 
@@ -92,6 +93,15 @@ in, hands low in front of his thighs with palms to the ball and fingers down; th
 close, the hands give down and in, and he stands holding it at his belly. Gaju ducks with his ears back as the ball goes
 over him, so nothing overlaps. The palm-facing hand is an animatic-only control (`CatchChintu`); cast.py is unchanged.
 v001 to v008 are unchanged. **v009 has not been watched at speed or heard.**
+
+### Revision 10 (v010), from Harshith: "still why are keeping hands of boy crossly like x"; "catch like how people do
+namaz, hands together facing towards"; "get the drawing lessons first ... and then try"
+
+Cause of the X in v009: arms converging from the shoulders to hands at the crotch, over bow-legged knees, made one big X.
+Drawing lessons gathered (`pilot/Drawing_Lessons.md`), a construction study drawn (line of action, circles, stick arms,
+mitten hands, then fingers), and the catch re-posed to it: both open hands side by side in front of the chest, fingers
+up, little fingers together, thumbs out; ball lands in the palms; fingers close; hands sink with it. No crossing at any
+frame. v001 to v009 are unchanged. **v010 has not been watched at speed or heard.**
 
 ## Revision 5: what changed after Harshith's review of v004
 
@@ -395,6 +405,7 @@ Watch once at full speed with sound, on a phone, before reading anything else.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 2.1. Drawing lessons gathered; construction study of the catch; animatic v010 with the namaz / dua-hands catch. |
 | 2026-11-11 | Version 2.0. Animatic v009: fingers-down cricket catch from a frame-by-frame study of a coaching video; Gaju ducks; QC report. |
 | 2026-11-11 | Version 1.9. Animatic v008: cricketer's reverse-cup catch, squared up, clear of Gaju's ear, ball on ones; QC report. |
 | 2026-11-11 | Version 1.8. Animatic v007: page-turn piercing fixed, two-handed catch; kid-hands study; Chintu redesign options (review only). |
