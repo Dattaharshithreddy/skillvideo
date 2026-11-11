@@ -1,0 +1,24 @@
+TRUNK ALIGNMENT (approved front view against the revised profile proposal)
+| Measure | Approved front | Revised profile | Match |
+|---|---|---|---|
+| Root height below head centre | 6 | 8 | within 2 |
+| Radius at the root, at the tip | 31, 12 | 31, 12 | same drawing |
+| Rest length along the centre line | 117 | 114 | -2% |
+| Lowest point of the rest trunk below head centre | 103 | 94 | |
+| Wrinkle rings, nostrils, gripping finger | 8, 2, 1 | 8, 2, 1 | same drawing |
+| Nails per foot | 3 | 3 | same |
+
+GAJU PINK SHARE: approved front 17%, three-quarter 16%, Stage 1 profile 1%, revised profile at rest 3%, revised with ear lifted 11%
+GAJU SIZE: approved 282 tall; revised profile 282 tall, 274 wide
+LADDU SIZE: approved side 256 tall x 322 long; revised profile head on the approved body 258 x 362
+
+LIFE TEST: how much of the silhouette changes between START and ACTION (0% = the outline did not move)
+| Study | Face-only change (how Stage 1 expressions worked) | Approved model, existing controls | Proposed acting rig |
+|---|---|---|---|
+| 1 Curiosity | 7% | 21% | 47% |
+| 2 Greed | 8% | 34% | 48% |
+| 3 Suspicion | 0% | 10% | 10% |
+| 4 Sudden shock | 1% | 83% | 84% |
+| 5 Satisfaction | 0% | 64% | 69% |
+
+animation test written: REVIEW_S2_6_laddu_life_test_animation.mp4
