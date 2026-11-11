@@ -29,6 +29,10 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 20 | 2026-11-11 | Approval to prepare a sheet is not approval to alter the production model. No character code edit, design change, merge or baseline rewrite without explicit approval. | "Approval to prepare a sheet is not approval to alter the production model." |
 | 21 | 2026-11-11 | Do not block animation on references a shot does not need. Define the minimum reference package per shot from its action and characters. | "Do not block all animation work on references that are unnecessary for a particular shot." |
 | 22 | 2026-11-11 | Never claim an expression, pose or sheet passes until it has been tested and evaluated. | "Do not claim the expressions pass until they have been tested and evaluated." |
+| 23 | 2026-11-11 | A character is not ready for production because its model sheets are consistent. It must first show convincing acting in a Character Life Test: thinking, anticipation, hesitation, reaction and weight, with body-wide poses, not only eye and mouth changes. | "Laddu currently feels lifeless, like a toy rather than a living cat." |
+| 24 | 2026-11-11 | Keep three kinds of evidence apart in every report: proposed key poses, timing plans, and animation that has actually been tested. Stills never prove that animation works. | "Clearly distinguish proposed key poses, timing plans and any subsequently tested animation." |
+| 25 | 2026-11-11 | If the engine cannot express an action, say so and show what the current controls can do. Never change the engine or production code silently. | "Do not silently change the engine or modify production code." |
+| 26 | 2026-11-11 | Review work stays on the review branch, marked REVIEW ONLY / PROPOSAL, and is never merged without explicit approval. | Stage 1 review, change-control rules |
 
 ## Experimental (being tested)
 
@@ -55,6 +59,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rules 23-26 from the Stage 1 review (character life test, evidence kinds, engine limits, review branch).
 - 2026-11-11: added confirmed rules 13-22 from the character-design readiness review (decision register is in `knowledge/Character_Design_Bible.md`, section 13).
 - 2026-11-11: added findings from Lesson 1 and the first automatic video check.
 
