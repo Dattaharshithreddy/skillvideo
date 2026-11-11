@@ -1,0 +1,19 @@
+{
+ "note": "Hashes of protected files as they stood when recorded. Update by hand, in its own commit, only after explicit approval of a change to a protected file.",
+ "recorded": "2026-11-11",
+ "commit": "8dff047",
+ "files": {
+  "toon-slapstick/engine/acting.py": "7cc5f4e1e5b0b3e6a561a1a63c4769da2ac22004aa4e05624b6c983924951111",
+  "toon-slapstick/engine/cast.py": "0f944af105f0fcbbd3376de751cccac39c09359a48b8b941994296439d2ddcd7",
+  "toon-slapstick/engine/chars.py": "1b44dd5d1702e2a0a9065e5968f3f51db050f1ddbc0c1402d8e74c71c753d59f",
+  "toon-slapstick/engine/india.py": "23922433d4d00eedb99048d91c2b595777cbdbbc87baab981f1818e76489d6e4",
+  "toon-slapstick/engine/scene.py": "9327c80e74a4d2d7b897726b60b955a94e89ce55b15406af197014976cc1fccc",
+  "toon-slapstick/engine/sets.py": "6b0813e3f3458cde8226c2639ee3f3867ae3dadb855091413dcd56b05e6a7ba6",
+  "toon-slapstick/engine/show.py": "61e3c76688ca45d8fe30dd48eb6af94af10e7975b8548cbc0d821b2db39515fc",
+  "toon-slapstick/engine/sound.py": "f450b1d0eb80190125eaa5e1f56665eccb46a69ec03bab858a0015a7eeba21f6",
+  "toon-slapstick/engine/toon.py": "f796ba1f69180b58484ebe645f6cc72039390b36e78d8a3026607add773c1a71",
+  "toon-slapstick/engine/voice.py": "380a2e52a93bd5ae2f5329d7aa3e638f34a501702b3ddb34e734eee8b96e20b1",
+  "cartoon-animation-director/knowledge/model_baseline.json": "ee953f9e6abde6673becb9bfd9ccbeb615b01e9cc8004aff3815ea4f2cbf29e5",
+  "toon-slapstick/episodes/01-dosa-snatch/episode.py": "536cb4012a500588e6bfefd97bd61aa0459ebb0cb100daf41ea5b952e3647b2d"
+ }
+}
