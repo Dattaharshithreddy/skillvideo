@@ -33,6 +33,8 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 24 | 2026-11-11 | Keep three kinds of evidence apart in every report: proposed key poses, timing plans, and animation that has actually been tested. Stills never prove that animation works. | "Clearly distinguish proposed key poses, timing plans and any subsequently tested animation." |
 | 25 | 2026-11-11 | If the engine cannot express an action, say so and show what the current controls can do. Never change the engine or production code silently. | "Do not silently change the engine or modify production code." |
 | 26 | 2026-11-11 | Review work stays on the review branch, marked REVIEW ONLY / PROPOSAL, and is never merged without explicit approval. | Stage 1 review, change-control rules |
+| 27 | 2026-11-11 | Emotional decisions must be visible as beats of their own (notice, think, hesitate, act, recover), through anticipation and reaction, not only as endpoint poses. | "Make emotional decisions visible through anticipation and reaction, not just endpoint poses." |
+| 28 | 2026-11-11 | A posable rig must reproduce the approved drawing at rest and keep limb lengths natural; measure both and report them. | Stage 2 review: 85% outline overlap and one-third foreleg stretch |
 
 ## Experimental (being tested)
 

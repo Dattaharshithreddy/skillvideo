@@ -1,7 +1,7 @@
 # Character Design Bible
 
 **Knowledge base document 2 of the master mission (Phase 1).**
-Version 1.3, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
+Version 1.4, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
 
 This document does three jobs:
 
@@ -704,7 +704,7 @@ Status words: **Approved** (settled). **Provisional** (in force until reviewed).
 | D11 | Mirrored views | Audit costume and accessory orientation | Approved (audit only) | Report findings |
 | D12 | Bheemu never does martial arts | Kept as a written character constraint | Approved | On his cast page |
 | D13 | Mouth charts for humans; Bujji's accent colour | Deferred until needed | Deferred | None |
-| D14 | Laddu must act, not only stay on-model | Laddu currently feels lifeless, like a toy. Investigate as a character-acting and animation problem before considering any redesign. A REVIEW-ONLY Character Life Test of five acting studies (curiosity, greed, suspicion, sudden shock, satisfaction) is required before Laddu is treated as ready for production | Life test prepared in Stage 2; awaiting review | Harshith judges the animation test |
+| D14 | Laddu must act, not only stay on-model | Laddu currently feels lifeless, like a toy. Investigate as a character-acting and animation problem before considering any redesign. A REVIEW-ONLY Character Life Test of five acting studies (curiosity, greed, suspicion, sudden shock, satisfaction) is required before Laddu is treated as ready for production | Stage 2 video reviewed 2026-11-11: more alive than the model sheets, **not yet convincing enough for production approval**. Keep the design direction, improve the acting; no redesign and no engine change yet. Per study: curiosity revise; greed, suspicion, sudden shock, satisfaction keep the concept and refine. These are direction decisions, not animation approvals. Revised in Stage 3; awaiting review | Harshith judges the revised animation test |
 | D15 | Laddu profile head | Direction kept. Head stays a separate component; the neck is not merged with the body outline; both ears in the approved main fur colour; match the approved head's silhouette, proportions, colours and line | Revised in Stage 2; awaiting review | Review |
 | D16 | Gaju profile | Recognisable. Near ear must show a subtle pink inner edge at rest without enlarging the ear; both ears' outer surfaces in the approved main skin colour; no new permanent colour | Revised in Stage 2; awaiting review | Review |
 | D17 | Gaju hiding | Pose B is the starting point; refine the staging while keeping the approved upright posture, proportions and existing controls. Not to be implemented yet | Refined in Stage 2; awaiting review | Review |
@@ -752,7 +752,7 @@ Inspected on 2026-11-11 by reading the drawing code and an enlarged temporary re
 
 | Item | Waiting on |
 |---|---|
-| Stage 2 review package (13.7), including the Laddu Character Life Test | Harshith's review |
+| Stage 3 revised Laddu life test (13.7); the Part A items from Stage 2 (profile heads, hiding B, hops, fan) | Harshith's review |
 | Final digit counts, all characters | Provisional until Harshith finalises |
 | Gaju's movement style (D2) | Sheet, then review |
 | Side, three-quarter and back views (D3) | Sheets, then review, then separate approval to build |
@@ -765,7 +765,7 @@ Inspected on 2026-11-11 by reading the drawing code and an enlarged temporary re
 | Views for Bheemu, Ammamma, Chintu, Bujji; the 16-expression sheet; Bheemu's point; human hands; body-acting tests; mirror audit | Later stages, each on Harshith's approval |
 | Saving the approved rules into Harshith's installed skill | His go-ahead to propose the skill update |
 
-Stages 1 and 2 (13.7) have been prepared as review material only. Nothing has been implemented. Every later step waits for Harshith's approval.
+Stages 1 to 3 (13.7) have been prepared as review material only. Nothing has been implemented. Every later step waits for Harshith's approval.
 
 ### 13.7 Review stages
 
@@ -775,7 +775,8 @@ Review sheets are temporary images. They live in `cartoon-animation-director/rev
 |---|---|---|---|
 | 1 | Laddu: profile head, crouch-and-lap, paw shapes. Gaju: turned views, trunk positions, hiding pose, movement concepts (fan, parachute, sail, small hops). Four pilot expressions for Laddu, four pilot beats for Gaju | 2026-11-11, eight sheets in `review/stage1/` | **Reviewed by Harshith 2026-11-11.** Outcomes are decisions D2 and D14 to D18. Nothing approved for implementation |
 | 2 | Revised Laddu profile head (separate head and body); revised Gaju profile (pink ear rim); hiding pose B refined; small hops and fan; trunk alignment check; the Laddu Character Life Test (five studies: key poses, timing plans, and a rendered animation test); remaining inconsistencies and engine limitations | 2026-11-11, ten sheets and one video in `review/stage2/` | **Awaiting Harshith's review.** Details in `review/stage2/README.md` |
-| 3 onward | Not defined | | Waits for approval after Stage 2 |
+| 3 | Laddu Character Life Test revised after Harshith watched the Stage 2 video: all five studies re-timed with added notice, pause, hesitation and recovery beats; acting rig rebuilt on the approved body outline (98% overlap at rest, was 86%); sitting forelegs corrected (97% of natural length, was 133%); current-versus-revised sheets and a side-by-side animation test; table of what needs existing controls and what needs an engine change | 2026-11-11, six sheets and two videos in `review/stage3/` | **Awaiting Harshith's review.** Details in `review/stage3/README.md` |
+| 4 onward | Not defined | | Waits for approval after Stage 3 |
 
 Main inconsistencies found in Stage 1: Gaju's pink falls from 17% of his area to 1% in the proposed profile; far-side ears are drawn in the darker tone, which the approved models do not do; Laddu's neck is drawn as one outline with the body; no expression has been tested on a viewer.
 
@@ -848,6 +849,7 @@ Source quality note: the studio blogs and course notes above are secondary teach
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.4. Stage 2 video verdict recorded under D14; Stage 3 recorded in 13.7. No character code, design, preset or baseline was changed. |
 | 2026-11-11 | Version 1.3. Stage 1 review decisions recorded (D2 updated, D14 to D18 added). Stage 2 review package recorded in 13.7. No character code, design, preset or baseline was changed. |
 | 2026-11-11 | Version 1.2. Digit counts for Laddu and Bujji approved as provisional. View audit corrected: a three-quarter head exists through `yaw`; true profile and back are what is missing. Stage 1 review recorded in 13.7. No character code, design, preset or baseline was changed. |
 | 2026-11-11 | Version 1.1. Readiness review. Section 13 replaced by the decision register: seven approved skill rules in Harshith's wording, decisions D1 to D13 with status, standing restrictions, digit-count inspection of Laddu and Bujji with recommendations, per-shot minimum reference packages, unresolved items. Rabbit and cat anatomy rows updated with verified toe counts. No character code, design, figure or baseline was changed. |
