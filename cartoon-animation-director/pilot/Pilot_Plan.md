@@ -1,7 +1,7 @@
 # Pilot Plan: "One More Page"
 
 **Status: HOLD at gate B (review of 2026-11-11). Animatic v002 is ready for review. No detailed animation has been started.**
-Version 1.1, 2026-11-11.
+Version 1.2, 2026-11-11.
 
 Everything here uses the approved production models, the existing presets, existing props and existing engine controls. No engine file, character code, preset or baseline was changed. Nothing from the review branch is used.
 
@@ -12,6 +12,38 @@ Everything here uses the approved production models, the existing presets, exist
 | Animatic source | `toon-slapstick/episodes/11-one-more-page/animatic/animatic.py` |
 | Storyboard panels | `toon-slapstick/episodes/11-one-more-page/storyboard/board.png` |
 | Hook-up frames for every cut | `toon-slapstick/episodes/11-one-more-page/storyboard/hookups.png` |
+
+## Pilot Gate Review Checklist: animatic v002 (gate B)
+
+**Gate status: NOT PASSED. 0 of 5 checks passed; 5 blocked on human input.** Last updated 2026-11-11.
+
+Result words: **PASS** (a named person did the check and accepts it). **REVISE** (done; changes needed, listed). **BLOCKED** (cannot be decided yet; the "needs" column says what is missing).
+
+Rules for this table: only Harshith, or a person he names, can set a human check to PASS. Automatic file checks and audio measurements do not count towards checks 1 to 3. Check 4 cannot pass without the screenshot.
+
+| # | Check | How | Who | Result | Needs |
+|---|---|---|---|---|---|
+| 1 | Human review of v002 at full speed with sound | Watch `one_more_page_animatic_v002.mp4` once, on a phone, sound on, before reading notes. Then say what happened in one or two sentences | Harshith | **BLOCKED** | Nobody has watched it at speed with sound. I can only step frames and measure |
+| 2 | Chintu's dialogue | (a) Is the line clear on a phone speaker? (b) Is the wording and pronunciation right? (c) Does the pause after the line (8 frames, film 540 to 547) feel right before Gaju moves? | Harshith; a Telugu speaker for (b) | **BLOCKED** | Nobody has heard it. The voice is not approved (decision D26) |
+| 3 | The final hand-back joke | Does "Gaju passes the ball to Bheemu, Bheemu is caught, then hands it back" land? Does the ending (film 548 to 634, about 3.6 s after the line) feel overlong? | Harshith | **BLOCKED** | A full-speed viewing |
+| 4 | Phone safe area | Open v002, or any existing episode, in the real player on a phone; take a screenshot with the playback controls and buttons visible; send it | Harshith | **BLOCKED** | The screenshot. Published margin figures disagree, so nothing is verified (`proposals/Safe_Area_Investigation.md`) |
+| 5 | Final timing and shot-plan approval | Approve the v002 shot list and lengths as frozen, or list changes | Harshith | **BLOCKED** | Checks 1 to 4 |
+
+**What is known from automatic checks only (supporting information, not a result for any check above).** File 540 x 960, 24 fps, 668 frames, audio present and the same length as the picture; the eleven large frame jumps are the title card's end and the ten planned cuts; the landing is on a drawn frame; loudness -14.0 LUFS, true peak -0.7 dBTP; protected files unchanged; drift check passes for all six models.
+
+**If a check comes back REVISE.** The change is made as animatic v003; v001 and v002 stay unchanged as references; the table is filled in again for v003.
+
+**After the gate passes (decision of 2026-11-11).** Detailed animation begins only on Harshith's explicit approval, and starts with **one representative shot**, which is reviewed before the rest of the pilot is animated. My suggestion for that shot, for him to confirm or replace: **S5** (the wait, the fall and the soft landing), because it holds the gag's timing, a contact, a hold and two characters acting at once.
+
+**Reviewer's notes** (to be filled in):
+
+| Check | Date | Reviewer | Result | Notes |
+|---|---|---|---|---|
+| 1 | | | | |
+| 2 | | | | |
+| 3 | | | | |
+| 4 | | | | |
+| 5 | | | | |
 
 ## Revision 2: what changed after the hold
 
@@ -277,5 +309,6 @@ Watch once at full speed with sound, on a phone, before reading anything else.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.2. Pilot Gate Review Checklist added for animatic v002: five checks, all blocked on human input. Decision recorded: after approval, one representative shot is animated and reviewed first. No animatic or other file changed. |
 | 2026-11-11 | Version 1.1. Hold at gate B recorded. Animatic v002 made with the nine review changes; v001 kept. Not heard; safe area not checked on a device. |
 | 2026-11-11 | Version 1.0. Story, shot list, timing, assets, issues and checklists. Animatic v001 rendered and checked automatically. Not watched, not heard, not reviewed. |
