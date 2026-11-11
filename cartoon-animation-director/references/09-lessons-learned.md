@@ -48,6 +48,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 39 | 2026-11-11 | Before posing or animating an action, study real footage of the animal and how good animation handles it, frame by frame, and write down what was learned. Do not iterate by guesswork. | "Instead of going back and forth, go through the panda videos frame by frame" |
 | 40 | 2026-11-11 | A paw or hand holds an object as a closed fist the object passes through: palm and arm behind it, fingers curled over the front, forearm visible reaching it. Never paste a paw flat on top of an object or draw fingers onto the object. | Pilot reviews of v002 to v005; panda reference study |
 | 41 | 2026-11-11 | A hand never moves across the face of an object it is holding: it slides along the edge, or lifts clear, so no single frame shows it passing through. A catch uses both hands: open early in front of the chest, ball lands between the palms, fingers close over the front, arms give with it. | Review of v006: paw piercing the book; Chintu's catch |
+| 42 | 2026-11-11 | Look at every frame you send before sending it, and fail it if anything important overlaps another character (hands in an ear, ball across a face). A catch is staged square to the ball with hands in front of the catcher's own body, never reached across the body in profile, which reads as crossed arms. A thrown ball is always on ones. | Review of v007: "his hands are crossed", "blended inside the ears of Gaju", "catch like a cricketer" |
 
 ## Experimental (being tested)
 
@@ -74,6 +75,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rule 42 (check sent frames for overlaps; square-on catch; ball on ones).
 - 2026-11-11: added confirmed rule 41 (no hand passes through a held object; two-handed catch).
 - 2026-11-11: added confirmed rules 39-40 (reference study before animating; how a paw holds an object).
 - 2026-11-11: added confirmed rules 33-38 from the knowledge-base completion decisions.

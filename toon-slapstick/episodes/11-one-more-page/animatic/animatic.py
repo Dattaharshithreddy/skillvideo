@@ -8,7 +8,7 @@ Harshith has reviewed this (gate B in cartoon-animation-director/knowledge/Produ
 
 Run:  python3 animatic.py board     writes ../storyboard/board.png (one panel per shot beat)
       python3 animatic.py hookups   writes ../storyboard/hookups.png (frame before and after each cut)
-      python3 animatic.py render    writes one_more_page_animatic_v007.mp4 (half size) beside this file
+      python3 animatic.py render    writes one_more_page_animatic_v008.mp4 (half size) beside this file
 
 Version 002 (2026-11-11), after the hold at the animatic gate: wait shortened from 58 to 42 frames; the ball's
 return in view for 10 frames with a soft falling note; gentler landing (no squash of Bheemu); the reveal of his
@@ -59,7 +59,7 @@ LINE_END = 452 + int(len(_load_line('c_ivvava')) / SR * 24)      # where Chintu'
 TOTAL = T + LINE_END + 8 + 88 + 34
 ep = Show(11, 'One More Page', 'one_more_page', TOTAL, Painted(2700, courtyard, top=SKY, bottom=(170, 150, 130)))
 st, sc, cam = ep.st, ep.sc, ep.cam
-BX, GX, CX = 520, 930, 1140              # home positions: Bheemu left, Gaju right, Chintu far right (later)
+BX, GX, CX = 520, 930, 1185              # home positions: Bheemu left, Gaju right, Chintu far right (later)
 MID = 725
 
 bheemu = Bheemu(x=BX, z=2, face=0.0); gaju = Gaju(x=1500, z=3, face=-1, yaw=-0.8); chintu = Chintu(x=1700, z=1, show=0.0, face=-1, yaw=-0.7)
@@ -133,6 +133,7 @@ class KidFingersOver(Actor):
 
 
 bk = Prop(the_book, z=4, sx=1.1, sy=1.1, shut=0.0); bl = Prop(ball, z=5); paws = PawsOver(z=6); kids = KidFingersOver(z=7)
+bl.twos = False                           # v008: a thrown ball is always on ones
 st.add(bheemu, gaju, chintu, bk, bl, paws, kids)
 READ = dict(armL=(30, -146), armR=(-30, -146), handL='grip', handR='grip')        # both hands hold the book at the chest
 EYES_DOWN = dict(pupil=(0.0, 0.8), lid=0.25, smile=0.3)
@@ -294,22 +295,28 @@ P(bheemu, b0 + 12, 3, yaw=0.0, pupil=(0.6, 0.5), **SORRY); sc.hit(T + b0 + 14, '
 P(bheemu, b0 + 30, 3, 'io', yaw=0.6, pupil=(0.9, 0.0), smile=0.4, sweat=0.0, brow_ang=0, brow=0)       # all right
 P(bheemu, b0 + 36, 4, 'io', armR=(40, -90), bendR=0.4)                                                 # v004: he draws the paw back with the ball...
 P(bheemu, b0 + 44, 2, armR=(120, -200), handR='open', bendR=0.2)                                       # ...and lobs it underhand: the paw follows through
-# v007 catch, after the kid-hands study (pilot/Kid_Hands_Study.md): BOTH hands come up early, open, fingers
-# spread, eyes on the ball; the ball lands between the palms; the arms GIVE with it; the fingers close over it.
-P(chintu, b0 + 40, 4, 'io', armL=(-72, -112), armR=(-114, -126), handL='open', handR='open', bendL=0.35, bendR=0.35, pupil=(-0.6, -0.5))   # ready: hands out in front, chest high
-P(chintu, b0 + 50, 3, 'io', pupil=(-0.2, 0.2))                                                                     # eyes follow it in
-_hl = at(b0 + 59, chintu, 'handL'); _hr = at(b0 + 59, chintu, 'handR')
-_ex, _ey = (_hl[0] + _hr[0]) / 2 - 6, (_hl[1] + _hr[1]) / 2 - 4                                                     # between the palms
+# v008 catch, planned with the cartoon-animation-director workflow (A-H) and the kid-hands study:
+# a cricketer's below-the-chest catch ("reverse cup"): he squares up to the ball, both hands low in front of
+# his own body, elbows out, fingers pointing down, little fingers together, eyes on the ball all the way in;
+# contact on ONES in the palms, fingers close over it, the hands ride down with it (the give), then he brings it
+# up to his chest. Staged clear of Gaju: the hands never go out over Gaju's ear.
+P(chintu, b0 + 36, 4, 'io', face=-0.2, yaw=-0.6, armL=(-14, -55), armR=(-6, -55), handL='open', handR='open',
+  bendL=0.6, bendR=0.6, sy=0.97, sx=1.02, pupil=(-0.8, -0.2))                                                   # square up, hands ready, knees soft
+P(chintu, b0 + 48, 3, 'io', pupil=(-0.6, -0.5)); P(chintu, b0 + 55, 3, 'io', pupil=(-0.2, 0.6), pitch=0.3)       # eyes ride the arc up... and down into the hands
+_hl = at(b0 + 61, chintu, 'handL'); _hr = at(b0 + 61, chintu, 'handR')
+_ex, _ey = (_hl[0] + _hr[0]) / 2, (_hl[1] + _hr[1]) / 2 - 14                                                       # in the cup of the palms
 _sx, _sy = at(b0 + 46, bheemu, 'handR', 0, -20)
-bl.set(T + b0 + 46, x=_sx, y=_sy); arc(bl, T + b0 + 46, T + b0 + 60, _ex, _ey, 200); sc.hit(T + b0 + 46, 'whoosh', 0.35)
+bl.set(T + b0 + 46, x=_sx, y=_sy); arc(bl, T + b0 + 46, T + b0 + 58, _ex - 70, _ey - 22, 70); sc.hit(T + b0 + 46, 'whoosh', 0.35)
+bl.move(T + b0 + 58, T + b0 + 61, 'lin', x=_ex, y=_ey)                                                          # it drops in from the side at hand height, never across his face
 P(bheemu, b0 + 52, 5, 'io', armR=(0, 0), handR='mitt', bendR=0.12)
-P(chintu, b0 + 58, 1, handL='grip', handR='grip')                                                                  # contact: fingers close
-P(chintu, b0 + 60, 4, 'out', armL=(-58, -92), armR=(-100, -104), sy=0.97, sx=1.02)                                  # the give: arms sink with the ball
-bl.attach(T + b0 + 60, T + 9999, chintu, 'handL', _ex - _hl[0], _ey - _hl[1]); sc.hit(T + b0 + 60, 'pop', 0.6, note=79)
-P(chintu, b0 + 66, 3, 'over', sy=1.06, sx=0.96, **HAPPY); P(chintu, b0 + 72, 4, 'io', sy=1.0, sx=1.0)
+P(chintu, b0 + 60, 1, handL='grip', handR='grip')                                                                  # contact frame (even, so it is drawn): fingers close
+bl.attach(T + b0 + 61, T + 9999, chintu, 'handL', _ex - _hl[0], _ey - _hl[1]); sc.hit(T + b0 + 61, 'pop', 0.6, note=79)
+P(chintu, b0 + 61, 4, 'out', armL=(-8, -30), armR=(-12, -30), sy=0.94, sx=1.04)                                  # the give: hands and knees ride down with it
+P(chintu, b0 + 65, 5, 'io', armL=(1, -65), armR=(-21, -65), sy=1.0, sx=1.0, pitch=0.0)                            # brings it up to his chest
+P(chintu, b0 + 70, 3, 'over', sy=1.05, sx=0.97, **HAPPY); P(chintu, b0 + 74, 4, 'io', sy=1.0, sx=1.0)
 P(bheemu, b0 + 64, 4, 'io', yaw=0.0, **READ); bk.attach(T + b0 + 66, T + 9999, bheemu, 'belly', *BOOK_AT); bk.set(T + b0 + 66, rot=0, shut=0.0)   # the book opens again
 P(bheemu, b0 + 68, 3, 'io', **dict(CALM, **EYES_DOWN))
-P(gaju, b0 + 72, 4, 'io', yaw=-0.7, pupil=(-0.9, 0.3), head_dx=-20, ear=0.3, **HAPPY)                  # Gaju leans in to read too
+P(gaju, b0 + 72, 4, 'io', yaw=-0.7, pupil=(-0.9, 0.3), head_dx=-20, ear=0.0, **HAPPY)                  # Gaju leans in to read too
 END = T + b0 + 88
 assert END + 34 == TOTAL, (END + 34, TOTAL)
 ep.close(END, BX, G0 - 300)
@@ -339,5 +346,5 @@ if __name__ == '__main__':
         print('cuts at engine frames:', cuts)
     elif mode == 'render':
         wav = sc.write(os.path.join(HERE, 'scratch_audio.wav'))
-        st.render(os.path.join(HERE, 'one_more_page_animatic_v007.mp4'), audio=wav, scale=0.5)
+        st.render(os.path.join(HERE, 'one_more_page_animatic_v008.mp4'), audio=wav, scale=0.5)
     print('shots:', [(s[1], s[0] + 1, s[2]) for s in SHOTS], 'total frames', TOTAL)

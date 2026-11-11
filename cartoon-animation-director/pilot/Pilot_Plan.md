@@ -1,13 +1,14 @@
 # Pilot Plan: "One More Page"
 
 **Status: HOLD at gate B (review of 2026-11-11). Animatic v002 is ready for review. No detailed animation has been started.**
-Version 1.8, 2026-11-11.
+Version 1.9, 2026-11-11.
 
 Everything here uses the approved production models, the existing presets, existing props and existing engine controls. No engine file, character code, preset or baseline was changed. Nothing from the review branch is used.
 
 | Item | Where |
 |---|---|
-| **Animatic v007 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v007.mp4` |
+| **Animatic v008 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v008.mp4` |
+| Catch QC report (v008) | `toon-slapstick/episodes/11-one-more-page/qc/catch_v008_qc.md` |
 | Chintu outfit and hair options (REVIEW ONLY) | `toon-slapstick/episodes/11-one-more-page/storyboard/chintu_redesign_options.png` |
 | Animatic v005, kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v005.mp4` |
 | Animatic v004, kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v004.mp4` |
@@ -20,7 +21,7 @@ Everything here uses the approved production models, the existing presets, exist
 
 ## Pilot Gate Review Checklist: animatic v002 (gate B)
 
-**Gate status: NOT PASSED. Animatic v007 (page-turn piercing fixed, two-handed catch) is waiting for review; Chintu's outfit and hair wait for Harshith's choice. Earlier: animatic v006 answered Harshith's reviews of v002 to v005 and his request for a proper reference study, and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v006; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
+**Gate status: NOT PASSED. Animatic v008 (cricketer's catch, staged clear of Gaju) is waiting for review; Chintu's outfit and hair wait for Harshith's choice. Earlier: animatic v006 answered Harshith's reviews of v002 to v005 and his request for a proper reference study, and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v006; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
 
 Result words: **PASS** (a named person did the check and accepts it). **REVISE** (done; changes needed, listed). **BLOCKED** (cannot be decided yet; the "needs" column says what is missing).
 
@@ -73,6 +74,15 @@ Stills: `storyboard/grip_v006.png`. Automatic checks pass; protected files uncha
 | "Change the attire and hairstyle of kid" | Proposal only, three options on one sheet (A school shirt + side parting, B mustard tee + curly mop, C teal kurta + short crop), each with bigger kid hands. cast.py and the approved Chintu are unchanged; v007 still uses the approved model. Waiting for a choice. |
 
 v001 to v006 are unchanged. **v007 has not been watched at speed or heard.**
+
+### Revision 8 (v008), from Harshith's review of v007
+
+"Still his hands are crossed, he should catch like a cricketer"; "his hands are blended inside the ears of Gaju".
+Planned with the cartoon-animation-director workflow; report `qc/catch_v008_qc.md`. Chintu squares up to the ball, knees
+soft, hands low in front of his own body in a reverse cup (fingers down, little fingers together, elbows out), eyes on the
+ball, takes it in the palms on a drawn frame, rides down with it, brings it to his chest. He stands 45 px further right and
+his hands never go near Gaju. The ball is on ones and comes in from the side at hand height. v001 to v007 are unchanged.
+**v008 has not been watched at speed or heard.**
 
 ## Revision 5: what changed after Harshith's review of v004
 
@@ -376,6 +386,7 @@ Watch once at full speed with sound, on a phone, before reading anything else.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.9. Animatic v008: cricketer's reverse-cup catch, squared up, clear of Gaju's ear, ball on ones; QC report. |
 | 2026-11-11 | Version 1.8. Animatic v007: page-turn piercing fixed, two-handed catch; kid-hands study; Chintu redesign options (review only). |
 | 2026-11-11 | Version 1.7. Reference study done; animatic v006 with the layered fist grip. |
 | 2026-11-11 | Version 1.6. Animatic v005: prop-drawn toe tips removed; Bheemu's own approved paws drawn above the book. |
