@@ -13,7 +13,7 @@
   "stages": {
     "script": "done (pilot/Pilot_Plan.md)",
     "storyboard": "done (stills; not reviewed)",
-    "animatic": "v007 reviewed: REVISE (catch: crossed hands, overlap with Gaju). v008 rendered; AWAITING REVIEW (gate B). Not heard",
+    "animatic": "v008 reviewed: REVISE (catch not accurate; check references). v009 rendered; AWAITING REVIEW (gate B). Not heard",
     "assets": "not started",
     "keys": "not started",
     "inbetweens": "not started",
@@ -39,6 +39,10 @@
     "S9"
   ],
   "assets": [
+    {
+      "file": "animatic/one_more_page_animatic_v009.mp4",
+      "status": "animatic, not animation; not watched, not heard; CatchChintu palm control is animatic-only"
+    },
     {
       "file": "animatic/one_more_page_animatic_v008.mp4",
       "status": "animatic, not animation; not watched, not heard"

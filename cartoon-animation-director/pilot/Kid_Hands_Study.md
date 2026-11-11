@@ -24,3 +24,25 @@ Study only. Nothing below is copied: no character design, outfit, colour scheme 
 
 ## Proposed (REVIEW ONLY, not applied)
 - Hands drawn 17% bigger (hand scale 11.5 -> 13.5) on the redesign options: `storyboard/chintu_redesign_options.png`.
+
+## v1.1 addendum (2026-11-11): the cricket catch, from a real coaching video
+Harshith: "he should catch like a cricketer" ... "not accurate, check references".
+
+Watched frame by frame: Sikana, "How to Catch the Ball | Cricket" (youtube.com/watch?v=IQUbko9LbgU), 0:04-1:31 at 5.8 s steps,
+0:31-0:45 at 1-2 s steps (stills at 0:37.5 and 0:39.5), and a real catch at 1:12.6-1:13.2 at 0.2 s steps.
+Coaching sources agree: below chest height, fingers point DOWN, little fingers together, heels of the palms together,
+thumbs spread, elbows brought IN; watch the ball into the hands; give with it and bring it into the body.
+
+What the frames show:
+1. **Ready:** knees bent, body low and a little forward, arms long, elbows close to the body, hands low in front of
+   the thighs, palms to the ball, fingers spread and pointing down, little fingers side by side. (0:37.5)
+2. **Contact:** the hands meet the ball in front of the body, not against it. (1:12.8)
+3. **Give:** the hands ride down and in with the ball while the knees bend a little more. (1:13.0)
+4. **Finish:** the ball is held at the belly with both hands, elbows in. (1:13.2) About 0.6 s from contact.
+
+What was wrong in v008: hands at the chest with elbows winged out, ball held against the body, fingers pointing
+sideways; the backs of the hands faced the camera, so the thumbs pointed inward and the hands read as crossed.
+
+Applied in v009 (animatic only): all four poses above. The palm-to-camera hand is drawn by mirroring Chintu's own
+approved hand (`CatchChintu` in animatic.py, pose control `palm`); cast.py is unchanged. Needs approval before use
+anywhere else.

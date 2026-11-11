@@ -1,14 +1,14 @@
 # Pilot Plan: "One More Page"
 
 **Status: HOLD at gate B (review of 2026-11-11). Animatic v002 is ready for review. No detailed animation has been started.**
-Version 1.9, 2026-11-11.
+Version 2.0, 2026-11-11.
 
 Everything here uses the approved production models, the existing presets, existing props and existing engine controls. No engine file, character code, preset or baseline was changed. Nothing from the review branch is used.
 
 | Item | Where |
 |---|---|
-| **Animatic v008 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v008.mp4` |
-| Catch QC report (v008) | `toon-slapstick/episodes/11-one-more-page/qc/catch_v008_qc.md` |
+| **Animatic v009 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v009.mp4` |
+| Catch QC report (v009) | `toon-slapstick/episodes/11-one-more-page/qc/catch_v009_qc.md` |
 | Chintu outfit and hair options (REVIEW ONLY) | `toon-slapstick/episodes/11-one-more-page/storyboard/chintu_redesign_options.png` |
 | Animatic v005, kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v005.mp4` |
 | Animatic v004, kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v004.mp4` |
@@ -21,7 +21,7 @@ Everything here uses the approved production models, the existing presets, exist
 
 ## Pilot Gate Review Checklist: animatic v002 (gate B)
 
-**Gate status: NOT PASSED. Animatic v008 (cricketer's catch, staged clear of Gaju) is waiting for review; Chintu's outfit and hair wait for Harshith's choice. Earlier: animatic v006 answered Harshith's reviews of v002 to v005 and his request for a proper reference study, and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v006; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
+**Gate status: NOT PASSED. Animatic v009 (catch matched to a real cricket coaching video) is waiting for review; Chintu's outfit and hair wait for Harshith's choice. Earlier: animatic v006 answered Harshith's reviews of v002 to v005 and his request for a proper reference study, and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v006; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
 
 Result words: **PASS** (a named person did the check and accepts it). **REVISE** (done; changes needed, listed). **BLOCKED** (cannot be decided yet; the "needs" column says what is missing).
 
@@ -83,6 +83,15 @@ soft, hands low in front of his own body in a reverse cup (fingers down, little 
 ball, takes it in the palms on a drawn frame, rides down with it, brings it to his chest. He stands 45 px further right and
 his hands never go near Gaju. The ball is on ones and comes in from the side at hand height. v001 to v007 are unchanged.
 **v008 has not been watched at speed or heard.**
+
+### Revision 9 (v009), from Harshith's review of v008: "not accurate, check references"
+
+Studied a real cricket coaching video frame by frame (`pilot/Kid_Hands_Study.md`, v1.1 addendum). Chintu now takes a
+below-chest catch the way the coach shows it: he lowers his asking hand, turns, gets down with his arms long and elbows
+in, hands low in front of his thighs with palms to the ball and fingers down; the ball lands in the cup, the fingers
+close, the hands give down and in, and he stands holding it at his belly. Gaju ducks with his ears back as the ball goes
+over him, so nothing overlaps. The palm-facing hand is an animatic-only control (`CatchChintu`); cast.py is unchanged.
+v001 to v008 are unchanged. **v009 has not been watched at speed or heard.**
 
 ## Revision 5: what changed after Harshith's review of v004
 
@@ -386,6 +395,7 @@ Watch once at full speed with sound, on a phone, before reading anything else.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 2.0. Animatic v009: fingers-down cricket catch from a frame-by-frame study of a coaching video; Gaju ducks; QC report. |
 | 2026-11-11 | Version 1.9. Animatic v008: cricketer's reverse-cup catch, squared up, clear of Gaju's ear, ball on ones; QC report. |
 | 2026-11-11 | Version 1.8. Animatic v007: page-turn piercing fixed, two-handed catch; kid-hands study; Chintu redesign options (review only). |
 | 2026-11-11 | Version 1.7. Reference study done; animatic v006 with the layered fist grip. |
