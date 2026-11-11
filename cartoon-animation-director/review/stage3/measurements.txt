@@ -1,0 +1,12 @@
+IDENTITY AT REST (acting rig against the approved side model)
+| | Approved side model | Stage 2 rig | Stage 3 rig |
+|---|---|---|---|
+| Height x length | 256 x 322 | 256 x 346 | 256 x 322 |
+| Outline overlap with the approved model | 100% | 86% | 98% |
+
+FORELEG LENGTH (shoulder-to-paw reach as a share of the natural leg length)
+| Pose | Stage 2 | Stage 3 |
+|---|---|---|
+| Sitting (satisfaction) | 133% | 97% |
+| Longest reach in any labelled key, all five studies | not measured | 115% (study 4 RECOIL) |
+
