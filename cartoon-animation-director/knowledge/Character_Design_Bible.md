@@ -1,7 +1,7 @@
 # Character Design Bible
 
 **Knowledge base document 2 of the master mission (Phase 1).**
-Version 1.1, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
+Version 1.2, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
 
 This document does three jobs:
 
@@ -318,7 +318,7 @@ Twelve steps, matching Phase 3 of the master mission. Each has an output and a g
 
 | Character | What the body-turn control actually gives |
 |---|---|
-| Bheemu, Ammamma, Chintu, Gaju | The body narrows a little and the arms shift. **The head stays facing the camera at every setting.** There is no three-quarter head, no profile, no back. Gaju shows a tail at the turned settings. |
+| Bheemu, Ammamma, Chintu, Gaju | The body narrows a little and the arms shift. With the body-turn control alone the head stays facing the camera, which is what figure 2 shows. **Correction, 2026-11-11:** a separate head-turn control (`yaw`) already exists and gives a three-quarter head; I had not tested it in this audit. There is still no true profile and no back. Gaju shows a tail at the turned settings. |
 | Laddu, Bujji | Two body drawings: front sitting, and side on four legs (mirrored for left and right). The head still faces the camera in the side view. |
 | Everyone | No back view. |
 
@@ -631,7 +631,8 @@ Attempted so far **[M]**: exercise 6 once (failed, 7 of 12). Exercise 7 partly: 
 
 | Need | Today | To build |
 |---|---|---|
-| True three-quarter and profile heads | No | New head drawings per character **(model change; frozen designs need approval)** |
+| Three-quarter head | Yes, with the `yaw` control (corrected 2026-11-11) | Use it |
+| True profile head | No | New head drawings per character **(model change; frozen designs need approval)** |
 | Back views | No | New drawings |
 | Body joins the emotion | No | Spine bend, shoulder lift, chest-out controls |
 | Head tilt in presets | No | Add `head_rot` and `pitch` to presets |
@@ -647,7 +648,7 @@ Attempted so far **[M]**: exercise 6 once (failed, 7 of 12). Exercise 7 partly: 
 
 Ordered by how much they affect what is on screen. Decisions taken on these are in section 13.
 
-1. **No real side or back views for any character.** Heads always face the camera. This limits staging more than anything else in the designs.
+1. **No true profile or back view for any character.** A three-quarter head exists through the `yaw` control (corrected 2026-11-11; I first reported that heads always face the camera). Profile staging is still not possible.
 2. **Gaju flying by flapping his ears.** The series notes give him this as a running gag and it is used in at least two episodes. A baby elephant with oversized ears who flies by flapping them is the signature trait of a very famous existing animated elephant. Under the mission's own rule against copying signature traits, I recommend replacing it (for example: he only ever gets a few centimetres off the ground and falls; or he uses his ears as a fan, parachute or sail without flying). Your decision.
 3. **Keep Bheemu away from martial arts.** A food-loving panda is common; a food-loving panda who fights is one specific famous character. Ours has glasses, a scarf and a calm temper. No change needed, just a "never" on his page.
 4. **Gaju merges with the sky** (value difference 0, similar hue). Options: stage him against trees, walls or clouds outdoors; or shift the sky; or shift his skin. The first costs nothing.
@@ -690,13 +691,13 @@ Status words: **Approved** (settled). **Provisional** (in force until reviewed).
 
 | ID | Subject | Decision | Status | What happens next |
 |---|---|---|---|---|
-| D1 | Digit counts | Bheemu four toes per paw; Gaju three nails per foot; humans four fingers and one thumb per hand. Laddu and Bujji: see 13.4 | Provisional (Bheemu, Gaju); Approved (humans); Open (Laddu, Bujji) | Harshith to rule on 13.4 |
-| D2 | Gaju's movement | Explore ears as fan, parachute or sail, with small hops. Ear-flap flying is not his signature | Prepare sheet | Movement reference sheet for review. Not final until reviewed |
+| D1 | Digit counts | Bheemu four toes per paw; Gaju three nails per foot; humans four fingers and one thumb per hand; Laddu four visible toes per paw with no visible dewclaw in the standard model; Bujji three visible toes per paw, preserving the existing design, and no visible pink paw pads | Provisional, approved 2026-11-11 (humans: Approved) | Enforced by rule R5 |
+| D2 | Gaju's movement | Explore ears as fan, parachute or sail, with small hops. Ear-flap flying is not his signature | Stage 1 sheet prepared; awaiting review | Movement reference sheet for review. Not final until reviewed |
 | D3 | Side and back views | Prepare reference sheets, Bheemu and Gaju first | Prepare sheet | Frozen designs are not modified without approval |
 | D4 | Body acting | Investigate spine bend, shoulder lift, sitting pose, running poses | Investigate | Show proposed results before any implementation |
 | D5 | Expressions | Keep all eight existing presets unchanged. Prepare improvements and a 16-expression review sheet | Prepare sheet | No expression is called "passing" until tested and evaluated by Harshith |
 | D6 | Gaju against the sky | Solve by staging. His approved colours do not change | Approved | Applied shot by shot |
-| D7 | Gaju's mouth and trunk visibility | Test alternative poses and staging | Investigate | Show test results |
+| D7 | Gaju's mouth and trunk visibility | Test alternative poses and staging | Stage 1 sheets prepared (profile, trunk positions, hiding); awaiting review | Review |
 | D8 | Bheemu's pointing paw | Prepare a proposed reference sheet | Prepare sheet | Review before any model change |
 | D9 | Human hands | Prepare improved grip, fist and wrist-bend references | Prepare sheet | Review before any model change |
 | D10 | Laddu's head separating from the body | Fix as a bug, preserving the approved design | Approved to fix; **not to merge** | Show the result before merging |
@@ -713,8 +714,8 @@ Inspected on 2026-11-11 by reading the drawing code and an enlarged temporary re
 | Bheemu | Four toes per paw | Five digits plus a false thumb | Four | Provisional |
 | Gaju | Three nails per foot | Five front, four hind | Three | Provisional |
 | Ammamma, Chintu | Four fingers and a thumb; five toes per bare foot | Same | As drawn | Approved (hands) |
-| Laddu | Four toes on every paw, front and hind | Five front including a dewclaw that stays off the ground; four hind | **Four on every paw, dewclaw not drawn.** Already what the model draws and what is visible on a real cat. No code change | Awaiting Harshith |
-| Bujji | Three toes on every paw | Five front including a reduced dewclaw; four hind; furred soles | **Keep three as drawn** for now: her paws are very small on screen and the count is already consistent. Alternative: four, to match Laddu and the real visible toes, which needs a model change and a sheet first. Either way: no pink paw pads | Awaiting Harshith |
+| Laddu | Four toes on every paw, front and hind | Five front including a dewclaw that stays off the ground; four hind | Four visible toes on every paw, no visible dewclaw in the standard model. No code change | **Provisional, approved 2026-11-11** |
+| Bujji | Three toes on every paw. No paw pads are drawn | Five front including a reduced dewclaw; four hind; furred soles | Three visible toes per paw, preserving the existing design. No visible pink paw pads | **Provisional, approved 2026-11-11** |
 
 ### 13.5 Minimum reference package, defined per shot
 
@@ -746,8 +747,8 @@ Inspected on 2026-11-11 by reading the drawing code and an enlarged temporary re
 
 | Item | Waiting on |
 |---|---|
-| Laddu and Bujji digit counts (13.4) | Harshith's ruling |
-| Final digit counts for Bheemu and Gaju | Provisional until Harshith finalises |
+| Stage 1 review sheets (13.7) | Harshith's review |
+| Final digit counts, all characters | Provisional until Harshith finalises |
 | Gaju's movement style (D2) | Sheet, then review |
 | Side, three-quarter and back views (D3) | Sheets, then review, then separate approval to build |
 | Body acting controls (D4) | Test results, then approval to implement |
@@ -756,10 +757,21 @@ Inspected on 2026-11-11 by reading the drawing code and an enlarged temporary re
 | Bheemu's point (D8), human hands (D9) | Sheets, then review |
 | Laddu head fix (D10) | Result shown, then approval to merge |
 | Mirror audit (D11) | Not started |
-| Rabbit paw pads | Rule written; check the model draws none |
+| Views for Bheemu, Ammamma, Chintu, Bujji; the 16-expression sheet; Bheemu's point; human hands; body-acting tests; mirror audit | Later stages, each on Harshith's approval |
 | Saving the approved rules into Harshith's installed skill | His go-ahead to propose the skill update |
 
-No sheet, test, fix or audit above has been started. Work begins only on Harshith's instruction.
+Only Stage 1 (13.7) has been prepared. Every later stage waits for Harshith's approval.
+
+### 13.7 Review stages
+
+Review sheets are temporary images. They live in `cartoon-animation-director/review/`, outside the production engine, and carry a red REVIEW ONLY banner. Green frames on a sheet show the approved model; orange frames show proposals. No production file, preset or baseline is changed by preparing them.
+
+| Stage | Contents | Prepared | Status |
+|---|---|---|---|
+| 1 | Laddu: profile head, crouch-and-lap, paw shapes. Gaju: turned views, trunk positions, hiding pose, movement concepts (fan, parachute, sail, small hops). Four pilot expressions for Laddu, four pilot beats for Gaju | 2026-11-11, eight sheets in `review/stage1/` | **Awaiting Harshith's review.** Inconsistencies with the approved model are listed in `review/stage1/README.md` |
+| 2 onward | Not defined yet | | Waits for approval after Stage 1 |
+
+Main inconsistencies found in Stage 1: Gaju's pink falls from 17% of his area to 1% in the proposed profile; far-side ears are drawn in the darker tone, which the approved models do not do; Laddu's neck is drawn as one outline with the body; no expression has been tested on a viewer.
 
 ---
 
@@ -830,5 +842,6 @@ Source quality note: the studio blogs and course notes above are secondary teach
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.2. Digit counts for Laddu and Bujji approved as provisional. View audit corrected: a three-quarter head exists through `yaw`; true profile and back are what is missing. Stage 1 review recorded in 13.7. No character code, design, preset or baseline was changed. |
 | 2026-11-11 | Version 1.1. Readiness review. Section 13 replaced by the decision register: seven approved skill rules in Harshith's wording, decisions D1 to D13 with status, standing restrictions, digit-count inspection of Laddu and Bujji with recommendations, per-shot minimum reference packages, unresolved items. Rabbit and cat anatomy rows updated with verified toe counts. No character code, design, figure or baseline was changed. |
 | 2026-11-11 | Version 1.0. Six generated figures, measured size, silhouette, colour and value tables, drift checker built and tested, eight proposed expressions test-rendered. No approved design was changed. Not yet reviewed by Harshith. |
