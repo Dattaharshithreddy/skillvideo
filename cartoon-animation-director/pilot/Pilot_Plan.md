@@ -1,13 +1,14 @@
 # Pilot Plan: "One More Page"
 
 **Status: HOLD at gate B (review of 2026-11-11). Animatic v002 is ready for review. No detailed animation has been started.**
-Version 1.5, 2026-11-11.
+Version 1.6, 2026-11-11.
 
 Everything here uses the approved production models, the existing presets, existing props and existing engine controls. No engine file, character code, preset or baseline was changed. Nothing from the review branch is used.
 
 | Item | Where |
 |---|---|
-| **Animatic v004 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v004.mp4` |
+| **Animatic v005 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v005.mp4` |
+| Animatic v004, kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v004.mp4` |
 | Animatic v003, kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v003.mp4` |
 | Animatic v002 (27.8 s), kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v002.mp4` |
 | Animatic v001 (25.9 s), kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v001.mp4` |
@@ -17,7 +18,7 @@ Everything here uses the approved production models, the existing presets, exist
 
 ## Pilot Gate Review Checklist: animatic v002 (gate B)
 
-**Gate status: NOT PASSED. Animatic v004 answers Harshith's reviews of v002 and v003 and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v004; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
+**Gate status: NOT PASSED. Animatic v005 answers Harshith's reviews of v002, v003 and v004 and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v005; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
 
 Result words: **PASS** (a named person did the check and accepts it). **REVISE** (done; changes needed, listed). **BLOCKED** (cannot be decided yet; the "needs" column says what is missing).
 
@@ -43,10 +44,23 @@ Rules for this table: only Harshith, or a person he names, can set a human check
 |---|---|---|---|---|
 | 1 | 2026-11-11 | Harshith | REVISE | "It doesn't look a book." "This shot Bheemu hands hidden?" "It doesn't look like he is holding a book." Asked for a study of how a panda holds things |
 | 1 (v003) | 2026-11-11 | Harshith | REVISE | "Hands and finger tips are separated." "Ball he is not throwing using his paw." Chose book option C and line 4 before v003 |
+| 1 (v004) | 2026-11-11 | Harshith | REVISE | "The fingers are mixed in the book." |
 | 2 | 2026-11-11 | Harshith | REVISE | "Kid Telugu should be natural." Wants the way people really talk |
 | 3 | | | | |
 | 4 | 2026-11-11 | Harshith | Partly | Gallery-player screenshots at film frames 158 and 207; nothing covered in that player |
 | 5 | | | | |
+
+## Revision 5: what changed after Harshith's review of v004
+
+`one_more_page_animatic_v005.mp4` (27.2 s, 653 frames). v001 to v004 are unchanged.
+
+| His note on v004 | Change in v005 |
+|---|---|
+| "The fingers are mixed in the book" | Option C's toe tips, which were drawn on the prop, are removed. Bheemu's **own approved forelegs** are now drawn a second time above the book, by calling the model's own drawing method with his own pose for that frame. So the real paw, with its real toes, is in front of what it holds: reading, raised, and carrying the shut book. `chars.py` is not changed, and nothing about the paw is invented. The page-turning paw is now a closed paw, not an open palm |
+
+Stills: `toon-slapstick/episodes/11-one-more-page/storyboard/paws_on_book_v005.png`. Automatic checks pass. **Not watched at speed and not heard.**
+
+**What this is, plainly.** It is a workaround inside the pilot's own file for the engine limit that a prop is wholly in front of or wholly behind a character. It reuses approved drawing code without altering it. If it is accepted, the proper home for it is the engine ("a held object sits between the paw and the body"), which would be a proposal for review and not something to build silently.
 
 ## Revision 4: what changed after Harshith's review of v003
 
@@ -338,6 +352,7 @@ Watch once at full speed with sound, on a phone, before reading anything else.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.6. Animatic v005: prop-drawn toe tips removed; Bheemu's own approved paws drawn above the book. |
 | 2026-11-11 | Version 1.5. Animatic v004: toe tips follow the real paw positions; the ball is bounced, thrown and caught at the real paw and trunk positions. |
 | 2026-11-11 | Version 1.4. Animatic v003: new book prop with option C, line 4 for Chintu. Not watched or heard yet. |
 | 2026-11-11 | Version 1.3. Harshith's first review of v002 recorded: book prop and holding to be revised; Telugu line to be made natural. Book options prepared as a proposal sheet. No animatic changed. |
