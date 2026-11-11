@@ -35,6 +35,10 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 26 | 2026-11-11 | Review work stays on the review branch, marked REVIEW ONLY / PROPOSAL, and is never merged without explicit approval. | Stage 1 review, change-control rules |
 | 27 | 2026-11-11 | Emotional decisions must be visible as beats of their own (notice, think, hesitate, act, recover), through anticipation and reaction, not only as endpoint poses. | "Make emotional decisions visible through anticipation and reaction, not just endpoint poses." |
 | 28 | 2026-11-11 | A posable rig must reproduce the approved drawing at rest and keep limb lengths natural; measure both and report them. | Stage 2 review: 85% outline overlap and one-third foreleg stretch |
+| 29 | 2026-11-11 | A choice between two timings is never made from stills. Record both as alternatives and compare them in playback. | Document 3 review: hop landing on ones or a two-frame contact |
+| 30 | 2026-11-11 | An engine limitation found while writing is documented as known and unresolved; the smallest safe change is proposed in a separate file for later review. Nothing is implemented with the finding. | Document 3 review: key lost on a held frame; per-frame exposure |
+| 31 | 2026-11-11 | Model-based workflow first. A hand-drawn study is proposed only when a model cannot make the pose and the study answers a specific question; it is small and labelled. No new drawing pipeline without approval. | Document 3 review |
+| 32 | 2026-11-11 | Slapstick examples are original and use our approved characters. No recognisable scene, gag, signature movement or character behaviour from an existing cartoon is copied. | Document 4 authorisation |
 
 ## Experimental (being tested)
 
@@ -61,6 +65,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rules 29-32 from the document 3 review and the document 4 authorisation.
 - 2026-11-11: added confirmed rules 23-26 from the Stage 1 review (character life test, evidence kinds, engine limits, review branch).
 - 2026-11-11: added confirmed rules 13-22 from the character-design readiness review (decision register is in `knowledge/Character_Design_Bible.md`, section 13).
 - 2026-11-11: added findings from Lesson 1 and the first automatic video check.

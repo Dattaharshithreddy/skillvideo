@@ -1,7 +1,7 @@
 # Frame-by-Frame Animation
 
 **Knowledge base document 3 of the master mission (Phase 1).**
-Version 1.0, 2026-11-11. Follows `Animation_Fundamentals.md` and `Character_Design_Bible.md`.
+Version 1.1, 2026-11-11. Follows `Animation_Fundamentals.md` and `Character_Design_Bible.md`.
 
 Document 1 explained the principles. This document is the working method: how one action is planned, timed, posed, broken down, in-betweened, checked and cleaned up, one drawing at a time. It follows the eight-step workflow (A to H) that the master mission requires for every action.
 
@@ -594,12 +594,14 @@ Attempted **[M]**: 5 and 6 in part, as the measurement in section 6.3. Not watch
 - No drawn smears or multiples; only an automatic stretch.
 - Body acting controls are missing (see the character review). Not approved for implementation.
 
-**Open questions for Harshith:**
+**Decisions on the four open questions (Harshith, 2026-11-11).** Document accepted on `main` with these limits: the two-frame default and all existing engine behaviour stay as they are, and no hop timing or exercise is claimed as passed until it has been watched in motion.
 
-1. Should the engine warn when a key lands on a held frame? That would be an engine change and needs approval.
-2. For the hop: ones for the fall and landing, or a two-frame contact on twos? It needs to be watched both ways.
-3. Do you want hand-drawn tests in Krita or OpenToonz for anything the models cannot pose? That needs someone to draw.
-4. Is a per-frame exposure control (twos here, ones there) wanted? Also an engine change.
+| Question | Decision | Where it is recorded |
+|---|---|---|
+| Warn when a key lands on a held frame? | Not implemented. The lost landing squash is a **known, unresolved engine limitation**. The smallest safe change is proposed separately | `Engine_Change_Proposals.md`, P1; Bible D19 |
+| Hop: ones for the fall and landing, or a two-frame contact on twos? | Not chosen. Stills cannot decide it. Both stay as alternatives that need a playback comparison | Bible D20 |
+| Per-frame exposure control? | Not implemented. Requirement and minimum design documented, with compatibility | `Engine_Change_Proposals.md`, P2; Bible D21 |
+| Hand-drawn tests? | Keep the model-based workflow. A small, labelled hand-drawn study only when it answers a specific question a model cannot. No new drawing pipeline without approval | Bible D22 |
 
 ---
 
@@ -642,4 +644,5 @@ Tags: **[read]** opened this session or for an earlier document. **[book]** not 
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.1. Harshith's review decisions recorded in section 19. No content of the method changed. Still nothing judged in motion. |
 | 2026-11-11 | Version 1.0. Two figures and three tables generated from the approved models. Finding: a one-frame key on a held frame is skipped by the engine. Not reviewed by Harshith. No exercise passed. Nothing judged in motion. |

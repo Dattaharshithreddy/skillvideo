@@ -1,7 +1,7 @@
 # Character Design Bible
 
 **Knowledge base document 2 of the master mission (Phase 1).**
-Version 1.5, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
+Version 1.6, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
 
 This document does three jobs:
 
@@ -709,6 +709,11 @@ Status words: **Approved** (settled). **Provisional** (in force until reviewed).
 | D16 | Gaju profile | Recognisable. Near ear must show a subtle pink inner edge at rest without enlarging the ear; both ears' outer surfaces in the approved main skin colour; no new permanent colour | Revised in Stage 2; awaiting review | Review |
 | D17 | Gaju hiding | Pose B is the starting point; refine the staging while keeping the approved upright posture, proportions and existing controls. Not to be implemented yet | Refined in Stage 2; awaiting review | Review |
 | D18 | Stage 1 expressions | Harshith's label-free reading: Laddu bliss, suspicion, slow burn, take; Gaju sneaky, frozen, take or surprise, guilty. All eight matched the intent. **This is a visual review, not a viewer-test pass.** Existing presets stay untouched | Recorded | A blind viewer test is still needed before any claim |
+| D19 | Engine warning for a key on a held frame (from document 3) | Do not implement. The issue stays documented; the smallest safe change is proposed separately in `Engine_Change_Proposals.md` (P1) for a future review | Decided 2026-11-11 | Nothing until Harshith reviews the proposal |
+| D20 | Hop landing: one-frame contact on ones, or two-frame contact on twos | Not to be chosen from stills. Both are recorded as alternatives that need a playback comparison | Open | Playback comparison when Harshith asks for it |
+| D21 | Per-frame exposure control (twos here, ones there) | Do not implement. Requirement and minimum design documented in `Engine_Change_Proposals.md` (P2), including compatibility with existing animations | Decided 2026-11-11 | Nothing until Harshith reviews the proposal |
+| D22 | Hand-drawn tests | Keep the existing model-based workflow. Where a pose cannot be made by the current models, state the limitation and propose a small, clearly labelled hand-drawn study only when it answers a specific question. No new drawing pipeline without approval | Decided 2026-11-11 | Case by case |
+| D23 | Document 3 (`Frame_By_Frame_Animation.md`) | Accepted on `main`, with its limits: the two-frame default and all engine behaviour stay as they are; the lost landing squash is a known, unresolved engine limitation; no hop timing or exercise is claimed as passed until watched in motion | Accepted 2026-11-11 | |
 
 ### 13.4 Digit counts: models inspected, recommendation for the two open ones
 
@@ -764,6 +769,9 @@ Inspected on 2026-11-11 by reading the drawing code and an enlarged temporary re
 | Laddu head fix (D10) | Result shown, then approval to merge |
 | Mirror audit (D11) | Not started |
 | Views for Bheemu, Ammamma, Chintu, Bujji; the 16-expression sheet; Bheemu's point; human hands; body-acting tests; mirror audit | Later stages, each on Harshith's approval |
+| Landing squash lost on a held frame (known engine limitation, D19, D23) | Review of proposal P1; no engine change approved |
+| Hop landing timing (D20) | Playback comparison of both alternatives |
+| Per-frame exposure control (D21) | Review of proposal P2; no engine change approved |
 | Saving the approved rules into Harshith's installed skill | His go-ahead to propose the skill update |
 
 Stages 1 to 3 (13.7) are review material only, kept on the review branch `review/stage1-character-refs`, separate from approved production assets. Nothing has been implemented or merged. The approved models, presets, production code and baseline are unchanged.
@@ -850,6 +858,7 @@ Source quality note: the studio blogs and course notes above are secondary teach
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.6. Document 3 review decisions recorded (D19 to D23). No character code, design, preset, engine behaviour or baseline was changed. |
 | 2026-11-11 | Version 1.5. Stage 3 review decision recorded: acting direction approved as a development direction only; no review asset approved for production; character-review stages closed for now. |
 | 2026-11-11 | Version 1.4. Stage 2 video verdict recorded under D14; Stage 3 recorded in 13.7. No character code, design, preset or baseline was changed. |
 | 2026-11-11 | Version 1.3. Stage 1 review decisions recorded (D2 updated, D14 to D18 added). Stage 2 review package recorded in 13.7. No character code, design, preset or baseline was changed. |
