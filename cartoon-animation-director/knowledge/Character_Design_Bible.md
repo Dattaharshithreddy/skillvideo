@@ -1,7 +1,7 @@
 # Character Design Bible
 
 **Knowledge base document 2 of the master mission (Phase 1).**
-Version 1.0, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
+Version 1.1, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
 
 This document does three jobs:
 
@@ -40,7 +40,7 @@ They are stills. A model sheet, a turnaround or an expression sheet is reference
 ### 0.3 Limits
 
 - I cannot draw freehand and cannot generate images in this workspace. Every picture comes from code. Where a principle needs a new drawing (a back view, a real profile), I say so and do not pretend the engine has it.
-- **Approved and frozen designs are not changed by this document.** Bheemu's face, and Bheemu's and Gaju's bodies and limbs, were approved earlier (lessons learned 3). Everything in section 12 is a list of findings and proposals waiting for Harshith's decision.
+- **Approved and frozen designs are not changed by this document.** Bheemu's face, and Bheemu's and Gaju's bodies and limbs, were approved earlier (lessons learned 3). Section 12 lists what I found. Section 13 records what Harshith decided on 2026-11-11 and what is still open. Approval to prepare a sheet is not approval to alter a production model.
 - I am not a lawyer. Where I flag a resemblance to an existing character, it is a risk to look at, not a legal opinion.
 
 ---
@@ -257,8 +257,8 @@ Cartoon animals are simplified from real ones. Know the real structure, then cho
 |---|---|---|---|
 | **Giant panda** | Bears walk on the whole sole (plantigrade) **[V: Wikipedia, Plantigrade; LibreTexts veterinary anatomy]**. Five digits plus a "false thumb", an enlarged wrist bone used to hold bamboo; it gives a grip but does not rotate food like a true thumb **[V: Wang et al., *Scientific Reports* 2022; ASU News]** | Flat feet with toes: correct. Paws show four toes and no false thumb | Deliberate simplification. Keep four everywhere |
 | **Asian elephant** | Trunk ends in one finger-like tip (African elephants have two), so it tends to wrap and squeeze more than pinch. Five nails on each forefoot, four on each hind foot. Two domes on the forehead. Ears smaller than African **[V: Wikipedia, Asian elephant]**. Elephants stand partly on their toes with a raised heel (semi-digitigrade) **[V: WorldAtlas; Wikipedia, Digitigrade]** | Trunk with rings and a nostril tip. Three nails per foot. Very large ears. Round column legs | Deliberate. Big ears are a cartoon choice. Gaju's trunk should **wrap** objects, which is both accurate and funnier |
-| **Cat** | Walks on its toes (digitigrade) **[V: LibreTexts]**. Five toes on each front paw including a dewclaw that does not touch the ground, four on each hind paw **[V: Wikipedia, Cat anatomy]**. The "backward knee" on the hind leg is the ankle | Sitting front view and a side walking view; almond eyes with slit pupils | Check toe counts on a paw sheet (not yet made) |
-| **Rabbit** | Sources disagree: one lists rabbits as plantigrade, another describes their locomotion as digitigrade **[V: Wikipedia, Plantigrade; Britannica, digitigrade posture]**. Practical reading **[R]**: long hind foot flat on the ground when sitting, up on the toes when running. Toe counts not verified this session | Sits up on long hind feet with front paws at the chest; hops in profile | Verify toe count before a paw close-up |
+| **Cat** | Walks on its toes (digitigrade) **[V: LibreTexts]**. Five toes on each front paw including a dewclaw that does not touch the ground, four on each hind paw **[V: Wikipedia, Cat anatomy]**. The "backward knee" on the hind leg is the ankle | Sitting front view and a side walking view; almond eyes with slit pupils. Every paw is drawn with three partings, so four toes, front and hind **[M, code and an enlarged render]** | Recommended: four toes on every paw, dewclaw not drawn. Matches what is visible on a real cat |
+| **Rabbit** | Flat on the whole hind foot at rest, up on the toes when running **[V: Wikipedia, Rabbit, via a mirror]**. An older pair of sources disagreed only because each described one of those two states **[V: Wikipedia, Plantigrade; Britannica]**. Five toes on each front foot, one of them a much-reduced dewclaw; four on each hind foot. The soles are covered in fur, with no bare pads like a cat's **[V: Wikipedia, Rabbit; To Know the Land; Leporidae drawing guide]** | Sits up on long hind feet with front paws at the chest; hops in profile. Every paw is drawn with two partings, so three toes **[M, code and an enlarged render]** | Provisional: three toes as drawn. Never draw pink paw pads on Bujji |
 
 **Rule [R]:** a simplification is fine if it is (a) chosen, (b) written here, (c) identical in every shot. A toe count that changes between shots is an error; a toe count that is "wrong" but constant is a design.
 
@@ -474,7 +474,8 @@ Short, fixed-format pages. Numbers are from section 2.
 - **Frozen:** face, eye patches, glasses, scarf, body, limbs.
 - **Moves:** slow starts, 6 to 8 frames to get going; lands heavy; the floor reacts.
 - **Signature:** cleans his glasses slowly before losing his temper; sits down like a real panda.
-- **Do:** let the belly and cheeks squash; keep glasses rigid. **Do not:** martial arts, quick twitchy acting.
+- **Do:** let the belly and cheeks squash; keep glasses rigid. **Do not:** quick twitchy acting.
+- **Never (approved written constraint, D12):** martial arts or fighting moves of any kind.
 - **Gaps:** no profile or back; torso cannot bend; `point` paw.
 
 ### Gaju
@@ -484,7 +485,8 @@ Short, fixed-format pages. Numbers are from section 2.
 - **Moves:** quick, bouncy, 2 to 3 frames to start; ears and trunk always a few frames behind the body.
 - **Signature:** the trunk as hand, straw, hose, periscope.
 - **Do:** act with ears and trunk; wrap objects with the trunk. **Do not:** rely on his mouth, which is hidden.
-- **Gaps:** trunk lost in front silhouette; merges with sky; no profile; see section 12 item 2 about flying.
+- **Movement style:** to be his own. Ear-flap flying is retired as a signature; ears as fan, parachute or sail, plus small hops, are being explored. **Not final until Harshith reviews the reference sheet** (decision D2).
+- **Gaps:** trunk lost in front silhouette; merges with sky; no profile.
 
 ### Ammamma
 - **Is:** the grandmother; final authority; always knows who did it.
@@ -641,9 +643,9 @@ Attempted so far **[M]**: exercise 6 once (failed, 7 of 12). Exercise 7 partly: 
 
 ---
 
-## 12. Findings and decisions needed from Harshith
+## 12. Findings from measuring (2026-11-11)
 
-Ordered by how much they affect what is on screen.
+Ordered by how much they affect what is on screen. Decisions taken on these are in section 13.
 
 1. **No real side or back views for any character.** Heads always face the camera. This limits staging more than anything else in the designs.
 2. **Gaju flying by flapping his ears.** The series notes give him this as a running gag and it is used in at least two episodes. A baby elephant with oversized ears who flies by flapping them is the signature trait of a very famous existing animated elephant. Under the mission's own rule against copying signature traits, I recommend replacing it (for example: he only ever gets a few centimetres off the ground and falls; or he uses his ears as a fan, parachute or sail without flying). Your decision.
@@ -659,17 +661,105 @@ Ordered by how much they affect what is on screen.
 
 ---
 
-## 13. Rules proposed for the `cartoon-animation-director` skill
+## 13. Decision register
 
-Pending approval:
+Decided by Harshith on 2026-11-11 after the readiness review. This section is the record. Nothing in it has been built yet.
 
-1. Before animating a new or changed character, generate the six sheets with `make_cd_figures.py` and show them.
-2. Run `make_cd_figures.py check` before committing any change to `chars.py` or `cast.py`; rewrite the baseline only after approval.
-3. Every expression uses at least three face parts and a head tilt; animals also use ears, trunk or tail.
-4. Check value against the background for every outdoor shot of Gaju and every pale-wall shot of Bujji.
-5. One digit count per species, as written in section 12 item 10, in every shot.
-6. Never give a character a trait that is another famous character's signature; run the one-sentence test for each new character.
-7. Colours only as named constants.
+### 13.1 Standing restrictions
+
+1. Approval to prepare a sheet is **not** approval to alter the production model.
+2. No edit to character code, no change to an approved design, no merge, and no baseline rewrite without Harshith's explicit approval.
+3. A record of approved decisions and unresolved items is kept here and updated with every decision.
+4. Animation is not blocked on references a shot does not need. The reference package is defined per shot, by the action and the characters in it (13.5).
+
+### 13.2 Approved skill rules
+
+| # | Rule, in the approved wording |
+|---|---|
+| R1 | Show reference sheets for review before changing an approved character design. |
+| R2 | Run the drift check before commits that touch character code. Never rewrite the baseline without explicit approval. |
+| R3 | Add improved expression presets without deleting or changing existing presets. |
+| R4 | Check character contrast against backgrounds through staging and lighting before considering any design change. |
+| R5 | Enforce consistent digit counts according to the approved character model. |
+| R6 | Avoid copying another famous character's distinctive signature traits. Gaju must have his own original movement style. |
+| R7 | Store palette colours as named constants and validate them consistently. |
+
+### 13.3 Decisions
+
+Status words: **Approved** (settled). **Provisional** (in force until reviewed). **Prepare sheet** (I may make a proposal sheet for review; the production model stays untouched). **Investigate** (I may test and show results; nothing is implemented). **Deferred**.
+
+| ID | Subject | Decision | Status | What happens next |
+|---|---|---|---|---|
+| D1 | Digit counts | Bheemu four toes per paw; Gaju three nails per foot; humans four fingers and one thumb per hand. Laddu and Bujji: see 13.4 | Provisional (Bheemu, Gaju); Approved (humans); Open (Laddu, Bujji) | Harshith to rule on 13.4 |
+| D2 | Gaju's movement | Explore ears as fan, parachute or sail, with small hops. Ear-flap flying is not his signature | Prepare sheet | Movement reference sheet for review. Not final until reviewed |
+| D3 | Side and back views | Prepare reference sheets, Bheemu and Gaju first | Prepare sheet | Frozen designs are not modified without approval |
+| D4 | Body acting | Investigate spine bend, shoulder lift, sitting pose, running poses | Investigate | Show proposed results before any implementation |
+| D5 | Expressions | Keep all eight existing presets unchanged. Prepare improvements and a 16-expression review sheet | Prepare sheet | No expression is called "passing" until tested and evaluated by Harshith |
+| D6 | Gaju against the sky | Solve by staging. His approved colours do not change | Approved | Applied shot by shot |
+| D7 | Gaju's mouth and trunk visibility | Test alternative poses and staging | Investigate | Show test results |
+| D8 | Bheemu's pointing paw | Prepare a proposed reference sheet | Prepare sheet | Review before any model change |
+| D9 | Human hands | Prepare improved grip, fist and wrist-bend references | Prepare sheet | Review before any model change |
+| D10 | Laddu's head separating from the body | Fix as a bug, preserving the approved design | Approved to fix; **not to merge** | Show the result before merging |
+| D11 | Mirrored views | Audit costume and accessory orientation | Approved (audit only) | Report findings |
+| D12 | Bheemu never does martial arts | Kept as a written character constraint | Approved | On his cast page |
+| D13 | Mouth charts for humans; Bujji's accent colour | Deferred until needed | Deferred | None |
+
+### 13.4 Digit counts: models inspected, recommendation for the two open ones
+
+Inspected on 2026-11-11 by reading the drawing code and an enlarged temporary render. No file was changed.
+
+| Character | As drawn today **[M]** | Real animal **[V]** | Recommendation **[R]** | Status |
+|---|---|---|---|---|
+| Bheemu | Four toes per paw | Five digits plus a false thumb | Four | Provisional |
+| Gaju | Three nails per foot | Five front, four hind | Three | Provisional |
+| Ammamma, Chintu | Four fingers and a thumb; five toes per bare foot | Same | As drawn | Approved (hands) |
+| Laddu | Four toes on every paw, front and hind | Five front including a dewclaw that stays off the ground; four hind | **Four on every paw, dewclaw not drawn.** Already what the model draws and what is visible on a real cat. No code change | Awaiting Harshith |
+| Bujji | Three toes on every paw | Five front including a reduced dewclaw; four hind; furred soles | **Keep three as drawn** for now: her paws are very small on screen and the count is already consistent. Alternative: four, to match Laddu and the real visible toes, which needs a model change and a sheet first. Either way: no pink paw pads | Awaiting Harshith |
+
+### 13.5 Minimum reference package, defined per shot
+
+**Base package.** Needed for every character in every shot. All of it exists today: front model, colour model, size line-up, written digit count.
+
+**Add only what the shot's action needs:**
+
+| If the shot contains | Add for that character | Exists today? |
+|---|---|---|
+| A reaction or acting to camera | The expressions used, from a reviewed expression sheet | Eight unreviewed presets |
+| Hand, paw or trunk business (grab, hold, point, eat, wrap) | The specific hand, paw or trunk shapes, enlarged | Five hand shapes; Bheemu's point is weak; no trunk sheet |
+| Action in profile (walk or run across, chase, eat or drink side-on, two characters facing each other) | Side view of head and body; key poses for the walk or run | Laddu and Bujji bodies only; no profile heads |
+| A head or body turn inside the shot | Front, three-quarter and side | No |
+| Seen from behind, or leaving into the distance | Back view | No |
+| Sitting, lying, crouching, falling, climbing, hiding | That pose, drawn for the purpose | Laddu and Bujji sitting only |
+| A human speaking | Mouth shapes | Loudness flap only (deferred) |
+| An outdoor or strongly coloured background | Value check against that background, solved by staging | Method exists (2.8) |
+| Gaju's ear gag | The reviewed movement sheet (D2) | No |
+
+**Rule.** Package for a shot = base + the rows that match its actions, only for the characters who perform them. A character who only stands in the background needs the base package.
+
+**What can be animated today with no new reference:** shots where the characters face the camera, stand, and use the existing expressions and hand shapes. For example reactions, takes, front-facing hops, simple holding.
+
+**What cannot yet:** anything in profile, turns, Bheemu sitting or running, pointing with Bheemu's paw, Gaju's ear movement.
+
+**The pilot, "The Milk Bowl", against this table.** It is staged in profile on the floor, so it needs: Laddu's profile head, his crouch-and-lap pose, his paw shapes and the D10 fix; Gaju's trunk shapes (creep, dip, freeze, sneeze), his hiding pose and a three-quarter or profile view; the expressions for bliss, suspicion, slow burn and the take. Bheemu appears only as a shadow and needs nothing new. Ammamma, Chintu and Bujji are not in it.
+
+### 13.6 Unresolved items
+
+| Item | Waiting on |
+|---|---|
+| Laddu and Bujji digit counts (13.4) | Harshith's ruling |
+| Final digit counts for Bheemu and Gaju | Provisional until Harshith finalises |
+| Gaju's movement style (D2) | Sheet, then review |
+| Side, three-quarter and back views (D3) | Sheets, then review, then separate approval to build |
+| Body acting controls (D4) | Test results, then approval to implement |
+| 16-expression sheet (D5) | Sheet, then Harshith's naming test |
+| Gaju mouth and trunk staging (D7) | Tests |
+| Bheemu's point (D8), human hands (D9) | Sheets, then review |
+| Laddu head fix (D10) | Result shown, then approval to merge |
+| Mirror audit (D11) | Not started |
+| Rabbit paw pads | Rule written; check the model draws none |
+| Saving the approved rules into Harshith's installed skill | His go-ahead to propose the skill update |
+
+No sheet, test, fix or audit above has been started. Work begins only on Harshith's instruction.
 
 ---
 
@@ -712,6 +802,9 @@ Tags: **[read]** opened this session. **[book]** copyrighted book not opened; ci
 - ASU News, on the panda's false thumb: https://news.asu.edu/20220630-giant-pandas-show-evolutionary-turn-wrist **[read]**
 - Wikipedia, Asian elephant: https://en.wikipedia.org/wiki/Asian_elephant **[read]**
 - Wikipedia, Cat anatomy: https://en.wikipedia.org/wiki/Cat_anatomy **[read, via a mirror]**
+- Wikipedia, Rabbit: https://en.wikipedia.org/wiki/Rabbit **[read, via a mirror]**
+- To Know the Land, "A Closer Look at Rabbit Tracks": https://www.toknowtheland.com/blog/acloserlookatrabbittracks **[read]**
+- Leporidae drawing guide (dewclaws, furred soles): https://classic.leporidae.org/howtodraw.php **[read]**
 
 **Colour**
 - LottieFiles, "A Guide to Color Theory for Motion Design": https://lottiefiles.com/blog/tips-and-tutorials/color-theory-for-motion-design **[read]**
@@ -737,4 +830,5 @@ Source quality note: the studio blogs and course notes above are secondary teach
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.1. Readiness review. Section 13 replaced by the decision register: seven approved skill rules in Harshith's wording, decisions D1 to D13 with status, standing restrictions, digit-count inspection of Laddu and Bujji with recommendations, per-shot minimum reference packages, unresolved items. Rabbit and cat anatomy rows updated with verified toe counts. No character code, design, figure or baseline was changed. |
 | 2026-11-11 | Version 1.0. Six generated figures, measured size, silhouette, colour and value tables, drift checker built and tested, eight proposed expressions test-rendered. No approved design was changed. Not yet reviewed by Harshith. |

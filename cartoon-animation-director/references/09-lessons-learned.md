@@ -19,6 +19,16 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 10 | 2026-11-10 | Do not change episode 1. | "Dont change first video" |
 | 11 | 2026-11-11 | Ten quick episodes with two or three poses per action are not acceptable quality. Hands, expressions and movement must carry the action. | "Its basic, not looking real at all" |
 | 12 | 2026-11-11 | Study how the action is staged in classic theatrical cartoons before animating it (for example how a cat drinks milk). | "Check how cat drink milk in tom and jerry" |
+| 13 | 2026-11-11 | Show reference sheets for review before changing an approved character design. | Readiness review, rule R1 |
+| 14 | 2026-11-11 | Run the drift check (`knowledge/figures/make_cd_figures.py check`) before commits that touch character code. Never rewrite the baseline without explicit approval. | Rule R2 |
+| 15 | 2026-11-11 | Add improved expression presets without deleting or changing existing presets. | Rule R3 |
+| 16 | 2026-11-11 | Check character contrast against backgrounds through staging and lighting before considering any design change. | Rule R4 |
+| 17 | 2026-11-11 | Enforce consistent digit counts according to the approved character model. | Rule R5 |
+| 18 | 2026-11-11 | Avoid copying another famous character's distinctive signature traits. Gaju must have his own original movement style. | Rule R6 |
+| 19 | 2026-11-11 | Store palette colours as named constants and validate them consistently. | Rule R7 |
+| 20 | 2026-11-11 | Approval to prepare a sheet is not approval to alter the production model. No character code edit, design change, merge or baseline rewrite without explicit approval. | "Approval to prepare a sheet is not approval to alter the production model." |
+| 21 | 2026-11-11 | Do not block animation on references a shot does not need. Define the minimum reference package per shot from its action and characters. | "Do not block all animation work on references that are unnecessary for a particular shot." |
+| 22 | 2026-11-11 | Never claim an expression, pose or sheet passes until it has been tested and evaluated. | "Do not claim the expressions pass until they have been tested and evaluated." |
 
 ## Experimental (being tested)
 
@@ -45,6 +55,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rules 13-22 from the character-design readiness review (decision register is in `knowledge/Character_Design_Bible.md`, section 13).
 - 2026-11-11: added findings from Lesson 1 and the first automatic video check.
 
 - 2026-11-11: file created from the corrections in the first production run (episodes 1-10, acting test).
