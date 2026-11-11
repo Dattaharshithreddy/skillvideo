@@ -13,7 +13,7 @@
   "stages": {
     "script": "done (pilot/Pilot_Plan.md)",
     "storyboard": "done (stills; not reviewed)",
-    "animatic": "v001 reviewed: HOLD. v002 rendered; AWAITING REVIEW (gate B). Not heard; safe area not device-checked",
+    "animatic": "v002 reviewed by Harshith: REVISE. v003 rendered; AWAITING REVIEW (gate B). Not heard",
     "assets": "not started",
     "keys": "not started",
     "inbetweens": "not started",
@@ -40,6 +40,10 @@
   ],
   "assets": [
     {
+      "file": "animatic/one_more_page_animatic_v003.mp4",
+      "status": "animatic, not animation; not watched, not heard"
+    },
+    {
       "file": "animatic/one_more_page_animatic_v002.mp4",
       "status": "animatic, not animation; not heard"
     },
@@ -54,6 +58,14 @@
     {
       "file": "storyboard/hookups.png",
       "status": "engine stills"
+    },
+    {
+      "file": "sound/music_dialogue/c_ivvava.wav",
+      "status": "generated voice line (option 4); NOT approved until heard"
+    },
+    {
+      "file": "research/book_options.py",
+      "status": "new book prop drawings; option C chosen by Harshith for the animatic; toe tips are drawn by the prop"
     }
   ]
 }

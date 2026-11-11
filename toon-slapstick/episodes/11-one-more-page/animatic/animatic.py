@@ -8,12 +8,16 @@ Harshith has reviewed this (gate B in cartoon-animation-director/knowledge/Produ
 
 Run:  python3 animatic.py board     writes ../storyboard/board.png (one panel per shot beat)
       python3 animatic.py hookups   writes ../storyboard/hookups.png (frame before and after each cut)
-      python3 animatic.py render    writes one_more_page_animatic_v002.mp4 (half size) beside this file
+      python3 animatic.py render    writes one_more_page_animatic_v003.mp4 (half size) beside this file
 
 Version 002 (2026-11-11), after the hold at the animatic gate: wait shortened from 58 to 42 frames; the ball's
 return in view for 10 frames with a soft falling note; gentler landing (no squash of Bheemu); the reveal of his
 skill in its own full shot; one pass instead of two; the book stays in his hand (never on the floor at the frame
 edge); bent-arm offer; Chintu's line plays over stillness, then a pause, then Gaju passes the ball to Bheemu.
+Version 003 (2026-11-11), after Harshith's own review of v002: a new book prop that reads as a book (option C on
+proposals/book_prop_options.png: toe tips drawn on the prop so the paws seem to hold it; a cheat, and the approved
+model is unchanged); the book stays open when the ball lands and is shut and carried afterwards; Chintu's line is
+now "Bheemu, naa ball ivvavaa?" (his option 4), a new generated file kept in this episode's sound folder.
 Version 001 is the committed v001 file and this script's previous revision in Git.
 """
 import os, sys
@@ -22,7 +26,12 @@ sys.path.insert(0, os.path.join(HERE, '..', '..', '..', 'engine'))
 from toon import GROUND, W, H
 from chars import Bheemu, Gaju
 from cast import Chintu
-from scene import Painted, Prop, book
+from scene import Painted, Prop
+sys.path.insert(0, os.path.join(HERE, '..', 'research'))
+from book_options import open_book, closed_book        # option C, chosen by Harshith on 2026-11-11
+from toon import oval
+import voice as _voice
+_voice.DIR = os.path.join(HERE, '..', 'sound', 'music_dialogue')   # this episode's own line; the shared voice folder is not touched
 from india import telugu
 from sets import courtyard, SKY
 from acting import blink, walk, arc, flap
@@ -33,7 +42,7 @@ G0 = GROUND
 T = 36                                   # the title card that every episode has
 from voice import load as _load_line
 from sound import SR
-LINE_END = 452 + int(len(_load_line('c_ball')) / SR * 24)      # where Chintu's line ends, so that nothing overlaps it
+LINE_END = 452 + int(len(_load_line('c_ivvava')) / SR * 24)      # where Chintu's line ends, so that nothing overlaps it
 TOTAL = T + LINE_END + 8 + 88 + 34
 ep = Show(11, 'One More Page', 'one_more_page', TOTAL, Painted(2700, courtyard, top=SKY, bottom=(170, 150, 130)))
 st, sc, cam = ep.st, ep.sc, ep.cam
@@ -41,11 +50,29 @@ BX, GX, CX = 520, 930, 1140              # home positions: Bheemu left, Gaju rig
 MID = 725
 
 bheemu = Bheemu(x=BX, z=2, face=0.0); gaju = Gaju(x=1500, z=3, face=-1, yaw=-0.8); chintu = Chintu(x=1700, z=1, show=0.0, face=-1, yaw=-0.7)
-bk = Prop(book, z=4, sx=1.8, sy=1.8); bl = Prop(ball, z=5)
+TIP = (44, 40, 52)
+
+
+def the_book(g, p, f):
+    """Option C. Open: toe tips drawn on both outer edges so the paws seem to wrap the covers.
+    Shut (shut >= 0.5): the closed book, with toe tips over its top edge where one paw carries it.
+    The toe tips are drawn by this PROP. The approved Bheemu model is unchanged."""
+    if p['shut'] < 0.5:
+        open_book(g, p, f)
+        for s_ in (-1, 1):
+            for k in range(4):
+                g.shape(oval(s_ * 108, -22 + k * 22, 15, 11), TIP, True, 3)
+    else:
+        closed_book(g, p, f)
+        for k in range(4):
+            g.shape(oval(-34 + k * 22, -74, 11, 15), TIP, True, 3)
+
+
+bk = Prop(the_book, z=4, sx=1.1, sy=1.1, shut=0.0); bl = Prop(ball, z=5)
 st.add(bheemu, gaju, chintu, bk, bl)
-READ = dict(armL=(70, -150), armR=(-70, -150), handL='grip', handR='grip')        # both hands hold the book at the chest
+READ = dict(armL=(-6, -95), armR=(6, -95), handL='grip', handR='grip')        # both hands hold the book at the chest
 EYES_DOWN = dict(pupil=(0.0, 0.8), lid=0.25, smile=0.3)
-BOOK_AT = (0, -40)                        # book offset from Bheemu's belly anchor
+BOOK_AT = (0, -35)                        # book offset from Bheemu's belly anchor
 SHOTS = []                                # (first frame, name, size, note) for the burn-in and the board
 
 
@@ -85,7 +112,7 @@ sc.hit(T + 90, 'pop', 0.5, note=79)
 
 # ------------------------------------------------------------ S3 medium close on Bheemu: he turns a page  (108-131)
 shot(108, 'S3', 'MED CLOSE', BX, 2.8, up=230, note='No reaction. He turns a page')
-P(bheemu, 114, 2, armR=(-40, -175)); P(bheemu, 118, 3, 'io', armR=(-70, -150)); sc.hit(T + 116, 'ghatam', 0.5)
+P(bheemu, 114, 2, armR=(-60, -125), handR='open'); P(bheemu, 118, 3, 'io', armR=(6, -95), handR='grip'); sc.hit(T + 116, 'ghatam', 0.5)
 P(bheemu, 122, 2, pupil=(0.3, 0.8)); P(bheemu, 126, 2, pupil=(-0.3, 0.8))                              # eyes travel along the line
 
 # ------------------------------------------------------------ S4 wide: attempt 2 (bigger), then attempt 3 (far too hard)  (132-203)
@@ -97,8 +124,8 @@ for t0 in (134, 146, 158):                                                    # 
 for f in flap(gaju, T + 134, T + 168, 4, 0.9):
     sc.hit(f, 'flap', 0.35)
 P(gaju, 168, 2, ear=0.0)
-P(bheemu, 150, 3, 'out', armL=(60, -330), armR=(-60, -330)); bk.set(T + 150, sy=1.8)                    # without looking, the book rises between them
-bk.attach(T + 150, T + 228, bheemu, 'belly', 0, -230)
+P(bheemu, 150, 3, 'out', armL=(-6, -295), armR=(6, -295))                    # without looking, the book rises between them
+bk.attach(T + 150, T + 228, bheemu, 'belly', 0, -235)
 P(gaju, 172, 3, sy=1.0, sx=1.0, yaw=-0.2, pupil=(-0.6, 0.0), ear=-0.5, smile=-0.2, happy=0.0, eye_open=1.0)   # hm.
 P(gaju, 182, 6, 'out', sy=0.8, sx=1.2, trunk=(0, -120), trunk_curl=-0.2, brow_ang=14)                 # wind-up
 P(gaju, 188, 2, sy=1.12, sx=0.92, trunk=(-30, 60), trunk_curl=0.4)                                    # throws it down, hard
@@ -114,17 +141,17 @@ shot(204, 'S5', 'WIDE HIGH', MID, 1.0, note='The wait, shortened. Gaju gives up.
 P(gaju, 214, 4, 'io', pupil=(0.0, 0.0), head_dy=0, **CALM)                                              # nothing came down
 P(gaju, 222, 5, 'io', sy=0.93, sx=1.05, ear=-0.9, yaw=0.3, pupil=(0.5, 0.6), trunk=(30, 92), trunk_curl=0.7, **SORRY); gaju.set(T + 222, sweat=0.0)   # sulks, turns away
 sc.hit(T + 224, 'ghatam', 0.4)
-P(bheemu, 228, 4, 'io', armL=(70, -150), armR=(-70, -150)); bk.attach(T + 228, T + 342, bheemu, 'belly', *BOOK_AT)   # the book comes down
+P(bheemu, 228, 4, 'io', armL=(-6, -95), armR=(6, -95)); bk.attach(T + 228, T + 342, bheemu, 'belly', *BOOK_AT)   # the book comes down
 P(bheemu, 234, 3, 'io', pupil=(0.9, 0.3), lid=0.1, yaw=0.3)                                            # his first look at Gaju
 P(bheemu, 240, 3, 'io', smile=0.6)                                                                     # he softens...
 bl.set(T + 246, x=BX, y=G0 - 1540, sy=1.0, sx=1.0)                                                    # v002: enters at the top edge and is in view for 10 frames
-bl.move(T + 246, T + 256, 'in', y=BELLY_Y - 100, sy=1.1, sx=0.93)
+bl.move(T + 246, T + 256, 'in', y=BELLY_Y - 136, sy=1.1, sx=0.93)
 sc.slide(T + 246, 88, 64, 10, 0.3)                                                                     # a soft falling note so the return is heard as well as seen
-bl.set(T + 256, sy=0.86, sx=1.12); bk.set(T + 256, sy=0.8)                                             # v002: a gentle landing. The book closes; nobody is squashed
+bl.set(T + 256, sy=0.86, sx=1.12)                                                                      # v003: it settles in the V of the open book; the book stays open                                             # v002: a gentle landing. The book closes; nobody is squashed
 bheemu.set(T + 256, pupil=(0.0, 0.8), yaw=0.0, eye_pop=1.15, lid=0.0, smile=0.0)
 sc.hit(T + 256, 'pop', 0.55, note=72)                                                                  # soft, pitched, alone on its frame
 bl.move(T + 258, T + 262, 'out', sy=1.0, sx=1.0)
-bl.attach(T + 258, T + 346, bheemu, 'belly', 0, -100)
+bl.attach(T + 258, T + 346, bheemu, 'belly', 0, -136)
 P(gaju, 258, 2, yaw=-0.7, pupil=(-0.9, 0.0), ear=0.8, **SHOCK)
 
 # ------------------------------------------------------------ S6 medium close on Bheemu: the slow burn  (272-311)
@@ -145,7 +172,7 @@ shot(336, 'S8a', 'FULL', BX, 1.8, up=60, note='The reveal, in its own shot: book
 sc.raga(T + 340, TOTAL - 34, 'sweet', v=0.8)
 P(bheemu, 336, 1, yaw=0.0, brow_ang=0, pupil=(0.0, 0.5), smile=0.5, lid=0.0)
 P(bheemu, 340, 4, 'io', armL=(0, 0), armR=(-30, -150), handR='grip', bendR=0.3)                        # v002: the book stays with him, in his left hand at his side
-bk.attach(T + 342, T + 9999, bheemu, 'handL', 0, 30); bk.set(T + 342, sy=1.8, rot=8)
+bk.attach(T + 342, T + 9999, bheemu, 'handL', 0, 40); bk.set(T + 342, shut=1.0, rot=8)           # v003: he shuts it and carries it
 bl.attach(T + 346, T + 352, bheemu, 'handR', 0, -20)
 P(bheemu, 348, 3, 'io', armR=(60, -110), handR='open')
 bl.set(T + 352, x=BX + 115, y=G0 - 280)
@@ -176,7 +203,7 @@ for f in walk(chintu, T + 426, T + 448, CX, 8, 28):
     ep.tap(f, 'na', 0.6)
 P(bheemu, 432, 3, yaw=0.6, pupil=(0.9, 0.0), happy=0.0, eye_open=1.0, smile=0.2); P(gaju, 432, 3, yaw=0.7, pupil=(0.9, 0.0), ear=0.5, **CALM)   # they see him
 P(chintu, 448, 2, armL=(-20, -150), handL='open')                                                      # hand out. Everyone is still for the line
-e = speak(ep, chintu, T + 452, 'c_ball') - T                                                           # generated Telugu voice: NOT approved until heard
+e = speak(ep, chintu, T + 452, 'c_ivvava') - T                                                         # v003: line 4, chosen by Harshith                                                           # generated Telugu voice: NOT approved until heard
 assert e == LINE_END, (e, LINE_END)
 b0 = e + 8                                                                                             # v002: a pause after the line, then the action
 P(gaju, b0, 2, yaw=-0.5, pupil=(-0.8, 0.0), trunk=(-90, -160), trunk_curl=-0.3)                        # the joke: Gaju gets rid of the evidence
@@ -192,7 +219,7 @@ arc(bl, T + b0 + 44, T + b0 + 58, CX - 50, G0 - 250, 200); sc.hit(T + b0 + 44, '
 P(bheemu, b0 + 50, 5, 'io', armR=(0, 0), handR='mitt', bendR=0.12)
 bl.attach(T + b0 + 58, T + 9999, chintu, 'handL', 0, -20); sc.hit(T + b0 + 58, 'pop', 0.6, note=79)
 P(chintu, b0 + 60, 3, 'over', sy=1.06, sx=0.96, **HAPPY); P(chintu, b0 + 66, 4, 'io', sy=1.0, sx=1.0)
-P(bheemu, b0 + 64, 4, 'io', yaw=0.0, **READ); bk.attach(T + b0 + 66, T + 9999, bheemu, 'belly', *BOOK_AT); bk.set(T + b0 + 66, rot=0)   # the book opens again
+P(bheemu, b0 + 64, 4, 'io', yaw=0.0, **READ); bk.attach(T + b0 + 66, T + 9999, bheemu, 'belly', *BOOK_AT); bk.set(T + b0 + 66, rot=0, shut=0.0)   # the book opens again
 P(bheemu, b0 + 68, 3, 'io', **dict(CALM, **EYES_DOWN))
 P(gaju, b0 + 72, 4, 'io', yaw=-0.7, pupil=(-0.9, 0.3), head_dx=-20, ear=0.3, **HAPPY)                  # Gaju leans in to read too
 END = T + b0 + 88
@@ -224,5 +251,5 @@ if __name__ == '__main__':
         print('cuts at engine frames:', cuts)
     elif mode == 'render':
         wav = sc.write(os.path.join(HERE, 'scratch_audio.wav'))
-        st.render(os.path.join(HERE, 'one_more_page_animatic_v002.mp4'), audio=wav, scale=0.5)
+        st.render(os.path.join(HERE, 'one_more_page_animatic_v003.mp4'), audio=wav, scale=0.5)
     print('shots:', [(s[1], s[0] + 1, s[2]) for s in SHOTS], 'total frames', TOTAL)

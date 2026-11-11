@@ -1,13 +1,14 @@
 # Pilot Plan: "One More Page"
 
 **Status: HOLD at gate B (review of 2026-11-11). Animatic v002 is ready for review. No detailed animation has been started.**
-Version 1.3, 2026-11-11.
+Version 1.4, 2026-11-11.
 
 Everything here uses the approved production models, the existing presets, existing props and existing engine controls. No engine file, character code, preset or baseline was changed. Nothing from the review branch is used.
 
 | Item | Where |
 |---|---|
-| Animatic v002 (540 x 960, 27.8 s, scratch sound) | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v002.mp4` |
+| **Animatic v003 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v003.mp4` |
+| Animatic v002 (27.8 s), kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v002.mp4` |
 | Animatic v001 (25.9 s), kept for comparison | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v001.mp4` |
 | Animatic source | `toon-slapstick/episodes/11-one-more-page/animatic/animatic.py` |
 | Storyboard panels | `toon-slapstick/episodes/11-one-more-page/storyboard/board.png` |
@@ -15,7 +16,7 @@ Everything here uses the approved production models, the existing presets, exist
 
 ## Pilot Gate Review Checklist: animatic v002 (gate B)
 
-**Gate status: NOT PASSED. Harshith reviewed v002 on his phone on 2026-11-11: checks 1 and 2 are REVISE; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
+**Gate status: NOT PASSED. Animatic v003 answers Harshith's review of v002 and is waiting for his review. Checks 1 and 2 stay REVISE until he has watched and heard v003; 3 and 5 are blocked; 4 is partly answered.** Last updated 2026-11-11.
 
 Result words: **PASS** (a named person did the check and accepts it). **REVISE** (done; changes needed, listed). **BLOCKED** (cannot be decided yet; the "needs" column says what is missing).
 
@@ -44,6 +45,21 @@ Rules for this table: only Harshith, or a person he names, can set a human check
 | 3 | | | | |
 | 4 | 2026-11-11 | Harshith | Partly | Gallery-player screenshots at film frames 158 and 207; nothing covered in that player |
 | 5 | | | | |
+
+## Revision 3: what changed after Harshith's review of v002
+
+`one_more_page_animatic_v003.mp4` (27.2 s, 653 frames). v001 and v002 are unchanged and kept as references.
+
+| His note | Change in v003 |
+|---|---|
+| "It doesn't look a book" | New prop drawn in the episode's own folder: a hardback with two covers, a spine, page edges and the title "కథలు". The engine's existing `book` prop is not changed and not used |
+| "Bheemu hands hidden"; "doesn't look like he is holding a book" | His choice, option C: four toe tips are drawn on each outer edge of the book so the paws seem to wrap it. **This is a cheat: the toes are drawn by the prop, not by the approved Bheemu model, which is unchanged.** The same is done on the closed book he carries |
+| Following from the new prop | The ball now settles on top of the open book, which stays open. He shuts it and carries it only when he decides to play. In S6 the ball sits just under his chin |
+| "Kid Telugu should be natural" | His choice, line 4: "భీమూ, నా బాల్ ఇవ్వవా?" A new generated file, `sound/music_dialogue/c_ivvava.wav`, kept in this episode's folder; the shared voice folder is untouched. Same voice and pitch treatment as before, so it is still one adult voice raised to sound like a boy. **Not heard by anyone yet** |
+
+Automatic results for v003: file check passes; the eleven large frame jumps are the title card's end and the ten cuts; landing on a drawn frame; -13.9 LUFS, true peak -0.7 dBTP; protected files unchanged; drift check passes for all six models. The line is shorter (about 37 frames, film 489 to 525), so one hold of 33 frames is reported under it.
+
+**The underlying limitation stays.** The engine draws a prop wholly in front of or wholly behind a character, so real fingers cannot overlap a held object. Option C hides that for this book. A proper fix is an engine and character-drawing change and would be written up as a proposal, not built.
 
 ## Revision 2: what changed after the hold
 
@@ -309,6 +325,7 @@ Watch once at full speed with sound, on a phone, before reading anything else.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.4. Animatic v003: new book prop with option C, line 4 for Chintu. Not watched or heard yet. |
 | 2026-11-11 | Version 1.3. Harshith's first review of v002 recorded: book prop and holding to be revised; Telugu line to be made natural. Book options prepared as a proposal sheet. No animatic changed. |
 | 2026-11-11 | Version 1.2. Pilot Gate Review Checklist added for animatic v002: five checks, all blocked on human input. Decision recorded: after approval, one representative shot is animated and reviewed first. No animatic or other file changed. |
 | 2026-11-11 | Version 1.1. Hold at gate B recorded. Animatic v002 made with the nine review changes; v001 kept. Not heard; safe area not checked on a device. |
