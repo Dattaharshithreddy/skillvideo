@@ -1,7 +1,7 @@
 # Character Design Bible
 
 **Knowledge base document 2 of the master mission (Phase 1).**
-Version 1.6, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
+Version 1.7, 2026-11-11. Follows `Animation_Fundamentals.md`. Written for the Bheemu and Gaju series, usable for any original 2D cartoon cast.
 
 This document does three jobs:
 
@@ -714,6 +714,12 @@ Status words: **Approved** (settled). **Provisional** (in force until reviewed).
 | D21 | Per-frame exposure control (twos here, ones there) | Do not implement. Requirement and minimum design documented in `Engine_Change_Proposals.md` (P2), including compatibility with existing animations | Decided 2026-11-11 | Nothing until Harshith reviews the proposal |
 | D22 | Hand-drawn tests | Keep the existing model-based workflow. Where a pose cannot be made by the current models, state the limitation and propose a small, clearly labelled hand-drawn study only when it answers a specific question. No new drawing pipeline without approval | Decided 2026-11-11 | Case by case |
 | D23 | Document 3 (`Frame_By_Frame_Animation.md`) | Accepted on `main`, with its limits: the two-frame default and all engine behaviour stay as they are; the lost landing squash is a known, unresolved engine limitation; no hop timing or exercise is claimed as passed until watched in motion | Accepted 2026-11-11 | |
+| D24 | Generative video tools | Optional. The existing animation engine remains the primary workflow; any outside tool is documented as an optional alternative with its limits | Approved 2026-11-11 | |
+| D25 | Skill | `knowledge/Animation_Skill.md` and the existing `SKILL.md` are to be reconciled by proposal first. Neither is overwritten, installed or replaced until Harshith has reviewed `proposals/Skill_Reconciliation.md` | Proposal prepared | Harshith's review |
+| D26 | Audio | No audio or voice quality is approved until heard in actual episode output. Audio review is part of pilot acceptance | Approved 2026-11-11 | Listening at the pilot |
+| D27 | Production gates | Four gates retained. The animatic is reviewed before detailed animation | Approved 2026-11-11 | |
+| D28 | Pilot characters | Do not wait for the proposed Laddu profile. The pilot uses approved production assets and existing controls, restaging where needed. Pilot: "One More Page" (`pilot/Pilot_Plan.md`) | Approved 2026-11-11; animatic awaiting review | Gate B |
+| D29 | Read-only checkers | Authorised: separate scripts that read and report, never modifying production files, assets, presets or baselines. Five built and tested in `tools/` | Approved 2026-11-11 | |
 
 ### 13.4 Digit counts: models inspected, recommendation for the two open ones
 
@@ -858,6 +864,7 @@ Source quality note: the studio blogs and course notes above are secondary teach
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.7. Decisions D24 to D29 recorded (knowledge base complete; pilot preparation). No character code, design, preset, engine behaviour or baseline was changed. |
 | 2026-11-11 | Version 1.6. Document 3 review decisions recorded (D19 to D23). No character code, design, preset, engine behaviour or baseline was changed. |
 | 2026-11-11 | Version 1.5. Stage 3 review decision recorded: acting direction approved as a development direction only; no review asset approved for production; character-review stages closed for now. |
 | 2026-11-11 | Version 1.4. Stage 2 video verdict recorded under D14; Stage 3 recorded in 13.7. No character code, design, preset or baseline was changed. |

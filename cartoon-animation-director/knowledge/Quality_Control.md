@@ -1,7 +1,7 @@
 # Quality Control
 
 **Knowledge base document 8 of the master mission (Phase 1).**
-Version 1.0, 2026-11-11. Follows documents 1 to 7 in this folder.
+Version 1.1, 2026-11-11. Follows documents 1 to 7 in this folder.
 
 Quality control decides whether a drawing, a shot or an episode is good enough to go to the next stage. This document says what is checked, how, by whom, with which tool, and what counts as passing. Its main job is to keep two things apart that are easy to blur: **what a script can prove** and **what only a person can judge**.
 
@@ -125,7 +125,19 @@ ffmpeg -v error -i ep.mp4 -map 0:v -f framemd5 -
 
 A frozen or silent stretch is not a fault in a cartoon built on holds and pauses. These commands **list** stretches so that each can be matched to a planned hold or a planned silence. An unplanned one is the finding.
 
-### 3.4 Tables printed by the figure scripts
+### 3.4 Read-only checkers (built and tested 2026-11-11, with Harshith's authorisation)
+
+In `cartoon-animation-director/tools/`. Each reads project files and prints a report. None writes to production files, models, presets or the baseline. `tools/tests/test_checkers.py` runs 14 tests, including one that compares `git status` before and after; all pass.
+
+| Script | Reports |
+|---|---|
+| `check_keys.py <episode.py> [--contacts f,f] [--all]` | Peak or trough keys that the hold on twos never draws (proposal P1); contacts that fall on a held drawing (P3). A finding is a place to look, not a proven defect |
+| `check_safe_area.py episode <episode.py>` / `overlay <video> <out.png>` | Where characters stand against a chosen margin; an overlay picture from a rendered file |
+| `check_docs.py` | Broken links, missing paths, section numbering in the Markdown documents |
+| `check_protected.py [--drift]` | Protected files against `protected_manifest.json`; uncommitted changes to them; whether the review branch has been merged; optionally the drift check |
+| `check_audio.py <files>` | Loudness, range, true peak, silences. Numbers only |
+
+### 3.5 Tables printed by the figure scripts
 
 `make_fb_figures.py` and `make_sc_figures.py` print what the engine shows on every frame of a move. Reading such a table is how the lost landing squash (document 3) and the late contact squash (document 4) were found. It is a manual read of automatic output.
 
@@ -137,8 +149,8 @@ None of these exists. Each would be a new script outside the engine; anything to
 
 | Proposal | What it would report | Notes |
 |---|---|---|
-| Keys on held frames | A key that the hold on twos never shows | `Engine_Change_Proposals.md` P1 |
-| Contact parity | A prop-to-character contact on an odd engine frame | P3 |
+| Keys on held frames | **Built: `check_keys.py`** (section 3.4) | `Engine_Change_Proposals.md` P1 |
+| Contact parity | **Built: `check_keys.py --contacts`** | P3 |
 | Regression checksums | Whether any existing episode's frames changed after a code change | Uses `framemd5` or `ssim`; needs reference renders kept |
 | Palette constants | Any drawn colour not in the named palette | Follows rule R7 |
 | Edge and safe-area report | Frames where a character's bounding box touches the frame edge or a chosen margin | Margin value is unsettled (`Storyboard_and_Cinematography.md` 2.4) |
@@ -327,7 +339,7 @@ A score I give on a human-only rubric line is a provisional score. The bar is me
 6. Run the figure scripts and confirm that the tables in the documents still match.
 7. Report: what changed, what did not, what was not tested.
 
-**What exists today.** Step 3 and step 6. Reference renders of the ten episodes are not stored in a form I have verified; lessons learned 1 says renders are pushed to GitHub, and I have not checked whether the current repository holds them **[U]**.
+**What exists today.** Step 3 and step 6. The final encodes of all ten episodes are in the repository under each episode's `out/` folder [M, verified 2026-11-11 with `git ls-files`], so reference renders exist. `check_protected.py` adds a hash check of the protected files.
 
 **A caution on "identical".** Renders may differ between machines or library versions without any code change **[U]**. Establish that two renders of the same code on the same machine are identical before treating a difference as a regression.
 
@@ -506,4 +518,5 @@ No outside source was opened for this document.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.1. Section 3.4 added for the five read-only checkers; section 4 and 13 updated with verified facts (checkers built; episode renders are in the repository). |
 | 2026-11-11 | Version 1.0. Existing tools read and described. Eight ffmpeg and ffprobe commands run on a synthetic clip. No episode checked. One worked report on unfinished work. Not reviewed by Harshith. |

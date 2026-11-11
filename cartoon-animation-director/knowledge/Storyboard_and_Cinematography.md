@@ -90,7 +90,7 @@ Reference sizes: Bheemu is 580 px tall, Ammamma 560, Chintu 390, Bujji 300, Gaju
 
 Shorts and similar apps draw their interface over the picture. The margins quoted for a 1080 × 1920 frame differ widely between sources I read: top 120 to 380 px, bottom 300 to 672 px, right 96 to 192 px, left 40 to 60 px [V]. One source says the figures are measured from the app and not published constants [V]. I could not confirm an official figure, so treat all of these as **[U]**.
 
-What this means for us [M, arithmetic]: with `Show.shot`, the floor is 360 px above the bottom edge. Under the smaller quoted bottom margins (300 to 390 px) the characters' feet are just clear. Under the largest (672 px, starting at screen y 1248) Gaju, who is about 275 screen pixels tall at zoom 1.1, would stand almost entirely inside the covered band. **This needs one check on a real phone** with an existing episode (section 18). Nothing has been changed.
+What this means for us [M, arithmetic]: with `Show.shot`, the floor is 360 px above the bottom edge. Under the smaller quoted bottom margins (300 to 390 px) the characters' feet are just clear. Under the largest (672 px, starting at screen y 1248) Gaju, who is about 275 screen pixels tall at zoom 1.1, would stand almost entirely inside the covered band. **This needs one check on a real phone** with an existing episode (section 18). Nothing has been changed. A measurement against the rendered file of episode 2 is in `proposals/Safe_Area_Investigation.md`: under the largest quoted margins the small characters are fully covered, under the smallest nothing is, so the device check is still required.
 
 ---
 

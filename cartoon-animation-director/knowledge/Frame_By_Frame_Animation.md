@@ -1,7 +1,7 @@
 # Frame-by-Frame Animation
 
 **Knowledge base document 3 of the master mission (Phase 1).**
-Version 1.1, 2026-11-11. Follows `Animation_Fundamentals.md` and `Character_Design_Bible.md`.
+Version 1.2, 2026-11-11. Follows `Animation_Fundamentals.md` and `Character_Design_Bible.md`.
 
 Document 1 explained the principles. This document is the working method: how one action is planned, timed, posed, broken down, in-betweened, checked and cleaned up, one drawing at a time. It follows the eight-step workflow (A to H) that the master mission requires for every action.
 
@@ -361,7 +361,7 @@ A hold is a pose kept on screen so the audience can read it or feel a pause.
 
 How long **[R]**: a pose needs at least 8 frames to be read; a gag pose 12 to 24; a pause before a big hit 6 to 12 of near stillness.
 
-**In our engine:** a gap between moves is a dead hold. The line boil (`Stage.boil`) redraws the ink every third frame, which is the traceback idea **[M]**. Breathing and tail-tip sway do not exist on the approved models.
+**In our engine:** a gap between moves is a dead hold. The line boil redraws the ink every third frame, which is the traceback idea **[M]**; it is off unless a stage sets `boil`, and no episode sets it. The helpers `acting.blink` and `acting.bob` write small keyed motions that keep a hold alive **[M]**. Breathing and tail-tip sway do not exist on the approved models.
 
 **Mistake we made.** Our episodes were full of long dead holds between symmetrical moves. An earlier automatic count of "still frames" tried to measure this, but I have since found that count depends heavily on how much of the frame the character fills, so I no longer use it as evidence. Holds have to be judged by eye.
 
@@ -590,7 +590,7 @@ Attempted **[M]**: 5 and 6 in part, as the measurement in section 6.3. Not watch
 - In-betweens are computed averages; there is no way to draw one.
 - Twos are all-or-nothing per character per shot, with an automatic switch to ones above 26 px per frame. There is no per-frame exposure control.
 - A key that falls on a held frame is skipped without warning.
-- No breathing, no moving hold except line boil.
+- No breathing and no automatic moving hold. Line boil is opt-in and unused in the episodes; `acting.blink` and `acting.bob` write keyed motions for holds (corrected in version 1.2).
 - No drawn smears or multiples; only an automatic stretch.
 - Body acting controls are missing (see the character review). Not approved for implementation.
 
@@ -644,5 +644,6 @@ Tags: **[read]** opened this session or for an earlier document. **[book]** not 
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.2. Correction: line boil is opt-in, and the hold helpers `blink` and `bob` exist (sections 8 and 19). Nothing else changed. |
 | 2026-11-11 | Version 1.1. Harshith's review decisions recorded in section 19. No content of the method changed. Still nothing judged in motion. |
 | 2026-11-11 | Version 1.0. Two figures and three tables generated from the approved models. Finding: a one-frame key on a held frame is skipped by the engine. Not reviewed by Harshith. No exercise passed. Nothing judged in motion. |

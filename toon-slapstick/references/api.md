@@ -1,6 +1,6 @@
 # Engine reference
 
-Stage is 1920x1080, y grows downward, floor line `GROUND = 900`, 24 fps. Positions are world pixels;
+Stage is 1080x1920 (vertical), y grows downward, floor line `GROUND = 1480`, 24 fps (corrected 2026-11-11 from `toon.py`: `W, H, FPS = 1080, 1920, 24`, `GROUND = 1480`; this file previously gave the old 1920x1080 layout). Coordinates in the examples below were written for the old layout: treat them as illustrations of the calls, not as positions. Positions are world pixels;
 an actor's `(x, y)` is the point between its feet.
 
 ## Skeleton of an episode
@@ -94,5 +94,4 @@ Anchors published each frame: `handL handR head top mouth belly`, and `trunk` fo
 - **New prop**: a function `fn(g, p, f)` that draws with `g.shape(path, fill)`.
 - **New set**: a paint function like `kitchen(g, width)` using flat shapes with `ink=False`.
   Keep furniture tops near y=650 so they sit at the characters' waist height.
-- **Vertical shorts**: `Stage(frames, size=(1080, 1920))` is not wired yet; the stage constants
-  `W, H` in `toon.py` set the frame. Chases read best in 16:9.
+- **Frame size**: the stage constants `W, H` in `toon.py` set the frame, and they are 1080 x 1920 (corrected 2026-11-11). The furniture height above (y=650) was written for the old 1920x1080 layout and has not been re-checked.

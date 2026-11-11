@@ -1,7 +1,7 @@
 # Production Pipeline
 
 **Knowledge base document 9 of the master mission (Phase 1).**
-Version 1.0, 2026-11-11. Follows documents 1 to 8 in this folder.
+Version 1.1, 2026-11-11. Follows documents 1 to 8 in this folder.
 
 This document is the route from an idea to a finished, delivered cartoon: every stage, what goes in, what comes out, who does it, what must be true before the next stage starts, and what to do when a stage fails. It also defines how assets are approved, how versions are kept, and how revisions are handled.
 
@@ -494,12 +494,12 @@ The next action that would produce evidence is stage 5: a small render with scra
 
 **Inconsistencies in the repository (reported, not changed).**
 
-- `toon-slapstick/references/api.md` says the stage is 1920 × 1080 with `GROUND = 900`. The engine is 1080 × 1920 with `GROUND = 1480`.
+- `toon-slapstick/references/api.md` says the stage is 1920 × 1080 with `GROUND = 900`. The engine is 1080 × 1920 with `GROUND = 1480`. **Corrected in `api.md` on 2026-11-11** after reading the constants in `toon.py`; its example coordinates are marked as written for the old layout.
 - `cartoon-animation-director/SKILL.md` points only to `references/` and does not mention the `knowledge/` documents. `Animation_Skill.md` is written to replace it, if approved.
-- The master mission text is not stored in the repository; it exists only as an uploaded file in the working session.
+- **Project dependency: the master mission text is not stored in the repository.** The knowledge base, the skill and the phase plan all refer to it. It exists only as a file Harshith uploaded to a working session. Its contents are not reproduced or reconstructed anywhere in the repository. Until Harshith adds the original text himself, or asks for the uploaded file to be committed unchanged, any statement about what the mission requires rests on that outside file.
 - The root `README.md` describes the cgi-shorts skill only.
 
-**Points where documents 3 and 4 are incomplete or overstated (reported; those documents are unchanged).**
+**Points where documents 3 and 4 were incomplete or overstated. Corrected on 2026-11-11 with Harshith's authorisation (document 3 version 1.2, document 4 version 1.1); the notes below are kept as the record.**
 
 - `Frame_By_Frame_Animation.md` section 19 says there is no moving hold except line boil. Line boil is off unless a stage sets `boil`, and no episode sets it. Separately, `acting.py` has helpers that write small keyed motions for holds (`bob`, `blink`); documents 3 and 4 do not mention them. The engine still has no automatic moving hold, so the conclusion stands, but the helpers should have been named.
 - `Slapstick_Comedy.md` section 20.1 says the trunk and hands cannot be aimed at a point. The engine has `Stage.probe` (the world position of an anchor), `attach` (a prop rides on a hand or trunk anchor), and offset controls for arms and trunk. Aiming is possible by hand with these; what is missing is automatic reach. The statement is too strong.
@@ -523,4 +523,5 @@ No outside source was opened for this document.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.1. Section 13 updated: three inconsistencies marked corrected; the missing master mission text recorded as a project dependency. |
 | 2026-11-11 | Version 1.0. Stages taken from `references/06-pipeline-and-tools.md` and extended with gates, roles, failure handling, approval and version rules. The pipeline has not been run end to end. Not reviewed by Harshith. |

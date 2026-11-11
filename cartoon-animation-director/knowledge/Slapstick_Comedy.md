@@ -1,7 +1,7 @@
 # Slapstick Comedy
 
 **Knowledge base document 4 of the master mission (Phase 1).**
-Version 1.0, 2026-11-11. Follows `Animation_Fundamentals.md`, `Character_Design_Bible.md` and `Frame_By_Frame_Animation.md`.
+Version 1.1, 2026-11-11. Follows `Animation_Fundamentals.md`, `Character_Design_Bible.md` and `Frame_By_Frame_Animation.md`.
 
 Documents 1 to 3 explained how a character moves. This document is about what the movement is for: building a physical joke that a first-time viewer understands without a word, laughs at, and is not harmed by. It covers construction, anticipation, cause and effect, readable action, timing and pauses, escalation, reversals, reactions by character, staging, impact and recovery, sound, safety limits, failure modes, worked examples, exercises and a production checklist.
 
@@ -160,7 +160,7 @@ Slapstick timing is contrast: very fast against very still. The handbook records
 | The look | One flat look at the audience | 8 to 12; once per episode | Shares the joke |
 | The breather | Middle of a chase or an escalation | 24 to 36 | Resets the energy so the next rise can be felt |
 
-A pause is not a dead frame. Something small stays alive in it: a blink, an ear, a breath, a drifting pupil (document 3, section 8). The engine has no breathing and no moving hold except line boil [M], so in our tool a pause needs at least one keyed small motion, or it reads as a frozen picture. Lessons learned records that an automatic check found about 58% of the frames of episode 7 still; that was too many dead holds, not too many pauses.
+A pause is not a dead frame. Something small stays alive in it: a blink, an ear, a breath, a drifting pupil (document 3, section 8). The engine has no breathing and no automatic moving hold [M]. Line boil exists but is off unless a stage sets `boil`, and no episode sets it [M]. So in our tool a pause needs at least one keyed small motion, or it reads as a frozen picture. Two existing helpers in `acting.py` write such keys: `blink(a, f)` and `bob(a, f0, f1, beat, amp)`, a small bounce in time with the music [M]. Lessons learned records that an automatic check found about 58% of the frames of episode 7 still; that was too many dead holds, not too many pauses.
 
 ### 6.2 One gag, three timings
 
@@ -476,7 +476,7 @@ Confirmed by Harshith earlier: less violence than classic chase cartoons; bonks,
 | Intent | No character sets out to hurt another. Trouble comes from wanting something (food, a nap, a game), from showing off, or from accident |
 | Objects | Things that strike are soft, round and light: a ball, a cushion, a papad, water, flour, a mango leaf. No hard, sharp or heavy thing lands on a body |
 | Head | Bonks to the top of the head only, from a soft object, falling. Nobody swings anything at anybody |
-| Consequence | No blood, wounds, lumps, bandages, lost teeth or dizzy-star injury effects. Recovery within seconds, on screen |
+| Consequence | No blood, wounds, lumps, bandages or lost teeth, and no lingering injury effect such as stars circling a dazed head. Recovery within seconds, on screen. **This does not cover the existing impact burst:** `scene.stars` draws stars flying out from a hit for 8 to 14 frames, with a white flash in the first third, and is called in five of the ten episodes; `acting.take` draws surprise marks [M]. Those are in published episodes and are not changed by this proposal. Whether the burst stays, and whether its white flash is acceptable under the flashing rule below, is Harshith's decision |
 | Kitchen and festival | The stove, hot oil, boiling liquid, knives, fire, diyas and fireworks are never the mechanism of a gag. They may be scenery, and are then treated with visible care |
 | Chintu | The human child never does anything risky that a child could copy, and is never hit. His comedy is reaction and scheming |
 | Ammamma | Never the victim of physical comedy. Never threatens or strikes. Her authority is a look |
@@ -571,7 +571,7 @@ Totals [M]: before the fall: 134 frames = 5.6 s; the fall and impact: 8 frames =
 - Gaju's guilt is the shared `SORRY` preset plus ears down; his body cannot slump (no spine control).
 - Bheemu's head turn in the slow burn is `yaw` to 0.7, a three-quarter view, not a full look across.
 - The wait has only Gaju's eyes and smile moving. It may read as frozen. It needs watching.
-- The ball has no trunk contact drawn on the bounces; the trunk does not reach for it.
+- The ball has no trunk contact drawn on the bounces. That is a gap in my posing, not an engine limit: the `trunk` offset, `Stage.probe` and `attach` could bring the trunk tip to the ball (section 20.1).
 
 ### 15.2 Example 2: "The hand pump" (plan only)
 
@@ -744,13 +744,13 @@ Tick each line. Lines marked (eyes), (ears) or (viewer) cannot be ticked by me.
 ### 20.1 Limitations that affect slapstick [M]
 
 - A contact keyed on an odd engine frame is shown a frame late on a character running on twos, while props on ones are on time (11.2). Known and unresolved.
-- No moving hold and no breathing; every pause needs a keyed motion or it is a frozen picture.
+- No automatic moving hold and no breathing; every pause needs a keyed motion or it is a frozen picture. The helpers `acting.blink` and `acting.bob` write such keys. Line boil is opt-in and unused in the episodes.
 - Eight shared expression presets; Gaju, Chintu and Bujji share one surprise face (section 9).
 - No body acting: no spine, slump, lean or weight shift. Guilt, effort and dignity have to be shown with squash, head, ears and face.
 - No true profile or back view; side-on actions are limited to `yaw`.
 - No sitting pose for Bheemu that reads; no lying or sliding pose for Laddu; props do not tilt or deform (example 3 cannot be built).
 - No water stream, wet look or moving-handle pump (example 2 cannot be built).
-- Trunk and hands cannot be aimed at a point; contact between a hand or trunk and a prop is approximate.
+- Trunk and hands have no automatic reach. They **can** be aimed by hand with existing controls: `armL`/`armR` and `trunk` are offsets from the rest position, `Stage.probe(f, actor, anchor)` returns the world position of an anchor so that an offset can be computed, and `attach` makes a prop ride on a hand or trunk anchor [M]. (Version 1.0 said they could not be aimed at all; that was wrong.) None of this was used in example 1.
 
 ### 20.2 Proposed engine changes
 
@@ -812,4 +812,5 @@ Tags: **[excerpt]** read this session as an excerpt returned by a search; the fu
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.1. Three corrections after reading `acting.py`, `scene.py` and `toon.py` again: hands and trunk can be aimed with existing controls (20.1, 15.1); the hold helpers `blink` and `bob` exist and line boil is opt-in (6.1, 20.1); the existing impact burst `scene.stars` is distinguished from the proposed ban on lingering injury effects (13.3). No figure, table or example changed. |
 | 2026-11-11 | Version 1.0. Five figures and six tables generated from the approved models and presets. Finding: a prop-against-character contact keyed on an odd engine frame shows the squash a frame late. Example 1 posed and measured; examples 2 and 3 are plans. Not reviewed by Harshith. Nothing watched, nothing heard, no exercise done. |

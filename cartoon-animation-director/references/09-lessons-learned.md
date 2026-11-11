@@ -39,6 +39,12 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 30 | 2026-11-11 | An engine limitation found while writing is documented as known and unresolved; the smallest safe change is proposed in a separate file for later review. Nothing is implemented with the finding. | Document 3 review: key lost on a held frame; per-frame exposure |
 | 31 | 2026-11-11 | Model-based workflow first. A hand-drawn study is proposed only when a model cannot make the pose and the study answers a specific question; it is small and labelled. No new drawing pipeline without approval. | Document 3 review |
 | 32 | 2026-11-11 | Slapstick examples are original and use our approved characters. No recognisable scene, gag, signature movement or character behaviour from an existing cartoon is copied. | Document 4 authorisation |
+| 33 | 2026-11-11 | The animation engine is the primary workflow. Generative video tools are optional alternatives, documented with their limits. | Knowledge base completion, decision 1 |
+| 34 | 2026-11-11 | No audio or voice quality is approved until it has been listened to in actual episode output. Audio review is part of pilot acceptance. | Decision 3 |
+| 35 | 2026-11-11 | Four gates: assets, animatic, candidate, upload. The animatic is reviewed before detailed animation begins. | Decision 4 |
+| 36 | 2026-11-11 | Plan with approved production assets and existing controls. Restage or change the angle when a view is missing; do not wait for review-only assets. | Decision 5 |
+| 37 | 2026-11-11 | Validation scripts may be built if they only read project files and report. They must not modify production files, approved assets, presets or baselines, and they are kept isolated and tested. | Decision 6 |
+| 38 | 2026-11-11 | Verify the actual configuration before correcting documentation. Fix verified errors; keep proposals separate when evidence is insufficient. Do not change staging on unofficial estimates. | "Verify the actual engine configuration before changing documentation" |
 
 ## Experimental (being tested)
 
@@ -65,6 +71,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rules 33-38 from the knowledge-base completion decisions.
 - 2026-11-11: added confirmed rules 29-32 from the document 3 review and the document 4 authorisation.
 - 2026-11-11: added confirmed rules 23-26 from the Stage 1 review (character life test, evidence kinds, engine limits, review branch).
 - 2026-11-11: added confirmed rules 13-22 from the character-design readiness review (decision register is in `knowledge/Character_Design_Bible.md`, section 13).

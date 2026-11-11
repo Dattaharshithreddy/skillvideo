@@ -1,7 +1,7 @@
 # Sound Design
 
 **Knowledge base document 7 of the master mission (Phase 1).**
-Version 1.0, 2026-11-11. Follows documents 1 to 6 in this folder.
+Version 1.1, 2026-11-11. Follows documents 1 to 6 in this folder.
 
 A silent cartoon is not silent. With no dialogue from the leads, sound carries weight, texture, mood, timing and half of every joke. This document covers every layer of the soundtrack, how our engine makes it, how to synchronise and mix it, where outside sounds may come from, and a complete workflow from picture to finished audio.
 
@@ -333,7 +333,8 @@ Per-sound volume (`v`), two bus gains in `write`, and `duck`. That is all. There
 ### 13.3 Loudness
 
 - A widely quoted target for online video is about −14 LUFS integrated with true peaks no higher than −1 dBTP [V]. One source points out that YouTube's own upload guide does not publish a loudness figure [V], so treat −14 as a convention, not a rule.
-- **The engine does not measure loudness.** It normalises the peak to 0.92, which is about −0.7 dBFS [M, arithmetic]. That is above the conventional −1 dBTP ceiling, and lossy encoding can push peaks higher still [V]. I have not measured any episode's loudness.
+- **The engine does not measure loudness.** It normalises the peak to 0.92, which is about −0.7 dBFS [M, arithmetic]. That is above the conventional −1 dBTP ceiling, and lossy encoding can push peaks higher still [V].
+- **Measured on 2026-11-11 with `tools/check_audio.py` on the ten final encodes in the repository [M]:** integrated loudness from −12.2 to −14.3 LUFS; true peak from −0.7 to **+2.7 dBTP** (episode 6), above 0 dBTP in four episodes (1, 6, 8, 9). A true peak above 0 can clip on playback. These are numbers; nobody has listened for distortion, and no file was changed.
 - Loudness can be measured, and corrected at encode time, with ffmpeg and no engine change. Both commands were run on a synthetic test clip this session and work with this build (ffmpeg 6.1.1) [M]:
 
 ```bash
@@ -535,4 +536,5 @@ Tags: **[excerpt]** read this session as an excerpt from a search. **[book]** no
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 1.1. Measured loudness and true peak of the ten episodes added to 13.3. Decision recorded by Harshith: no audio or voice is approved until heard in actual episode output. |
 | 2026-11-11 | Version 1.0. Engine audio capabilities read from code. Two ffmpeg loudness commands run on a synthetic clip. No episode audio measured. Nothing heard by anyone for this document. One cue sheet written as a plan. Not reviewed by Harshith. |
