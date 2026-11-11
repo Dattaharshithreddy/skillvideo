@@ -1,0 +1,83 @@
+{
+ "Bheemu": {
+  "height": 598.0,
+  "width": 390.0,
+  "heads": 2.779,
+  "colours": {
+   "WHITE": 47.7,
+   "BLACK": 28.7,
+   "INK": 11.1,
+   "SCARF": 4.8,
+   "HL": 1.8,
+   "GOLD": 1.5
+  }
+ },
+ "Ammamma": {
+  "height": 572.0,
+  "width": 246.0,
+  "heads": 3.845,
+  "colours": {
+   "SAREE": 42.4,
+   "SKIN": 18.8,
+   "INK": 9.9,
+   "BORDER": 7.6,
+   "BLOUSE": 6.5,
+   "FOLD": 3.5,
+   "HAIR": 2.9,
+   "HL": 2.9
+  }
+ },
+ "Chintu": {
+  "height": 410.0,
+  "width": 166.0,
+  "heads": 2.77,
+  "colours": {
+   "SKIN": 31.4,
+   "INK": 19.4,
+   "SHIRT": 14.2,
+   "HAIR": 8.5,
+   "STRIPE": 6.2,
+   "SHORTS": 6.0,
+   "HL": 4.4
+  }
+ },
+ "Gaju": {
+  "height": 280.0,
+  "width": 346.0,
+  "heads": 1.731,
+  "colours": {
+   "SKIN": 45.7,
+   "PINK": 16.8,
+   "INK": 15.6,
+   "CAP": 5.3,
+   "SKIN_D": 3.5,
+   "NAIL": 2.4
+  }
+ },
+ "Laddu": {
+  "height": 270.0,
+  "width": 214.0,
+  "heads": 1.955,
+  "colours": {
+   "FUR": 49.4,
+   "INK": 18.2,
+   "CREAM": 7.3,
+   "STRIPE": 4.8,
+   "HL": 4.5,
+   "FAR": 3.5,
+   "PINK": 3.2
+  }
+ },
+ "Bujji": {
+  "height": 300.0,
+  "width": 210.0,
+  "heads": 2.075,
+  "colours": {
+   "FUR": 47.1,
+   "INK": 18.9,
+   "PINK": 10.4,
+   "HL": 9.3,
+   "FAR": 6.9
+  }
+ }
+}
