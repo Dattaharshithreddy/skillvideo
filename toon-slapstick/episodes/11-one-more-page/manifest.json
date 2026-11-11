@@ -44,6 +44,10 @@
       "status": "animatic, not animation; not watched, not heard; CatchChintu controls are animatic-only"
     },
     {
+      "file": "storyboard/chintu_drawn.png",
+      "status": "REVIEW ONLY drawing of Chintu by construction; not the model"
+    },
+    {
       "file": "storyboard/catch_construction_study.png",
       "status": "REVIEW ONLY drawing study; not the model"
     },

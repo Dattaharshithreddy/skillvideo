@@ -27,6 +27,9 @@ they build Tom and Jerry ... and then try". Principles only. No studio character
 6. Clean line over the construction. Then compare with the model sheet.
 
 ## Applied
+- `storyboard/chintu_drawn.png` (REVIEW ONLY): Chintu drawn by the method, step by step (line of action, head
+  circle + body bean, stick skeleton, mitten hands and feet, flesh, clothes/hair/face), then finished front view and the
+  three catch keys. Same identity as the approved model; bigger hands (x1.2 on the catch, x1.15 relaxed). Not the model.
 - Study sheet: `toon-slapstick/episodes/11-one-more-page/storyboard/catch_construction_study.png` (REVIEW ONLY), the
   namaz / dua catch in four keys: ready, contact, close, give.
 - Animatic v010: Chintu's catch posed to match the study. Engine limits found: his hands follow the forearm angle and
