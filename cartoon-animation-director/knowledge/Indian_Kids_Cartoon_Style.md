@@ -1,4 +1,6 @@
-# Indian TV kids' cartoon style: drawing study (v1.0, 2026-11-11)
+# Indian TV kids' cartoon style: drawing study
+
+Version 1.0, 2026-11-11.
 
 Harshith: "see Chhota Bheem and Chutki ... can you draw a boy and girl like those? First train yourself on how to
 draw like those characters and design accordingly and keep that knowledge."
@@ -55,3 +57,9 @@ Earlier session: Telugu "Gully Cricket" episode (nI0ceVhcv30), 3:32-4:03.
 
 `cartoon-animation-director/review/boy_girl/` (REVIEW ONLY), version 2 of Kittu and Minnu: upside-down-egg heads at
 about one third of the height, big close-set eyes with small pupils, thin outline, flat colour, bent-arm poses.
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 2026-11-11 | Version 1.0. Style rules from a frame-by-frame study; applied to Kittu and Minnu version 2 (review only). |
