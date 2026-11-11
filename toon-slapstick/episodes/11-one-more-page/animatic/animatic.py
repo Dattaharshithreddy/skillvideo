@@ -8,7 +8,7 @@ Harshith has reviewed this (gate B in cartoon-animation-director/knowledge/Produ
 
 Run:  python3 animatic.py board     writes ../storyboard/board.png (one panel per shot beat)
       python3 animatic.py hookups   writes ../storyboard/hookups.png (frame before and after each cut)
-      python3 animatic.py render    writes one_more_page_animatic_v003.mp4 (half size) beside this file
+      python3 animatic.py render    writes one_more_page_animatic_v004.mp4 (half size) beside this file
 
 Version 002 (2026-11-11), after the hold at the animatic gate: wait shortened from 58 to 42 frames; the ball's
 return in view for 10 frames with a soft falling note; gentler landing (no squash of Bheemu); the reveal of his
@@ -18,6 +18,10 @@ Version 003 (2026-11-11), after Harshith's own review of v002: a new book prop t
 proposals/book_prop_options.png: toe tips drawn on the prop so the paws seem to hold it; a cheat, and the approved
 model is unchanged); the book stays open when the ball lands and is shut and carried afterwards; Chintu's line is
 now "Bheemu, naa ball ivvavaa?" (his option 4), a new generated file kept in this episode's sound folder.
+Version 004 (2026-11-11), after his review of v003 ("hands and finger tips are separated"; "he is not throwing
+using his paw"): the toe tips are now placed from Bheemu's real hand anchors on every frame, so they stay joined to
+the paw; every bounce, throw and catch starts and ends at the real paw or trunk-tip position (Stage.probe), and
+the paw or trunk moves with the ball.
 Version 001 is the committed v001 file and this script's previous revision in Git.
 """
 import os, sys
@@ -53,24 +57,39 @@ bheemu = Bheemu(x=BX, z=2, face=0.0); gaju = Gaju(x=1500, z=3, face=-1, yaw=-0.8
 TIP = (44, 40, 52)
 
 
+def _local(p, anchor):
+    """A hand anchor of Bheemu in the book's own coordinates (this frame)."""
+    import math
+    ax, ay = bheemu.anchors.get(anchor, (1e9, 1e9))
+    dx, dy = ax - p['x'], ay - p['y']
+    r = math.radians(-p['rot']); c, s_ = math.cos(r), math.sin(r)
+    return (dx * c - dy * s_) / p['sx'], (dx * s_ + dy * c) / p['sy']
+
+
 def the_book(g, p, f):
-    """Option C. Open: toe tips drawn on both outer edges so the paws seem to wrap the covers.
-    Shut (shut >= 0.5): the closed book, with toe tips over its top edge where one paw carries it.
-    The toe tips are drawn by this PROP. The approved Bheemu model is unchanged."""
+    """Option C, v004. Toe tips are drawn on the book exactly where Bheemu's paw is on this frame, read from his
+    published hand anchors, so paw and toes stay joined in every pose. The tips are still drawn by this PROP;
+    the approved Bheemu model is unchanged."""
     if p['shut'] < 0.5:
         open_book(g, p, f)
-        for s_ in (-1, 1):
-            for k in range(4):
-                g.shape(oval(s_ * 108, -22 + k * 22, 15, 11), TIP, True, 3)
+        for anchor in ('handL', 'handR'):
+            lx, ly = _local(p, anchor)
+            if abs(lx) < 190 and abs(ly) < 130:
+                ex = max(-110, min(110, lx)); cy = max(-40, min(34, ly))
+                for k in (-1.5, -0.5, 0.5, 1.5):
+                    g.shape(oval(ex, cy + k * 21, 16, 11), TIP, True, 3)
     else:
         closed_book(g, p, f)
-        for k in range(4):
-            g.shape(oval(-34 + k * 22, -74, 11, 15), TIP, True, 3)
+        lx, ly = _local(p, 'handL')
+        if abs(lx) < 150 and abs(ly) < 160:
+            cx_ = max(-36, min(30, lx)); ey = max(-76, min(60, ly))
+            for k in (-1.5, -0.5, 0.5, 1.5):
+                g.shape(oval(cx_ + k * 21, ey, 11, 16), TIP, True, 3)
 
 
 bk = Prop(the_book, z=4, sx=1.1, sy=1.1, shut=0.0); bl = Prop(ball, z=5)
 st.add(bheemu, gaju, chintu, bk, bl)
-READ = dict(armL=(-6, -95), armR=(6, -95), handL='grip', handR='grip')        # both hands hold the book at the chest
+READ = dict(armL=(16, -115), armR=(-16, -115), handL='grip', handR='grip')        # both hands hold the book at the chest
 EYES_DOWN = dict(pupil=(0.0, 0.8), lid=0.25, smile=0.3)
 BOOK_AT = (0, -35)                        # book offset from Bheemu's belly anchor
 SHOTS = []                                # (first frame, name, size, note) for the burn-in and the board
@@ -79,6 +98,11 @@ SHOTS = []                                # (first frame, name, size, note) for 
 def shot(t, name, size, x, z, up=0, note=''):
     ep.shot(T + t, x, z, up)
     SHOTS.append((T + t, name, size, note))
+
+
+def at(t, actor, anchor, dx=0, dy=0):   # where an anchor really is at film-relative time t (existing Stage.probe)
+    x, y = st.probe(T + t, actor, anchor)
+    return x + dx, y + dy
 
 
 def P(a, t, n=2, ease='snap', **kw):      # pop to a pose over n frames, starting at film-relative time t
@@ -102,9 +126,11 @@ blink(bheemu, T + 50)                                                         # 
 # ------------------------------------------------------------ S2 full on Gaju: attempt 1, two small bounces  (60-107)
 shot(60, 'S2', 'FULL', GX + 10, 2.2, note='Attempt 1: two neat bounces. He looks across, hopeful')
 gaju.set(T + 60, face=0.0, yaw=-0.3, trunk=(-120, 40), trunk_curl=0.3, **CALM)
-bl.set(T + 60, x=GX - 170, y=G0 - 150)
+_tx, _ty = at(61, gaju, 'trunk', 0, 30)                                       # v004: the ball leaves from, and returns to, the trunk tip
+bl.set(T + 60, x=_tx, y=_ty)
 for t0, n, h in ((62, 12, 150), (76, 14, 150)):
-    bl.move(T + t0, T + t0 + n // 2, 'in', y=G0 - 24); bl.move(T + t0 + n // 2, T + t0 + n, 'out', y=G0 - 24 - h)
+    bl.move(T + t0, T + t0 + n // 2, 'in', y=G0 - 24); bl.move(T + t0 + n // 2, T + t0 + n, 'out', y=_ty)
+    P(gaju, t0, n // 2, 'in', trunk=(-120, 70)); P(gaju, t0 + n // 2, n // 2, 'out', trunk=(-120, 40))          # the trunk pats it down
     ep.tap(T + t0 + n // 2, 'ge', 0.7)
 bl.attach(T + 90, T + 187, gaju, 'trunk', 0, -26)
 P(gaju, 90, 2, trunk=(-90, -60), trunk_curl=-0.3); P(gaju, 94, 3, yaw=-0.8, pupil=(-0.9, 0.0), **HAPPY)     # caught it; "did you see?"
@@ -112,7 +138,7 @@ sc.hit(T + 90, 'pop', 0.5, note=79)
 
 # ------------------------------------------------------------ S3 medium close on Bheemu: he turns a page  (108-131)
 shot(108, 'S3', 'MED CLOSE', BX, 2.8, up=230, note='No reaction. He turns a page')
-P(bheemu, 114, 2, armR=(-60, -125), handR='open'); P(bheemu, 118, 3, 'io', armR=(6, -95), handR='grip'); sc.hit(T + 116, 'ghatam', 0.5)
+P(bheemu, 114, 2, armR=(-60, -125), handR='open'); P(bheemu, 118, 3, 'io', armR=(-16, -115), handR='grip'); sc.hit(T + 116, 'ghatam', 0.5)
 P(bheemu, 122, 2, pupil=(0.3, 0.8)); P(bheemu, 126, 2, pupil=(-0.3, 0.8))                              # eyes travel along the line
 
 # ------------------------------------------------------------ S4 wide: attempt 2 (bigger), then attempt 3 (far too hard)  (132-203)
@@ -124,12 +150,13 @@ for t0 in (134, 146, 158):                                                    # 
 for f in flap(gaju, T + 134, T + 168, 4, 0.9):
     sc.hit(f, 'flap', 0.35)
 P(gaju, 168, 2, ear=0.0)
-P(bheemu, 150, 3, 'out', armL=(-6, -295), armR=(6, -295))                    # without looking, the book rises between them
+P(bheemu, 150, 3, 'out', armL=(24, -300), armR=(-24, -300))                    # without looking, the book rises between them
 bk.attach(T + 150, T + 228, bheemu, 'belly', 0, -235)
 P(gaju, 172, 3, sy=1.0, sx=1.0, yaw=-0.2, pupil=(-0.6, 0.0), ear=-0.5, smile=-0.2, happy=0.0, eye_open=1.0)   # hm.
 P(gaju, 182, 6, 'out', sy=0.8, sx=1.2, trunk=(0, -120), trunk_curl=-0.2, brow_ang=14)                 # wind-up
 P(gaju, 188, 2, sy=1.12, sx=0.92, trunk=(-30, 60), trunk_curl=0.4)                                    # throws it down, hard
-bl.set(T + 188, x=GX - 60, y=G0 - 250); bl.move(T + 188, T + 190, 'in', y=G0 - 24, sy=0.6, sx=1.4)
+_tx, _ty = at(187, gaju, 'trunk', 0, -26)
+bl.set(T + 188, x=_tx, y=_ty); bl.move(T + 188, T + 190, 'in', y=G0 - 24, x=_tx - 20, sy=0.6, sx=1.4)
 sc.hit(T + 190, 'boing', 0.9); sc.slide(T + 190, 60, 96, 12, 0.5)
 bl.move(T + 190, T + 198, 'out', y=-500, x=BX + 60, sy=1.2, sx=0.9)                                   # gone, drifting over Bheemu
 P(gaju, 192, 3, 'over', sy=1.0, sx=1.0, pupil=(-0.4, -1.0), head_dy=-12, **dict(SHOCK, mouth_open=0.4))
@@ -141,7 +168,7 @@ shot(204, 'S5', 'WIDE HIGH', MID, 1.0, note='The wait, shortened. Gaju gives up.
 P(gaju, 214, 4, 'io', pupil=(0.0, 0.0), head_dy=0, **CALM)                                              # nothing came down
 P(gaju, 222, 5, 'io', sy=0.93, sx=1.05, ear=-0.9, yaw=0.3, pupil=(0.5, 0.6), trunk=(30, 92), trunk_curl=0.7, **SORRY); gaju.set(T + 222, sweat=0.0)   # sulks, turns away
 sc.hit(T + 224, 'ghatam', 0.4)
-P(bheemu, 228, 4, 'io', armL=(-6, -95), armR=(6, -95)); bk.attach(T + 228, T + 342, bheemu, 'belly', *BOOK_AT)   # the book comes down
+P(bheemu, 228, 4, 'io', armL=(16, -115), armR=(-16, -115)); bk.attach(T + 228, T + 342, bheemu, 'belly', *BOOK_AT)   # the book comes down
 P(bheemu, 234, 3, 'io', pupil=(0.9, 0.3), lid=0.1, yaw=0.3)                                            # his first look at Gaju
 P(bheemu, 240, 3, 'io', smile=0.6)                                                                     # he softens...
 bl.set(T + 246, x=BX, y=G0 - 1540, sy=1.0, sx=1.0)                                                    # v002: enters at the top edge and is in view for 10 frames
@@ -172,14 +199,15 @@ shot(336, 'S8a', 'FULL', BX, 1.8, up=60, note='The reveal, in its own shot: book
 sc.raga(T + 340, TOTAL - 34, 'sweet', v=0.8)
 P(bheemu, 336, 1, yaw=0.0, brow_ang=0, pupil=(0.0, 0.5), smile=0.5, lid=0.0)
 P(bheemu, 340, 4, 'io', armL=(0, 0), armR=(-30, -150), handR='grip', bendR=0.3)                        # v002: the book stays with him, in his left hand at his side
-bk.attach(T + 342, T + 9999, bheemu, 'handL', 0, 40); bk.set(T + 342, shut=1.0, rot=8)           # v003: he shuts it and carries it
+bk.attach(T + 342, T + 9999, bheemu, 'handL', 0, 84); bk.set(T + 342, shut=1.0, rot=8)           # v003: he shuts it and carries it
 bl.attach(T + 346, T + 352, bheemu, 'handR', 0, -20)
-P(bheemu, 348, 3, 'io', armR=(60, -110), handR='open')
-bl.set(T + 352, x=BX + 115, y=G0 - 280)
+P(bheemu, 348, 3, 'io', armR=(40, -80), handR='mitt')
+_hx, _hy = at(351, bheemu, 'handR', 0, 34)                                    # v004: the ball is under his paw, and the paw pushes it
+bl.set(T + 352, x=_hx, y=_hy)
 for t0 in (352, 364):                                                         # two bounces, unhurried
-    bl.move(T + t0, T + t0 + 6, 'in', y=G0 - 24); bl.move(T + t0 + 6, T + t0 + 12, 'out', y=G0 - 280); ep.tap(T + t0 + 6, 'ge', 0.9)
-    P(bheemu, t0, 6, 'in', armR=(60, -70)); P(bheemu, t0 + 6, 6, 'out', armR=(60, -110))
-bl.attach(T + 376, T + 404, bheemu, 'handR', 0, -20); sc.hit(T + 376, 'pop', 0.5, note=76)
+    bl.move(T + t0, T + t0 + 6, 'in', y=G0 - 24); bl.move(T + t0 + 6, T + t0 + 12, 'out', y=_hy); ep.tap(T + t0 + 6, 'ge', 0.9)
+    P(bheemu, t0, 3, 'in', armR=(40, -40)); P(bheemu, t0 + 4, 8, 'io', armR=(40, -80))                # push down with the paw, then rise to meet it
+bl.attach(T + 376, T + 403, bheemu, 'handR', 0, -20); sc.hit(T + 376, 'pop', 0.5, note=76)
 P(bheemu, 376, 2, handR='grip', smile=0.9)
 
 # ------------------------------------------------------------ S8b medium on Gaju: the take  (380-397)
@@ -189,11 +217,14 @@ P(gaju, 390, 4, 'io', sy=1.0, sx=1.0, ear=0.3, trunk=(30, 92), trunk_curl=0.7, *
 
 # ------------------------------------------------------------ S8c wide: one pass  (398-425)   v002: one pass, was two
 shot(398, 'S8c', 'WIDE', MID, 1.1, note='"Your turn." One pass. Gaju catches it')
-P(bheemu, 400, 2, yaw=0.5, pupil=(0.8, 0.0)); P(bheemu, 402, 2, armR=(80, -150), bendR=0.35)
-arc(bl, T + 404, T + 418, GX - 40, G0 - 300, 240); sc.hit(T + 404, 'whoosh', 0.4)
-P(bheemu, 408, 4, 'io', armR=(0, 0), handR='mitt', bendR=0.12, **HAPPY)
-P(gaju, 412, 3, yaw=-0.5, trunk=(-40, -230), trunk_curl=-0.6); sc.hit(T + 418, 'pop', 0.6, note=76)
-bl.attach(T + 418, T + 9999, gaju, 'trunk', 0, -26)
+P(bheemu, 398, 2, yaw=0.5, pupil=(0.8, 0.0)); P(bheemu, 399, 3, 'out', armR=(-10, -60), bendR=0.4)    # v004: wind back with the ball in the paw
+P(bheemu, 402, 2, armR=(120, -190), handR='open', bendR=0.2)                                           # and throw: the paw swings through
+P(gaju, 408, 3, yaw=-0.5, trunk=(-40, -230), trunk_curl=-0.6)
+_sx, _sy = at(404, bheemu, 'handR', 0, -20); _ex, _ey = at(417, gaju, 'trunk', 0, -26)
+bl.set(T + 404, x=_sx, y=_sy); arc(bl, T + 404, T + 418, _ex, _ey, 200); sc.hit(T + 404, 'whoosh', 0.4)
+P(bheemu, 410, 4, 'io', armR=(0, 0), handR='mitt', bendR=0.12, **HAPPY)
+sc.hit(T + 418, 'pop', 0.6, note=76)
+bl.attach(T + 418, T + 440, gaju, 'trunk', 0, -26)
 P(gaju, 420, 3, 'over', sy=1.06, sx=0.96, **LAUGH)
 
 # ------------------------------------------------------------ S9 wide, shifted right: Chintu delivers the last joke  (426-end)
@@ -207,18 +238,22 @@ e = speak(ep, chintu, T + 452, 'c_ivvava') - T                                  
 assert e == LINE_END, (e, LINE_END)
 b0 = e + 8                                                                                             # v002: a pause after the line, then the action
 P(gaju, b0, 2, yaw=-0.5, pupil=(-0.8, 0.0), trunk=(-90, -160), trunk_curl=-0.3)                        # the joke: Gaju gets rid of the evidence
-bl.attach(T + 418, T + b0, gaju, 'trunk', 0, -26)
-arc(bl, T + b0, T + b0 + 10, BX + 115, G0 - 300, 160); sc.hit(T + b0, 'zip', 0.4)
-P(bheemu, b0 + 6, 3, armR=(60, -110), handR='grip', bendR=0.3); sc.hit(T + b0 + 10, 'pop', 0.6, note=72)
-bl.attach(T + b0 + 10, T + b0 + 44, bheemu, 'handR', 0, -20)
+bl.attach(T + 418, T + b0 + 1, gaju, 'trunk', 0, -26)
+P(bheemu, b0 + 4, 3, armR=(60, -110), handR='grip', bendR=0.3)
+_sx, _sy = at(b0 + 2, gaju, 'trunk', 0, -26); _ex, _ey = at(b0 + 11, bheemu, 'handR', 0, -20)          # v004: from the trunk tip to his paw
+bl.set(T + b0 + 2, x=_sx, y=_sy); arc(bl, T + b0 + 2, T + b0 + 12, _ex, _ey, 150); sc.hit(T + b0 + 2, 'zip', 0.4)
+sc.hit(T + b0 + 12, 'pop', 0.6, note=72)
+bl.attach(T + b0 + 12, T + b0 + 45, bheemu, 'handR', 0, -20)
 P(gaju, b0 + 12, 3, yaw=0.2, pupil=(0.3, -0.7), trunk=(30, 92), trunk_curl=0.7, ear=0.0, smile=0.6)   # innocent: studies the sky
 P(bheemu, b0 + 12, 3, yaw=0.0, pupil=(0.6, 0.5), **SORRY); sc.hit(T + b0 + 14, 'ghatam', 0.5)          # holding it. Caught. Hold
 P(bheemu, b0 + 30, 3, 'io', yaw=0.6, pupil=(0.9, 0.0), smile=0.4, sweat=0.0, brow_ang=0, brow=0)       # all right
-P(bheemu, b0 + 36, 4, 'io', armR=(80, -150), bendR=0.35)                                               # a clear, bent-arm offer
-arc(bl, T + b0 + 44, T + b0 + 58, CX - 50, G0 - 250, 200); sc.hit(T + b0 + 44, 'whoosh', 0.35)         # a gentle lob
-P(bheemu, b0 + 50, 5, 'io', armR=(0, 0), handR='mitt', bendR=0.12)
-bl.attach(T + b0 + 58, T + 9999, chintu, 'handL', 0, -20); sc.hit(T + b0 + 58, 'pop', 0.6, note=79)
-P(chintu, b0 + 60, 3, 'over', sy=1.06, sx=0.96, **HAPPY); P(chintu, b0 + 66, 4, 'io', sy=1.0, sx=1.0)
+P(bheemu, b0 + 36, 4, 'io', armR=(40, -90), bendR=0.4)                                                 # v004: he draws the paw back with the ball...
+P(bheemu, b0 + 44, 2, armR=(120, -200), handR='open', bendR=0.2)                                       # ...and lobs it underhand: the paw follows through
+_sx, _sy = at(b0 + 46, bheemu, 'handR', 0, -20); _ex, _ey = at(b0 + 59, chintu, 'handL', 0, -20)
+bl.set(T + b0 + 46, x=_sx, y=_sy); arc(bl, T + b0 + 46, T + b0 + 60, _ex, _ey, 200); sc.hit(T + b0 + 46, 'whoosh', 0.35)
+P(bheemu, b0 + 52, 5, 'io', armR=(0, 0), handR='mitt', bendR=0.12)
+bl.attach(T + b0 + 60, T + 9999, chintu, 'handL', 0, -20); sc.hit(T + b0 + 60, 'pop', 0.6, note=79)
+P(chintu, b0 + 62, 3, 'over', sy=1.06, sx=0.96, **HAPPY); P(chintu, b0 + 68, 4, 'io', sy=1.0, sx=1.0)
 P(bheemu, b0 + 64, 4, 'io', yaw=0.0, **READ); bk.attach(T + b0 + 66, T + 9999, bheemu, 'belly', *BOOK_AT); bk.set(T + b0 + 66, rot=0, shut=0.0)   # the book opens again
 P(bheemu, b0 + 68, 3, 'io', **dict(CALM, **EYES_DOWN))
 P(gaju, b0 + 72, 4, 'io', yaw=-0.7, pupil=(-0.9, 0.3), head_dx=-20, ear=0.3, **HAPPY)                  # Gaju leans in to read too
@@ -251,5 +286,5 @@ if __name__ == '__main__':
         print('cuts at engine frames:', cuts)
     elif mode == 'render':
         wav = sc.write(os.path.join(HERE, 'scratch_audio.wav'))
-        st.render(os.path.join(HERE, 'one_more_page_animatic_v003.mp4'), audio=wav, scale=0.5)
+        st.render(os.path.join(HERE, 'one_more_page_animatic_v004.mp4'), audio=wav, scale=0.5)
     print('shots:', [(s[1], s[0] + 1, s[2]) for s in SHOTS], 'total frames', TOTAL)
