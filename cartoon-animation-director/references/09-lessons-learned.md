@@ -47,6 +47,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 38 | 2026-11-11 | Verify the actual configuration before correcting documentation. Fix verified errors; keep proposals separate when evidence is insufficient. Do not change staging on unofficial estimates. | "Verify the actual engine configuration before changing documentation" |
 | 39 | 2026-11-11 | Before posing or animating an action, study real footage of the animal and how good animation handles it, frame by frame, and write down what was learned. Do not iterate by guesswork. | "Instead of going back and forth, go through the panda videos frame by frame" |
 | 40 | 2026-11-11 | A paw or hand holds an object as a closed fist the object passes through: palm and arm behind it, fingers curled over the front, forearm visible reaching it. Never paste a paw flat on top of an object or draw fingers onto the object. | Pilot reviews of v002 to v005; panda reference study |
+| 41 | 2026-11-11 | A hand never moves across the face of an object it is holding: it slides along the edge, or lifts clear, so no single frame shows it passing through. A catch uses both hands: open early in front of the chest, ball lands between the palms, fingers close over the front, arms give with it. | Review of v006: paw piercing the book; Chintu's catch |
 
 ## Experimental (being tested)
 
@@ -73,6 +74,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rule 41 (no hand passes through a held object; two-handed catch).
 - 2026-11-11: added confirmed rules 39-40 (reference study before animating; how a paw holds an object).
 - 2026-11-11: added confirmed rules 33-38 from the knowledge-base completion decisions.
 - 2026-11-11: added confirmed rules 29-32 from the document 3 review and the document 4 authorisation.

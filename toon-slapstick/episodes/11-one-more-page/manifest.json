@@ -13,7 +13,7 @@
   "stages": {
     "script": "done (pilot/Pilot_Plan.md)",
     "storyboard": "done (stills; not reviewed)",
-    "animatic": "v005 reviewed: REVISE (study requested). v006 rendered; AWAITING REVIEW (gate B). Not heard",
+    "animatic": "v006 reviewed: REVISE (page-turn piercing, catch, Chintu outfit). v007 rendered; AWAITING REVIEW (gate B). Not heard",
     "assets": "not started",
     "keys": "not started",
     "inbetweens": "not started",
@@ -39,6 +39,14 @@
     "S9"
   ],
   "assets": [
+    {
+      "file": "animatic/one_more_page_animatic_v007.mp4",
+      "status": "animatic, not animation; not watched, not heard"
+    },
+    {
+      "file": "storyboard/chintu_redesign_options.png",
+      "status": "REVIEW ONLY proposal; not production; cast.py unchanged"
+    },
     {
       "file": "animatic/one_more_page_animatic_v006.mp4",
       "status": "animatic, not animation; not watched, not heard"
