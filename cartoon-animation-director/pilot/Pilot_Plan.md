@@ -1,14 +1,16 @@
 # Pilot Plan: "One More Page"
 
 **Status: HOLD at gate B (review of 2026-11-11). Animatic v002 is ready for review. No detailed animation has been started.**
-Version 2.2, 2026-11-11.
+Version 2.3, 2026-11-11.
 
 Everything here uses the approved production models, the existing presets, existing props and existing engine controls. No engine file, character code, preset or baseline was changed. Nothing from the review branch is used.
 
 | Item | Where |
 |---|---|
 | **Animatic v010 (540 x 960, 27.2 s, scratch sound): the one to review** | `toon-slapstick/episodes/11-one-more-page/animatic/one_more_page_animatic_v010.mp4` |
-| Chintu drawn by construction (REVIEW ONLY) | `toon-slapstick/episodes/11-one-more-page/storyboard/chintu_drawn.png` |
+| New kid designs A / B / C (REVIEW ONLY, waiting for a pick) | `toon-slapstick/episodes/11-one-more-page/storyboard/new_kid_designs.png` |
+| The catch done properly, side-on (REVIEW ONLY) | `toon-slapstick/episodes/11-one-more-page/storyboard/new_kid_catch.png` |
+| Chintu drawn by construction (REVIEW ONLY, superseded) | `toon-slapstick/episodes/11-one-more-page/storyboard/chintu_drawn.png` |
 | Catch construction study (REVIEW ONLY) | `toon-slapstick/episodes/11-one-more-page/storyboard/catch_construction_study.png` |
 | Catch QC report (v009) | `toon-slapstick/episodes/11-one-more-page/qc/catch_v009_qc.md` |
 | Chintu outfit and hair options (REVIEW ONLY) | `toon-slapstick/episodes/11-one-more-page/storyboard/chintu_redesign_options.png` |
@@ -406,6 +408,7 @@ Watch once at full speed with sound, on a phone, before reading anything else.
 
 | Date | Change |
 |---|---|
+| 2026-11-11 | Version 2.3. Three new kid designs and the palms-up catch drawn as review sheets. Animatic not changed; the catch in it will be redone once a design is picked. |
 | 2026-11-11 | Version 2.2. Chintu drawn by construction as a review sheet (asked: "draw kid properly since now you got drawing lessons"). Nothing in the model or animatic changed. |
 | 2026-11-11 | Version 2.1. Drawing lessons gathered; construction study of the catch; animatic v010 with the namaz / dua-hands catch. |
 | 2026-11-11 | Version 2.0. Animatic v009: fingers-down cricket catch from a frame-by-frame study of a coaching video; Gaju ducks; QC report. |

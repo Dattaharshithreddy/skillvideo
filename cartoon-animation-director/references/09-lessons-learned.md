@@ -51,6 +51,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 42 | 2026-11-11 | Look at every frame you send before sending it, and fail it if anything important overlaps another character (hands in an ear, ball across a face). A catch is staged square to the ball with hands in front of the catcher's own body, never reached across the body in profile, which reads as crossed arms. A thrown ball is always on ones. | Review of v007: "his hands are crossed", "blended inside the ears of Gaju", "catch like a cricketer" |
 | 43 | 2026-11-11 | For a sport or skill move, study a real coaching video of that exact technique frame by frame before posing it, and match its ready, contact, give and finish poses. A cricketer's below-chest catch: crouch, arms long, elbows in, hands low in front, palms to the ball, fingers down, little fingers together; give down and in; hold at the belly. | "Not accurate, check references" (v008 catch) |
 | 44 | 2026-11-11 | Before posing a new action, build it the way cartoon drawing lessons do: line of action, big shapes, a stick skeleton with joints (check nothing crosses that should not), mitten hands at the right size, then thumb and four uneven fingers. Make that construction drawing first and pose the model to match it. | "Get the drawing lessons first ... draw like how they build ... and then try" |
+| 45 | 2026-11-11 | When asked for a different look, design new characters (face, hair, clothes, shape language), not a redraw of the old one. Present them the professional way: several options side by side, silhouette test, heavy outer line and light inner lines, cel shadow, palette. A two-hand catch is palms UP, hands side by side, little fingers together, fingers towards the ball (as in dua); show it side-on so the bowl of the hands reads. | "I want different looks, not the same kid ... draw like how professionals draw ... that is not how you catch a ball" |
 
 ## Experimental (being tested)
 
@@ -77,6 +78,7 @@ Rules marked **experimental** are ideas being tested; do not treat them as stand
 | 2026-11-11 | Automatic check of episode 7: about 58% of frames are still (our measurement of a classic chase cartoon was about 14%). | Our episodes hold too long with too little life; add moving holds and more acting. |
 
 ## Change log
+- 2026-11-11: added confirmed rule 45 (new looks = new designs, presented professionally; palms-up catch).
 - 2026-11-11: added confirmed rule 44 (construction drawing before posing).
 - 2026-11-11: added confirmed rule 43 (study the real technique; cricketer's fingers-down catch).
 - 2026-11-11: added confirmed rule 42 (check sent frames for overlaps; square-on catch; ball on ones).
