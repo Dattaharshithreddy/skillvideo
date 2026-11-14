@@ -251,65 +251,133 @@ area('out_rim', (-2.5, 1.2, 2.2), (-0.5, 0.2, 1.2), 120, 1.2, (0.6, 0.75, 1.0), 
 area('out_fill', (-1.5, -3.5, 1.5), (0, 0, 1), 25, 3.0, (1, 0.95, 0.9), 'out')
 area('out_top', (0.2, 0.2, 2.8), (0.2, 0.2, 0.8), 45, 1.2, (1, 0.95, 0.85), 'out')
 
-# ================= INSIDE: the blood highway =================
-bpy.ops.mesh.primitive_plane_add(size=200, location=(120, 0, 0)); obj_setup(bpy.context.object, 'inside_ground', M['ground'])
-TP = [Vector(p) for p in [(94, 0, 2.5), (100, 0, 2.5), (106, -0.3, 2.3), (112, 0.5, 2.2), (118, 1.0, 2.2), (124, 0.5, 2.3),
-                          (130, -0.5, 2.4), (136, 0.0, 2.8), (142, 0.8, 3.2), (150, 0.5, 3.6)]]
-R0 = 0.6
-hw = tube('highway', TP, R0, M['tube'])
-hw.data.use_path = True; hw.data.path_duration = 100; hw.data.resolution_u = 32
-# organs on pedestals
-def pedestal(x, y, r):
-    p = cyl(f'ped_{x}', (x, y, 0.15), r, 0.3, M['ped'], bevel=0.03)
-    ring = bpy.data.objects.new(f'ring_{x}', None)
-    bpy.ops.mesh.primitive_torus_add(major_radius=r, minor_radius=0.03, location=(x, y, 0.3)); rg = bpy.context.object; rg.data.materials.append(M['ring'])
-    return p
-HP = Vector((113, 6.5, 3.6)); KP = Vector((125, 6.5, 2.9)); BP_ = Vector((137.5, 7.0, 4.3)); EP = Vector((142.5, 4.8, 3.2))
-pedestal(HP.x, HP.y, 2.2); pedestal(KP.x, KP.y, 2.4); pedestal(BP_.x, BP_.y, 2.7); pedestal(EP.x, EP.y, 1.1)
-hroot = bpy.data.objects.new('heart_root', None); sc.collection.objects.link(hroot); hroot.location = HP
-heart = anat.load('heart', 5.0, HP, 'heart'); parent(heart, hroot)
-kid = anat.load('kidneys', 4.4, KP, 'kidneys')
-brain = anat.load('brain', 5.6, BP_, 'brain'); brain.rotation_euler = (0, 0, math.radians(-80))
-eye = anat.load('eye', 1.8, EP, 'eye'); eye.rotation_euler = (0, 0, math.radians(-15))
-for i, (p, e) in enumerate([(HP, 900), (KP, 800), (BP_, 1000), (EP, 300)]):
-    area(f'in_key{i}', p + Vector((-4, -6, 6)), p, e, 4, (1, 0.9, 0.85), 'in')
-    area(f'in_rim{i}', p + Vector((4, 4, 3)), p, e * 0.9, 3, (0.4, 0.6, 1), 'in')
-area('in_tube_fill', (120, -10, 8), (120, 0, 2), 1200, 30, (0.6, 0.7, 1), 'in')
+# ================= INSIDE: X-ray view of Raju garu's own body =================
+# Real organs (Z-Anatomy / BodyParts3D, life-size, native body coordinates) placed inside Raju; his skin and clothes
+# fade to a glowing see-through shell while the camera pushes in (end of line 1) and come back when it pulls out (line 8).
+from mathutils.bvhtree import BVHTree
+bpy.context.view_layer.update()
+RL = raju.matrix_world.translation.copy()
+eyeR = raju.matrix_world @ raju.data.bones['eye.R'].head_local; eyeL = raju.matrix_world @ raju.data.bones['eye.L'].head_local
+EYE_R = (eyeR + eyeL) / 2
+ANAT_EYE = Vector((0.0, -0.0645, 1.5907))
+body = bpy.data.objects['raju_body']
+dg = bpy.context.evaluated_depsgraph_get(); be = body.evaluated_get(dg)
+bm_ = bmesh.new(); bm_.from_mesh(be.to_mesh()); bm_.transform(body.matrix_world); BVH = BVHTree.FromBMesh(bm_)
+def torso_mid_y(z):
+    ys = [v.co.y for v in bm_.verts if abs(v.co.z - z) < 0.015 and abs(v.co.x - RL.x) < 0.12]
+    return (min(ys) + max(ys)) / 2 if ys else RL.y
+def inside_body(p):
+    loc, nrm, idx, d = BVH.find_nearest(p)
+    return loc is not None and (p - loc).dot(nrm) < 0
+HEAD_OFF = EYE_R - ANAT_EYE
+TORSO_OFF = Vector((RL.x, torso_mid_y(1.29) - 0.012, HEAD_OFF.z))
+def off_for(z):
+    t = min(1, max(0, (z - 1.36) / 0.16)); return TORSO_OFF.lerp(HEAD_OFF, t)
+def place(objs):
+    for o in objs:
+        c, _ = anat.centre([o]); o.location += off_for(c.z)
+    bpy.context.view_layer.update()
 
-# timeline helpers
-def beat_hz(f):
-    if S(4)[0] <= f <= S(4)[1]: return 1.8
-    return 1.2
-def amp(f):
-    a2, b3 = S(2)[0], S(3)[1]
-    if f < a2: return 0.02
-    if f <= b3: return 0.02 + 0.13 * (f - a2) / (b3 - a2)
-    if f <= S(5)[1]: return 0.13
-    if f <= S(6)[1]: return 0.13 - 0.1 * (f - S(6)[0]) / max(1, S(6)[1] - S(6)[0])
-    return 0.03
-narrow = lambda f: 1.0 if f < S(6)[0] else max(0.72, 1.0 - 0.28 * (f - S(6)[0]) / max(1, S(6)[1] - S(6)[0]))
+heart_root, heart_m = anat.load_native('heart', 'heart')
+art_root, art_m = anat.load_native('arteries', 'arteries')
+kid_root, kid_m = anat.load_native('kidneys', 'kidneys')
+brain_root, brain_m = anat.load_native('brain', 'brain')
+eye_root, eye_m = anat.load_native('eyes', 'eye')
+brain_m = [o for o in brain_m if anat.centre([o])[0].z > 1.47]
+for o in list(brain_root.children):
+    if o not in brain_m: bpy.data.objects.remove(o, do_unlink=True)
+for g in (heart_m, art_m, kid_m, brain_m, eye_m): place(g)
+HC, _ = anat.centre(heart_m); KC, _ = anat.centre(kid_m); BC, BD = anat.centre(brain_m); EC, _ = anat.centre(eye_m)
+print('XRAY fit: heart', HC, inside_body(HC), 'kidneys', KC, inside_body(KC), 'brain', BC, inside_body(BC), 'eyes', EC)
+def named(sub):
+    for o in art_m:
+        if sub in o.name.lower(): return anat.centre([o])[0]
+AO_T = named('thoracic aorta') or HC + Vector((0.01, 0.05, -0.05))
+AO_A = named('abdominal aorta') or KC + Vector((0, 0.02, 0.05))
+heart = bpy.data.objects.new('heart_pivot', None); sc.collection.objects.link(heart); heart.location = HC
+for o in heart_m: parent(o, heart)
+hroot = heart
+# all organ meshes start hidden; they are revealed with the X-ray
+ORG = heart_m + art_m + kid_m + brain_m + eye_m
+
+# ---- the X-ray shell on Raju (skin, hair, clothes) ----
+X_ON0, X_ON1 = frac(1, 0.70), S(1)[1] + 6
+X_OFF0, X_OFF1 = S(8)[0], frac(8, 0.22)
+def xray_keys(sock):
+    for f, v in ((1, 0), (X_ON0, 0), (X_ON1, 1), (X_OFF0, 1), (X_OFF1, 0)):
+        sock.default_value = v; sock.keyframe_insert('default_value', frame=f)
+xmats = set()
+for o in [o for o in bpy.data.objects if o.name.startswith('raju_body')]:
+    for slot in o.material_slots:
+        m = slot.material
+        if not m or m.name in xmats or not m.use_nodes: continue
+        xmats.add(m.name); nt = m.node_tree
+        outn = next((n for n in nt.nodes if n.type == 'OUTPUT_MATERIAL' and n.is_active_output), None) or \
+            next((n for n in nt.nodes if n.type == 'OUTPUT_MATERIAL'), None)
+        if not outn or not outn.inputs['Surface'].links: continue
+        src = outn.inputs['Surface'].links[0].from_socket
+        mix = nt.nodes.new('ShaderNodeMixShader'); tr = nt.nodes.new('ShaderNodeBsdfTransparent'); em = nt.nodes.new('ShaderNodeEmission')
+        add = nt.nodes.new('ShaderNodeAddShader'); lw = nt.nodes.new('ShaderNodeLayerWeight'); mul = nt.nodes.new('ShaderNodeMath')
+        lw.inputs['Blend'].default_value = 0.35; mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = 2.2
+        em.inputs['Color'].default_value = (0.35, 0.75, 1.0, 1)
+        nt.links.new(lw.outputs['Facing'], mul.inputs[0]); nt.links.new(mul.outputs[0], em.inputs['Strength'])
+        nt.links.new(tr.outputs[0], add.inputs[0]); nt.links.new(em.outputs[0], add.inputs[1])
+        nt.links.new(src, mix.inputs[1]); nt.links.new(add.outputs[0], mix.inputs[2]); nt.links.new(mix.outputs[0], outn.inputs['Surface'])
+        xray_keys(mix.inputs['Fac'])
+        try: m.surface_render_method = 'DITHERED'
+        except Exception: pass
+for o in ORG: show(o, [(X_ON0, X_OFF1 + 1)])
+
+# ---- lights: the room dims while we are inside; organ lights come up ----
+def light_ramp(l, base, pairs):
+    for f, k in pairs:
+        l.data.energy = base * k; l.data.keyframe_insert('energy', frame=f)
+for i, (p, e) in enumerate([(HC, 40), (KC, 30), (BC, 40)]):
+    area(f'in_key{i}', p + Vector((-0.5, -0.9, 0.5)), p, e, 0.6, (1, 0.92, 0.88), 'in')
+    area(f'in_rim{i}', p + Vector((0.6, 0.6, 0.3)), p, e * 0.8, 0.5, (0.45, 0.65, 1), 'in')
+for l in LIGHTS['out']: light_ramp(l, l.data.energy, [(1, 1), (X_ON0, 1), (X_ON1, 0.18), (X_OFF0, 0.18), (X_OFF1, 1)])
+for l in LIGHTS['in']: light_ramp(l, l.data.energy, [(1, 0), (X_ON0, 0), (X_ON1, 1), (X_OFF0, 1), (X_OFF1, 0)])
+
+# ---- organ glow (alive) ----
+for m in {s.material for o in ORG for s in o.material_slots if s.material}:
+    b = bsdf(m); b.inputs['Emission Color'].default_value = (*tuple(b.inputs['Base Color'].default_value)[:3], 1)
+    for f, v in ((1, 0.0), (X_ON0, 0.0), (X_ON1, 0.35), (X_OFF0, 0.35), (X_OFF1, 0.0)):
+        b.inputs['Emission Strength'].default_value = v; b.inputs['Emission Strength'].keyframe_insert('default_value', frame=f)
+WALL = bsdf(art_m[0].material_slots[0].material)
+
+# ---- heartbeat: faster and harder as the pressure rises ----
+def beat_hz(f): return 1.8 if S(4)[0] <= f <= S(4)[1] else 1.2
 phase = 0.0
 for f in ALLFR:
     phase += beat_hz(f) / FPS
     b = max(0.0, math.sin(phase * 2 * math.pi)) ** 3
-    hw.data.bevel_depth = R0 * narrow(f) * (1 + amp(f) * b); hw.data.keyframe_insert('bevel_depth', frame=f)
-    s_ = 1 + (0.08 if S(4)[0] <= f <= S(4)[1] else 0.05) * b
-    hroot.scale = (s_, s_, s_); hroot.keyframe_insert('scale', frame=f)
-for idb in (hw.data, hroot):
-    for fc in fcurves(idb):
-        for kp in fc.keyframe_points: kp.interpolation = 'LINEAR'
-# tube hardens (line 6): colour shift
-tb = bsdf(M['tube'])
-for f, col, rough in ((1, (1.0, 0.42, 0.42), 0.12), (S(6)[0], (1.0, 0.42, 0.42), 0.12), (S(6)[1], (0.9, 0.7, 0.42), 0.5)):
-    tb.inputs['Base Color'].default_value = (*col, 1); tb.inputs['Base Color'].keyframe_insert('default_value', frame=f)
-    tb.inputs['Roughness'].default_value = rough; tb.inputs['Roughness'].keyframe_insert('default_value', frame=f)
+    s_ = 1 + (0.09 if S(4)[0] <= f <= S(4)[1] else 0.05) * b
+    heart.scale = (s_, s_, s_); heart.keyframe_insert('scale', frame=f)
+for fc in fcurves(heart):
+    for kp in fc.keyframe_points: kp.interpolation = 'LINEAR'
+# vessel walls harden on line 6: red -> yellowish, rougher
+for f, col, rough in ((1, (0.75, 0.06, 0.04), 0.3), (S(6)[0], (0.75, 0.06, 0.04), 0.3), (S(6)[1], (0.85, 0.62, 0.3), 0.6)):
+    WALL.inputs['Base Color'].default_value = (*col, 1); WALL.inputs['Base Color'].keyframe_insert('default_value', frame=f)
+    WALL.inputs['Emission Color'].default_value = (*col, 1); WALL.inputs['Emission Color'].keyframe_insert('default_value', frame=f)
+    WALL.inputs['Roughness'].default_value = rough; WALL.inputs['Roughness'].keyframe_insert('default_value', frame=f)
 
-# flowing particles inside the tube
-def flowers(prefix, n, mesh_fn, period, vis, radial=0.42):
+# ---- the salt's route through his body: gut -> heart -> aorta -> kidneys, and heart -> carotid -> brain ----
+GUT = HC + Vector((0.02, -0.01, -0.13))
+ROUTE = [GUT, GUT + Vector((0, 0.01, 0.06)), HC + Vector((0.0, 0.0, -0.03)), HC + Vector((-0.005, 0.01, 0.06)),
+         HC + Vector((0.0, 0.03, 0.10)), AO_T, AO_A, KC + Vector((0.045, 0.0, 0.0))]
+BROUTE = [HC + Vector((-0.005, 0.01, 0.06)), HC + Vector((0.01, 0.0, 0.12)), HC + Vector((0.025, -0.01, 0.20)),
+          EYE_R + Vector((0.03, 0.06, -0.12)), BC + Vector((0.02, 0.0, -0.02))]
+def path_curve(name, pts):
+    cu = bpy.data.curves.new(name, 'CURVE'); cu.dimensions = '3D'; cu.resolution_u = 24
+    sp = cu.splines.new('BEZIER'); sp.bezier_points.add(len(pts) - 1)
+    for p, c in zip(sp.bezier_points, pts): p.co = c; p.handle_left_type = p.handle_right_type = 'AUTO'
+    o = bpy.data.objects.new(name, cu); sc.collection.objects.link(o); cu.use_path = True; cu.path_duration = 100; return o
+route = path_curve('route', ROUTE); broute = path_curve('route_brain', BROUTE)
+def flowers(prefix, crv, n, mesh_fn, period, vis, radial=0.006):
     out = []
     for i in range(n):
         e = bpy.data.objects.new(f'{prefix}_e{i}', None); sc.collection.objects.link(e)
-        c = e.constraints.new('FOLLOW_PATH'); c.target = hw; c.use_fixed_location = True; c.use_curve_follow = True
+        c = e.constraints.new('FOLLOW_PATH'); c.target = crv; c.use_fixed_location = True; c.use_curve_follow = True
         c.forward_axis = 'FORWARD_X'; c.up_axis = 'UP_Z'
         c.offset_factor = 0.0; c.keyframe_insert('offset_factor', frame=1)
         c.offset_factor = 1.0; c.keyframe_insert('offset_factor', frame=1 + period)
@@ -319,82 +387,66 @@ def flowers(prefix, n, mesh_fn, period, vis, radial=0.42):
                 for kp in fc.keyframe_points:
                     kp.interpolation = 'LINEAR'; kp.co[0] -= ph; kp.handle_left[0] -= ph; kp.handle_right[0] -= ph
                 fc.modifiers.new('CYCLES')
-        o = mesh_fn(i); rr = R0 * radial * math.sqrt(random.random()); a = random.uniform(0, 6.283)
+        o = mesh_fn(i); rr = radial * math.sqrt(random.random()); a = random.uniform(0, 6.283)
         o.parent = e; o.location = (0, rr * math.cos(a), rr * math.sin(a))
         o.rotation_euler = (random.uniform(0, 6.3), random.uniform(0, 6.3), random.uniform(0, 6.3))
-        base = tuple(o.scale)
-        o.scale = (0, 0, 0); o.keyframe_insert('scale', frame=1)
-        a_, b_ = vis(i)
-        o.scale = base; o.keyframe_insert('scale', frame=a_)
-        o.scale = (0, 0, 0); o.keyframe_insert('scale', frame=b_)
-        interp(o, 'scale', 'CONSTANT')
-        # tumble
-        o.keyframe_insert('rotation_euler', frame=1)
-        o.rotation_euler[0] += random.uniform(-25, 25); o.keyframe_insert('rotation_euler', frame=END)
-        interp(o, 'rotation_euler', 'LINEAR')
+        a_, b_ = vis(i); show(o, [(a_, b_)])
         out.append(o)
     return out
 IN0, IN1 = S(2)[0], S(7)[1]
-flowers('rbc', 150, lambda i: sphere(f'rbc{i}', (0, 0, 0), 0.13, M['rbc'], scale=(1, 1, 0.4), seg=24, ring=12), 240, lambda i: (IN0, IN1 + 1))
-flowers('salt', 45, lambda i: box(f'salt{i}', (0, 0, 0), (0.09, 0.09, 0.09), M['crystal'], bevel=0.008, seg=1), 260,
-        lambda i: (IN0, IN1 + 1), radial=0.5)
+flowers('salt', route, 70, lambda i: box(f'salt{i}', (0, 0, 0), (0.0045, 0.0045, 0.0045), M['crystal'], bevel=0.0004, seg=1), 200,
+        lambda i: (frac(1, 0.85), IN1 + 1))
 W0 = frac(2, 0.45)
-flowers('water', 80, lambda i: sphere(f'water{i}', (0, 0, 0), 0.09, M['water'], seg=20, ring=10), 250,
-        lambda i: (W0 + int(i * (S(3)[1] - W0) / 80), IN1 + 1), radial=0.55)
-# plaque inside tube (line 6)
-pl = []
-for i in range(14):
-    t_ = 0.42 + i * 0.03
-    e = bpy.data.objects.new(f'plq_e{i}', None); sc.collection.objects.link(e)
-    c = e.constraints.new('FOLLOW_PATH'); c.target = hw; c.use_fixed_location = True; c.use_curve_follow = True; c.offset_factor = t_
-    a = random.uniform(0, 6.283)
-    p_ = sphere(f'plaque{i}', (0, 0, 0), 0.32, M['plaque'], scale=(1.4, 0.6, 0.6), seg=24, ring=12)
-    p_.parent = e; p_.location = (0, 0.5 * math.cos(a), 0.5 * math.sin(a))
-    base = tuple(p_.scale); p_.scale = (0, 0, 0); p_.keyframe_insert('scale', frame=1); p_.keyframe_insert('scale', frame=S(6)[0] + i * 3)
-    p_.scale = base; p_.keyframe_insert('scale', frame=S(6)[0] + 40 + i * 3)
-    pl.append(p_)
-
-# kidneys: water leaving + salt pile (line 5)
+flowers('water', route, 90, lambda i: sphere(f'water{i}', (0, 0, 0), 0.0035, M['water'], seg=12, ring=6), 210,
+        lambda i: (W0 + int(i * (S(3)[1] - W0) / 90), IN1 + 1), radial=0.008)
+flowers('bsalt', broute, 30, lambda i: box(f'bsalt{i}', (0, 0, 0), (0.004, 0.004, 0.004), M['crystal'], bevel=0.0004, seg=1), 120,
+        lambda i: (S(7)[0], IN1 + 1))
+# plaque on the aorta wall (line 6)
+for i in range(16):
+    t_ = i / 15
+    p0 = AO_T.lerp(AO_A, t_) + Vector((random.uniform(-0.008, 0.008), random.uniform(-0.012, -0.004), random.uniform(-0.01, 0.01)))
+    p_ = sphere(f'plaque{i}', p0, 0.006, M['plaque'], scale=(1.3, 0.7, 1.6), seg=16, ring=8)
+    base = tuple(p_.scale); p_.scale = (0, 0, 0); p_.keyframe_insert('scale', frame=1); p_.keyframe_insert('scale', frame=S(6)[0] + i * 4)
+    p_.scale = base; p_.keyframe_insert('scale', frame=S(6)[0] + 40 + i * 4)
+    p_.scale = (0, 0, 0); p_.keyframe_insert('scale', frame=X_OFF1 + 1); interp(p_, 'scale', 'CONSTANT', {X_OFF1 + 1})
+# kidneys: working hard on line 5 (glow pulse) + water leaving downwards
 k5a, k5b = S(5)
-for i in range(30):
-    d = sphere(f'kdrop{i}', (KP.x + random.uniform(-0.8, 0.8), KP.y - 1.2 + random.uniform(-0.4, 0.4), 0.5), 0.07, M['water'], seg=16, ring=8)
-    z0 = 2.2
+km = bsdf(kid_m[0].material_slots[0].material)
+for f in range(k5a, k5b + 1, 6):
+    km.inputs['Emission Strength'].default_value = 0.35 + 0.9 * abs(math.sin((f - k5a) / FPS * 3.0))
+    km.inputs['Emission Strength'].keyframe_insert('default_value', frame=f)
+km.inputs['Emission Strength'].default_value = 0.35; km.inputs['Emission Strength'].keyframe_insert('default_value', frame=k5b + 6)
+for i in range(24):
+    side = 1 if i % 2 else -1
+    d = sphere(f'kdrop{i}', KC + Vector((side * 0.05, 0, 0)), 0.003, M['water'], seg=12, ring=6)
+    z0 = KC.z - 0.03
     for f in range(k5a, k5b + 1, 2):
-        tt = ((f - k5a) / FPS * 0.9 + i / 30) % 1.0
-        d.location.z = z0 - 1.9 * tt; d.keyframe_insert('location', frame=f, index=2)
+        tt = ((f - k5a) / FPS * 0.8 + i / 24) % 1.0
+        d.location = KC + Vector((side * (0.05 - 0.03 * tt), -0.01 * tt, -0.03 - 0.16 * tt)); d.keyframe_insert('location', frame=f)
     show(d, [(k5a, k5b + 1)])
-pile = []
-for i in range(40):
-    cx = box(f'kpile{i}', (KP.x + random.uniform(-1.4, 1.4), KP.y - 2.0 + random.uniform(-0.5, 0.5), 0.33 + random.uniform(0, 0.15)),
-             (0.12, 0.12, 0.12), M['crystal'], bevel=0.01, seg=1)
-    cx.rotation_euler = (random.uniform(0, 3), random.uniform(0, 3), random.uniform(0, 3))
-    show(cx, [(k5a + 20 + i * 4, IN1 + 1)])
-
 # brain stroke (line 7)
 a7, b7 = S(7)
-bpt = BP_ + Vector((-1.2, -2.0, 0.9))
-bs = sphere('stroke_burst', bpt, 0.25, M['burst'])
+bpt = BC + Vector((-0.05, -0.02, 0.02))
+bs = sphere('stroke_burst', bpt, 0.012, M['burst'])
 for f, sc_, e in ((1, 0.0, 0), (frac(7, 0.38), 0.0, 0), (frac(7, 0.45), 1.6, 18), (frac(7, 0.6), 1.2, 10), (b7, 1.2, 10), (b7 + 1, 0, 0)):
     bs.scale = (sc_, sc_, sc_); bs.keyframe_insert('scale', frame=f)
     bsdf(M['burst']).inputs['Emission Strength'].default_value = e; bsdf(M['burst']).inputs['Emission Strength'].keyframe_insert('default_value', frame=f)
 for i in range(24):
-    sp = sphere(f'spark{i}', bpt, 0.06, M['burst'], seg=12, ring=6)
-    dv = Vector((random.uniform(-1, 1), random.uniform(-1, 0.2), random.uniform(-0.3, 1))).normalized() * random.uniform(1.0, 2.2)
+    sp_ = sphere(f'spark{i}', bpt, 0.003, M['burst'], seg=12, ring=6)
+    dv = Vector((random.uniform(-1, 0.2), random.uniform(-1, 1), random.uniform(-0.3, 1))).normalized() * random.uniform(0.03, 0.07)
     f0 = frac(7, 0.4)
-    sp.location = bpt; sp.keyframe_insert('location', frame=f0)
-    sp.location = bpt + dv; sp.keyframe_insert('location', frame=f0 + 25)
-    show(sp, [(f0, f0 + 30)])
-def flush(root, f_on, f_off):
-    done = {}
-    for o in anat.meshes(root):
-        for slot in o.material_slots:
-            m = slot.material
-            if m.name not in done:
-                c_ = m.copy(); c_.name = m.name + '_f'; done[m.name] = c_
-                emit_keys(c_, [(1, 0), (f_on, 0), (f_on + 12, 1.2), (f_off, 1.2), (f_off + 1, 0)])
-            slot.material = done[m.name]
-flush(brain, frac(7, 0.45), b7)
-flush(eye, frac(7, 0.82), b7)
+    sp_.location = bpt; sp_.keyframe_insert('location', frame=f0)
+    sp_.location = bpt + dv; sp_.keyframe_insert('location', frame=f0 + 25)
+    show(sp_, [(f0, f0 + 30)])
+def flush_objs(objs, f_on, f_off):
+    for m in {s.material for o in objs for s in o.material_slots if s.material}:
+        b = bsdf(m); base_c = tuple(b.inputs['Base Color'].default_value)[:3]
+        for f, c_ in ((1, base_c), (f_on - 1, base_c), (f_on, (1.0, 0.08, 0.04)), (f_off + 1, (1.0, 0.08, 0.04)), (f_off + 2, base_c)):
+            b.inputs['Emission Color'].default_value = (*c_, 1); b.inputs['Emission Color'].keyframe_insert('default_value', frame=f)
+        for f, v in ((f_on, 0.35), (f_on + 12, 1.4), (f_off, 1.4), (f_off + 1, 0.0)):
+            b.inputs['Emission Strength'].default_value = v; b.inputs['Emission Strength'].keyframe_insert('default_value', frame=f)
+flush_objs(brain_m, frac(7, 0.45), b7)
+flush_objs(eye_m, frac(7, 0.82), b7)
 
 # ================= outside animation =================
 # salty items until line 10, then healthy items
@@ -442,26 +494,27 @@ cd.dof.focus_object = tgt
 P = lambda *a: Vector(a)
 KEYS = []  # (frame, cam, target, fstop, lens, cut_before)
 def K(f, c_, t_, fs, ln, cut=False): KEYS.append((int(f), c_, t_, fs, ln, cut))
-# line 1: dining table, push into the plate
+# line 1: dining room -> push into Raju garu's chest (X-ray comes on) ; lines 2-8: one continuous move inside his body, then out
+V3 = Vector
 K(S(1)[0], P(1.6, -2.6, 1.7), P(-0.1, 0.1, 1.0), 4.0, 32, True)
-K(frac(1, 0.7), P(0.7, -1.4, 1.3), P(0.0, 0.1, 0.85), 3.2, 35)
-K(S(1)[1], P(0.03, -0.42, 0.95), P(TX + 0.03, TY - 0.13, 0.79), 2.0, 40)
-# lines 2-7: one continuous flight along the highway
-K(S(2)[0], P(95.5, -2.2, 3.2), P(101, 0, 2.5), 8, 26, True)
-K(S(3)[0], P(102.5, -2.6, 3.0), P(107, 0, 2.3), 6, 28)
-K(frac(3, 0.6), P(106.0, -2.8, 2.8), P(108.5, 0, 2.25), 5, 30)
-K(S(4)[0], P(109.5, -3.0, 4.0), P(112.8, 5.5, 3.8), 8, 28)
-K(S(4)[1], P(113.0, -3.6, 4.3), P(113, 6.2, 3.8), 8, 28)
-K(S(5)[0], P(119.5, -5.5, 4.0), P(124.5, 6, 3.0), 8, 26)
-K(S(5)[1], P(125.5, -6.0, 4.2), P(125, 6, 2.9), 8, 26)
-K(S(6)[0], P(128.5, -3.6, 3.3), P(131, -0.4, 2.4), 6, 30)
-K(S(6)[1], P(131.5, -3.3, 3.2), P(133.5, -0.3, 2.5), 6, 30)
-K(S(7)[0], P(133.5, -6.0, 5.6), P(137.5, 6.5, 4.3), 8, 26)
-K(frac(7, 0.62), P(136.0, -5.0, 5.2), P(137.0, 6.5, 4.4), 8, 28)
-K(S(7)[1], P(140.5, -2.5, 3.8), P(142.5, 4.8, 3.2), 6, 32)
-# lines 8-13: back with Raju garu
-K(S(8)[0], P(0.4, -2.2, 1.6), P(-0.45, 0.15, 1.35), 3.0, 35, True)
-K(S(8)[1], P(0.2, -1.9, 1.6), P(-0.5, 0.15, 1.4), 3.0, 38)
+K(frac(1, 0.45), P(0.9, -1.8, 1.45), RL + V3((0.15, 0, 1.15)), 3.5, 32)
+K(frac(1, 0.72), RL + V3((0.35, -1.3, 1.3)), HC + V3((0, 0, -0.05)), 4.0, 35)
+K(S(1)[1], HC + V3((0.12, -0.62, 0.0)), HC + V3((0, 0, -0.06)), 5.6, 35)
+K(S(2)[1], HC + V3((0.05, -0.44, -0.02)), HC + V3((0, 0, -0.06)), 5.6, 35)
+K(frac(3, 0.5), HC + V3((-0.12, -0.40, 0.02)), HC + V3((0, 0, -0.01)), 5.6, 35)
+K(S(3)[1], HC + V3((-0.05, -0.36, 0.02)), HC, 5.6, 38)
+K(S(4)[0] + 15, HC + V3((0.08, -0.30, 0.03)), HC, 6.3, 40)
+K(S(4)[1], HC + V3((0.12, -0.26, 0.04)), HC, 6.3, 42)
+K(frac(5, 0.25), KC + V3((0.15, -0.55, 0.08)), KC, 5.6, 35)
+K(S(5)[1], KC + V3((0.10, -0.45, 0.05)), KC, 5.6, 36)
+K(frac(6, 0.2), AO_A + V3((0.12, -0.35, 0.05)), AO_T.lerp(AO_A, 0.5), 6.3, 40)
+K(S(6)[1], AO_A + V3((0.08, -0.28, 0.08)), AO_T.lerp(AO_A, 0.5), 6.3, 42)
+K(frac(7, 0.15), BC + V3((0.35, -0.45, 0.02)), BC, 5.6, 35)
+K(frac(7, 0.62), BC + V3((0.25, -0.40, 0.0)), BC, 5.6, 36)
+K(S(7)[1], EC + V3((0.10, -0.28, 0.0)), EC, 5.6, 40)
+K(frac(8, 0.08), EC + V3((0.15, -0.45, -0.05)), EC + V3((0, 0, -0.1)), 4.5, 38)
+K(frac(8, 0.4), RL + V3((0.6, -1.7, 1.4)), RL + V3((0, 0, 1.25)), 3.5, 35)
+K(S(8)[1], RL + V3((0.95, -2.1, 1.55)), RL + V3((0, 0, 1.2)), 3.5, 35)
 K(S(9)[0], P(TX + 0.45, -0.75, 1.1), P(TX + 0.36, TY + 0.05, 0.86), 2.4, 40, True)
 K(S(9)[1], P(TX + 0.44, -0.62, 1.05), P(TX + 0.36, TY + 0.05, 0.86), 2.4, 42)
 K(S(10)[0], P(TX + 0.05, -0.75, 1.45), P(TX + 0.05, TY, 0.8), 3.2, 35, True)
@@ -490,14 +543,6 @@ for idb, path in ((cam, 'location'), (tgt, 'location'), (cd, 'dof.aperture_fstop
                 if f_ in cuts: kp.interpolation = 'CONSTANT'
 # the shots before a cut must not ease into the next set: hold-end keys are the last key of each segment (handled by CONSTANT)
 # line 11 walk: target follows Raju
-# lights per set
-inside = lambda f: S(2)[0] <= f <= S(7)[1]
-for grp, on_inside in (('in', True), ('out', False)):
-    for l in LIGHTS[grp]:
-        for i in range(1, 14):
-            f = S(i)[0]; l.hide_render = (inside(f) != on_inside); l.keyframe_insert('hide_render', frame=f)
-        interp(l, 'hide_render', 'CONSTANT')
-
 # ================= render =================
 sc.render.engine = 'CYCLES'
 try:

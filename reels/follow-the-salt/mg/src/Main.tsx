@@ -236,12 +236,54 @@ const Stroke: React.FC = () => {
 };
 
 // ---------- line 7: silent killer ----------
+const Numbers: React.FC = () => {
+  const {t, active, dur} = useLocal(2);
+  if (!active) return null;
+  const at = Math.round(dur * 0.55);
+  return (
+    <Pop at={at} t={t} from="up" style={{position: 'absolute', left: 60, top: 420}}>
+      <div style={{...card, width: 960, padding: '24px 36px'}}>
+        <div style={{fontSize: 30, letterSpacing: 6, fontWeight: 700, opacity: 0.8}}>BP HAS TWO NUMBERS</div>
+        <div style={{display: 'flex', alignItems: 'center', gap: 34, marginTop: 8}}>
+          <div style={{fontSize: 130, fontWeight: 900, lineHeight: 1}}><span style={{color: RED}}>120</span><span style={{opacity: 0.5}}>/</span><span style={{color: BLUE}}>80</span></div>
+          <div style={{fontSize: 38, fontWeight: 800, lineHeight: 1.35}}>
+            <div><span style={{color: RED}}>TOP</span> = heart <b>beats</b></div>
+            <div><span style={{color: BLUE}}>BOTTOM</span> = heart <b>rests</b></div>
+          </div>
+        </div>
+      </div>
+    </Pop>
+  );
+};
+const CAUSES = ['Stress', 'Poor sleep', 'Extra weight', 'Smoking', 'Alcohol', 'Family history'];
+const Causes: React.FC = () => {
+  const {t, active, dur} = useLocal(7);
+  if (!active) return null;
+  const at = Math.round(dur * 0.58);
+  if (t < at - 2) return null;
+  return (
+    <AbsoluteFill style={{fontFamily: FONT}}>
+      <Pop at={at} t={t} from="up" style={{position: 'absolute', left: 60, top: 620}}>
+        <div style={{...card, width: 960, padding: '22px 30px'}}>
+          <div style={{fontSize: 30, letterSpacing: 5, fontWeight: 700, color: ORANGE}}>NOT JUST SALT</div>
+          <div style={{display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 12}}>
+            {CAUSES.map((c, n) => {
+              const s = spring({frame: t - at - 8 - n * 7, fps: FPS, config: {damping: 14}});
+              return <div key={c} style={{fontSize: 40, fontWeight: 800, padding: '8px 22px', borderRadius: 30, border: `2px solid ${ORANGE}`,
+                opacity: s, transform: `scale(${0.7 + 0.3 * s})`}}>{c}</div>;
+            })}
+          </div>
+        </div>
+      </Pop>
+    </AbsoluteFill>
+  );
+};
 const Silent: React.FC = () => {
   const {t, active, dur} = useLocal(7);
   if (!active) return null;
   const txt = 'No pain. No warning.';
-  const n = Math.floor(interpolate(t, [Math.round(dur * 0.25), Math.round(dur * 0.55)], [0, txt.length], clamp));
-  const stampAt = Math.round(dur * 0.66);
+  const n = Math.floor(interpolate(t, [Math.round(dur * 0.14), Math.round(dur * 0.32)], [0, txt.length], clamp));
+  const stampAt = Math.round(dur * 0.42);
   const s = spring({frame: t - stampAt, fps: FPS, config: {damping: 9, stiffness: 200}});
   return (
     <AbsoluteFill style={{fontFamily: FONT}}>
@@ -279,7 +321,7 @@ const BP: React.FC<{i: number; fromV: [number, number]; toV: [number, number]; l
 // ---------- lines 9-10: checklist ----------
 const ITEMS: [number, number, string][] = [
   [9, 0.2, 'Less salt: max 1 tsp a day'], [9, 0.68, 'More fruits & vegetables'],
-  [10, 0.05, 'Walk every day'], [10, 0.3, 'No smoking, no alcohol'], [10, 0.62, 'Tablets as the doctor says'],
+  [10, 0.03, 'Walk every day'], [10, 0.2, 'Good sleep, less stress'], [10, 0.42, 'No smoking, no alcohol'], [10, 0.7, 'Tablets as the doctor says'],
 ];
 const Checklist: React.FC = () => {
   const f = useCurrentFrame();
@@ -309,23 +351,44 @@ const Checklist: React.FC = () => {
   );
 };
 
-// ---------- line 12: end card ----------
+// ---------- line 12: yearly check -> emergency signs -> end card ----------
+const SIGNS = ['Sudden severe headache', 'Chest pain', 'Weakness on one side'];
 const End: React.FC = () => {
-  const {t, active} = useLocal(12);
+  const {t, active, dur} = useLocal(12);
   if (!active) return null;
-  const dim = interpolate(t, [0, 20], [0, 0.55], clamp);
+  const p1 = Math.round(dur * 0.24), p2 = Math.round(dur * 0.74);
+  const dim = interpolate(t, [p2 - 4, p2 + 16], [0, 0.55], clamp);
   return (
     <AbsoluteFill style={{fontFamily: FONT}}>
       <AbsoluteFill style={{background: `rgba(4,6,12,${dim})`}} />
-      <Pop at={6} t={t} from="up" style={{position: 'absolute', width: '100%', top: 360, textAlign: 'center'}}>
-        <div style={{fontSize: 108, fontWeight: 900, color: 'white', lineHeight: 1.05}}>SILENT<br />PROBLEM.</div>
-      </Pop>
-      <Pop at={30} t={t} from="up" style={{position: 'absolute', width: '100%', top: 620, textAlign: 'center'}}>
-        <div style={{fontSize: 108, fontWeight: 900, color: GREEN, lineHeight: 1.05}}>SIMPLE<br />CHECK.</div>
-      </Pop>
-      <Pop at={60} t={t} style={{position: 'absolute', width: '100%', top: 900, textAlign: 'center'}}>
-        <div style={{display: 'inline-block', ...card, padding: '16px 36px', fontSize: 42, fontWeight: 800}}>Check your BP regularly</div>
-      </Pop>
+      {t < p1 + 4 && (
+        <Pop at={6} t={t} from="up" style={{position: 'absolute', left: 90, top: 300}}>
+          <div style={{...card, width: 900, padding: '26px 36px', textAlign: 'center'}}>
+            <div style={{fontSize: 34, letterSpacing: 5, fontWeight: 700, color: ORANGE}}>ABOVE 40?</div>
+            <div style={{fontSize: 70, fontWeight: 900}}>Check BP every year</div>
+          </div>
+        </Pop>
+      )}
+      {t >= p1 && t < p2 && (
+        <Pop at={p1} t={t} from="up" style={{position: 'absolute', left: 60, top: 260}}>
+          <div style={{...card, width: 960, padding: '26px 36px', borderColor: RED}}>
+            <div style={{fontSize: 40, fontWeight: 900, color: RED, letterSpacing: 2}}>GO TO HOSPITAL NOW IF:</div>
+            {SIGNS.map((x, n) => {
+              const s = spring({frame: t - p1 - 10 - n * 12, fps: FPS, config: {damping: 14}});
+              return <div key={x} style={{fontSize: 46, fontWeight: 800, margin: '12px 0', opacity: s, transform: `translateX(${(1 - s) * 60}px)`}}>
+                <span style={{color: RED}}>!</span>&nbsp; {x}</div>;
+            })}
+          </div>
+        </Pop>
+      )}
+      {t >= p2 - 2 && (<>
+        <Pop at={p2} t={t} from="up" style={{position: 'absolute', width: '100%', top: 360, textAlign: 'center'}}>
+          <div style={{fontSize: 108, fontWeight: 900, color: 'white', lineHeight: 1.05}}>SILENT<br />PROBLEM.</div>
+        </Pop>
+        <Pop at={p2 + 18} t={t} from="up" style={{position: 'absolute', width: '100%', top: 620, textAlign: 'center'}}>
+          <div style={{fontSize: 108, fontWeight: 900, color: GREEN, lineHeight: 1.05}}>SIMPLE<br />CHECK.</div>
+        </Pop>
+      </>)}
       <div style={{position: 'absolute', bottom: 70, width: '100%', textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: 22, padding: '0 60px'}}>
         3D anatomy: Z-Anatomy (CC BY-SA 4.0), based on BodyParts3D © DBCLS (CC BY-SA 2.1 JP). General awareness, not medical advice.
       </div>
@@ -342,13 +405,15 @@ export const Main: React.FC<{bg: string; audio: string; preview: boolean}> = ({b
       <Journey />
       <SaltWater />
       <Push />
+      <Numbers />
       <Station i={3} stop="STOP 1" name="HEART" color={RED} sub="pumps harder, every beat" />
       <Station i={4} stop="STOP 2" name="KIDNEYS" color={BLUE} sub="can't keep up with the salt" />
       <Years />
       <Station i={6} stop="STOP 3" name="BRAIN" color={ORANGE} sub="weak, narrow tubes" />
       <Stroke />
       <Silent />
-      <BP i={8} fromV={[0, 0]} toV={[150, 95]} label="TOO HIGH" color={RED} note="Normal: below 120/80" />
+      <Causes />
+      <BP i={8} fromV={[0, 0]} toV={[150, 95]} label="TOO HIGH" color={RED} note="High = 140/90 or more" />
       <Checklist />
       <BP i={11} fromV={[150, 95]} toV={[120, 80]} label="MUCH BETTER" color={GREEN} note="A few months later" />
       <End />

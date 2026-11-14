@@ -107,5 +107,72 @@ def load(kind, size, loc, name=None):
     return root
 
 
+LIMB_WORDS = ('brachial', 'radial', 'ulnar', 'palmar', 'digital', 'femoral', 'tibial', 'plantar', 'popliteal', 'genicular', 'fibular',
+              'peroneal', 'tarsal', 'metatarsal', 'carpal', 'interosseous', 'axillary', 'circumflex humeral', 'collateral', 'recurrent',
+              'dorsalis pedis', 'arcuate', 'sural', 'malleolar', 'calcaneal', 'penis', 'scrotal', 'perineal')
+
+
+def load_native(kind, name):
+    """Import organs in Z-Anatomy's native, life-size body coordinates (metres, front = -Y). Returns (root empty, meshes)."""
+    sc = bpy.context.scene
+    if kind == 'heart':
+        new = _import('CardioVascular41.fbx')
+        keep = [o for o in new if o.type == 'MESH' and not o.name.endswith('.j') and any(o.name.startswith(k) for k in HEART_KEEP[:4])]
+        m = _mat(name + '_muscle', (0.42, 0.04, 0.04), 0.32, 0.35); pick = lambda o: m
+    elif kind == 'arteries':
+        new = _import('CardioVascular41.fbx')
+        keep = []
+        for o in new:
+            n = o.name.lower()
+            if o.type != 'MESH' or o.name.endswith('.j') or not ('arter' in n or 'aort' in n or 'trunk' in n): continue
+            if any(w in n for w in LIMB_WORDS) or 'pulmonary' in n or 'lung' in n: continue
+            keep.append(o)
+        m = _mat(name + '_wall', (0.75, 0.06, 0.04), 0.3, 0.25); pick = lambda o: m
+    elif kind == 'kidneys':
+        new = _import('VisceralSystem100.fbx')
+        keep = [o for o in new if o.type == 'MESH' and o.name in ('Kidney.l', 'Kidney.r')]
+        m = _mat(name + '_tissue', (0.42, 0.08, 0.06), 0.35, 0.3); pick = lambda o: m
+    elif kind == 'brain':
+        new = _import('NervousSystem100.fbx')
+        keep = []
+        for g in ('Cerebrum.g', 'Cerebellum.g', 'Brainstem.g'):
+            if g in bpy.data.objects:
+                keep += [d for d in _desc(bpy.data.objects[g]) if d.type == 'MESH' and len(d.data.vertices) > 200]
+        m = _mat(name + '_tissue', (0.78, 0.5, 0.48), 0.45, 0.3); pick = lambda o: m
+    elif kind == 'eyes':
+        new = _import('NervousSystem100.fbx')
+        keep = [d for d in _desc(bpy.data.objects['Eyeball.g']) if d.type == 'MESH' and len(d.data.vertices) > 200] \
+            if 'Eyeball.g' in bpy.data.objects else []
+        M = dict(scl=_mat(name + '_sclera', (0.9, 0.88, 0.85), 0.2, 0.1), iris=_mat(name + '_iris', (0.22, 0.12, 0.05), 0.3, 0.0),
+                 ret=_mat(name + '_retina', (0.6, 0.12, 0.1), 0.5, 0.0))
+        def pick(o):
+            n = o.name.lower()
+            if 'iris' in n: return M['iris']
+            if 'retina' in n or 'posterior segment' in n: return M['ret']
+            return M['scl']
+        keep = [o for o in keep if not any(k in o.name.lower() for k in ('cornea', 'lens', 'chamber', 'vitreous', 'zonular', 'anterior segment'))]
+    else:
+        raise ValueError(kind)
+    bpy.context.view_layer.update()
+    keepset = set(keep)
+    for o in keep:
+        mw = o.matrix_world.copy(); o.parent = None; o.matrix_world = mw
+    for o in new:
+        if o not in keepset: bpy.data.objects.remove(o, do_unlink=True)
+    root = bpy.data.objects.new(name, None); sc.collection.objects.link(root)
+    for o in keep:
+        o.data.materials.clear(); o.data.materials.append(pick(o))
+        o.data.polygons.foreach_set('use_smooth', [True] * len(o.data.polygons))
+        o.parent = root; o.name = name + '_' + o.name
+    bpy.context.view_layer.update()
+    return root, keep
+
+
+def centre(objs):
+    pts = [o.matrix_world @ Vector(c) for o in objs for c in o.bound_box]
+    mn = Vector([min(p[i] for p in pts) for i in range(3)]); mx = Vector([max(p[i] for p in pts) for i in range(3)])
+    return (mn + mx) / 2, mx - mn
+
+
 def meshes(root):
     return [d for d in _desc(root) if d.type == 'MESH']
