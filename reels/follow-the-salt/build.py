@@ -307,7 +307,8 @@ def xray_keys(sock):
     for f, v in ((1, 0), (X_ON0, 0), (X_ON1, 1), (X_OFF0, 1), (X_OFF1, 0)):
         sock.default_value = v; sock.keyframe_insert('default_value', frame=f)
 xmats = set()
-for o in [o for o in bpy.data.objects if o.name.startswith('raju_body')]:
+FACE_PARTS = ('raju_body.teeth_base', 'raju_body.high-poly', 'raju_body.eyelashes02', 'raju_body.eyebrow006')
+for o in [o for o in bpy.data.objects if o.name.startswith('raju_body') and o.name not in FACE_PARTS]:
     for slot in o.material_slots:
         m = slot.material
         if not m or m.name in xmats or not m.use_nodes: continue
