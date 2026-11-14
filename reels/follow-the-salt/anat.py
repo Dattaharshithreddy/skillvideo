@@ -118,27 +118,32 @@ def load_native(kind, name):
     if kind == 'heart':
         new = _import('CardioVascular41.fbx')
         keep = [o for o in new if o.type == 'MESH' and not o.name.endswith('.j') and any(o.name.startswith(k) for k in HEART_KEEP[:4])]
-        m = _mat(name + '_muscle', (0.42, 0.04, 0.04), 0.32, 0.35); pick = lambda o: m
+        m = _mat(name + '_muscle', (0.32, 0.015, 0.015), 0.32, 0.35); pick = lambda o: m
     elif kind == 'arteries':
         new = _import('CardioVascular41.fbx')
         keep = []
+        MAJOR = ('aorta', 'aortic', 'carotid', 'subclavian', 'brachiocephalic', 'renal artery', 'common iliac', 'external iliac',
+                 'internal iliac', 'coronary', 'vertebral artery', 'basilar', 'middle cerebral', 'anterior cerebral', 'posterior cerebral',
+                 'celiac', 'superior mesenteric', 'internal thoracic')
+        bpy.context.view_layer.update()
         for o in new:
             n = o.name.lower()
             if o.type != 'MESH' or o.name.endswith('.j') or not ('arter' in n or 'aort' in n or 'trunk' in n): continue
-            if any(w in n for w in LIMB_WORDS) or 'pulmonary' in n or 'lung' in n: continue
+            if any(w in n for w in LIMB_WORDS) or 'pulmonary' in n or 'lung' in n or 'branch' in n: continue
+            if not any(k in n for k in MAJOR) and max(centre([o])[1]) < 0.12: continue
             keep.append(o)
-        m = _mat(name + '_wall', (0.75, 0.06, 0.04), 0.3, 0.25); pick = lambda o: m
+        m = _mat(name + '_wall', (0.55, 0.02, 0.015), 0.3, 0.25); pick = lambda o: m
     elif kind == 'kidneys':
         new = _import('VisceralSystem100.fbx')
         keep = [o for o in new if o.type == 'MESH' and o.name in ('Kidney.l', 'Kidney.r')]
-        m = _mat(name + '_tissue', (0.42, 0.08, 0.06), 0.35, 0.3); pick = lambda o: m
+        m = _mat(name + '_tissue', (0.3, 0.04, 0.03), 0.35, 0.3); pick = lambda o: m
     elif kind == 'brain':
         new = _import('NervousSystem100.fbx')
         keep = []
         for g in ('Cerebrum.g', 'Cerebellum.g', 'Brainstem.g'):
             if g in bpy.data.objects:
                 keep += [d for d in _desc(bpy.data.objects[g]) if d.type == 'MESH' and len(d.data.vertices) > 200]
-        m = _mat(name + '_tissue', (0.78, 0.5, 0.48), 0.45, 0.3); pick = lambda o: m
+        m = _mat(name + '_tissue', (0.62, 0.32, 0.32), 0.45, 0.3); pick = lambda o: m
     elif kind == 'eyes':
         new = _import('NervousSystem100.fbx')
         keep = [d for d in _desc(bpy.data.objects['Eyeball.g']) if d.type == 'MESH' and len(d.data.vertices) > 200] \

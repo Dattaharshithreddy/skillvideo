@@ -159,7 +159,7 @@ M = dict(
     tube=mat('tube', (1.0, 0.42, 0.42), 0.12, trans=0.85, emit=(1.0, 0.15, 0.1), estr=0.15),
     rbc=mat('rbc', (0.6, 0.02, 0.03), 0.35, sss=0.3), water=mat('water', (0.45, 0.75, 1.0), 0.03, trans=1.0, emit=(0.3, 0.6, 1), estr=0.4),
     crystal=mat('crystal', (1, 1, 1), 0.15, trans=0.5, emit=(1, 1, 1), estr=0.6),
-    plaque=mat('plaque', (0.95, 0.78, 0.35), 0.55, sss=0.2),
+    plaque=mat('plaque', (0.85, 0.6, 0.12), 0.55, sss=0.2),
     ped=mat('pedestal', (0.04, 0.05, 0.08), 0.2, 0.6), ring=mat('ring', (0.3, 0.6, 1), 0.3, emit=(0.25, 0.55, 1.0), estr=6),
     burst=mat('burst', (1, 0.1, 0.05), 0.4, emit=(1, 0.08, 0.03), estr=0.0),
 )
@@ -317,12 +317,14 @@ for o in [o for o in bpy.data.objects if o.name.startswith('raju_body')]:
         if not outn or not outn.inputs['Surface'].links: continue
         src = outn.inputs['Surface'].links[0].from_socket
         mix = nt.nodes.new('ShaderNodeMixShader'); tr = nt.nodes.new('ShaderNodeBsdfTransparent'); em = nt.nodes.new('ShaderNodeEmission')
-        add = nt.nodes.new('ShaderNodeAddShader'); lw = nt.nodes.new('ShaderNodeLayerWeight'); mul = nt.nodes.new('ShaderNodeMath')
-        lw.inputs['Blend'].default_value = 0.35; mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = 2.2
-        em.inputs['Color'].default_value = (0.35, 0.75, 1.0, 1)
-        nt.links.new(lw.outputs['Facing'], mul.inputs[0]); nt.links.new(mul.outputs[0], em.inputs['Strength'])
-        nt.links.new(tr.outputs[0], add.inputs[0]); nt.links.new(em.outputs[0], add.inputs[1])
-        nt.links.new(src, mix.inputs[1]); nt.links.new(add.outputs[0], mix.inputs[2]); nt.links.new(mix.outputs[0], outn.inputs['Surface'])
+        shell = nt.nodes.new('ShaderNodeMixShader'); lw = nt.nodes.new('ShaderNodeLayerWeight'); mr = nt.nodes.new('ShaderNodeMapRange')
+        lw.inputs['Blend'].default_value = 0.45
+        mr.inputs['From Min'].default_value = 0.0; mr.inputs['From Max'].default_value = 1.0
+        mr.inputs['To Min'].default_value = 0.10; mr.inputs['To Max'].default_value = 0.85
+        em.inputs['Color'].default_value = (0.25, 0.65, 1.0, 1); em.inputs['Strength'].default_value = 2.5
+        nt.links.new(lw.outputs['Facing'], mr.inputs['Value']); nt.links.new(mr.outputs['Result'], shell.inputs['Fac'])
+        nt.links.new(tr.outputs[0], shell.inputs[1]); nt.links.new(em.outputs[0], shell.inputs[2])
+        nt.links.new(src, mix.inputs[1]); nt.links.new(shell.outputs[0], mix.inputs[2]); nt.links.new(mix.outputs[0], outn.inputs['Surface'])
         xray_keys(mix.inputs['Fac'])
         try: m.surface_render_method = 'DITHERED'
         except Exception: pass
@@ -332,16 +334,20 @@ for o in ORG: show(o, [(X_ON0, X_OFF1 + 1)])
 def light_ramp(l, base, pairs):
     for f, k in pairs:
         l.data.energy = base * k; l.data.keyframe_insert('energy', frame=f)
-for i, (p, e) in enumerate([(HC, 40), (KC, 30), (BC, 40)]):
+for i, (p, e) in enumerate([(HC, 10), (KC, 8), (BC, 10)]):
     area(f'in_key{i}', p + Vector((-0.5, -0.9, 0.5)), p, e, 0.6, (1, 0.92, 0.88), 'in')
     area(f'in_rim{i}', p + Vector((0.6, 0.6, 0.3)), p, e * 0.8, 0.5, (0.45, 0.65, 1), 'in')
-for l in LIGHTS['out']: light_ramp(l, l.data.energy, [(1, 1), (X_ON0, 1), (X_ON1, 0.18), (X_OFF0, 0.18), (X_OFF1, 1)])
+for l in LIGHTS['out']: light_ramp(l, l.data.energy, [(1, 1), (X_ON0, 1), (X_ON1, 0.03), (X_OFF0, 0.03), (X_OFF1, 1)])
+for mname in ('wall', 'wood', 'table', 'cloth'):
+    bb = bsdf(M[mname]); base_c = tuple(bb.inputs['Base Color'].default_value)
+    for f, c_ in ((1, base_c), (X_ON0, base_c), (X_ON1, (0.004, 0.006, 0.012, 1)), (X_OFF0, (0.004, 0.006, 0.012, 1)), (X_OFF1, base_c)):
+        bb.inputs['Base Color'].default_value = c_; bb.inputs['Base Color'].keyframe_insert('default_value', frame=f)
 for l in LIGHTS['in']: light_ramp(l, l.data.energy, [(1, 0), (X_ON0, 0), (X_ON1, 1), (X_OFF0, 1), (X_OFF1, 0)])
 
 # ---- organ glow (alive) ----
 for m in {s.material for o in ORG for s in o.material_slots if s.material}:
     b = bsdf(m); b.inputs['Emission Color'].default_value = (*tuple(b.inputs['Base Color'].default_value)[:3], 1)
-    for f, v in ((1, 0.0), (X_ON0, 0.0), (X_ON1, 0.35), (X_OFF0, 0.35), (X_OFF1, 0.0)):
+    for f, v in ((1, 0.0), (X_ON0, 0.0), (X_ON1, 0.12), (X_OFF0, 0.12), (X_OFF1, 0.0)):
         b.inputs['Emission Strength'].default_value = v; b.inputs['Emission Strength'].keyframe_insert('default_value', frame=f)
 WALL = bsdf(art_m[0].material_slots[0].material)
 
@@ -356,7 +362,7 @@ for f in ALLFR:
 for fc in fcurves(heart):
     for kp in fc.keyframe_points: kp.interpolation = 'LINEAR'
 # vessel walls harden on line 6: red -> yellowish, rougher
-for f, col, rough in ((1, (0.75, 0.06, 0.04), 0.3), (S(6)[0], (0.75, 0.06, 0.04), 0.3), (S(6)[1], (0.85, 0.62, 0.3), 0.6)):
+for f, col, rough in ((1, (0.55, 0.02, 0.015), 0.3), (S(6)[0], (0.55, 0.02, 0.015), 0.3), (S(6)[1], (0.7, 0.45, 0.12), 0.6)):
     WALL.inputs['Base Color'].default_value = (*col, 1); WALL.inputs['Base Color'].keyframe_insert('default_value', frame=f)
     WALL.inputs['Emission Color'].default_value = (*col, 1); WALL.inputs['Emission Color'].keyframe_insert('default_value', frame=f)
     WALL.inputs['Roughness'].default_value = rough; WALL.inputs['Roughness'].keyframe_insert('default_value', frame=f)
@@ -405,7 +411,7 @@ flowers('bsalt', broute, 30, lambda i: box(f'bsalt{i}', (0, 0, 0), (0.004, 0.004
 for i in range(16):
     t_ = i / 15
     p0 = AO_T.lerp(AO_A, t_) + Vector((random.uniform(-0.008, 0.008), random.uniform(-0.012, -0.004), random.uniform(-0.01, 0.01)))
-    p_ = sphere(f'plaque{i}', p0, 0.006, M['plaque'], scale=(1.3, 0.7, 1.6), seg=16, ring=8)
+    p_ = sphere(f'plaque{i}', p0, 0.0028, M['plaque'], scale=(1.3, 0.7, 1.6), seg=16, ring=8)
     base = tuple(p_.scale); p_.scale = (0, 0, 0); p_.keyframe_insert('scale', frame=1); p_.keyframe_insert('scale', frame=S(6)[0] + i * 4)
     p_.scale = base; p_.keyframe_insert('scale', frame=S(6)[0] + 40 + i * 4)
     p_.scale = (0, 0, 0); p_.keyframe_insert('scale', frame=X_OFF1 + 1); interp(p_, 'scale', 'CONSTANT', {X_OFF1 + 1})
@@ -499,19 +505,19 @@ V3 = Vector
 K(S(1)[0], P(1.6, -2.6, 1.7), P(-0.1, 0.1, 1.0), 4.0, 32, True)
 K(frac(1, 0.45), P(0.9, -1.8, 1.45), RL + V3((0.15, 0, 1.15)), 3.5, 32)
 K(frac(1, 0.72), RL + V3((0.35, -1.3, 1.3)), HC + V3((0, 0, -0.05)), 4.0, 35)
-K(S(1)[1], HC + V3((0.12, -0.62, 0.0)), HC + V3((0, 0, -0.06)), 5.6, 35)
-K(S(2)[1], HC + V3((0.05, -0.44, -0.02)), HC + V3((0, 0, -0.06)), 5.6, 35)
-K(frac(3, 0.5), HC + V3((-0.12, -0.40, 0.02)), HC + V3((0, 0, -0.01)), 5.6, 35)
-K(S(3)[1], HC + V3((-0.05, -0.36, 0.02)), HC, 5.6, 38)
-K(S(4)[0] + 15, HC + V3((0.08, -0.30, 0.03)), HC, 6.3, 40)
-K(S(4)[1], HC + V3((0.12, -0.26, 0.04)), HC, 6.3, 42)
-K(frac(5, 0.25), KC + V3((0.15, -0.55, 0.08)), KC, 5.6, 35)
-K(S(5)[1], KC + V3((0.10, -0.45, 0.05)), KC, 5.6, 36)
+K(S(1)[1], HC + V3((0.15, -0.95, 0.0)), HC + V3((0, 0, -0.08)), 5.6, 35)
+K(S(2)[1], HC + V3((0.08, -0.78, -0.04)), HC + V3((0, 0, -0.08)), 5.6, 35)
+K(frac(3, 0.5), HC + V3((-0.15, -0.66, 0.02)), HC + V3((0, 0, -0.03)), 5.6, 35)
+K(S(3)[1], HC + V3((-0.06, -0.56, 0.02)), HC, 5.6, 38)
+K(S(4)[0] + 15, HC + V3((0.08, -0.40, 0.03)), HC, 6.3, 40)
+K(S(4)[1], HC + V3((0.12, -0.34, 0.04)), HC, 6.3, 42)
+K(frac(5, 0.25), KC + V3((0.18, -0.72, 0.08)), KC, 5.6, 35)
+K(S(5)[1], KC + V3((0.12, -0.6, 0.05)), KC, 5.6, 36)
 K(frac(6, 0.2), AO_A + V3((0.12, -0.35, 0.05)), AO_T.lerp(AO_A, 0.5), 6.3, 40)
 K(S(6)[1], AO_A + V3((0.08, -0.28, 0.08)), AO_T.lerp(AO_A, 0.5), 6.3, 42)
-K(frac(7, 0.15), BC + V3((0.35, -0.45, 0.02)), BC, 5.6, 35)
-K(frac(7, 0.62), BC + V3((0.25, -0.40, 0.0)), BC, 5.6, 36)
-K(S(7)[1], EC + V3((0.10, -0.28, 0.0)), EC, 5.6, 40)
+K(frac(7, 0.15), BC + V3((0.42, -0.6, 0.0)), BC + V3((0, 0, -0.03)), 5.6, 35)
+K(frac(7, 0.62), BC + V3((0.3, -0.52, 0.0)), BC + V3((0, 0, -0.03)), 5.6, 36)
+K(S(7)[1], EC + V3((0.12, -0.38, 0.0)), EC, 5.6, 40)
 K(frac(8, 0.08), EC + V3((0.15, -0.45, -0.05)), EC + V3((0, 0, -0.1)), 4.5, 38)
 K(frac(8, 0.4), RL + V3((0.6, -1.7, 1.4)), RL + V3((0, 0, 1.25)), 3.5, 35)
 K(S(8)[1], RL + V3((0.95, -2.1, 1.55)), RL + V3((0, 0, 1.2)), 3.5, 35)
