@@ -1,0 +1,142 @@
+{
+ "gap": 0.35,
+ "font": "Poppins",
+ "fontsize": 112,
+ "lines": [
+  {
+   "text": "ఈయన రాజు గారు. ఆయనకి ఉప్పు అంటే చాలా ఇష్టం. పచ్చడి, అప్పడం, చిప్స్. ఆ ఉప్పు ఎక్కడికి వెళ్తుందో చూద్దాం.",
+   "keywords": [
+    "ఉప్పు",
+    "చూద్దాం."
+   ],
+   "audio": "audio_te/l01.wav",
+   "roman": "This is Raju garu. He loves extra salt. Pickle, papad, chips. Let's follow that salt.",
+   "tts": "ఈయన రాజు గారు. ఆయనకి ఉప్పు అంటే చాలా ఇష్టం. పచ్చడి, అప్పడం, చిప్స్. ఆ ఉప్పు ఎక్కడికి వెళ్తుందో చూద్దాం."
+  },
+  {
+   "text": "ఉప్పు రక్తంలోకి వెళ్తుంది. ఉప్పు తనతో పాటు నీటిని కూడా లాగుతుంది.",
+   "keywords": [
+    "రక్తంలోకి",
+    "నీటిని"
+   ],
+   "audio": "audio_te/l02.wav",
+   "roman": "The salt goes into his blood. And salt pulls water along with it.",
+   "tts": "ఉప్పు రక్తంలోకి వెళ్తుంది. ఉప్పు తనతో పాటు నీటిని కూడా లాగుతుంది."
+  },
+  {
+   "text": "రక్తంలో నీరు ఎక్కువైతే, రక్తనాళాల గోడల మీద ఒత్తిడి పెరుగుతుంది. ఆ ఒత్తిడే బ్లడ్ ప్రెషర్.",
+   "keywords": [
+    "ఒత్తిడి",
+    "ప్రెషర్."
+   ],
+   "audio": "audio_te/l03.wav",
+   "roman": "More water in the blood means more push on the walls of his blood tubes. That push is blood pressure.",
+   "tts": "రక్తంలో నీరు ఎక్కువైతే, రక్తనాళాల గోడల మీద ఒత్తిడి పెరుగుతుంది. ఆ ఒత్తిడే బ్లడ్ ప్రెషర్."
+  },
+  {
+   "text": "మొదటి స్టాప్, గుండె. ప్రెషర్ ఎక్కువైతే, ప్రతి బీట్ కి గుండె ఇంకా గట్టిగా పంప్ చేయాలి.",
+   "keywords": [
+    "గుండె.",
+    "గట్టిగా"
+   ],
+   "audio": "audio_te/l04.wav",
+   "roman": "First stop, the heart. With more pressure, it has to pump harder, every single beat.",
+   "tts": "మొదటి స్టాప్, గుండె. ప్రెషర్ ఎక్కువైతే, ప్రతి బీట్ కి గుండె ఇంకా గట్టిగా పంప్ చేయాలి."
+  },
+  {
+   "text": "తర్వాత స్టాప్, కిడ్నీలు. ఎక్కువైన ఉప్పుని, నీటిని బయటకి పంపడానికి ప్రయత్నిస్తాయి. కానీ రోజూ ఇంకా ఉప్పు వస్తూనే ఉంటుంది.",
+   "keywords": [
+    "కిడ్నీలు.",
+    "ఉప్పు"
+   ],
+   "audio": "audio_te/l05.wav",
+   "roman": "Next stop, the kidneys. They try to throw out the extra salt and water. But every day, more salt keeps coming.",
+   "tts": "తర్వాత స్టాప్, కిడ్నీలు. ఎక్కువైన ఉప్పుని, నీటిని బయటకి పంపడానికి ప్రయత్నిస్తాయి. కానీ రోజూ ఇంకా ఉప్పు వస్తూనే ఉంటుంది."
+  },
+  {
+   "text": "సంవత్సరాలు గడిచేకొద్దీ, ఈ ఒత్తిడి రక్తనాళాలని దెబ్బతీస్తుంది. అవి గట్టిగా, సన్నగా మారిపోతాయి.",
+   "keywords": [
+    "దెబ్బతీస్తుంది.",
+    "సన్నగా"
+   ],
+   "audio": "audio_te/l06.wav",
+   "roman": "Year after year, the strong push hurts the tubes. They turn hard and narrow.",
+   "tts": "సంవత్సరాలు గడిచేకొద్దీ, ఈ ఒత్తిడి రక్తనాళాలని దెబ్బతీస్తుంది. అవి గట్టిగా, సన్నగా మారిపోతాయి."
+  },
+  {
+   "text": "చివరి స్టాప్, మెదడు. ఇక్కడ బలహీనమైన రక్తనాళం మూసుకుపోవచ్చు, లేదా పగిలిపోవచ్చు. అదే స్ట్రోక్. కళ్ళు కూడా దెబ్బతినొచ్చు.",
+   "keywords": [
+    "మెదడు.",
+    "స్ట్రోక్.",
+    "కళ్ళు"
+   ],
+   "audio": "audio_te/l07.wav",
+   "roman": "Last stop, the brain. A weak, narrow tube here can block or burst. That is a stroke. The eyes can be damaged too.",
+   "tts": "చివరి స్టాప్, మెదడు. ఇక్కడ బలహీనమైన రక్తనాళం మూసుకుపోవచ్చు, లేదా పగిలిపోవచ్చు. అదే స్ట్రోక్. కళ్ళు కూడా దెబ్బతినొచ్చు."
+  },
+  {
+   "text": "మరి రాజు గారు? ఆయనకి ఏమీ తెలియదు. నొప్పి లేదు. హెచ్చరిక లేదు. అందుకే దీన్ని సైలెంట్ కిల్లర్ అంటారు.",
+   "keywords": [
+    "నొప్పి",
+    "సైలెంట్",
+    "కిల్లర్"
+   ],
+   "audio": "audio_te/l08.wav",
+   "roman": "And Raju garu? He feels perfectly fine. No pain. No warning. That is why it is called the silent killer.",
+   "tts": "మరి రాజు గారు? ఆయనకి ఏమీ తెలియదు. నొప్పి లేదు. హెచ్చరిక లేదు. అందుకే దీన్ని సైలెంట్ కిల్లర్ అంటారు."
+  },
+  {
+   "text": "ఒక రోజు, ఆయన బీపీ చెక్ చేసుకున్నారు. నూట యాభై బై తొంభై ఐదు. చాలా ఎక్కువ.",
+   "keywords": [
+    "బీపీ",
+    "ఎక్కువ."
+   ],
+   "audio": "audio_te/l09.wav",
+   "roman": "One day, he checks his blood pressure. One fifty over ninety five. Too high.",
+   "tts": "ఒక రోజు, ఆయన బీపీ చెక్ చేసుకున్నారు. నూట యాభై బై తొంభై ఐదు. చాలా ఎక్కువ."
+  },
+  {
+   "text": "అందుకే ఆయన భోజనం మార్చుకున్నారు. ఉప్పు తక్కువ, రోజుకి ఒక చిన్న టీస్పూన్ కంటే ఎక్కువ కాదు. పండ్లు, కూరగాయలు ఎక్కువ.",
+   "keywords": [
+    "ఉప్పు",
+    "టీస్పూన్",
+    "పండ్లు,"
+   ],
+   "audio": "audio_te/l10.wav",
+   "roman": "So he changes his plate. Less salt, not more than one small teaspoon a day. More fruits and vegetables.",
+   "tts": "అందుకే ఆయన భోజనం మార్చుకున్నారు. ఉప్పు తక్కువ, రోజుకి ఒక చిన్న టీస్పూన్ కంటే ఎక్కువ కాదు. పండ్లు, కూరగాయలు ఎక్కువ."
+  },
+  {
+   "text": "రోజూ నడుస్తారు. సిగరెట్, మందుకి దూరంగా ఉంటారు. డాక్టర్ చెప్పినట్టే టాబ్లెట్లు వేసుకుంటారు.",
+   "keywords": [
+    "నడుస్తారు.",
+    "టాబ్లెట్లు"
+   ],
+   "audio": "audio_te/l11.wav",
+   "roman": "He walks every day, and stays away from smoking and alcohol. He takes his tablets, just as his doctor says.",
+   "tts": "రోజూ నడుస్తారు. సిగరెట్, మందుకి దూరంగా ఉంటారు. డాక్టర్ చెప్పినట్టే టాబ్లెట్లు వేసుకుంటారు."
+  },
+  {
+   "text": "కొన్ని నెలల తర్వాత. నూట ఇరవై బై ఎనభై.",
+   "keywords": [
+    "ఇరవై",
+    "ఎనభై."
+   ],
+   "audio": "audio_te/l12.wav",
+   "roman": "A few months later. One twenty over eighty.",
+   "tts": "కొన్ని నెలల తర్వాత. నూట ఇరవై బై ఎనభై."
+  },
+  {
+   "text": "హై బీపీ ఎలాంటి హెచ్చరిక ఇవ్వదు. అందుకే మీ బీపీని తరచుగా చెక్ చేసుకోండి. సైలెంట్ సమస్య, సింపుల్ చెక్.",
+   "keywords": [
+    "చెక్",
+    "సైలెంట్",
+    "సింపుల్"
+   ],
+   "audio": "audio_te/l13.wav",
+   "roman": "High blood pressure gives no warning. So check yours regularly. Silent problem, simple check.",
+   "tts": "హై బీపీ ఎలాంటి హెచ్చరిక ఇవ్వదు. అందుకే మీ బీపీని తరచుగా చెక్ చేసుకోండి. సైలెంట్ సమస్య, సింపుల్ చెక్."
+  }
+ ],
+ "lang": "te"
+}

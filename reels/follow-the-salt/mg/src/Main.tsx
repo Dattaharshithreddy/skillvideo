@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, OffthreadVideo, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig, Easing} from 'remotion';
 import timing from './timing.json';
 
-const FONT = 'Poppins, "DejaVu Sans", Arial, sans-serif';
+const FONT = 'Poppins, "Noto Sans Telugu", "DejaVu Sans", Arial, sans-serif';
 
 const FPS = 30;
 const ORANGE = '#FF8A1F';
@@ -61,8 +61,8 @@ const Captions: React.FC = () => {
         const t = f - c.s * FPS;
         const sc = interpolate(t, [0, 4], [0.82, 1], {...clamp, easing: ease});
         return (
-          <div style={{position: 'absolute', top: 1180, width: '100%', textAlign: 'center', fontFamily: FONT, fontWeight: 900, fontSize: 96,
-            lineHeight: 1.08, color: 'white', transform: `scale(${sc})`, padding: '0 70px',
+          <div style={{position: 'absolute', top: 1180, width: '100%', textAlign: 'center', fontFamily: FONT, fontWeight: 900, fontSize: /[\u0C00-\u0C7F]/.test(c.words.join('')) ? 82 : 96,
+            lineHeight: /[\u0C00-\u0C7F]/.test(c.words.join('')) ? 1.4 : 1.08, color: 'white', transform: `scale(${sc})`, padding: '0 70px',
             textShadow: '0 6px 0 rgba(0,0,0,0.55), 0 0 26px rgba(0,0,0,0.6)', WebkitTextStroke: '3px rgba(0,0,0,0.85)', paintOrder: 'stroke fill'}}>
             {c.words.map((wd, n) => (
               <span key={n} style={{color: k.includes(wd.toLowerCase().replace(/[?.!,]/g, '')) ? ORANGE : 'white'}}>{wd}{n < c.words.length - 1 ? ' ' : ''}</span>

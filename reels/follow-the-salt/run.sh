@@ -31,6 +31,6 @@ if [[ $stage == mg || $stage == all ]]; then
   log mg; python3 timing.py; cp out/bg.mp4 mg/public/bg.mp4 2>/dev/null || (mkdir -p mg/public && cp out/bg.mp4 mg/public/); cp out/narration.wav mg/public/
   (cd mg && npx remotion render src/index.ts Main out/final.mp4 --concurrency=4 --log=error)
   cp mg/out/final.mp4 out/final.mp4
-  aws s3 cp out/final.mp4 s3://claude-reels-730335199669/reels/follow-the-salt.mp4 --region ap-south-1 >/dev/null
+  aws s3 cp out/final.mp4 s3://claude-reels-730335199669/reels/${OUTKEY:-follow-the-salt.mp4} --region ap-south-1 >/dev/null
   log done
 fi
