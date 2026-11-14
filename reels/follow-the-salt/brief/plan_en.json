@@ -1,0 +1,143 @@
+{
+ "gap": 0.35,
+ "font": "Poppins",
+ "fontsize": 112,
+ "lines": [
+  {
+   "text": "This is Raju garu. He loves extra salt. Even when the curry has enough... he adds a little more on top. So what does that salt do inside his body? Let's follow it.",
+   "keywords": [
+    "salt.",
+    "follow"
+   ],
+   "audio": "audio_en/l01.wav",
+   "roman": "This is Raju garu. He loves extra salt. Pickle, papad, chips. Let's follow that salt.",
+   "tts": "This is Raju garu. He loves extra salt. Even when the curry has enough... he adds a little more on top. So what does that salt do inside his body? Let's follow it."
+  },
+  {
+   "text": "The salt goes straight into his blood. And here's the twist. Wherever salt goes, water follows.",
+   "keywords": [
+    "blood.",
+    "twist.",
+    "water"
+   ],
+   "audio": "audio_en/l02.wav",
+   "roman": "The salt goes into his blood. And salt pulls water along with it.",
+   "tts": "The salt goes straight into his blood. And here's the twist. Wherever salt goes, water follows."
+  },
+  {
+   "text": "So now there's more water in his blood. More water in a pipe means more pressure, right? Same inside our blood vessels. That pressure... is blood pressure.",
+   "keywords": [
+    "pressure,",
+    "pressure."
+   ],
+   "audio": "audio_en/l03.wav",
+   "roman": "More water in the blood means more push on the walls of his blood tubes. That push is blood pressure.",
+   "tts": "So now there's more water in his blood. More water in a pipe means more pressure, right? Same inside our blood vessels. That pressure... is blood pressure."
+  },
+  {
+   "text": "First stop... the heart. To push blood against all that pressure, his heart has to pump harder. Every single beat.",
+   "keywords": [
+    "heart.",
+    "harder."
+   ],
+   "audio": "audio_en/l04.wav",
+   "roman": "First stop, the heart. With more pressure, it has to pump harder, every single beat.",
+   "tts": "First stop... the heart. To push blood against all that pressure, his heart has to pump harder. Every single beat."
+  },
+  {
+   "text": "Next stop... the kidneys. They try to throw out the extra salt and water. But when more salt keeps coming every day... even they get tired.",
+   "keywords": [
+    "kidneys.",
+    "tired."
+   ],
+   "audio": "audio_en/l05.wav",
+   "roman": "Next stop, the kidneys. They try to throw out the extra salt and water. But every day, more salt keeps coming.",
+   "tts": "Next stop... the kidneys. They try to throw out the extra salt and water. But when more salt keeps coming every day... even they get tired."
+  },
+  {
+   "text": "Year after year... that strong push damages the blood vessels. They turn hard... and narrow.",
+   "keywords": [
+    "damages",
+    "hard...",
+    "narrow."
+   ],
+   "audio": "audio_en/l06.wav",
+   "roman": "Year after year, the strong push hurts the tubes. They turn hard and narrow.",
+   "tts": "Year after year... that strong push damages the blood vessels. They turn hard... and narrow."
+  },
+  {
+   "text": "Last stop... the brain. Here, if a narrow vessel gets blocked or bursts... that's a stroke. The eyes can be damaged too.",
+   "keywords": [
+    "brain.",
+    "stroke.",
+    "eyes"
+   ],
+   "audio": "audio_en/l07.wav",
+   "roman": "Last stop, the brain. A weak, narrow tube here can block or burst. That is a stroke. The eyes can be damaged too.",
+   "tts": "Last stop... the brain. Here, if a narrow vessel gets blocked or bursts... that's a stroke. The eyes can be damaged too."
+  },
+  {
+   "text": "And Raju garu? Did he feel anything all these years? Nothing. No pain. No warning. That's why it's called... the silent killer.",
+   "keywords": [
+    "Nothing.",
+    "silent",
+    "killer."
+   ],
+   "audio": "audio_en/l08.wav",
+   "roman": "And Raju garu? He feels perfectly fine. No pain. No warning. That is why it is called the silent killer.",
+   "tts": "And Raju garu? Did he feel anything all these years? Nothing. No pain. No warning. That's why it's called... the silent killer."
+  },
+  {
+   "text": "One day, he just checks his BP. One fifty... over ninety five. Way too high.",
+   "keywords": [
+    "BP.",
+    "high."
+   ],
+   "audio": "audio_en/l09.wav",
+   "roman": "One day, he checks his blood pressure. One fifty over ninety five. Too high.",
+   "tts": "One day, he just checks his BP. One fifty... over ninety five. Way too high."
+  },
+  {
+   "text": "From that day, his plate changed. Less salt, not more than one small teaspoon a day. More fruits and vegetables.",
+   "keywords": [
+    "Less",
+    "teaspoon",
+    "fruits"
+   ],
+   "audio": "audio_en/l10.wav",
+   "roman": "So he changes his plate. Less salt, not more than one small teaspoon a day. More fruits and vegetables.",
+   "tts": "From that day, his plate changed. Less salt, not more than one small teaspoon a day. More fruits and vegetables."
+  },
+  {
+   "text": "A thirty minute walk every day. No smoking. No alcohol. And his tablets, exactly as the doctor says.",
+   "keywords": [
+    "walk",
+    "tablets,"
+   ],
+   "audio": "audio_en/l11.wav",
+   "roman": "He walks every day, and stays away from smoking and alcohol. He takes his tablets, just as his doctor says.",
+   "tts": "A thirty minute walk every day. No smoking. No alcohol. And his tablets, exactly as the doctor says."
+  },
+  {
+   "text": "A few months later... one twenty over eighty!",
+   "keywords": [
+    "twenty",
+    "eighty!"
+   ],
+   "audio": "audio_en/l12.wav",
+   "roman": "A few months later. One twenty over eighty.",
+   "tts": "A few months later... one twenty over eighty!"
+  },
+  {
+   "text": "High BP gives no warning. If you're above forty, get your BP checked at least once a year. Silent problem... simple check.",
+   "keywords": [
+    "forty,",
+    "Silent",
+    "simple"
+   ],
+   "audio": "audio_en/l13.wav",
+   "roman": "High blood pressure gives no warning. So check yours regularly. Silent problem, simple check.",
+   "tts": "High BP gives no warning. If you're above forty, get your BP checked at least once a year. Silent problem... simple check."
+  }
+ ]
+}
