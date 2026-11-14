@@ -88,7 +88,7 @@ const Flash: React.FC = () => {
 const Intro: React.FC = () => {
   const {t, active, dur} = useLocal(0);
   if (!active) return null;
-  const chips = ['Pickle', 'Papad', 'Chips'];
+  const chips = ['Extra salt on top'];
   return (
     <AbsoluteFill>
       <Pop at={6} t={t} from="left" style={{position: 'absolute', left: 70, top: 300}}>
