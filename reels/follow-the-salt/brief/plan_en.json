@@ -25,14 +25,15 @@
    "tts": "The salt goes straight into his blood. And here's the twist. Wherever salt goes, water follows."
   },
   {
-   "text": "So now there's more water in his blood. More water in a pipe means more pressure, right? Same inside our blood vessels. That pressure... is blood pressure.",
+   "text": "So now there's more water in his blood. More water in a pipe means more pressure, right? Same inside our blood vessels. That pressure... is blood pressure. It has two numbers. The top one is the push when the heart beats. The bottom one, when it rests between beats.",
    "keywords": [
-    "pressure,",
-    "pressure."
+    "pressure.",
+    "top",
+    "bottom"
    ],
    "audio": "audio_en/l03.wav",
    "roman": "More water in the blood means more push on the walls of his blood tubes. That push is blood pressure.",
-   "tts": "So now there's more water in his blood. More water in a pipe means more pressure, right? Same inside our blood vessels. That pressure... is blood pressure."
+   "tts": "So now there's more water in his blood. More water in a pipe means more pressure, right? Same inside our blood vessels. That pressure... is blood pressure. It has two numbers. The top one is the push when the heart beats. The bottom one, when it rests between beats."
   },
   {
    "text": "First stop... the heart. To push blood against all that pressure, his heart has to pump harder. Every single beat.",
@@ -77,25 +78,27 @@
    "tts": "Last stop... the brain. Here, if a narrow vessel gets blocked or bursts... that's a stroke. The eyes can be damaged too."
   },
   {
-   "text": "And Raju garu? Did he feel anything all these years? Nothing. No pain. No warning. That's why it's called... the silent killer.",
+   "text": "And Raju garu? Did he feel anything all these years? Nothing. No pain. No warning. That's why it's called... the silent killer. And salt isn't the only culprit. Stress, poor sleep, extra weight, smoking, alcohol and family history can all push BP up.",
    "keywords": [
-    "Nothing.",
     "silent",
-    "killer."
+    "killer.",
+    "Stress,",
+    "sleep,"
    ],
    "audio": "audio_en/l08.wav",
    "roman": "And Raju garu? He feels perfectly fine. No pain. No warning. That is why it is called the silent killer.",
-   "tts": "And Raju garu? Did he feel anything all these years? Nothing. No pain. No warning. That's why it's called... the silent killer."
+   "tts": "And Raju garu? Did he feel anything all these years? Nothing. No pain. No warning. That's why it's called... the silent killer. And salt isn't the only culprit. Stress, poor sleep, extra weight, smoking, alcohol and family history can all push BP up."
   },
   {
-   "text": "One day, he just checks his BP. One fifty... over ninety five. Way too high.",
+   "text": "One day, he just checks his BP. One fifty... over ninety five. One forty over ninety or more is high. His is way too high.",
    "keywords": [
-    "BP.",
+    "forty",
+    "ninety",
     "high."
    ],
    "audio": "audio_en/l09.wav",
    "roman": "One day, he checks his blood pressure. One fifty over ninety five. Too high.",
-   "tts": "One day, he just checks his BP. One fifty... over ninety five. Way too high."
+   "tts": "One day, he just checks his BP. One fifty... over ninety five. One forty over ninety or more is high. His is way too high."
   },
   {
    "text": "From that day, his plate changed. Less salt, not more than one small teaspoon a day. More fruits and vegetables.",
@@ -109,14 +112,15 @@
    "tts": "From that day, his plate changed. Less salt, not more than one small teaspoon a day. More fruits and vegetables."
   },
   {
-   "text": "A thirty minute walk every day. No smoking. No alcohol. And his tablets, exactly as the doctor says.",
+   "text": "A thirty minute walk every day. Good sleep, less stress. No smoking. No alcohol. And his tablets, exactly as the doctor says.",
    "keywords": [
     "walk",
+    "stress.",
     "tablets,"
    ],
    "audio": "audio_en/l11.wav",
    "roman": "He walks every day, and stays away from smoking and alcohol. He takes his tablets, just as his doctor says.",
-   "tts": "A thirty minute walk every day. No smoking. No alcohol. And his tablets, exactly as the doctor says."
+   "tts": "A thirty minute walk every day. Good sleep, less stress. No smoking. No alcohol. And his tablets, exactly as the doctor says."
   },
   {
    "text": "A few months later... one twenty over eighty!",
@@ -129,15 +133,16 @@
    "tts": "A few months later... one twenty over eighty!"
   },
   {
-   "text": "High BP gives no warning. If you're above forty, get your BP checked at least once a year. Silent problem... simple check.",
+   "text": "High BP gives no warning. If you're above forty, get your BP checked at least once a year. And if you ever get a sudden severe headache, chest pain, or weakness on one side, go to a hospital immediately. Silent problem... simple check.",
    "keywords": [
     "forty,",
+    "hospital",
     "Silent",
     "simple"
    ],
    "audio": "audio_en/l13.wav",
    "roman": "High blood pressure gives no warning. So check yours regularly. Silent problem, simple check.",
-   "tts": "High BP gives no warning. If you're above forty, get your BP checked at least once a year. Silent problem... simple check."
+   "tts": "High BP gives no warning. If you're above forty, get your BP checked at least once a year. And if you ever get a sudden severe headache, chest pain, or weakness on one side, go to a hospital immediately. Silent problem... simple check."
   }
  ]
 }
