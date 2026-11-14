@@ -1,0 +1,133 @@
+{
+ "gap": 0.35,
+ "font": "Poppins",
+ "fontsize": 112,
+ "lines": [
+  {
+   "text": "This is Raju garu. He loves extra salt. Pickle, papad, chips. Let's follow that salt.",
+   "keywords": [
+    "salt.",
+    "follow"
+   ],
+   "audio": "audio/l01.wav",
+   "roman": "This is Raju garu. He loves extra salt. Pickle, papad, chips. Let's follow that salt."
+  },
+  {
+   "text": "The salt goes into his blood. And salt pulls water along with it.",
+   "keywords": [
+    "blood.",
+    "water"
+   ],
+   "audio": "audio/l02.wav",
+   "roman": "The salt goes into his blood. And salt pulls water along with it."
+  },
+  {
+   "text": "More water in the blood means more push on the walls of his blood tubes. That push is blood pressure.",
+   "keywords": [
+    "push",
+    "pressure."
+   ],
+   "audio": "audio/l03.wav",
+   "roman": "More water in the blood means more push on the walls of his blood tubes. That push is blood pressure."
+  },
+  {
+   "text": "First stop, the heart. With more pressure, it has to pump harder, every single beat.",
+   "keywords": [
+    "heart.",
+    "harder,"
+   ],
+   "audio": "audio/l04.wav",
+   "roman": "First stop, the heart. With more pressure, it has to pump harder, every single beat."
+  },
+  {
+   "text": "Next stop, the kidneys. They try to throw out the extra salt and water. But every day, more salt keeps coming.",
+   "keywords": [
+    "kidneys.",
+    "more",
+    "salt"
+   ],
+   "audio": "audio/l05.wav",
+   "roman": "Next stop, the kidneys. They try to throw out the extra salt and water. But every day, more salt keeps coming."
+  },
+  {
+   "text": "Year after year, the strong push hurts the tubes. They turn hard and narrow.",
+   "keywords": [
+    "hurts",
+    "hard",
+    "narrow."
+   ],
+   "audio": "audio/l06.wav",
+   "roman": "Year after year, the strong push hurts the tubes. They turn hard and narrow."
+  },
+  {
+   "text": "Last stop, the brain. A weak, narrow tube here can block or burst. That is a stroke. The eyes can be damaged too.",
+   "keywords": [
+    "brain.",
+    "burst.",
+    "stroke.",
+    "eyes"
+   ],
+   "audio": "audio/l07.wav",
+   "roman": "Last stop, the brain. A weak, narrow tube here can block or burst. That is a stroke. The eyes can be damaged too."
+  },
+  {
+   "text": "And Raju garu? He feels perfectly fine. No pain. No warning. That is why it is called the silent killer.",
+   "keywords": [
+    "fine.",
+    "silent",
+    "killer."
+   ],
+   "audio": "audio/l08.wav",
+   "roman": "And Raju garu? He feels perfectly fine. No pain. No warning. That is why it is called the silent killer."
+  },
+  {
+   "text": "One day, he checks his blood pressure. One fifty over ninety five. Too high.",
+   "keywords": [
+    "checks",
+    "high."
+   ],
+   "audio": "audio/l09.wav",
+   "roman": "One day, he checks his blood pressure. One fifty over ninety five. Too high."
+  },
+  {
+   "text": "So he changes his plate. Less salt, not more than one small teaspoon a day. More fruits and vegetables.",
+   "keywords": [
+    "Less",
+    "salt,",
+    "teaspoon",
+    "fruits"
+   ],
+   "audio": "audio/l10.wav",
+   "roman": "So he changes his plate. Less salt, not more than one small teaspoon a day. More fruits and vegetables."
+  },
+  {
+   "text": "He walks every day, and stays away from smoking and alcohol. He takes his tablets, just as his doctor says.",
+   "keywords": [
+    "walks",
+    "tablets,"
+   ],
+   "audio": "audio/l11.wav",
+   "roman": "He walks every day, and stays away from smoking and alcohol. He takes his tablets, just as his doctor says."
+  },
+  {
+   "text": "A few months later. One twenty over eighty.",
+   "keywords": [
+    "One",
+    "twenty",
+    "eighty."
+   ],
+   "audio": "audio/l12.wav",
+   "roman": "A few months later. One twenty over eighty."
+  },
+  {
+   "text": "High blood pressure gives no warning. So check yours regularly. Silent problem, simple check.",
+   "keywords": [
+    "check",
+    "Silent",
+    "simple"
+   ],
+   "audio": "audio/l13.wav",
+   "roman": "High blood pressure gives no warning. So check yours regularly. Silent problem, simple check."
+  }
+ ]
+}
