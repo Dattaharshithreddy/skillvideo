@@ -318,17 +318,23 @@ for o in [o for o in bpy.data.objects if o.name.startswith('raju_body')]:
         src = outn.inputs['Surface'].links[0].from_socket
         mix = nt.nodes.new('ShaderNodeMixShader'); tr = nt.nodes.new('ShaderNodeBsdfTransparent'); em = nt.nodes.new('ShaderNodeEmission')
         shell = nt.nodes.new('ShaderNodeMixShader'); lw = nt.nodes.new('ShaderNodeLayerWeight'); mr = nt.nodes.new('ShaderNodeMapRange')
-        lw.inputs['Blend'].default_value = 0.45
+        lw.inputs['Blend'].default_value = 0.22
         mr.inputs['From Min'].default_value = 0.0; mr.inputs['From Max'].default_value = 1.0
-        mr.inputs['To Min'].default_value = 0.10; mr.inputs['To Max'].default_value = 0.85
-        em.inputs['Color'].default_value = (0.25, 0.65, 1.0, 1); em.inputs['Strength'].default_value = 2.5
+        mr.inputs['To Min'].default_value = 0.0; mr.inputs['To Max'].default_value = 0.55
+        em.inputs['Color'].default_value = (0.25, 0.65, 1.0, 1); em.inputs['Strength'].default_value = 1.6
         nt.links.new(lw.outputs['Facing'], mr.inputs['Value']); nt.links.new(mr.outputs['Result'], shell.inputs['Fac'])
         nt.links.new(tr.outputs[0], shell.inputs[1]); nt.links.new(em.outputs[0], shell.inputs[2])
         nt.links.new(src, mix.inputs[1]); nt.links.new(shell.outputs[0], mix.inputs[2]); nt.links.new(mix.outputs[0], outn.inputs['Surface'])
         xray_keys(mix.inputs['Fac'])
-        try: m.surface_render_method = 'DITHERED'
+        try: m.surface_render_method = 'BLENDED'
+        except Exception: pass
+        m.use_backface_culling = True
+        try: m.use_transparency_overlap = False
         except Exception: pass
 for o in ORG: show(o, [(X_ON0, X_OFF1 + 1)])
+for nm in ('raju_body.teeth_base', 'raju_body.high-poly', 'raju_body.eyelashes02', 'raju_body.eyebrow006'):
+    o = bpy.data.objects.get(nm)
+    if o: show(o, [(1, X_ON1), (X_OFF0 + 4, END + 1)])
 
 # ---- lights: the room dims while we are inside; organ lights come up ----
 def light_ramp(l, base, pairs):
