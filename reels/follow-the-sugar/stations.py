@@ -21,7 +21,11 @@ for k in ('public', 'student'):
             edl.append([st, used[st], m]); used[st] += m; acc += m
     for s in ORDER: need[s] = max(need[s], used[s])
     cuts[k] = edl
-    json.dump({'fps': FPS, 'starts': starts, 'durs': durs,
+    cutf, pos, prev = [], 0, None
+    for st, a, m in edl:
+        if prev is not None and st != prev: cutf.append(pos)
+        prev = st; pos += m
+    json.dump({'fps': FPS, 'starts': starts, 'durs': durs, 'cuts': cutf,
                'lines': [{'text': l['text'], 'keywords': l['keywords']} for l in p['lines']]},
               open(f'mg/src/timing_{k}.json', 'w'), indent=1)
     print(k, 'total', round(t, 2), 's', sum(e[2] for e in edl), 'frames')
