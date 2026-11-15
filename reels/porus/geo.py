@@ -40,7 +40,7 @@ for url in ('https://overpass-api.de/api/interpreter', 'https://overpass.private
     try: osm = requests.post(url, data={'data': q}, headers=HDR, timeout=150).json(); break
     except Exception as e: print('overpass fail', url)
 nodes = {e['id']: (e['lon'], e['lat']) for e in osm['elements'] if e['type'] == 'node'}
-ways = [e for e in osm['elements'] if e['type'] == 'way' and ('Jhelum' in e.get('tags', {}).get('name', '') or 'جہلم' in e.get('tags', {}).get('name', ''))]
+ways = [e for e in osm['elements'] if e['type'] == 'way' and ('Jhelum' in e.get('tags', {}).get('name', '') or 'جہلم' in e.get('tags', {}).get('name', '')) and not any(c in e.get('tags', {}).get('name', '') for c in ('کینال', 'Canal', 'canal'))]
 print('river ways', len(ways), {e.get('tags', {}).get('name') for e in ways})
 # chain ways into one line
 segs = [[tf.transform(*nodes[n]) for n in e['nodes'] if n in nodes] for e in ways]
