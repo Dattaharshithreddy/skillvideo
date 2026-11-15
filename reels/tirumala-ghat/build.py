@@ -101,13 +101,10 @@ terr.data.materials.append(tm)
 # ---------------- sky, sun, haze ----------------
 wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True; wn = wd.node_tree
 sky = wn.nodes.new('ShaderNodeTexSky'); sky.sky_type = 'NISHITA'
-sky.sun_elevation = math.radians(14); sky.sun_rotation = math.radians(250); sky.altitude = 900; sky.air_density = 1.6; sky.dust_density = 2.5
-wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color']); wn.nodes['Background'].inputs['Strength'].default_value = 0.35
-vol = wn.nodes.new('ShaderNodeVolumePrincipled'); vol.inputs['Density'].default_value = 0.00006
-vol.inputs['Color'].default_value = (0.75, 0.82, 1.0, 1)
-wn.links.new(vol.outputs[0], wn.nodes['World Output'].inputs['Volume'])
-bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy = 4.0; sun.data.color = (1.0, 0.85, 0.65)
-sun.rotation_euler = (math.radians(90 - 14), 0, math.radians(250 - 90))
+sky.sun_elevation = math.radians(22); sky.sun_rotation = math.radians(250); sky.altitude = 900; sky.air_density = 1.6; sky.dust_density = 2.5
+wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color']); wn.nodes['Background'].inputs['Strength'].default_value = 0.6
+bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy = 5.5; sun.data.color = (1.0, 0.85, 0.65)
+sun.rotation_euler = (math.radians(90 - 22), 0, math.radians(250 - 90))
 sun.data.angle = math.radians(1.5)
 
 # ---------------- roads, track, straight line ----------------
@@ -254,8 +251,6 @@ json.dump({'A': list(A), 'T': list(T_), 'H': list(H), 'RC': list(RC)}, open('bri
 sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
 sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Medium High Contrast'
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
-try: sc.eevee.volumetric_end = 30000; sc.eevee.volumetric_tile_size = '16'
-except Exception: pass
 os.makedirs('scene', exist_ok=True)
 bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath('scene/ghat.blend'))
 print('built', END, SH, 'hairpin_centre', tuple(round(v) for v in H))
