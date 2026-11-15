@@ -23,7 +23,7 @@ for i, l in enumerate(p['lines'], 1):
         raw = f'{work}/r{i:02d}_{k}.wav'
         if not os.path.exists(raw):
             gen.gen(s.replace('…', ',').rstrip(','), 'indicf5', raw, lang='te', seed=11)
-        gap = 0.0 if k == len(phrases) - 1 else (0.85 if s.endswith('…') else 0.5)
+        gap = 0.0 if k == len(phrases) - 1 else (1.0 if s.endswith('…') else 0.6)
         out = f'{work}/q{i:02d}_{k}.wav'
         sh('ffmpeg', '-y', '-v', 'error', '-i', raw, '-af', TRIM + (f',apad=pad_dur={gap}' if gap else ''), '-ar', '24000', '-ac', '1', out)
         parts.append(out)
@@ -47,10 +47,12 @@ scale = dur(f'{work}/post.wav') / dur(f'{work}/joined.wav')
 for i, (a, b) in enumerate(bounds):
     a0 = max(0, (a - SEP / 2) * scale) if i else 0; b0 = (b + SEP / 2) * scale
     sh('ffmpeg', '-y', '-v', 'error', '-i', f'{work}/post.wav', '-ss', f'{a0:.3f}', '-to', f'{b0:.3f}',
-       '-af', TRIM + ',atempo=0.88,apad=pad_dur=0.9', '-ar', '44100', '-ac', '1', p['lines'][i]['audio'])
-# a quick listen file: first paragraph + whole story
-sh('ffmpeg', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'color=c=black:s=720x1280:r=10', '-i', f'{work}/post.wav', '-shortest',
+       '-af', TRIM + ',atempo=0.84,apad=pad_dur=1.0', '-ar', '44100', '-ac', '1', p['lines'][i]['audio'])
+# listen file: the final slowed paragraphs joined
+open(f'{work}/final.txt', 'w').write(''.join(f"file '{W}/{l['audio']}'\n" for l in p['lines']))
+sh('ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', f'{work}/final.txt', '-c:a', 'pcm_s16le', f'{work}/final.wav')
+sh('ffmpeg', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'color=c=black:s=720x1280:r=10', '-i', f'{work}/final.wav', '-shortest',
    '-c:v', 'libx264', '-tune', 'stillimage', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart',
-   '/opt/reel/share/e1376f7f43dd/porus_voice.mp4')
+   '/opt/reel/share/e1376f7f43dd/porus_voice_slow.mp4')
 print('total', round(sum(dur(l['audio']) for l in p['lines']), 1))
 print('VOICE_DONE')
