@@ -90,7 +90,7 @@ tm = bpy.data.materials.new('terrain'); tm.use_nodes = True; nt = tm.node_tree; 
 bs.inputs['Roughness'].default_value = 0.9
 if os.path.exists('geo/s2.png'):
     img = nt.nodes.new('ShaderNodeTexImage'); img.image = bpy.data.images.load(os.path.abspath('geo/s2.png')); img.interpolation = 'Cubic'
-    hsv = nt.nodes.new('ShaderNodeHueSaturation'); hsv.inputs['Saturation'].default_value = 1.25; hsv.inputs['Value'].default_value = 1.35
+    hsv = nt.nodes.new('ShaderNodeHueSaturation'); hsv.inputs['Saturation'].default_value = 1.15; hsv.inputs['Value'].default_value = 1.6
     bc = nt.nodes.new('ShaderNodeBrightContrast'); bc.inputs['Contrast'].default_value = 0.15
     nt.links.new(img.outputs['Color'], hsv.inputs['Color']); nt.links.new(hsv.outputs['Color'], bc.inputs['Color'])
     nt.links.new(bc.outputs['Color'], bs.inputs['Base Color'])
@@ -101,10 +101,10 @@ terr.data.materials.append(tm)
 # ---------------- sky, sun, haze ----------------
 wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True; wn = wd.node_tree
 sky = wn.nodes.new('ShaderNodeTexSky'); sky.sky_type = 'NISHITA'
-sky.sun_elevation = math.radians(22); sky.sun_rotation = math.radians(250); sky.altitude = 900; sky.air_density = 1.6; sky.dust_density = 2.5
-wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color']); wn.nodes['Background'].inputs['Strength'].default_value = 0.6
-bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy = 5.5; sun.data.color = (1.0, 0.85, 0.65)
-sun.rotation_euler = (math.radians(90 - 22), 0, math.radians(250 - 90))
+sky.sun_elevation = math.radians(38); sky.sun_rotation = math.radians(250); sky.altitude = 900; sky.air_density = 1.6; sky.dust_density = 2.5
+wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color']); wn.nodes['Background'].inputs['Strength'].default_value = 0.9
+bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy = 5.0; sun.data.color = (1.0, 0.96, 0.9)
+sun.rotation_euler = (math.radians(90 - 38), 0, math.radians(250 - 90))
 sun.data.angle = math.radians(1.5)
 
 # ---------------- roads, track, straight line ----------------
@@ -113,15 +113,15 @@ def road_pts(key, lift=6.0):
 UP, DN = R['up'], R['down']                     # up: Alipiri -> Tirumala (1974 road); down: Tirumala -> Alipiri (1944 road)
 road1_up = list(reversed(road_pts('down')))     # first road drawn from Alipiri upward
 road2 = road_pts('up')
-M_old = emis('road_old', (0.25, 1.0, 0.45), 6.0); M_new = emis('road_new', (1.0, 0.62, 0.12), 6.0)
-M_red = emis('road_red', (1.0, 0.08, 0.05), 9.0); M_line = emis('straight', (1.0, 0.1, 0.08), 7.0)
-M_track = emis('track', (1.0, 0.82, 0.45), 5.0); M_gold = emis('beacon', (1.0, 0.75, 0.25), 12.0)
-M_car = emis('car', (1.0, 0.95, 0.85), 14.0)
-r1 = curve('road_1944', road1_up, 7.0, M_old)
-r2 = curve('road_1974', road2, 7.0, M_new)
+M_old = emis('road_old', (0.2, 1.0, 0.4), 2.2); M_new = emis('road_new', (1.0, 0.55, 0.08), 2.2)
+M_red = emis('road_red', (1.0, 0.06, 0.04), 3.0); M_line = emis('straight', (1.0, 0.08, 0.06), 2.5)
+M_track = emis('track', (1.0, 0.8, 0.4), 2.5); M_gold = emis('beacon', (1.0, 0.72, 0.2), 4.0)
+M_car = emis('car', (1.0, 0.95, 0.85), 5.0)
+r1 = curve('road_1944', road1_up, 5.0, M_old)
+r2 = curve('road_1974', road2, 5.0, M_new)
 L2 = UP[-1][3]
 red_pts = [tuple(loc(x, y, z, 7.0)) for x, y, z, d in UP if 11000 <= d <= 17000]
-rred = curve('road_1974_cut', red_pts, 9.0, M_red)
+rred = curve('road_1974_cut', red_pts, 6.5, M_red)
 sa, sb = R['straight']['a'], R['straight']['b']
 sline = curve('straight_up', [tuple(loc(*sa, 30)), tuple(loc(*sb, 30))], 9.0, M_line)
 # old bullock-cart track: dots along the first road
