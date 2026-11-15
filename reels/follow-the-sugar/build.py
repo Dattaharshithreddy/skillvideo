@@ -417,7 +417,7 @@ flowers('legkeys', [AO_A, AO_A + V3((0, 0, -0.12)), HIP_L + V3((0, -0.02, -0.05)
         25, 'key', 120, ['muscle'], 0.012)
 flowers('liversugar', [LC + V3((-0.02, -0.02, 0)), LC + V3((0.02, -0.01, 0.06)), HC + V3((0, 0, -0.05))], 35, 'gold', 90, ['liver'], 0.01)
 for side in (-1, 1):
-    k0 = KC + V3(side * 0.05, 0, 0)
+    k0 = KC + V3((side * 0.05, 0, 0))
     flowers(f'urine{side}', [k0, k0 + V3((-side * 0.02, -0.01, -0.08)), k0 + V3((-side * 0.04, -0.02, -0.2)), V3((RL.x, KC.y - 0.03, KC.z - 0.3))],
             30, 'gold', 90, ['kidney'], 0.004)
 # eye: damage sparks
