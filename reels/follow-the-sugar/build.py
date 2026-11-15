@@ -310,7 +310,7 @@ for i, (p, e) in enumerate([(HC, 10), (KC, 8), (BC, 10), (GC, 9), (PC, 8), (LC, 
     area(f'in_rim{i}', p + Vector((0.6, 0.6, 0.3)), p, e * 0.8, 0.5, (0.45, 0.65, 1), 'in')
 for l in LIGHTS['out']: ramp(l, l.data.energy, [(f, 1 - 0.97 * v) for f, v in XK])
 for l in LIGHTS['in']: ramp(l, l.data.energy, XK)
-for mname in ('wall', 'wood', 'table', 'cloth'):
+for mname in ('wall', 'wood', 'table', 'cloth', 'plate', 'steel', 'rice', 'dal', 'leaf', 'carrot', 'monitor', 'screen'):
     bb = bsdf(M[mname]); base_c = tuple(bb.inputs['Base Color'].default_value)
     for f, v in XK:
         c_ = tuple(base_c[i] * (1 - v) + (0.004, 0.006, 0.012, 1)[i] * v for i in range(4))
