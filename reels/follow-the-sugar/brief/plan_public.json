@@ -1,0 +1,230 @@
+{
+ "gap": 0.05,
+ "font": "Poppins",
+ "lines": [
+  {
+   "text": "You eat rice every day. But what happens to it inside your body? Let's follow it through Raju.",
+   "tts": "You eat rice every day. But what happens to it, inside your body? Let's follow it... through Raju.",
+   "keywords": [
+    "rice",
+    "inside"
+   ],
+   "audio": "audio_pub/l01.wav",
+   "st": [
+    [
+     "room_in",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Inside, rice breaks down into sugar, called glucose. It soaks into his blood and travels everywhere.",
+   "tts": "Inside, rice breaks down into sugar, called glucose. It soaks into his blood, and travels everywhere.",
+   "keywords": [
+    "glucose.",
+    "blood"
+   ],
+   "audio": "audio_pub/l02.wav",
+   "st": [
+    [
+     "gut",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Glucose is fuel. But it can't walk into his cells on its own. It needs a key.",
+   "tts": "Glucose is fuel. But it can't walk into his cells on its own. It needs... a key.",
+   "keywords": [
+    "fuel.",
+    "key."
+   ],
+   "audio": "audio_pub/l03.wav",
+   "st": [
+    [
+     "vessels",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Stop one: the pancreas. It makes that key. It's called insulin.",
+   "tts": "Stop one: the pancreas. It makes that key. It's called insulin.",
+   "keywords": [
+    "pancreas.",
+    "insulin."
+   ],
+   "audio": "audio_pub/l04.wav",
+   "st": [
+    [
+     "pancreas",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Insulin unlocks the cells, sugar goes in, and Raju gets energy. That's how it's supposed to work.",
+   "tts": "Insulin unlocks the cells, sugar goes in, and Raju gets energy. That's how it's supposed to work.",
+   "keywords": [
+    "unlocks",
+    "energy."
+   ],
+   "audio": "audio_pub/l05.wav",
+   "st": [
+    [
+     "muscle",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "But years of extra rice, sweets, belly fat and sitting all day... the locks start getting rusty.",
+   "tts": "But years of extra rice, sweets, belly fat, and sitting all day... the locks start getting rusty.",
+   "keywords": [
+    "years",
+    "rusty."
+   ],
+   "audio": "audio_pub/l06.wav",
+   "st": [
+    [
+     "fat",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "The pancreas panics and makes more and more insulin. Until one day, it's tired.",
+   "tts": "The pancreas panics, and makes more and more insulin. Until one day... it's tired.",
+   "keywords": [
+    "more",
+    "tired."
+   ],
+   "audio": "audio_pub/l07.wav",
+   "st": [
+    [
+     "pancreas_tired",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Now sugar stays stuck in the blood. That's type 2 diabetes.",
+   "tts": "Now sugar stays stuck in the blood. That's type two diabetes.",
+   "keywords": [
+    "stuck",
+    "diabetes."
+   ],
+   "audio": "audio_pub/l08.wav",
+   "st": [
+    [
+     "vessels_stuck",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "And sugar in the blood is like sand in a pipe. Stop two: the eyes. Tiny vessels get damaged, and his vision blurs.",
+   "tts": "And sugar in the blood is like sand in a pipe. Stop two: the eyes. Tiny vessels get damaged, and his vision blurs.",
+   "keywords": [
+    "sand",
+    "eyes.",
+    "blurs."
+   ],
+   "audio": "audio_pub/l09.wav",
+   "st": [
+    [
+     "eye",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Stop three: the kidneys. Their filters wear out. And in his feet, nerves go numb, so a small cut can turn into a big wound.",
+   "tts": "Stop three: the kidneys. Their filters wear out. And in his feet, nerves go numb, so a small cut can turn into a big wound.",
+   "keywords": [
+    "kidneys.",
+    "numb,",
+    "wound."
+   ],
+   "audio": "audio_pub/l10.wav",
+   "st": [
+    [
+     "kidney",
+     0.42
+    ],
+    [
+     "feet",
+     0.58
+    ]
+   ]
+  },
+  {
+   "text": "It also raises his risk of heart attack and stroke. And early on? Often no symptoms at all.",
+   "tts": "It also raises his risk of heart attack, and stroke. And early on? Often... no symptoms at all.",
+   "keywords": [
+    "heart",
+    "stroke.",
+    "symptoms"
+   ],
+   "audio": "audio_pub/l11.wav",
+   "st": [
+    [
+     "heart",
+     0.5
+    ],
+    [
+     "room_out",
+     0.5
+    ]
+   ]
+  },
+  {
+   "text": "Watch for these: always thirsty, peeing often, tired, blurry vision, wounds that won't heal. Fasting sugar under 100 is normal. 126 or more means diabetes.",
+   "tts": "Watch for these: always thirsty, peeing often, tired, blurry vision, wounds that won't heal. Fasting sugar under one hundred is normal. One twenty-six or more, means diabetes.",
+   "keywords": [
+    "thirsty,",
+    "100",
+    "126"
+   ],
+   "audio": "audio_pub/l12.wav",
+   "st": [
+    [
+     "room_out",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Raju takes charge: less rice, more vegetables and dal, a walk after every meal, and tablets as his doctor says. A few months later, his sugar is back in control.",
+   "tts": "Raju takes charge: less rice, more vegetables and dal, a walk after every meal, and tablets as his doctor says. A few months later, his sugar is back in control.",
+   "keywords": [
+    "walk",
+    "doctor",
+    "control."
+   ],
+   "audio": "audio_pub/l13.wav",
+   "st": [
+    [
+     "room_healthy",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Over a hundred million Indians have diabetes. Don't wait for symptoms. Above thirty-five, or diabetes in your family? Get your sugar checked. A simple test can save your eyes, your kidneys, your life.",
+   "tts": "Over a hundred million Indians have diabetes. Don't wait for symptoms. Above thirty-five, or diabetes in your family? Get your sugar checked. A simple test can save your eyes, your kidneys... your life.",
+   "keywords": [
+    "hundred",
+    "checked.",
+    "life."
+   ],
+   "audio": "audio_pub/l14.wav",
+   "st": [
+    [
+     "room_healthy",
+     1
+    ]
+   ]
+  }
+ ]
+}

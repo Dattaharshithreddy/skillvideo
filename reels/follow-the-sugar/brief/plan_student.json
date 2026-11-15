@@ -1,0 +1,261 @@
+{
+ "gap": 0.05,
+ "font": "Poppins",
+ "lines": [
+  {
+   "text": "Type 2 diabetes, explained through Raju. Glucose absorption, insulin secretion, insulin resistance, complications. Let's follow the sugar.",
+   "tts": "Type two diabetes, explained through Raju. Glucose absorption... insulin secretion... insulin resistance... and complications. Let's follow the sugar.",
+   "keywords": [
+    "Type",
+    "resistance,",
+    "sugar."
+   ],
+   "audio": "audio_stu/l01.wav",
+   "st": [
+    [
+     "body_wide",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Starch is broken down to glucose. In the small intestine, it enters through SGLT1, a sodium-glucose co-transporter, and exits into blood via GLUT2.",
+   "tts": "Starch is broken down to glucose. In the small intestine, it enters through S-G-L-T one, a sodium glucose co-transporter, and exits into blood, via GLUT two.",
+   "keywords": [
+    "SGLT1,",
+    "GLUT2."
+   ],
+   "audio": "audio_stu/l02.wav",
+   "st": [
+    [
+     "gut",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Normal fasting plasma glucose is below 100 mg/dL.",
+   "tts": "Normal fasting plasma glucose is below one hundred milligrams per decilitre.",
+   "keywords": [
+    "100"
+   ],
+   "audio": "audio_stu/l03.wav",
+   "st": [
+    [
+     "vessels",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Stop one: the pancreatic beta cell. Glucose enters through GLUT2 and is phosphorylated by glucokinase, the glucose sensor.",
+   "tts": "Stop one: the pancreatic beta cell. Glucose enters through GLUT two, and is phosphorylated by glucokinase... the glucose sensor.",
+   "keywords": [
+    "beta",
+    "glucokinase,"
+   ],
+   "audio": "audio_stu/l04.wav",
+   "st": [
+    [
+     "pancreas",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "ATP rises. ATP-sensitive potassium channels close. The membrane depolarises, voltage-gated calcium channels open, and calcium triggers insulin exocytosis.",
+   "tts": "A-T-P rises. A-T-P sensitive potassium channels close. The membrane depolarises, voltage-gated calcium channels open, and calcium triggers insulin exocytosis.",
+   "keywords": [
+    "potassium",
+    "calcium",
+    "exocytosis."
+   ],
+   "audio": "audio_stu/l05.wav",
+   "st": [
+    [
+     "pancreas",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Insulin binds its receptor, a tyrosine kinase. Through IRS and PI3K-Akt signalling, GLUT4 moves to the membrane in muscle and fat.",
+   "tts": "Insulin binds its receptor, a tyrosine kinase. Through I-R-S, and P-I-three-K, Akt signalling, GLUT four moves to the membrane, in muscle and fat.",
+   "keywords": [
+    "tyrosine",
+    "GLUT4"
+   ],
+   "audio": "audio_stu/l06.wav",
+   "st": [
+    [
+     "muscle",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "In the liver, insulin suppresses gluconeogenesis and glycogenolysis. That's the second way it lowers sugar.",
+   "tts": "In the liver, insulin suppresses gluconeogenesis, and glycogenolysis. That's the second way it lowers sugar.",
+   "keywords": [
+    "liver,",
+    "gluconeogenesis"
+   ],
+   "audio": "audio_stu/l07.wav",
+   "st": [
+    [
+     "liver",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "In type 2 diabetes, the problem starts after the receptor. PI3K signalling weakens, fewer GLUT4 reach the surface. This is insulin resistance.",
+   "tts": "In type two diabetes, the problem starts after the receptor. P-I-three-K signalling weakens, and fewer GLUT four reach the surface. This is insulin resistance.",
+   "keywords": [
+    "after",
+    "resistance."
+   ],
+   "audio": "audio_stu/l08.wav",
+   "st": [
+    [
+     "fat",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Visceral fat drives it, through free fatty acids and inflammatory cytokines. Indians are at risk even at lower BMI: the thin-fat phenotype.",
+   "tts": "Visceral fat drives it, through free fatty acids and inflammatory cytokines. Indians are at risk even at lower B-M-I... the thin-fat phenotype.",
+   "keywords": [
+    "Visceral",
+    "thin-fat"
+   ],
+   "audio": "audio_stu/l09.wav",
+   "st": [
+    [
+     "fat",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Beta cells compensate with hyperinsulinaemia. Over years, glucotoxicity and lipotoxicity exhaust them. Insulin falls relative to need, and glucose rises.",
+   "tts": "Beta cells compensate with hyperinsulinaemia. Over years, glucotoxicity and lipotoxicity exhaust them. Insulin falls relative to need, and glucose rises.",
+   "keywords": [
+    "hyperinsulinaemia.",
+    "exhaust"
+   ],
+   "audio": "audio_stu/l10.wav",
+   "st": [
+    [
+     "pancreas_tired",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Above about 180 mg/dL, the renal threshold, glucose spills into urine. Osmotic diuresis causes polyuria, then polydipsia.",
+   "tts": "Above about one eighty milligrams per decilitre, the renal threshold, glucose spills into urine. Osmotic diuresis causes polyuria, then polydipsia.",
+   "keywords": [
+    "180",
+    "polyuria,"
+   ],
+   "audio": "audio_stu/l11.wav",
+   "st": [
+    [
+     "kidney",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Chronic hyperglycaemia damages vessels by three main routes: advanced glycation end products, the polyol pathway where aldose reductase makes sorbitol, and protein kinase C activation.",
+   "tts": "Chronic hyperglycaemia damages vessels by three main routes: advanced glycation end products... the polyol pathway, where aldose reductase makes sorbitol... and protein kinase C activation.",
+   "keywords": [
+    "glycation",
+    "sorbitol,",
+    "kinase"
+   ],
+   "audio": "audio_stu/l12.wav",
+   "st": [
+    [
+     "vessels_stuck",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Microvascular: retinopathy, nephropathy, neuropathy. Macrovascular: accelerated atherosclerosis, heart attack and stroke.",
+   "tts": "Microvascular: retinopathy, nephropathy, neuropathy. Macrovascular: accelerated atherosclerosis... heart attack, and stroke.",
+   "keywords": [
+    "Microvascular:",
+    "Macrovascular:"
+   ],
+   "audio": "audio_stu/l13.wav",
+   "st": [
+    [
+     "eye",
+     0.3
+    ],
+    [
+     "kidney",
+     0.15
+    ],
+    [
+     "feet",
+     0.2
+    ],
+    [
+     "heart",
+     0.35
+    ]
+   ]
+  },
+  {
+   "text": "Diagnosis: fasting glucose 126 or above, HbA1c 6.5% or above, 2-hour OGTT 200 or above, or random 200 or above with symptoms. HbA1c reflects about three months, the lifespan of a red cell.",
+   "tts": "Diagnosis: fasting glucose one twenty-six or above, H-b-A-one-c six point five percent or above, two-hour O-G-T-T two hundred or above, or random two hundred or above with symptoms. H-b-A-one-c reflects about three months... the lifespan of a red cell.",
+   "keywords": [
+    "126",
+    "6.5%",
+    "200"
+   ],
+   "audio": "audio_stu/l14.wav",
+   "st": [
+    [
+     "body_wide",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Prediabetes: fasting 100 to 125, or HbA1c 5.7 to 6.4.",
+   "tts": "Prediabetes: fasting one hundred to one twenty-five, or H-b-A-one-c five point seven to six point four.",
+   "keywords": [
+    "Prediabetes:"
+   ],
+   "audio": "audio_stu/l15.wav",
+   "st": [
+    [
+     "body_wide",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Management: lifestyle first. Metformin is the usual first drug. With heart or kidney disease, SGLT2 inhibitors or GLP-1 agonists are preferred for organ protection. Next episode: Metformin, decoded.",
+   "tts": "Management: lifestyle first. Metformin is the usual first drug. With heart or kidney disease, S-G-L-T two inhibitors, or G-L-P one agonists, are preferred for organ protection. Next episode: Metformin... decoded.",
+   "keywords": [
+    "lifestyle",
+    "Metformin",
+    "decoded."
+   ],
+   "audio": "audio_stu/l16.wav",
+   "st": [
+    [
+     "room_healthy",
+     1
+    ]
+   ]
+  }
+ ]
+}
