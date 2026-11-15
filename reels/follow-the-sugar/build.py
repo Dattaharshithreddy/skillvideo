@@ -296,7 +296,19 @@ for o in [o for o in bpy.data.objects if o.name.startswith('raju_body') and o.na
         try: m.surface_render_method = 'BLENDED'
         except Exception: pass
         m.use_backface_culling = True
-for o in ORG: show(o, [(X_ON0, X_OFF1 + 1)])
+def inside_except(hide):
+    """visible from X_ON0 to X_OFF1 except during the given stations (organs in front of the target are hidden)"""
+    cuts = sorted(S(n) for n in hide)
+    out, a = [], X_ON0
+    for s0, s1 in cuts:
+        if s0 > a: out.append((a, s0))
+        a = max(a, s1 + 1)
+    out.append((a, X_OFF1 + 1)); return out
+HIDE = {id(o): [] for o in ORG}
+for o in stom_m + gut_m: HIDE[id(o)] = ['pancreas', 'pancreas_tired', 'vessels', 'vessels_stuck', 'kidney']
+for o in liver_m: HIDE[id(o)] = ['vessels', 'vessels_stuck', 'kidney']
+for o in panc_m: HIDE[id(o)] = ['vessels', 'vessels_stuck', 'kidney']
+for o in ORG: show(o, inside_except(HIDE[id(o)]))
 for nm in FACE_PARTS:
     o = bpy.data.objects.get(nm)
     if o: show(o, [(1, fr('room_in', 0.78)), (fr('room_out', 0.2) + 4, END + 1)])
