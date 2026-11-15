@@ -20,11 +20,13 @@ dst_t = from_origin(x0, y1, RES, RES)
 
 # ---- terrain ----
 DEM = 'https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N13_00_E079_00_DEM/Copernicus_DSM_COG_10_N13_00_E079_00_DEM.tif'
-with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN='EMPTY_DIR', AWS_NO_SIGN_REQUEST='YES'):
+if os.path.exists('geo/dem.npy'): dem = np.load('geo/dem.npy')
+else:
+  with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN='EMPTY_DIR', AWS_NO_SIGN_REQUEST='YES'):
     with rasterio.open(DEM) as src:
         dem = np.zeros((h, w), np.float32)
         reproject(rasterio.band(src, 1), dem, dst_transform=dst_t, dst_crs=UTM, resampling=Resampling.bilinear)
-np.save('geo/dem.npy', dem)
+  np.save('geo/dem.npy', dem)
 print('DEM', dem.shape, 'min', round(float(dem.min())), 'max', round(float(dem.max())))
 
 # ---- satellite colour ----
@@ -35,7 +37,7 @@ r = requests.post('https://earth-search.aws.element84.com/v1/search', json={
 items = [it for it in r.get('features', []) if it['properties'].get('mgrs:utm_zone', 44) == 44]
 items.sort(key=lambda it: it['properties'].get('eo:cloud_cover', 100))
 rgb = None
-for it in items[:6]:
+for it in ([] if os.path.exists('geo/s2.png') else items[:6]):
     href = it['assets']['visual']['href']
     try:
         with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN='EMPTY_DIR'):
@@ -54,11 +56,18 @@ if rgb is not None:
 # ---- roads from OpenStreetMap ----
 q = f'[out:json][timeout:90];way["highway"~"^(trunk|primary|secondary|tertiary|unclassified|road|residential)$"]({S_},{W_},{N_},{E_});(._;>;);out body;'
 osm = None
-for url in ('https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'):
-    try:
-        osm = requests.post(url, data={'data': q}, timeout=120).json(); break
-    except Exception as e:
-        print('overpass fail', url, str(e)[:80])
+HDR = {'User-Agent': 'reel-maker/1.0 (educational video; contact via github Dattaharshithreddy)', 'Accept': 'application/json'}
+if os.path.exists('geo/osm.json'): osm = json.load(open('geo/osm.json'))
+for url in ('https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter',
+            'https://maps.mail.ru/osm/tools/overpass/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'):
+    if osm: break
+    for attempt in range(2):
+        try:
+            rr = requests.post(url, data={'data': q}, headers=HDR, timeout=150)
+            osm = rr.json(); json.dump(osm, open('geo/osm.json', 'w')); break
+        except Exception as e:
+            print('overpass fail', url, rr.status_code if 'rr' in dir() else '', rr.text[:120].replace(chr(10), ' ') if 'rr' in dir() else str(e)[:80])
+            import time; time.sleep(5)
 nodes = {e['id']: (e['lon'], e['lat']) for e in osm['elements'] if e['type'] == 'node'}
 G = nx.DiGraph()
 def xy(nid):
