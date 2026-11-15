@@ -1,0 +1,124 @@
+{
+ "gap": 0.05,
+ "lines": [
+  {
+   "text": "Every day, a river of buses and cars climbs these hills to Tirumala, on a road built more than eighty years ago.",
+   "tts": "Every day, a river of buses and cars climbs these hills to Tirumala... on a road built more than eighty years ago.",
+   "keywords": [
+    "Tirumala,",
+    "eighty"
+   ],
+   "shot": "open",
+   "audio": "audio/l01.wav"
+  },
+  {
+   "text": "And here's the strange part. This old road survives every monsoon, while the newer road beside it keeps breaking.",
+   "tts": "And here's the strange part. This old road survives every monsoon... while the newer road beside it keeps breaking.",
+   "keywords": [
+    "survives",
+    "breaking."
+   ],
+   "shot": "two_roads",
+   "audio": "audio/l02.wav"
+  },
+  {
+   "text": "Before 1944, there was no motor road here. Pilgrims walked, or rode bullock carts up a winding track.",
+   "tts": "Before nineteen forty-four, there was no motor road here. Pilgrims walked, or rode bullock carts, up a winding track.",
+   "keywords": [
+    "1944,",
+    "bullock"
+   ],
+   "shot": "cart_track",
+   "audio": "audio/l03.wav"
+  },
+  {
+   "text": "The plan for a motor road is credited to Sir M. Visvesvaraya, India's legendary engineer. Engineer A. Nageswara Iyer led the work, and Gannon Dunkerley built it.",
+   "tts": "The plan for a motor road is credited to Sir M. Visvesvaraya, India's legendary engineer. Engineer A. Nageswara Iyer led the work, and Gannon Dunkerley built it.",
+   "keywords": [
+    "Visvesvaraya,",
+    "Iyer"
+   ],
+   "shot": "people",
+   "audio": "audio/l04.wav"
+  },
+  {
+   "text": "Their smartest decision? They didn't fight the mountain. They followed the old cart track, keeping the slope gentle all the way up.",
+   "tts": "Their smartest decision? They didn't fight the mountain. They followed the old cart track... keeping the slope gentle, all the way up.",
+   "keywords": [
+    "fight",
+    "gentle"
+   ],
+   "shot": "lay_road",
+   "audio": "audio/l05.wav"
+  },
+  {
+   "text": "Going straight up would be far too steep for any vehicle.",
+   "tts": "Going straight up, would be far too steep for any vehicle.",
+   "keywords": [
+    "straight",
+    "steep"
+   ],
+   "shot": "straight",
+   "audio": "audio/l06.wav"
+  },
+  {
+   "text": "So wherever the hill turns steep, the road folds back on itself. Hairpin bends. The road gets longer, but every stretch stays gentle.",
+   "tts": "So wherever the hill turns steep, the road folds back on itself. Hairpin bends. The road gets longer... but every stretch stays gentle.",
+   "keywords": [
+    "Hairpin",
+    "longer,"
+   ],
+   "shot": "hairpins",
+   "audio": "audio/l07.wav"
+  },
+  {
+   "text": "Opened in 1944, this one road carried every vehicle, up and down, for thirty years.",
+   "tts": "Opened in nineteen forty-four, this one road carried every vehicle, up and down, for thirty years.",
+   "keywords": [
+    "1944,",
+    "thirty"
+   ],
+   "shot": "traffic",
+   "audio": "audio/l08.wav"
+  },
+  {
+   "text": "In 1974, a second road opened for the climb. But between kilometre eleven and seventeen, it was cut steeply through the rock.",
+   "tts": "In nineteen seventy-four, a second road opened for the climb. But between kilometre eleven and seventeen, it was cut steeply through the rock.",
+   "keywords": [
+    "1974,",
+    "rock."
+   ],
+   "shot": "second_road",
+   "audio": "audio/l09.wav"
+  },
+  {
+   "text": "That cut left fractured rock behind. In heavy rain, boulders fall, and the road has to close.",
+   "tts": "That cut left fractured rock behind. In heavy rain, boulders fall... and the road has to close.",
+   "keywords": [
+    "fractured",
+    "close."
+   ],
+   "shot": "rockfall",
+   "audio": "audio/l10.wav"
+  },
+  {
+   "text": "The old road, laid along the hill's own path, keeps running.",
+   "tts": "The old road, laid along the hill's own path... keeps running.",
+   "keywords": [
+    "old",
+    "running."
+   ],
+   "shot": "old_runs",
+   "audio": "audio/l11.wav"
+  },
+  {
+   "text": "Same hills. Two roads. Great engineering works with nature, not against it.",
+   "tts": "Same hills. Two roads. Great engineering works with nature... not against it.",
+   "keywords": [
+    "nature,"
+   ],
+   "shot": "finale",
+   "audio": "audio/l12.wav"
+  }
+ ]
+}
