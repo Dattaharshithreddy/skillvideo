@@ -109,16 +109,23 @@ const Hills: React.FC = () => {
   const row: [string, number, number, number][] = fr[key] || [];
   return <Fade t={t} dur={dur}>
     {row.map(([n, x, y, v], k) => {
-      if (!v) return null; const at = Math.round(dur * 0.08 + k * dur * 0.06); const temple = k === row.length - 1;
+      if (!v) return null; const temple = k === row.length - 1; const at = Math.round(temple ? dur * 0.45 : dur * 0.15 + k * 6);
       const o = interpolate(t, [at, at + 8], [0, 1], clamp);
-      return <div key={n} style={{position: 'absolute', left: x * 1080, top: y * 1920, transform: 'translate(-50%, -100%)', opacity: o, fontFamily: FONT, textAlign: 'center'}}>
-        <div style={{...card, padding: '6px 18px', fontSize: temple ? 40 : 32, fontWeight: 800, borderColor: temple ? GOLD : 'rgba(255,255,255,0.3)', color: temple ? GOLD : 'white'}}>{n}</div>
-        <div style={{width: 3, height: 40, background: temple ? GOLD : 'white', margin: '0 auto', opacity: 0.85}} />
+      if (!temple) return <div key={k} style={{position: 'absolute', left: x * 1080 - 9, top: y * 1920 - 9, width: 18, height: 18, borderRadius: 9, opacity: o,
+        background: GOLD, boxShadow: `0 0 18px ${GOLD}`}} />;
+      return <div key={k} style={{position: 'absolute', left: x * 1080, top: y * 1920, transform: 'translate(-50%, -100%)', opacity: o, fontFamily: FONT, textAlign: 'center'}}>
+        <div style={{...card, padding: '6px 18px', fontSize: 40, fontWeight: 800, borderColor: GOLD, color: GOLD}}>{n} · ఆలయం</div>
+        <div style={{width: 3, height: 50, background: GOLD, margin: '0 auto'}} />
       </div>;
     })}
+    <div style={{position: 'absolute', left: 50, top: 400}}>
+      {['శేషాద్రి', 'నీలాద్రి', 'గరుడాద్రి', 'అంజనాద్రి', 'వృషభాద్రి', 'నారాయణాద్రి', 'వేంకటాద్రి'].map((n, k) =>
+        <Pop key={n} at={Math.round(dur * 0.06 + k * dur * 0.045)} t={t}><div style={{...card, display: 'inline-block', padding: '6px 18px', marginBottom: 10, fontSize: 32, fontWeight: 800,
+          color: k === 6 ? GOLD : 'white', borderColor: k === 6 ? GOLD : 'rgba(255,255,255,0.25)'}}>{k + 1}. {n}</div></Pop>)}
+    </div>
     <Pop at={6} t={t} style={{position: 'absolute', width: '100%', top: 210, textAlign: 'center', fontFamily: FONT}}>
       <div style={{fontSize: 64, fontWeight: 900, color: 'white', textShadow: '0 6px 30px rgba(0,0,0,0.7)'}}>ఏడుకొండలు</div>
-      <div style={{fontSize: 24, color: 'rgba(255,255,255,0.8)'}}>పేర్లు సంప్రదాయం ప్రకారం · స్థానాలు సూచనప్రాయం</div>
+      <div style={{fontSize: 24, color: 'rgba(255,255,255,0.8)'}}>శేషాచలం కొండల సంప్రదాయ పేర్లు</div>
     </Pop>
     <Pop at={Math.round(dur * 0.7)} t={t} style={{position: 'absolute', left: 60, right: 60, bottom: 760}}>
       <Tag c={GOLD} k="తిరుమల" v="శ్రీ వేంకటేశ్వర స్వామి ఆలయం" /></Pop>
