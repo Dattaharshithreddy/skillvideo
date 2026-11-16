@@ -94,7 +94,17 @@ if GM or os.path.exists('geo/s2.png'):
     hsv = nt.nodes.new('ShaderNodeHueSaturation'); hsv.inputs['Saturation'].default_value = 1.08 if GM else 1.15; hsv.inputs['Value'].default_value = 1.0 if GM else 1.6
     bc = nt.nodes.new('ShaderNodeBrightContrast'); bc.inputs['Contrast'].default_value = 0.15
     nt.links.new(img.outputs['Color'], hsv.inputs['Color']); nt.links.new(hsv.outputs['Color'], bc.inputs['Color'])
-    nt.links.new(bc.outputs['Color'], bs.inputs['Base Color'])
+    col_out = bc.outputs['Color']
+    if os.path.exists('geo/road2mask.png'):          # 1944 shots: paint the 1974 road over with hillside colour
+        mk = nt.nodes.new('ShaderNodeTexImage'); mk.image = bpy.data.images.load(os.path.abspath('geo/road2mask.png')); mk.image.colorspace_settings.name = 'Non-Color'
+        era = nt.nodes.new('ShaderNodeValue'); era.name = 'era'; era.outputs[0].default_value = 0.0
+        fz = nt.nodes.new('ShaderNodeMath'); fz.operation = 'MULTIPLY'; nt.links.new(mk.outputs['Color'], fz.inputs[0]); nt.links.new(era.outputs[0], fz.inputs[1])
+        nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 900.0
+        fill = nt.nodes.new('ShaderNodeMix'); fill.data_type = 'RGBA'; fill.inputs[6].default_value = (0.06, 0.08, 0.04, 1); fill.inputs[7].default_value = (0.13, 0.14, 0.08, 1)
+        nt.links.new(nz.outputs['Fac'], fill.inputs['Factor'])
+        mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; nt.links.new(fz.outputs[0], mx.inputs['Factor'])
+        nt.links.new(col_out, mx.inputs[6]); nt.links.new(fill.outputs[2], mx.inputs[7]); col_out = mx.outputs[2]
+    nt.links.new(col_out, bs.inputs['Base Color'])
 else:
     bs.inputs['Base Color'].default_value = (0.12, 0.18, 0.07, 1)
 terr.data.materials.append(tm)
@@ -163,8 +173,8 @@ r1_dn = [tuple(loc(x, y, z, 6)) for x, y, z, d in DN]
 SHOWN_OPEN = [(S('open')[0], S('two_roads')[1] + 1)]
 traffic('car_up2', road2, 34, 1800, SHOWN_OPEN + [(S('finale')[0], END + 1)])
 traffic('car_dn1', r1_dn, 34, 1800, SHOWN_OPEN + [(S('old_runs')[0], END + 1)])
-traffic('car_1944_up', road1_up, 22, 1800, [(S('traffic')[0], S('traffic')[1] + 1)])
-traffic('car_1944_dn', r1_dn, 22, 1800, [(S('traffic')[0], S('traffic')[1] + 1)])
+traffic('car_1944_up', road1_up, 9, 1800, [(S('traffic')[0], S('traffic')[1] + 1)])
+traffic('car_1944_dn', r1_dn, 9, 1800, [(S('traffic')[0], S('traffic')[1] + 1)])
 
 # ---------------- visibility & growth by shot ----------------
 show(r1, [(S('open')[0], S('two_roads')[1] + 1), (S('lay_road')[0], END + 1)])
@@ -179,6 +189,31 @@ for i, o in enumerate(dots):
     a = int(S('cart_track')[0] + (S('cart_track')[1] - S('cart_track')[0]) * 0.9 * i / nD)
     show(o, [(a, S('lay_road')[1] + 1)])
 for o in (bT, bA): show(o, [(1, END + 1)])
+
+# ---------------- eras: 1944 shots get the old look (no 1974 road in the imagery, dusty first road) ----------------
+OLD = ['cart_track', 'people', 'lay_road', 'straight', 'hairpins', 'traffic']
+def era_at(f): return 1.0 if any(S(n)[0] <= f <= S(n)[1] for n in OLD) else 0.0
+ev = tm.node_tree.nodes.get('era')
+en = M_old.node_tree.nodes['Emission']
+for l in plan['lines']:
+    a, b = S(l['shot']); v = era_at(a)
+    if ev: ev.outputs[0].default_value = v; ev.outputs[0].keyframe_insert('default_value', frame=a)
+    en.inputs['Color'].default_value = (0.85, 0.55, 0.25, 1) if v else (0.2, 1.0, 0.4, 1); en.inputs['Color'].keyframe_insert('default_value', frame=a)
+    en.inputs['Strength'].default_value = 1.4 if v else 2.2; en.inputs['Strength'].keyframe_insert('default_value', frame=a)
+for idb in (tm.node_tree, M_old.node_tree):
+    for fc in fcurves(idb):
+        for kp in fc.keyframe_points: kp.interpolation = 'CONSTANT'
+
+# ---------------- temple (gold) and the seven-hill label points ----------------
+PL = json.load(open('geo/places.json'))
+TP = loc(*PL['temple'])
+M_tg = emis('temple_gold', (1.0, 0.7, 0.18), 6.0); M_beam = emis('temple_beam', (1.0, 0.82, 0.4), 2.5)
+bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=TP + Vector((0, 0, 18))); dome = bpy.context.object; dome.scale = (34, 34, 26); dome.data.materials.append(M_tg)
+bpy.ops.mesh.primitive_cylinder_add(radius=26, depth=18, location=TP + Vector((0, 0, 9))); base = bpy.context.object; base.data.materials.append(M_tg)
+bpy.ops.mesh.primitive_cylinder_add(radius=3.5, depth=900, location=TP + Vector((0, 0, 450))); beam = bpy.context.object; beam.data.materials.append(M_beam)
+for o in (dome, base): show(o, [(1, END + 1)])
+show(beam, [(S('hills')[0], fr('hills', 0.85))])
+LBL = [(p['name'], loc(p['x'], p['y'], p['z'], 80)) for p in PL['peaks']] + [(PL['temple_name'], TP + Vector((0, 0, 120)))]
 
 # ---------------- rockfall on the 1974 cut ----------------
 mid = [p for p in UP if 13000 <= p[3] <= 15000]
@@ -222,6 +257,10 @@ def shot(name, c0, c1, t0, t1=None, ln=30):
     a, b = S(name); K(a, c0, t0, ln); K(b, c1, t1 or t0, ln)
 V = Vector
 D = (T_ - A); D.z = 0; Dn = D.normalized(); Pn = V((-Dn.y, Dn.x, 0))
+ha, hb = S('hills')
+K(ha, A - Dn * 5200 + Pn * 900 + V((0, 0, 7600)), TP, 24)
+K(fr('hills', 0.45), A - Dn * 1200 + Pn * 400 + V((0, 0, 4200)), TP, 26)
+K(hb, TP - Dn * 700 + Pn * 350 + V((0, 0, 620)), TP, 32)
 shot('open', A - Dn * 3500 + Pn * 1500 + V((0, 0, 2200)), A - Dn * 2600 + Pn * 1100 + V((0, 0, 1900)), C + V((0, 0, 200)), ln=28)
 shot('two_roads', C - Dn * 1500 - Pn * 4200 + V((0, 0, 3200)), C - Dn * 900 - Pn * 3800 + V((0, 0, 2900)), C, ln=30)
 shot('cart_track', A - Dn * 900 + Pn * 500 + V((0, 0, 450)), A + Dn * 400 + Pn * 450 + V((0, 0, 520)), A + Dn * 1800 + V((0, 0, 150)), A + Dn * 2800 + V((0, 0, 250)), ln=32)
@@ -247,6 +286,16 @@ for idb, path in ((cam, 'location'), (tgt, 'location'), (cd, 'lens')):
                 kp.handle_left_type = kp.handle_right_type = 'AUTO_CLAMPED'
                 if int(round(kp.co[0])) in ends: kp.interpolation = 'CONSTANT'
 
+# hill / temple labels: screen positions per frame of the hills shot (for the Remotion overlay)
+from bpy_extras.object_utils import world_to_camera_view
+lab = {}
+for f in range(S('hills')[0], S('hills')[1] + 1, 2):
+    sc.frame_set(f); row = []
+    for name, p in LBL:
+        q = world_to_camera_view(sc, cam, p); row.append([name, round(q.x, 4), round(1 - q.y, 4), int(q.z > 0 and 0 <= q.x <= 1 and 0 <= q.y <= 1)])
+    lab[f] = row
+json.dump({'step': 2, 'frames': lab}, open('brief/labels.json', 'w'), ensure_ascii=False)
+sc.frame_set(1)
 # camera targets for overlay labels (projected later in Remotion via a json)
 json.dump({'A': list(A), 'T': list(T_), 'H': list(H), 'RC': list(RC)}, open('brief/points.json', 'w'))
 sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
