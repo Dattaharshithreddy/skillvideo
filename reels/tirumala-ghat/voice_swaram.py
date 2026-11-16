@@ -22,19 +22,20 @@ if sys.argv[1] == 'make':
     json.dump({'profile': 'Datta', 'script': script, 'target_seconds': target}, open(f'{VOL}/tirumala_te_req.json', 'w'), ensure_ascii=False)
     json.dump(owner, open('audio_te/owner.json', 'w'))
     call = ("import json,os,urllib.request\n"
-            "key=[l.split('=',1)[1].strip().strip('\"') for l in open('/run/swaram.env') if l.startswith('SWARAM_API_KEY=')][0]\n"
+            "key=open('/app/data/.swk').read().strip()\n"
             "req=urllib.request.Request('http://localhost:17493/indic/narrate',data=open('/app/data/tirumala_te_req.json','rb').read(),"
             "headers={'Authorization':'Bearer '+key,'Content-Type':'application/json'})\n"
             "r=urllib.request.urlopen(req,timeout=3000).read(); open('/app/data/tirumala_te_resp.json','wb').write(r); print('ok', len(r))\n")
     open(f'{VOL}/tirumala_call.py', 'w').write(call)
-    # the key file is copied into the container only for this call, then removed; it is never printed
-    subprocess.run(DC + ['cp', f'{SW}/.env', 'voicebox:/run/swaram.env'], cwd=SW, check=True, stdin=subprocess.DEVNULL, env={**os.environ, 'HOME': '/root'})
+    # only the key (not the whole .env) is handed to the container for this one call, then deleted; it is never printed
+    key = [l.split('=', 1)[1].strip().strip('"').strip("'") for l in open(f'{SW}/.env') if l.startswith('SWARAM_API_KEY=')][0]
+    fd = os.open(f'{VOL}/.swk', os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600); os.write(fd, key.encode()); os.close(fd)
     try:
         r = subprocess.run(DC + ['exec', '-T', 'voicebox', 'python', '/app/data/tirumala_call.py'], cwd=SW, stdin=subprocess.DEVNULL,
                            capture_output=True, text=True, env={**os.environ, 'HOME': '/root'})
         print(r.stdout[-300:], r.stderr[-600:])
     finally:
-        subprocess.run(DC + ['exec', '-T', 'voicebox', 'rm', '-f', '/run/swaram.env'], cwd=SW, stdin=subprocess.DEVNULL, env={**os.environ, 'HOME': '/root'})
+        os.remove(f'{VOL}/.swk')
     resp = json.load(open(f'{VOL}/tirumala_te_resp.json')); json.dump(resp, open('audio_te/narrate.json', 'w'), ensure_ascii=False, indent=1)
     print('target', target, 'keys', list(resp.keys()), 'audio_url', resp.get('audio_url'), 'lines', len(resp.get('lines', [])), 'script lines', len(lines))
     print('MAKE_DONE')
