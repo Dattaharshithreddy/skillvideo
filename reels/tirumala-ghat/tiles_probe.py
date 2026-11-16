@@ -24,6 +24,7 @@ def inside(box, p, m=1.02):
     return True
 def search(node, P, best):
     uri = node.get('content', {}).get('uri', '')
+    if node.get('geometricError', 1e9) < 20: print('  node err', round(node.get('geometricError'), 2), 'uri', uri.split('?')[0][-10:], 'kids', len(node.get('children', [])), 'keys', list(node.keys()))
     if uri.split('?')[0].endswith('.json'):
         if 'session=' in uri: SESSION[0] = urllib.parse.parse_qs(urllib.parse.urlparse(uri).query)['session'][0]
         node = get(uri).json()['root']
