@@ -2,6 +2,8 @@
 import bpy, json, math, os
 from mathutils import Vector
 D = '/opt/reel/assets/sf'; man = json.load(open(f'{D}/manifest.json'))
+import sys
+if '--' in sys.argv: man = {k: man[k] for k in sys.argv[sys.argv.index('--') + 1:]}
 bpy.ops.wm.read_factory_settings(use_empty=True); sc = bpy.context.scene
 def bbox(objs):
     pts = [o.matrix_world @ Vector(c) for o in objs if o.type == 'MESH' for c in o.bound_box]
@@ -11,6 +13,17 @@ for key in man:
     gl = [os.path.join(r, f) for r, _, fs in os.walk(f'{D}/{key}') for f in fs if f.endswith('.gltf')]
     if not gl: continue
     before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=gl[0]); new = [o for o in bpy.data.objects if o not in before]
+    J = json.load(open(gl[0])); base = os.path.dirname(gl[0]); print('EXT', key, J.get('extensionsUsed'), 'meshes', len([o for o in new if o.type == 'MESH']), 'anims', len(J.get('animations', [])))
+    for mj in J.get('materials', []):
+        sg = (mj.get('extensions') or {}).get('KHR_materials_pbrSpecularGlossiness'); bm = bpy.data.materials.get(mj.get('name', ''))
+        if not sg or bm is None or not bm.use_nodes: continue
+        pb_ = bm.node_tree.nodes.get('Principled BSDF')
+        if pb_ is None or pb_.inputs['Base Color'].links: continue
+        if 'diffuseTexture' in sg:
+            uri = J['images'][J['textures'][sg['diffuseTexture']['index']]['source']].get('uri')
+            if uri and os.path.exists(os.path.join(base, uri)):
+                tx = bm.node_tree.nodes.new('ShaderNodeTexImage'); tx.image = bpy.data.images.load(os.path.join(base, uri)); bm.node_tree.links.new(tx.outputs['Color'], pb_.inputs['Base Color']); continue
+        if 'diffuseFactor' in sg: pb_.inputs['Base Color'].default_value = sg['diffuseFactor']
     roots = [o for o in new if o.parent is None]; bpy.context.view_layer.update()
     lo, hi = bbox(new); d = hi - lo; sizes[key] = [round(v, 2) for v in d]
     # scale anything that is clearly not in metres to a plausible size (vehicles ~ length, people ~ height)
@@ -30,6 +43,6 @@ cd = bpy.data.cameras.new('c'); cam = bpy.data.objects.new('c', cd); sc.collecti
 cam.location = (x / 2, -x * 0.75, x * 0.22); cd.lens = 35
 t = bpy.data.objects.new('t', None); sc.collection.objects.link(t); t.location = (x / 2, 0, 1.2)
 cc = cam.constraints.new('TRACK_TO'); cc.target = t
-sc.render.engine = 'BLENDER_EEVEE_NEXT'; sc.render.resolution_x, sc.render.resolution_y = 2400, 900
+sc.render.engine = 'BLENDER_EEVEE_NEXT'; sc.render.resolution_x, sc.render.resolution_y = 1800, 700
 sc.view_settings.view_transform = 'AgX'; sc.render.image_settings.file_format = 'JPEG'; sc.render.filepath = '/opt/reel/share/e1376f7f43dd/models_lineup.jpg'
 bpy.ops.render.render(write_still=True); print('PREVIEW_DONE')

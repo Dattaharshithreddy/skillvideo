@@ -14,13 +14,15 @@ def in_old(f): return any(S(n)[0] <= f <= S(n)[1] for n in OLD_SHOTS)
 # aerial-only overlays (glowing road lines, track dots, light-dot traffic, big aerial boulders, beacons) hide in close shots
 AERIAL = [o for o in sc.objects if o.type in ('MESH', 'CURVE') and o.name != 'terrain' and not o.name.startswith(('Sphere', 'Cylinder', 'path_'))]
 CLOSE_SHOTS = ['open', 'traffic', 'old_runs', 'cart_track', 'rockfall']
-for o in AERIAL:
-    o.hide_render = False; o.keyframe_insert('hide_render', frame=1)
-    for n in CLOSE_SHOTS:
-        a, b = S(n); o.hide_render = True; o.keyframe_insert('hide_render', frame=a); o.hide_render = False; o.keyframe_insert('hide_render', frame=b + 1)
+def key_hidden(o, hidden_in):
+    prev = None
+    for l_ in plan['lines']:
+        a_ = S(l_['shot'])[0]; h_ = hidden_in(l_['shot'])
+        if h_ != prev: o.hide_render = h_; o.keyframe_insert('hide_render', frame=a_); prev = h_
     for fc in fcurves(o):
         if fc.data_path == 'hide_render':
             for kp in fc.keyframe_points: kp.interpolation = 'CONSTANT'
+for o in AERIAL: key_hidden(o, lambda n: n in CLOSE_SHOTS)
 
 # ---------------- road segments (local coords, z = ground) ----------------
 def pts_of(raw):
@@ -75,7 +77,7 @@ M_road, nt, b, d_as = pbr_tex('road_close', 'asphalt_04', 0.25)
 dirt = img(nt, f'{PH}t/red_laterite_soil_stones/Diffuse.jpg', vec=tiled(nt, 0.3))
 era_r = nt.nodes.new('ShaderNodeValue'); era_r.name = 'era'
 mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; nt.links.new(era_r.outputs[0], mx.inputs['Factor'])
-dk = nt.nodes.new('ShaderNodeMix'); dk.data_type = 'RGBA'; dk.blend_type = 'MULTIPLY'; dk.inputs['Factor'].default_value = 1.0; dk.inputs[7].default_value = (0.22, 0.22, 0.24, 1)
+dk = nt.nodes.new('ShaderNodeMix'); dk.data_type = 'RGBA'; dk.blend_type = 'MULTIPLY'; dk.inputs['Factor'].default_value = 1.0; dk.inputs[7].default_value = (0.5, 0.5, 0.52, 1)
 nt.links.new(d_as.outputs['Color'], dk.inputs[6])
 nt.links.new(dk.outputs[2], mx.inputs[6]); nt.links.new(dirt.outputs['Color'], mx.inputs[7]); nt.links.new(mx.outputs[2], b.inputs['Base Color'])
 # ground: satellite colour from far, forest-floor / laterite detail near, rock face on steep cuts
@@ -203,9 +205,9 @@ def scatter(ob):
     ng = bpy.data.node_groups.new(ob.name + '_scatter', 'GeometryNodeTree')
     ng.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry'); ng.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
     N, L = ng.nodes, ng.links; gi = N.new('NodeGroupInput'); go = N.new('NodeGroupOutput'); j = N.new('GeometryNodeJoinGeometry'); L.new(gi.outputs[0], j.inputs[0])
-    for coll, dens, s0, s1, seed in ((TREES, 1 / 30, 0.8, 1.5, 3), (SHRUBS, 1 / 9, 0.7, 1.7, 4), (GRASSC, 1 / 2.5, 0.8, 1.8, 5)):
+    for coll, dens, s0, s1, seed in ((TREES, 1 / 45, 0.8, 1.5, 3), (SHRUBS, 1 / 14, 0.7, 1.7, 4), (GRASSC, 1 / 5, 0.8, 1.8, 5)):
         na = N.new('GeometryNodeInputNamedAttribute'); na.data_type = 'FLOAT'; na.inputs['Name'].default_value = 'veg'
-        mul = N.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = dens; L.new(na.outputs['Attribute'], mul.inputs[0])
+        mul = N.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = dens; L.new(next(o_ for o_ in na.outputs if o_.enabled), mul.inputs[0])
         dp = N.new('GeometryNodeDistributePointsOnFaces'); dp.distribute_method = 'RANDOM'; dp.inputs['Seed'].default_value = seed
         L.new(gi.outputs[0], dp.inputs['Mesh']); L.new(mul.outputs[0], dp.inputs['Density'])
         ci = N.new('GeometryNodeCollectionInfo'); ci.inputs['Collection'].default_value = coll; ci.inputs['Separate Children'].default_value = True; ci.inputs['Reset Children'].default_value = True
@@ -228,6 +230,21 @@ def vehicle(key):
     if key in VEH: return VEH[key]
     gl = [os.path.join(r, f) for r, _, fs in os.walk(SF + key) for f in fs if f.endswith('.gltf')][0]
     before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=gl); new = [o for o in bpy.data.objects if o not in before]
+    try:
+        J = json.load(open(gl)); base = os.path.dirname(gl)
+        for mj in J.get('materials', []):
+            sg = (mj.get('extensions') or {}).get('KHR_materials_pbrSpecularGlossiness')
+            bm = bpy.data.materials.get(mj.get('name', ''))
+            if not sg or bm is None or not bm.use_nodes: continue
+            pb_ = bm.node_tree.nodes.get('Principled BSDF')
+            if pb_ is None or pb_.inputs['Base Color'].links: continue
+            if 'diffuseTexture' in sg:
+                uri = J['images'][J['textures'][sg['diffuseTexture']['index']]['source']].get('uri')
+                if uri and os.path.exists(os.path.join(base, uri)):
+                    tx = bm.node_tree.nodes.new('ShaderNodeTexImage'); tx.image = bpy.data.images.load(os.path.join(base, uri))
+                    bm.node_tree.links.new(tx.outputs['Color'], pb_.inputs['Base Color']); continue
+            if 'diffuseFactor' in sg: pb_.inputs['Base Color'].default_value = sg['diffuseFactor']
+    except Exception as ex: print('specgloss fix skipped', key, ex)
     bpy.context.view_layer.update()
     # drop stray ground slabs / backdrops: meshes much wider than the model is tall
     names = [o.name for o in new]; drop = []
@@ -255,7 +272,7 @@ def vehicle(key):
         rg = pm.node_tree.nodes.new('ShaderNodeMapRange'); rg.inputs['From Min'].default_value = 0.0; rg.inputs['From Max'].default_value = 0.2
         rg.inputs['To Min'].default_value = 0.08; rg.inputs['To Max'].default_value = 0.45; pm.node_tree.links.new(sp_.outputs[0], rg.inputs['Value']); pm.node_tree.links.new(rg.outputs[0], pb.inputs['Roughness'])
         BANDS = [(0.10, (0.02, 0.02, 0.02)), (0.25, (0.50, 0.03, 0.06)), (0.30, (1.0, 0.72, 0.05)), (0.52, (0.93, 0.90, 0.82)),
-                 (0.78, (0.03, 0.05, 0.07)), (0.93, (0.93, 0.90, 0.82)), (1.01, (1.0, 0.72, 0.05))]
+                 (0.78, (0.03, 0.05, 0.07)), (0.86, (0.93, 0.90, 0.82)), (0.91, (1.0, 0.72, 0.05)), (1.01, (0.93, 0.90, 0.82))]
         for o in new:
             if o.type != 'MESH': continue
             me_ = o.data; va = me_.color_attributes.new('paint', 'FLOAT_COLOR', 'POINT'); mw = o.matrix_world
@@ -394,16 +411,10 @@ for k, (key, off) in enumerate((('barrier_closed', -14), ('barrier_concrete', -1
     p = mid_ + t_ * off + Vector((-t_.y, t_.x, 0)) * (k - 1) * 2.3; e.location = p; e.rotation_euler.z = math.atan2(t_.y, t_.x)
     show(e, [(int(ra + (rb - ra) * 0.75), rb + 1)])
 rc_t = bpy.data.objects.new('R_focus', None); sc.collection.objects.link(rc_t); rc_t.location = mid_ + upslope * 6 + Vector((0, 0, 3))
-track_cam('rockfall', rc_t, [(0.0, mid_ - t_ * 42 - upslope * 4 + Vector((0, 0, 3.2))), (1.0, mid_ - t_ * 30 - upslope * 3 + Vector((0, 0, 2.6)))], 30)
+track_cam('rockfall', rc_t, [(0.0, side_point(rR, LR * 0.5 - 46, 0, 3.4)), (1.0, side_point(rR, LR * 0.5 - 32, 0, 2.8))], 30)
 
 def only_in(objs, shots):
-    for o in objs:
-        o.hide_render = True; o.keyframe_insert('hide_render', frame=1)
-        for n in shots:
-            a_, b_ = S(n); o.hide_render = False; o.keyframe_insert('hide_render', frame=a_); o.hide_render = True; o.keyframe_insert('hide_render', frame=b_ + 1)
-        for fc in fcurves(o):
-            if fc.data_path == 'hide_render':
-                for kp in fc.keyframe_points: kp.interpolation = 'CONSTANT'
+    for o in objs: key_hidden(o, lambda n: n not in shots)
 only_in([gU, roadU], ['open']); only_in([gH, roadH], ['traffic', 'old_runs']); only_in([gA, roadA], ['cart_track']); only_in([gR, roadR], ['rockfall'])
 
 # era: road surface dirt in old shots

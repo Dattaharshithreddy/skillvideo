@@ -113,8 +113,12 @@ terr.data.materials.append(tm)
 wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True; wn = wd.node_tree
 sky = wn.nodes.new('ShaderNodeTexSky'); sky.sky_type = 'NISHITA'
 sky.sun_elevation = math.radians(38); sky.sun_rotation = math.radians(250); sky.altitude = 900; sky.air_density = 1.0; sky.dust_density = 0.6
-wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color']); wn.nodes['Background'].inputs['Strength'].default_value = 0.9
-bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy = 5.0; sun.data.color = (1.0, 0.96, 0.9)
+HD = '/opt/reel/assets/ph/h/kloofendal_48d_partly_cloudy_puresky.exr'
+if os.path.exists(HD):      # real sky with clouds, like the ghat road on a clear day
+    envt = wn.nodes.new('ShaderNodeTexEnvironment'); envt.image = bpy.data.images.load(HD); wn.links.new(envt.outputs['Color'], wn.nodes['Background'].inputs['Color'])
+else: wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color'])
+wn.nodes['Background'].inputs['Strength'].default_value = 1.0
+bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy = 3.5; sun.data.color = (1.0, 0.96, 0.9)
 sun.rotation_euler = (math.radians(90 - 38), 0, math.radians(250 - 90))
 sun.data.angle = math.radians(1.5)
 
