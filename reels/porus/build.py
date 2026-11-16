@@ -454,5 +454,9 @@ for idb, path in ((cam, 'location'), (tgt, 'location'), (cd, 'lens')):
 sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
 sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Medium High Contrast'
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
+P_ = {'B': B, 'O': O, 'FORT': FORT, 'KG': KG, 'RIDGE': RIDGE, 'FN': FN, 'FS': FS, 'CROSS': CROSS, 'NB': NB_, 'SB': SB_}
+json.dump({'pts': {k: list(v.xy) for k, v in P_.items()}, 'river': [list(p.xy) for p in R], 'RW': RW,
+           'tod': {k: [v[3][0], v[3][1], v[3][2], v[4]] for k, v in TOD.items()}, 'SH': SH, 'shots': [l['shot'] for l in plan['lines']]},
+          open('brief/points.json', 'w'))
 os.makedirs('scene', exist_ok=True); bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath('scene/porus.blend'))
 print('built', END, SH)
