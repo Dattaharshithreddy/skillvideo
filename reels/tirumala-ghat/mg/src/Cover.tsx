@@ -6,7 +6,7 @@ const gold: React.CSSProperties = {background: 'linear-gradient(180deg, #FFF8D0 
   color: 'transparent', filter: 'drop-shadow(0 6px 0 rgba(80,30,0,0.95)) drop-shadow(0 0 34px rgba(255,170,40,0.85))'};
 export const Cover: React.FC = () => {
   const g = (LB as any).shots?.govinda || {}; const ks = Object.keys(g); const row = ks.length ? g[ks[ks.length - 1]] : []; const tp = row.length ? row[row.length - 1] : ['', 0.5, 0.45, 1];
-  const x = tp[1] * 1080, y = 520 + tp[2] * 1920, R = 1500;
+  const x = tp[1] * 1080, y = 710 + tp[2] * 1920, R = 1500;
   const mask = 'radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 24%, rgba(0,0,0,0) 62%)';
   return <AbsoluteFill style={{background: '#1a0a00'}}>
     <Img src={staticFile('cover_bg.jpg')} style={{position: 'absolute', top: 520, left: 0, width: 1080, height: 1920, filter: 'saturate(1.4) contrast(1.1) brightness(0.92)'}} />
@@ -24,7 +24,7 @@ export const Cover: React.FC = () => {
     <div style={{position: 'absolute', top: 850, width: '100%', textAlign: 'center'}}>
       <div style={{display: 'inline-block', transform: 'rotate(-3deg)', background: '#E0211B', border: '6px solid #FFD35A', borderRadius: 26, padding: '14px 44px 6px', boxShadow: '0 14px 40px rgba(0,0,0,0.6)',
         fontFamily: SANS, fontWeight: 900, fontSize: 92, color: 'white', lineHeight: 1.2}}>80 ఏళ్ళ <span style={{color: '#FFE36B'}}>రహస్యం!</span></div>
-      <div style={{position: 'absolute', top: 700, width: '100%', fontFamily: SANS, fontWeight: 900, fontSize: 66, color: 'white', textShadow: '0 4px 14px rgba(0,0,0,0.95)', WebkitTextStroke: '3px rgba(30,8,0,0.9)', paintOrder: 'stroke fill'}}><span style={{color: '#FFD35A'}}>1944</span> లో ఎలా కట్టారు?</div>
+      <div style={{position: 'absolute', top: 870, width: '100%', fontFamily: SANS, fontWeight: 900, fontSize: 66, color: 'white', textShadow: '0 4px 14px rgba(0,0,0,0.95)', WebkitTextStroke: '3px rgba(30,8,0,0.9)', paintOrder: 'stroke fill'}}><span style={{color: '#FFD35A'}}>1944</span> లో ఎలా కట్టారు?</div>
     </div>
   </AbsoluteFill>;
 };
