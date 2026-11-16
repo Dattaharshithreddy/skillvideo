@@ -88,9 +88,10 @@ me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
 terr = bpy.data.objects.new('terrain', me); sc.collection.objects.link(terr)
 tm = bpy.data.materials.new('terrain'); tm.use_nodes = True; nt = tm.node_tree; bs = nt.nodes['Principled BSDF']
 bs.inputs['Roughness'].default_value = 0.9
-if os.path.exists('geo/s2.png'):
-    img = nt.nodes.new('ShaderNodeTexImage'); img.image = bpy.data.images.load(os.path.abspath('geo/s2.png')); img.interpolation = 'Cubic'
-    hsv = nt.nodes.new('ShaderNodeHueSaturation'); hsv.inputs['Saturation'].default_value = 1.15; hsv.inputs['Value'].default_value = 1.6
+GM = os.path.exists('geo/gm.jpg')
+if GM or os.path.exists('geo/s2.png'):
+    img = nt.nodes.new('ShaderNodeTexImage'); img.image = bpy.data.images.load(os.path.abspath('geo/gm.jpg' if GM else 'geo/s2.png')); img.interpolation = 'Cubic'
+    hsv = nt.nodes.new('ShaderNodeHueSaturation'); hsv.inputs['Saturation'].default_value = 1.08 if GM else 1.15; hsv.inputs['Value'].default_value = 1.0 if GM else 1.6
     bc = nt.nodes.new('ShaderNodeBrightContrast'); bc.inputs['Contrast'].default_value = 0.15
     nt.links.new(img.outputs['Color'], hsv.inputs['Color']); nt.links.new(hsv.outputs['Color'], bc.inputs['Color'])
     nt.links.new(bc.outputs['Color'], bs.inputs['Base Color'])

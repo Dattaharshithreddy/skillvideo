@@ -1,30 +1,31 @@
 import json
+# Telugu narration (Mahie Varma, ElevenLabs). (caption text, tts text, keywords, shot)
 L = [
- ("Every day, a river of buses and cars climbs these hills to Tirumala, on a road built more than eighty years ago.",
-  "Every day, a river of buses and cars climbs these hills to Tirumala... on a road built more than eighty years ago.", ["Tirumala,", "eighty"], "open"),
- ("And here's the strange part. This old road survives every monsoon, while the newer road beside it keeps breaking.",
-  "And here's the strange part. This old road survives every monsoon... while the newer road beside it keeps breaking.", ["survives", "breaking."], "two_roads"),
- ("Before 1944, there was no motor road here. Pilgrims walked, or rode bullock carts up a winding track.",
-  "Before nineteen forty-four, there was no motor road here. Pilgrims walked, or rode bullock carts, up a winding track.", ["1944,", "bullock"], "cart_track"),
- ("The plan for a motor road is credited to Sir M. Visvesvaraya, India's legendary engineer. Engineer A. Nageswara Iyer led the work, and Gannon Dunkerley built it.",
-  "The plan for a motor road is credited to Sir M. Visvesvaraya, India's legendary engineer. Engineer A. Nageswara Iyer led the work, and Gannon Dunkerley built it.", ["Visvesvaraya,", "Iyer"], "people"),
- ("Their smartest decision? They didn't fight the mountain. They followed the old cart track, keeping the slope gentle all the way up.",
-  "Their smartest decision? They didn't fight the mountain. They followed the old cart track... keeping the slope gentle, all the way up.", ["fight", "gentle"], "lay_road"),
- ("Going straight up would be far too steep for any vehicle.",
-  "Going straight up, would be far too steep for any vehicle.", ["straight", "steep"], "straight"),
- ("So wherever the hill turns steep, the road folds back on itself. Hairpin bends. The road gets longer, but every stretch stays gentle.",
-  "So wherever the hill turns steep, the road folds back on itself. Hairpin bends. The road gets longer... but every stretch stays gentle.", ["Hairpin", "longer,"], "hairpins"),
- ("Opened in 1944, this one road carried every vehicle, up and down, for thirty years.",
-  "Opened in nineteen forty-four, this one road carried every vehicle, up and down, for thirty years.", ["1944,", "thirty"], "traffic"),
- ("In 1974, a second road opened for the climb. But between kilometre eleven and seventeen, it was cut steeply through the rock.",
-  "In nineteen seventy-four, a second road opened for the climb. But between kilometre eleven and seventeen, it was cut steeply through the rock.", ["1974,", "rock."], "second_road"),
- ("That cut left fractured rock behind. In heavy rain, boulders fall, and the road has to close.",
-  "That cut left fractured rock behind. In heavy rain, boulders fall... and the road has to close.", ["fractured", "close."], "rockfall"),
- ("The old road, laid along the hill's own path, keeps running.",
-  "The old road, laid along the hill's own path... keeps running.", ["old", "running."], "old_runs"),
- ("Same hills. Two roads. Great engineering works with nature, not against it.",
-  "Same hills. Two roads. Great engineering works with nature... not against it.", ["nature,"], "finale"),
+ ("ప్రతి రోజూ బస్సులు, కార్లు ప్రవాహంలా ఈ కొండలు ఎక్కి తిరుమల చేరుకుంటాయి… ఎనభై ఏళ్ళ క్రితం వేసిన రోడ్డు మీద.",
+  "ప్రతి రోజూ బస్సులు, కార్లు ప్రవాహంలా ఈ కొండలు ఎక్కి తిరుమల చేరుకుంటాయి… ఎనభై ఏళ్ళ క్రితం వేసిన రోడ్డు మీద.", ["తిరుమల", "ఎనభై"], "open"),
+ ("ఇక్కడే ఒక వింత ఉంది. ఈ పాత రోడ్డు ప్రతి వర్షాకాలాన్నీ తట్టుకుంటుంది… పక్కనే ఉన్న కొత్త రోడ్డు మాత్రం మళ్ళీ మళ్ళీ దెబ్బతింటుంది.",
+  "ఇక్కడే ఒక వింత ఉంది. ఈ పాత రోడ్డు ప్రతి వర్షాకాలాన్నీ తట్టుకుంటుంది… పక్కనే ఉన్న కొత్త రోడ్డు మాత్రం మళ్ళీ మళ్ళీ దెబ్బతింటుంది.", ["వింత", "దెబ్బతింటుంది."], "two_roads"),
+ ("1944 కి ముందు ఇక్కడ మోటారు రోడ్డే లేదు. భక్తులు కాలినడకన, లేదా ఎడ్ల బండ్ల మీద, మెలికల దారిలో పైకి వెళ్ళేవారు.",
+  "పంతొమ్మిది వందల నలభై నాలుగుకి ముందు, ఇక్కడ మోటారు రోడ్డే లేదు. భక్తులు కాలినడకన, లేదా ఎడ్ల బండ్ల మీద, మెలికల దారిలో పైకి వెళ్ళేవారు.", ["1944", "ఎడ్ల"], "cart_track"),
+ ("ఈ రోడ్డు ప్లాన్ ఘనతను సర్ ఎం. విశ్వేశ్వరయ్యకు ఇస్తారు. ఇంజనీర్ ఎ. నాగేశ్వర అయ్యర్ పనిని నడిపించారు, గ్యానన్ డంకర్లీ కంపెనీ నిర్మించింది.",
+  "ఈ రోడ్డు ప్లాన్ ఘనతను, భారతదేశం గర్వించే ఇంజనీర్ సర్ ఎం. విశ్వేశ్వరయ్యకు ఇస్తారు. ఇంజనీర్ ఎ. నాగేశ్వర అయ్యర్ పనిని నడిపించారు, గ్యానన్ డంకర్లీ కంపెనీ నిర్మించింది.", ["విశ్వేశ్వరయ్యకు", "అయ్యర్"], "people"),
+ ("వాళ్ళ తెలివైన నిర్ణయం? కొండతో పోరాడలేదు. పాత బండి దారినే అనుసరించారు… పైవరకూ వాలు నెమ్మదిగా ఉండేలా.",
+  "వాళ్ళు తీసుకున్న అతి తెలివైన నిర్ణయం ఏంటో తెలుసా? కొండతో పోరాడలేదు. పాత బండి దారినే అనుసరించారు… పైవరకూ వాలు నెమ్మదిగా ఉండేలా.", ["పోరాడలేదు.", "నెమ్మదిగా"], "lay_road"),
+ ("నేరుగా పైకి వేస్తే, ఏ వాహనమూ ఎక్కలేనంత నిటారుగా ఉంటుంది.",
+  "నేరుగా పైకి రోడ్డు వేస్తే, ఏ వాహనమూ ఎక్కలేనంత నిటారుగా ఉంటుంది.", ["నేరుగా", "నిటారుగా"], "straight"),
+ ("అందుకే కొండ నిటారుగా మారిన చోటల్లా రోడ్డు వెనక్కి మెలిక తిరుగుతుంది. అవే హెయిర్‌పిన్ మలుపులు. రోడ్డు పొడవు పెరుగుతుంది… కానీ ప్రతి భాగం నెమ్మదిగానే.",
+  "అందుకే కొండ నిటారుగా మారిన ప్రతి చోటా, రోడ్డు వెనక్కి మెలిక తిరుగుతుంది. అవే హెయిర్‌పిన్ మలుపులు. రోడ్డు పొడవు పెరుగుతుంది… కానీ ప్రతి భాగం నెమ్మదిగానే ఉంటుంది.", ["హెయిర్‌పిన్", "పొడవు"], "hairpins"),
+ ("1944 లో మొదలైన ఈ ఒక్క రోడ్డే, ముప్పై ఏళ్ళ పాటు ఎక్కే, దిగే అన్ని వాహనాలనూ మోసింది.",
+  "పంతొమ్మిది వందల నలభై నాలుగులో మొదలైన ఈ ఒక్క రోడ్డే, ముప్పై ఏళ్ళ పాటు, ఎక్కే, దిగే అన్ని వాహనాలనూ మోసింది.", ["1944", "ముప్పై"], "traffic"),
+ ("1974 లో ఎక్కడానికి రెండో రోడ్డు వచ్చింది. కానీ 11 నుంచి 17 కిలోమీటర్ల మధ్య, దాన్ని రాతిని నిటారుగా తొలిచి వేశారు.",
+  "పంతొమ్మిది వందల డెబ్భై నాలుగులో, ఎక్కడానికి రెండో రోడ్డు వచ్చింది. కానీ పదకొండు నుంచి పదిహేడు కిలోమీటర్ల మధ్య, దాన్ని రాతిని నిటారుగా తొలిచి వేశారు.", ["1974", "రాతిని"], "second_road"),
+ ("ఆ తొలచడం వల్ల రాయి పగుళ్ళు పట్టింది. భారీ వర్షం పడితే బండరాళ్ళు జారిపడతాయి… రోడ్డు మూసేయాల్సి వస్తుంది.",
+  "ఆ తొలచడం వల్ల రాయి పగుళ్ళు పట్టింది. భారీ వర్షం పడితే, బండరాళ్ళు జారిపడతాయి… రోడ్డు మూసేయాల్సి వస్తుంది.", ["పగుళ్ళు", "మూసేయాల్సి"], "rockfall"),
+ ("కొండ సహజ దారిలోనే వేసిన పాత రోడ్డు మాత్రం… నడుస్తూనే ఉంది.",
+  "కొండ సహజ దారిలోనే వేసిన పాత రోడ్డు మాత్రం… నడుస్తూనే ఉంది.", ["పాత", "నడుస్తూనే"], "old_runs"),
+ ("అవే కొండలు. రెండు రోడ్లు. గొప్ప ఇంజనీరింగ్ ప్రకృతితో కలిసి పనిచేస్తుంది… ఎదురు నిలబడి కాదు.",
+  "అవే కొండలు. రెండు రోడ్లు. గొప్ప ఇంజనీరింగ్, ప్రకృతితో కలిసి పనిచేస్తుంది… ఎదురు నిలబడి కాదు.", ["ప్రకృతితో"], "finale"),
 ]
-lines = [{"text": t, "tts": s, "keywords": k, "shot": sh, "audio": f"audio/l{i+1:02d}.wav"} for i, (t, s, k, sh) in enumerate(L)]
-json.dump({"gap": 0.05, "lines": lines}, open('brief/plan.json', 'w'), indent=1, ensure_ascii=False)
-print(len(lines), sum(len(l['tts'].split()) for l in lines))
+lines = [{"text": t, "tts": s, "keywords": k, "shot": sh, "audio": f"audio_te/l{i+1:02d}.wav"} for i, (t, s, k, sh) in enumerate(L)]
+json.dump({"gap": 0.35, "lang": "te", "lines": lines}, open('brief/plan.json', 'w'), indent=1, ensure_ascii=False)
+print(len(lines))
