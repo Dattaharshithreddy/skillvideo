@@ -175,7 +175,9 @@ const Seven: React.FC = () => {
   const row = labRow('seven', f); const NT: number[] = (T as any).name_t || [];
   let cur = -1; NT.forEach((x, i) => { if (t / dur >= x) cur = i; });
   const on = (k: number) => k <= cur;
-  const L = cur >= 0 && row[cur] ? row[cur] : null; const at = cur >= 0 ? Math.round(NT[cur] * dur) : 0;
+  const HNAMES = ['శేషాద్రి', 'నీలాద్రి', 'గరుడాద్రి', 'అంజనాద్రి', 'వృషభాద్రి', 'నారాయణాద్రి', 'వేంకటాద్రి'];
+  const src = cur === 6 ? row[row.length - 1] : (row.length === 7 ? row[cur] : null);
+  const L: [string, number, number, number] | null = cur >= 0 ? [HNAMES[cur], src ? src[1] : 0.5, src ? src[2] : 0.4, src ? src[3] : 0] : null; const at = cur >= 0 ? Math.round(NT[cur] * dur) : 0;
   const s = spring({frame: t - at, fps: FPS, config: {damping: 13, stiffness: 160}});
   const vis = L ? L[3] === 1 : false;
   const px = L && vis ? Math.min(880, Math.max(200, L[1] * 1080)) : 540, py = L && vis ? Math.min(1120, Math.max(560, L[2] * 1920)) : 760;

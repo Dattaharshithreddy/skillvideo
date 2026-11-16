@@ -250,6 +250,20 @@ sx_ = sm_.node_tree.nodes.new('ShaderNodeMix'); sx_.data_type = 'RGBA'; sx_.inpu
 sm_.node_tree.links.new(sm_.node_tree.nodes.new('ShaderNodeTexCoord').outputs['Object'], sn_.inputs['Vector']); sm_.node_tree.links.new(sn_.outputs['Fac'], sx_.inputs['Factor'])
 sm_.node_tree.links.new(sx_.outputs[2], sm_.node_tree.nodes['Principled BSDF'].inputs['Base Color']); skirt.data.materials.append(sm_)
 pk = [loc(p['x'], p['y'], p['z']) for p in PL['peaks']]
+if len(pk) < 6:      # the stored list can be short: pick more hill tops straight from the terrain around the temple
+    k_ = max(2, int(260 / RES)); cand_ = []
+    for r_ in range(k_, h - k_, 3):
+        for c_ in range(k_, w - k_, 3):
+            z_ = dem[r_, c_]
+            if z_ >= dem[r_ - k_:r_ + k_ + 1, c_ - k_:c_ + k_ + 1].max():
+                q_ = Vector((meta['x0'] + (c_ + 0.5) * RES - OX, meta['y1'] - (r_ + 0.5) * RES - OY, float(z_) - ZB)); d_ = (q_.xy - TP.xy).length
+                edge_ = min(c_, w - c_, r_, h - r_) * RES
+                if 700 < d_ < 3800 and edge_ > 900 and q_.z > TP.z - 60: cand_.append(q_)
+    cand_.sort(key=lambda q: -q.z)
+    for q_ in cand_:
+        if len(pk) >= 6: break
+        if all((q_.xy - p_.xy).length > 850 for p_ in pk): pk.append(q_)
+print('HILL_TOPS', len(pk), [(round(q.x), round(q.y), round(q.z)) for q in pk])
 pk.sort(key=lambda q: math.atan2(q.y - TP.y, q.x - TP.x))
 hi_ = max(range(len(pk)), key=lambda i: pk[i].z); pk = pk[hi_ + 1:] + pk[:hi_ + 1]      # fly round the hills, ending on the highest (Narayanagiri)
 HN = ['శేషాద్రి', 'నీలాద్రి', 'గరుడాద్రి', 'అంజనాద్రి', 'వృషభాద్రి', 'నారాయణాద్రి']
@@ -308,7 +322,7 @@ def hill_cam(P):
     o_ = (P - TP); o_.z = 0; o_ = o_.normalized(); c_ = P + o_ * 1000; c_.z = max(P.z + 620, elev_local(c_.x, c_.y) + 200); return c_
 K(sa_, hill_cam(pk[0]) + V((0, 0, 900)) + (pk[0] - TP).normalized() * 900, pk[0], 26); SEVK.append(sa_)
 for i, P in enumerate(pk):
-    f_ = fr('seven', NT[i] + 0.35 * (NT[i + 1] - NT[i])); K(f_, hill_cam(P), P, 28); SEVK.append(f_)
+    f_ = fr('seven', NT[min(i, 5)] + 0.35 * (NT[min(i, 5) + 1] - NT[min(i, 5)])); K(f_, hill_cam(P), P, 28); SEVK.append(f_)
 K(fr('seven', min(0.9, NT[6] + 0.04)), TP + E_ * 1300 + Nn * 800 + V((0, 0, 600)), TA, 30)
 K(sb_, TP + E_ * 560 + Nn * 330 + V((0, 0, 190)), TA, 34)
 ga_, gb_ = S('govinda')
