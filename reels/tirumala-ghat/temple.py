@@ -9,11 +9,11 @@ def _pm(name, col, rough, metal=0.0, emit=None, es=0.0):
     m = principled(name, col, rough); b_ = m.node_tree.nodes['Principled BSDF']; b_.inputs['Metallic'].default_value = metal
     if emit: b_.inputs['Emission Color'].default_value = (*emit, 1); b_.inputs['Emission Strength'].default_value = es
     return m
-MT = {'stone': _pm('tpl_stone', (0.50, 0.30, 0.16), 0.85), 'white': _pm('tpl_white', (1.0, 0.93, 0.78), 0.7),
-      'gold': _pm('tpl_gold', (1.0, 0.52, 0.06), 0.3, 0.45, (1.0, 0.42, 0.04), 2.0), 'roof': _pm('tpl_roof', (0.78, 0.62, 0.42), 0.8),
-      'dark': _pm('tpl_dark', (0.07, 0.04, 0.03), 0.9), 'pave': _pm('tpl_pave', (0.40, 0.31, 0.22), 0.9), 'niche': _pm('tpl_niche', (0.86, 0.66, 0.38), 0.8),
-      'water': _pm('tpl_water', (0.01, 0.30, 0.42), 0.04, 0.0, (0.02, 0.45, 0.6), 0.5), 'red': _pm('tpl_red', (0.80, 0.10, 0.04), 0.7),
-      'mari': emis('tpl_marigold', (1.0, 0.50, 0.03), 2.4), 'lamp': emis('tpl_lamp', (1.0, 0.62, 0.2), 14.0)}
+MT = {'stone': _pm('tpl_stone', (0.42, 0.25, 0.13), 0.85), 'white': _pm('tpl_white', (0.86, 0.80, 0.66), 0.75),
+      'gold': _pm('tpl_gold', (0.95, 0.42, 0.02), 0.35, 0.25, (1.0, 0.40, 0.02), 0.55), 'roof': _pm('tpl_roof', (0.50, 0.30, 0.17), 0.85),
+      'dark': _pm('tpl_dark', (0.07, 0.04, 0.03), 0.9), 'pave': _pm('tpl_pave', (0.30, 0.22, 0.15), 0.9), 'niche': _pm('tpl_niche', (0.86, 0.66, 0.38), 0.8),
+      'water': _pm('tpl_water', (0.01, 0.30, 0.42), 0.04, 0.0, (0.02, 0.45, 0.6), 0.5), 'red': _pm('tpl_red', (0.62, 0.05, 0.02), 0.7),
+      'mari': emis('tpl_marigold', (1.0, 0.42, 0.02), 1.6), 'lamp': emis('tpl_lamp', (1.0, 0.55, 0.12), 6.0)}
 class Acc:
     def __init__(s): s.v = []; s.f = []
     def box(s, cx, cy, z0, sx, sy, sz, taper=1.0):
@@ -128,7 +128,7 @@ for k_, a_ in A_.items():
     me_ = bpy.data.meshes.new('tpl_' + k_); me_.from_pydata(a_.v, [], a_.f); me_.update()
     o = bpy.data.objects.new('tpl_' + k_, me_); sc.collection.objects.link(o); o.data.materials.append(MT[k_]); o.parent = ROOT
 # warm lamps washing the towers in gold light
-for lx, ly, lz, pw in ((88, -10, 16, 5e5), (88, 10, 16, 5e5), (-20, 26, 30, 4e5), (-20, -26, 30, 4e5), (6, 0, 34, 4e5), (-46, 0, 30, 3e5), (46, 0, 26, 3e5), (3, 97, 22, 3e5)):
+for lx, ly, lz, pw in ((88, -10, 16, 7e4), (88, 10, 16, 7e4), (-20, 26, 30, 6e4), (-20, -26, 30, 6e4), (6, 0, 34, 5e4), (-46, 0, 30, 4e4), (46, 0, 26, 4e4), (3, 97, 22, 4e4)):
     ld = bpy.data.lights.new('tpl_light', 'POINT'); ld.energy = pw; ld.color = (1.0, 0.58, 0.22); ld.shadow_soft_size = 3.0; ld.use_shadow = False
     lo = bpy.data.objects.new('tpl_light', ld); sc.collection.objects.link(lo); lo.parent = ROOT; lo.location = (lx, ly, lz)
 # trees around the complex (Poly Haven, already loaded for the close sets)

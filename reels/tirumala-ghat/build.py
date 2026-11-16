@@ -145,8 +145,8 @@ gold_rot = tuple((-gd).to_track_quat('-Z', 'Y').to_euler())
 for l in plan['lines']:
     a_ = S(l['shot'])[0]; g_ = l['shot'] in DIVINE
     sun.rotation_euler = gold_rot if g_ else day_rot; sun.keyframe_insert('rotation_euler', frame=a_)
-    sun.data.energy = 6.5 if g_ else 3.5; sun.data.keyframe_insert('energy', frame=a_)
-    sun.data.color = (1.0, 0.76, 0.46) if g_ else (1.0, 0.96, 0.9); sun.data.keyframe_insert('color', frame=a_)
+    sun.data.energy = 3.6 if g_ else 3.5; sun.data.keyframe_insert('energy', frame=a_)
+    sun.data.color = (1.0, 0.70, 0.38) if g_ else (1.0, 0.96, 0.9); sun.data.keyframe_insert('color', frame=a_)
     dv.outputs[0].default_value = 1.0 if g_ else 0.0; dv.outputs[0].keyframe_insert('default_value', frame=a_)
 for idb in (sun, sun.data, wn):
     for fc in fcurves(idb):
@@ -302,7 +302,7 @@ ha, hb = S('hills')
 K(ha, TP + E_ * 5400 - Nn * 2000 + V((0, 0, 5200)), TA, 24)
 K(fr('hills', 0.42), TP + E_ * 2300 - Nn * 950 + V((0, 0, 1150)), TA, 26)
 K(fr('hills', 0.8), TP + E_ * 700 - Nn * 400 + V((0, 0, 270)), TA, 34)
-K(hb, TP + E_ * 440 - Nn * 260 + V((0, 0, 135)), TA, 38)
+K(hb, TP + E_ * 500 - Nn * 300 + V((0, 0, 150)), TA, 38)
 sa_, sb_ = S('seven'); SEVK = []
 def hill_cam(P):
     o_ = (P - TP); o_.z = 0; o_ = o_.normalized(); c_ = P + o_ * 1000; c_.z = max(P.z + 620, elev_local(c_.x, c_.y) + 200); return c_
@@ -312,7 +312,7 @@ for i, P in enumerate(pk):
 K(fr('seven', N0 + (N1 - N0) * 6.6 / 7 + 0.03), TP + E_ * 1500 + Nn * 900 + V((0, 0, 700)), TA, 30)
 K(sb_, TP + E_ * 560 + Nn * 330 + V((0, 0, 190)), TA, 34)
 ga_, gb_ = S('govinda')
-K(ga_, TP + E_ * 370 - Nn * 215 + V((0, 0, 72)), TA, 42); K(END, TP + E_ * 305 - Nn * 150 + V((0, 0, 90)), TA + V((0, 0, 4)), 46); TP = TP_
+K(ga_, TP + E_ * 500 - Nn * 300 + V((0, 0, 105)), TA, 42); K(END, TP + E_ * 430 - Nn * 235 + V((0, 0, 125)), TA + V((0, 0, 3)), 44); TP = TP_
 shot('open', A - Dn * 3500 + Pn * 1500 + V((0, 0, 2200)), A - Dn * 2600 + Pn * 1100 + V((0, 0, 1900)), C + V((0, 0, 200)), ln=28)
 shot('two_roads', C - Dn * 1500 - Pn * 4200 + V((0, 0, 3200)), C - Dn * 900 - Pn * 3800 + V((0, 0, 2900)), C, ln=30)
 shot('cart_track', A - Dn * 900 + Pn * 500 + V((0, 0, 450)), A + Dn * 400 + Pn * 450 + V((0, 0, 520)), A + Dn * 1800 + V((0, 0, 150)), A + Dn * 2800 + V((0, 0, 250)), ln=32)
