@@ -13,11 +13,18 @@ def get(uri):
     global session
     u = urllib.parse.urljoin(B, uri); q = {'key': K}
     if session and 'session=' not in u: q['session'] = session
-    r = S.get(u, params=q, timeout=60); r.raise_for_status(); return r
-def dist(box, p):
-    c = box[:3]; return math.dist(c, p)
+    r = S.get(u, params=q, timeout=60)
+    if r.status_code != 200: raise SystemExit(f'HTTP {r.status_code} on {uri.split("?")[0][:80]}')
+    return r
+def inside(box, p, m=1.05):
+    c = box[:3]; d = [p[i] - c[i] for i in range(3)]
+    for ax in (box[3:6], box[6:9], box[9:12]):
+        n2 = sum(a * a for a in ax)
+        if n2 > 0 and abs(sum(d[i] * ax[i] for i in range(3))) / n2 > m: return False
+    return True
+def dist(box, p): return 0 if inside(box, p) else 1 + math.dist(box[:3], p)
 for name, (la, lo, h) in pts.items():
-    P = ecef(la, lo, h); node = get('/v1/3dtiles/root.json').json()['root']; lvl = 0; glbs = 0
+    session = None; P = ecef(la, lo, h); node = get('/v1/3dtiles/root.json').json()['root']; lvl = 0; glbs = 0
     while True:
         kids = node.get('children', [])
         if not kids:
@@ -31,7 +38,7 @@ for name, (la, lo, h) in pts.items():
         if c and 'session=' in c: session = urllib.parse.parse_qs(urllib.parse.urlparse(c).query)['session'][0]
         if c.split('?')[0].endswith('.glb'):
             glbs += 1
-            if lvl % 3 == 0 or node.get('geometricError', 99) < 3:
+            if True:
                 print(name, 'lvl', lvl, 'err', round(node['geometricError'], 2), 'box half', round(math.dist((0, 0, 0), node['boundingVolume']['box'][3:6])), flush=True)
         if c.split('?')[0].endswith('.json'):
             node = get(c).json()['root']
