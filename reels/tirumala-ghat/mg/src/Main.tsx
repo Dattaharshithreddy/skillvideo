@@ -102,34 +102,110 @@ const Stamp: React.FC = () => {
   }
   return null;
 };
-// ---------- seven hills labels (positions projected from the 3D camera) ----------
+// ---------- divine shots: light rays from the temple, gold dust, glow, hill names ----------
+const SERIF = '"Noto Serif Telugu", "Noto Sans Telugu", serif';
+const goldText: React.CSSProperties = {background: 'linear-gradient(180deg, #FFF6C8 0%, #FFD35A 42%, #F09A1A 78%, #FFE08A 100%)', WebkitBackgroundClip: 'text',
+  backgroundClip: 'text', color: 'transparent', filter: 'drop-shadow(0 4px 0 rgba(90,40,0,0.85)) drop-shadow(0 0 26px rgba(255,170,40,0.75))'};
+const DIV = ['hills', 'seven', 'govinda'];
+const divSpan = (s: string): [number, number] => { const [a, b] = span(s); return [a, s === 'govinda' ? T.end : b]; };
+const labRow = (shot: string, f: number): [string, number, number, number][] => {
+  const fr = (LB as any).shots?.[shot]; if (!fr) return [];
+  const ks = Object.keys(fr); const first = Number(ks[0]), last = Number(ks[ks.length - 1]);
+  const k = Math.min(last, Math.max(first, f - ((f - first) % 2))); return fr[String(k)] || [];
+};
+const rnd = (n: number) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const Dust: React.FC<{o: number}> = ({o}) => {
+  const f = useCurrentFrame();
+  return <AbsoluteFill style={{mixBlendMode: 'screen', opacity: o}}>
+    {Array.from({length: 54}).map((_, i) => {
+      const sz = 6 + rnd(i) * 20, sp = 1.2 + rnd(i + 50) * 2.6;
+      const y = 2000 - ((rnd(i + 9) * 2100 + f * sp) % 2100), x = rnd(i + 3) * 1080 + Math.sin(f / 40 + i) * 26;
+      const tw = 0.35 + 0.65 * Math.abs(Math.sin(f / (9 + rnd(i + 7) * 14) + i));
+      return <div key={i} style={{position: 'absolute', left: x, top: y, width: sz, height: sz, borderRadius: sz, opacity: tw,
+        background: 'radial-gradient(circle, rgba(255,240,190,1) 0%, rgba(255,190,70,0.75) 45%, rgba(255,150,30,0) 72%)', filter: sz > 18 ? 'blur(2px)' : undefined}} />;
+    })}
+  </AbsoluteFill>;
+};
+const Rays: React.FC<{x: number; y: number; o: number; size?: number}> = ({x, y, o, size = 1}) => {
+  const f = useCurrentFrame(); const R = 1700 * size;
+  const mask = 'radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(0,0,0,0.55) 22%, rgba(0,0,0,0) 62%)';
+  const ray = (rot: number, period: number, a: number): React.CSSProperties => ({position: 'absolute', left: x - R, top: y - R, width: 2 * R, height: 2 * R, transform: `rotate(${rot}deg)`,
+    background: `repeating-conic-gradient(from 0deg, rgba(255,214,120,0) 0deg, rgba(255,220,130,${a}) ${period * 0.16}deg, rgba(255,214,120,0) ${period * 0.42}deg, rgba(255,214,120,0) ${period}deg)`,
+    WebkitMaskImage: mask, maskImage: mask, filter: 'blur(5px)'});
+  const pulse = 0.85 + 0.15 * Math.sin(f / 11);
+  return <AbsoluteFill style={{mixBlendMode: 'screen', opacity: o}}>
+    <div style={ray(f * 0.22, 18, 0.5)} /><div style={ray(-f * 0.15 + 7, 29, 0.42)} />
+    <div style={{position: 'absolute', left: x - 520 * size, top: y - 520 * size, width: 1040 * size, height: 1040 * size, opacity: pulse,
+      background: 'radial-gradient(circle, rgba(255,244,200,0.95) 0%, rgba(255,196,84,0.5) 13%, rgba(255,150,40,0.16) 34%, rgba(255,150,40,0) 60%)'}} />
+  </AbsoluteFill>;
+};
+const Divine: React.FC<{bg: string; preview: boolean}> = ({bg, preview}) => {
+  const f = useCurrentFrame();
+  for (const s of DIV) {
+    const [a, b] = divSpan(s); if (f < a || f >= b) continue;
+    const t = f - a, dur = b - a; const row = labRow(s, f); const tp = row[row.length - 1];
+    const env = interpolate(t, [0, 10, dur - 8, dur], [0, 1, 1, s === 'govinda' ? 1 : 0], clamp);
+    const near = s === 'govinda' ? 1 : s === 'hills' ? interpolate(t, [dur * 0.35, dur * 0.9], [0.35, 1], clamp) : interpolate(t, [dur * 0.72, dur * 0.95], [0, 1], clamp);
+    return <AbsoluteFill>
+      {!preview && <AbsoluteFill style={{mixBlendMode: 'screen', opacity: 0.42 * env}}>
+        <OffthreadVideo src={staticFile(bg)} muted style={{filter: 'brightness(0.72) contrast(2.6) saturate(1.5) blur(22px)'}} /></AbsoluteFill>}
+      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(255,150,40,0.42) 0%, rgba(255,170,60,0.12) 26%, rgba(0,0,0,0) 45%, rgba(40,10,0,0.0) 70%, rgba(50,14,0,0.5) 100%)', opacity: env}} />
+      {tp && tp[3] === 1 && <Rays x={tp[1] * 1080} y={tp[2] * 1920} o={env * near} size={s === 'govinda' ? 1.15 : 0.55 + 0.45 * near} />}
+      <Dust o={env * 0.9} />
+      <AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 52%, rgba(46,14,0,0.55) 100%)', opacity: env}} />
+    </AbsoluteFill>;
+  }
+  return null;
+};
+const Om: React.FC<{size?: number}> = ({size = 40}) => (
+  <div style={{fontFamily: SERIF, fontSize: size, fontWeight: 800, letterSpacing: 2, ...goldText}}>ఓం నమో వేంకటేశాయ</div>
+);
 const Hills: React.FC = () => {
   const {t, active, dur} = useShot('hills'); if (!active) return null;
-  const f = useCurrentFrame(); const fr = (LB as any).frames; const key = String(f - ((f - Number(Object.keys(fr)[0])) % 2));
-  const row: [string, number, number, number][] = fr[key] || [];
   return <Fade t={t} dur={dur}>
+    <Pop at={4} t={t} style={{position: 'absolute', width: '100%', top: 190, textAlign: 'center'}}>
+      <Om size={44} />
+      <div style={{fontFamily: SERIF, fontSize: 190, fontWeight: 900, lineHeight: 1.25, ...goldText}}>తిరుమల</div>
+      <div style={{fontFamily: FONT, fontSize: 36, fontWeight: 800, color: 'white', letterSpacing: 3, textShadow: '0 3px 14px rgba(60,20,0,0.9)'}}>ఏడుకొండల వాడి కొండ</div>
+    </Pop>
+  </Fade>;
+};
+const Seven: React.FC = () => {
+  const {t, active, dur} = useShot('seven'); if (!active) return null;
+  const f = useCurrentFrame(); const row = labRow('seven', f); const [n0, n1] = (T as any).names || [0.27, 0.72];
+  const cur = Math.floor(interpolate(t / dur, [n0, n1], [0, 7], clamp));
+  return <Fade t={t} dur={dur}>
+    <Pop at={4} t={t} style={{position: 'absolute', width: '100%', top: 150, textAlign: 'center'}}>
+      <div style={{fontFamily: SERIF, fontSize: 104, fontWeight: 900, lineHeight: 1.3, ...goldText}}>ఏడుకొండలు</div>
+      <div style={{fontFamily: FONT, fontSize: 24, color: 'rgba(255,240,210,0.92)', textShadow: '0 2px 8px rgba(0,0,0,0.9)'}}>సంప్రదాయ పేర్లు · స్థానాలు సూచన కోసం</div>
+    </Pop>
+    <div style={{position: 'absolute', top: 372, width: '100%', display: 'flex', justifyContent: 'center', gap: 12}}>
+      {Array.from({length: 7}).map((_, k) => <div key={k} style={{width: 46, height: 46, borderRadius: 23, fontFamily: FONT, fontWeight: 900, fontSize: 26, lineHeight: '46px', textAlign: 'center',
+        color: k < cur || (k === cur && t / dur >= n0) ? '#3a1800' : 'rgba(255,255,255,0.7)', background: k < cur || (k === cur && t / dur >= n0) ? 'linear-gradient(180deg,#FFE9A0,#F3A52A)' : 'rgba(20,10,0,0.55)',
+        border: '2px solid rgba(255,214,120,0.8)', boxShadow: k === cur && t / dur >= n0 ? '0 0 22px #FFC23D' : undefined}}>{k + 1}</div>)}
+    </div>
     {row.map(([n, x, y, v], k) => {
-      if (!v) return null; const temple = k === row.length - 1; const at = Math.round(temple ? dur * 0.45 : dur * 0.15 + k * 6);
-      const o = interpolate(t, [at, at + 8], [0, 1], clamp);
-      if (!temple) return <div key={k} style={{position: 'absolute', left: x * 1080 - 9, top: y * 1920 - 9, width: 18, height: 18, borderRadius: 9, opacity: o,
-        background: GOLD, boxShadow: `0 0 18px ${GOLD}`}} />;
-      return <div key={k} style={{position: 'absolute', left: x * 1080, top: y * 1920, transform: 'translate(-50%, -100%)', opacity: o, fontFamily: FONT, textAlign: 'center'}}>
-        <div style={{...card, padding: '6px 18px', fontSize: 40, fontWeight: 800, borderColor: GOLD, color: GOLD}}>{n} · ఆలయం</div>
-        <div style={{width: 3, height: 50, background: GOLD, margin: '0 auto'}} />
+      const at = Math.round(dur * (n0 + ((n1 - n0) * k) / 7)); if (!v || t < at) return null;
+      const s = spring({frame: t - at, fps: FPS, config: {damping: 13, stiffness: 160}}); const big = k === cur || (k === 6 && cur >= 6);
+      const px = Math.min(900, Math.max(180, x * 1080)), py = Math.min(1150, Math.max(520, y * 1920));
+      return <div key={k} style={{position: 'absolute', left: px, top: py, transform: `translate(-50%, -100%) scale(${s * (big ? 1 : 0.72)})`, transformOrigin: '50% 100%', textAlign: 'center', opacity: big ? 1 : 0.85}}>
+        <div style={{display: 'inline-block', padding: '8px 24px 4px', borderRadius: 18, background: 'rgba(40,14,0,0.78)', border: '3px solid #FFC23D', boxShadow: '0 0 30px rgba(255,180,50,0.65)',
+          fontFamily: SERIF, fontWeight: 900, fontSize: 58}}><span style={{...goldText, filter: undefined}}>{k + 1}. {n}</span></div>
+        <div style={{width: 4, height: 70, background: 'linear-gradient(180deg,#FFC23D,rgba(255,194,61,0.1))', margin: '0 auto'}} />
+        <div style={{width: 18, height: 18, borderRadius: 9, background: '#FFE9A0', boxShadow: '0 0 20px #FFC23D', margin: '-6px auto 0'}} />
       </div>;
     })}
-    <div style={{position: 'absolute', left: 50, top: 400}}>
-      {['శేషాద్రి', 'నీలాద్రి', 'గరుడాద్రి', 'అంజనాద్రి', 'వృషభాద్రి', 'నారాయణాద్రి', 'వేంకటాద్రి'].map((n, k) =>
-        <Pop key={n} at={Math.round(dur * 0.06 + k * dur * 0.045)} t={t}><div style={{...card, display: 'inline-block', padding: '6px 18px', marginBottom: 10, fontSize: 32, fontWeight: 800,
-          color: k === 6 ? GOLD : 'white', borderColor: k === 6 ? GOLD : 'rgba(255,255,255,0.25)'}}>{k + 1}. {n}</div></Pop>)}
-    </div>
-    <Pop at={6} t={t} style={{position: 'absolute', width: '100%', top: 210, textAlign: 'center', fontFamily: FONT}}>
-      <div style={{fontSize: 64, fontWeight: 900, color: 'white', textShadow: '0 6px 30px rgba(0,0,0,0.7)'}}>ఏడుకొండలు</div>
-      <div style={{fontSize: 24, color: 'rgba(255,255,255,0.8)'}}>శేషాచలం కొండల సంప్రదాయ పేర్లు</div>
-    </Pop>
-    <Pop at={Math.round(dur * 0.7)} t={t} style={{position: 'absolute', left: 60, right: 60, bottom: 760}}>
-      <Tag c={GOLD} k="తిరుమల" v="శ్రీ వేంకటేశ్వర స్వామి ఆలయం" /></Pop>
   </Fade>;
+};
+const Govinda: React.FC = () => {
+  const f = useCurrentFrame(); const [a] = divSpan('govinda'); if (f < a) return null; const t = f - a;
+  const tail = Math.round(span('govinda')[1] - a);
+  return <AbsoluteFill>
+    <Pop at={4} t={t} style={{position: 'absolute', width: '100%', top: 200, textAlign: 'center'}}><Om size={62} /></Pop>
+    <Pop at={tail - 6} t={t} style={{position: 'absolute', width: '100%', top: 1210, textAlign: 'center'}}>
+      <div style={{fontFamily: SERIF, fontSize: 118, fontWeight: 900, lineHeight: 1.3, ...goldText}}>గోవిందా… గోవిందా!</div>
+    </Pop>
+  </AbsoluteFill>;
 };
 const Open: React.FC = () => {
   const {t, active, dur} = useShot('open'); if (!active) return null;
@@ -200,7 +276,7 @@ const Rock: React.FC = () => {
 };
 const Finale: React.FC = () => {
   const f = useCurrentFrame(); const i = idx('finale'); const from = Math.round(T.starts[i] * FPS);
-  if (f < from) return null; const t = f - from;
+  if (f < from || f >= span('finale')[1]) return null; const t = f - from;
   return <AbsoluteFill style={{fontFamily: FONT}}>
     <Pop at={Math.round(T.durs[i] * FPS * 0.5)} t={t} style={{position: 'absolute', width: '100%', top: 270, textAlign: 'center'}}>
       <div style={{fontSize: 80, fontWeight: 900, color: 'white', lineHeight: 1.15, textShadow: '0 6px 30px rgba(0,0,0,0.7)'}}>ప్రకృతితో<br /><span style={{color: GREEN}}>కలిసి</span></div>
@@ -217,7 +293,8 @@ export const Main: React.FC<{bg: string; audio: string; preview: boolean}> = ({b
   <AbsoluteFill style={{background: preview ? 'transparent' : '#0b1020'}}>
     {!preview && <OffthreadVideo src={staticFile(bg)} muted />}
     <Era bg={bg} preview={preview} />
+    <Divine bg={bg} preview={preview} />
     {!preview && <Audio src={staticFile(audio)} />}
-    <Dips /><Hills /><Open /><TwoRoads /><Track /><People /><Lay /><Straight /><Hairpins /><Traffic /><Second /><Rock /><Finale /><Stamp /><Captions /><Credits />
+    <Dips /><Hills /><Seven /><Govinda /><Open /><TwoRoads /><Track /><People /><Lay /><Straight /><Hairpins /><Traffic /><Second /><Rock /><Finale /><Stamp /><Captions /><Credits />
   </AbsoluteFill>
 );

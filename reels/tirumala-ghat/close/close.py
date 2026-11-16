@@ -157,9 +157,11 @@ def build_set(name, centre, road, width, lower_main=True):
     a.data.foreach_set('value', vg.ravel().astype(np.float32))
     ob = bpy.data.objects.new(name + '_ground', me); sc.collection.objects.link(ob); ob.data.materials.append(M_ground)
     if lower_main:   # hide the coarse terrain under the patch
-        tv = np.empty(len(terr.data.vertices) * 3, np.float32); terr.data.vertices.foreach_get('co', tv); tv = tv.reshape(-1, 3)
+        if not terr.data.shape_keys: terr.shape_key_add(name='Basis'); terr.shape_key_add(name='sunk')
+        skd = terr.data.shape_keys.key_blocks['sunk'].data
+        tv = np.empty(len(skd) * 3, np.float32); skd.foreach_get('co', tv); tv = tv.reshape(-1, 3)
         inside = (np.abs(tv[:, 0] - centre.x) < SQ - 22) & (np.abs(tv[:, 1] - centre.y) < SQ - 22); tv[inside, 2] -= 60.0
-        terr.data.vertices.foreach_set('co', tv.ravel()); terr.data.update()
+        skd.foreach_set('co', tv.ravel()); terr.data.update()
     # road ribbon
     rv, rf = [], []
     for i, p in enumerate(road):

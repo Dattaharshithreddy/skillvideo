@@ -16,7 +16,11 @@ END = SH[-1][1] + 45   # short tail for the end card
 SHOT = {l['shot']: i for i, l in enumerate(plan['lines'])}
 def S(name): return SH[SHOT[name]]
 def fr(name, x): a, b = S(name); return int(a + (b - a) * x)
-json.dump({'starts': starts, 'durs': durs, 'end': END, 'lines': [{'text': l['text'], 'keywords': l['keywords'], 'shot': l['shot']} for l in plan['lines']]},
+FIN = S('finale')[1] + 1          # aerial road overlays stop here; the closing temple shot is clean
+XT = json.load(open('brief/extra_times.json')) if os.path.exists('brief/extra_times.json') else {}
+sv = XT.get('seven'); N0, N1 = ((sv['sent'][1][0] / durs[SHOT['seven']], sv['sent'][1][1] / durs[SHOT['seven']]) if sv and len(sv['sent']) > 2 else (0.27, 0.72))
+
+json.dump({'starts': starts, 'durs': durs, 'end': END, 'names': [N0, N1], 'lines': [{'text': l['text'], 'keywords': l['keywords'], 'shot': l['shot']} for l in plan['lines']]},
           open('brief/timing.json', 'w'), indent=1)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -117,10 +121,29 @@ HD = '/opt/reel/assets/ph/h/kloofendal_48d_partly_cloudy_puresky.exr'
 if os.path.exists(HD):      # real sky with clouds, like the ghat road on a clear day
     envt = wn.nodes.new('ShaderNodeTexEnvironment'); envt.image = bpy.data.images.load(HD); wn.links.new(envt.outputs['Color'], wn.nodes['Background'].inputs['Color'])
 else: wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color'])
+DIVINE = ['hills', 'seven', 'govinda']
+HD2 = next((p_ for p_ in ('/opt/reel/assets/ph/h/the_sky_is_on_fire_2k.exr', '/opt/reel/assets/ph/h/belfast_sunset_puresky_2k.exr') if os.path.exists(p_)), None)
+dv = wn.nodes.new('ShaderNodeValue'); dv.name = 'divine'
+if HD2 and os.path.exists(HD):
+    e2 = wn.nodes.new('ShaderNodeTexEnvironment'); e2.image = bpy.data.images.load(HD2)
+    wm_ = wn.nodes.new('ShaderNodeMix'); wm_.data_type = 'RGBA'; wn.links.new(dv.outputs[0], wm_.inputs['Factor'])
+    wn.links.new(envt.outputs['Color'], wm_.inputs[6]); wn.links.new(e2.outputs['Color'], wm_.inputs[7]); wn.links.new(wm_.outputs[2], wn.nodes['Background'].inputs['Color'])
 wn.nodes['Background'].inputs['Strength'].default_value = 1.0
 bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy = 3.5; sun.data.color = (1.0, 0.96, 0.9)
 sun.rotation_euler = (math.radians(90 - 38), 0, math.radians(250 - 90))
 sun.data.angle = math.radians(1.5)
+day_rot = tuple(sun.rotation_euler)
+gd = Vector((math.sin(math.radians(112)), math.cos(math.radians(112)), math.tan(math.radians(17)))).normalized()   # low sun in the east-south-east
+gold_rot = tuple((-gd).to_track_quat('-Z', 'Y').to_euler())
+for l in plan['lines']:
+    a_ = S(l['shot'])[0]; g_ = l['shot'] in DIVINE
+    sun.rotation_euler = gold_rot if g_ else day_rot; sun.keyframe_insert('rotation_euler', frame=a_)
+    sun.data.energy = 5.0 if g_ else 3.5; sun.data.keyframe_insert('energy', frame=a_)
+    sun.data.color = (1.0, 0.74, 0.42) if g_ else (1.0, 0.96, 0.9); sun.data.keyframe_insert('color', frame=a_)
+    dv.outputs[0].default_value = 1.0 if g_ else 0.0; dv.outputs[0].keyframe_insert('default_value', frame=a_)
+for idb in (sun, sun.data, wn):
+    for fc in fcurves(idb):
+        for kp in fc.keyframe_points: kp.interpolation = 'CONSTANT'
 
 # ---------------- roads, track, straight line ----------------
 def road_pts(key, lift=6.0):
@@ -175,15 +198,15 @@ def traffic(prefix, pts, n, period, ranges):
         o.parent = e; o.location = (0, 0, 4); show(o, ranges)
 r1_dn = [tuple(loc(x, y, z, 6)) for x, y, z, d in DN]
 SHOWN_OPEN = [(S('open')[0], S('two_roads')[1] + 1)]
-traffic('car_up2', road2, 34, 1800, SHOWN_OPEN + [(S('finale')[0], END + 1)])
-traffic('car_dn1', r1_dn, 34, 1800, SHOWN_OPEN + [(S('old_runs')[0], END + 1)])
+traffic('car_up2', road2, 34, 1800, SHOWN_OPEN + [(S('finale')[0], FIN)])
+traffic('car_dn1', r1_dn, 34, 1800, SHOWN_OPEN + [(S('old_runs')[0], FIN)])
 traffic('car_1944_up', road1_up, 9, 1800, [(S('traffic')[0], S('traffic')[1] + 1)])
 traffic('car_1944_dn', r1_dn, 9, 1800, [(S('traffic')[0], S('traffic')[1] + 1)])
 
 # ---------------- visibility & growth by shot ----------------
-show(r1, [(S('open')[0], S('two_roads')[1] + 1), (S('lay_road')[0], END + 1)])
+show(r1, [(S('open')[0], S('two_roads')[1] + 1), (S('lay_road')[0], FIN)])
 grow(r1, [(1, 1.0), (S('two_roads')[1], 1.0), (S('lay_road')[0], 0.0), (fr('lay_road', 0.9), 1.0)])
-show(r2, [(S('open')[0], S('two_roads')[1] + 1), (S('second_road')[0], END + 1)])
+show(r2, [(S('open')[0], S('two_roads')[1] + 1), (S('second_road')[0], FIN)])
 grow(r2, [(1, 1.0), (S('two_roads')[1], 1.0), (S('second_road')[0], 0.0), (fr('second_road', 0.55), 1.0)])
 show(rred, [(fr('two_roads', 0.55), S('two_roads')[1] + 1), (fr('second_road', 0.6), S('rockfall')[1] + 1)])
 show(sline, [(S('straight')[0], S('straight')[1] + 1)])
@@ -192,7 +215,7 @@ nD = len(dots)
 for i, o in enumerate(dots):
     a = int(S('cart_track')[0] + (S('cart_track')[1] - S('cart_track')[0]) * 0.9 * i / nD)
     show(o, [(a, S('lay_road')[1] + 1)])
-for o in (bT, bA): show(o, [(1, END + 1)])
+for o in (bT, bA): show(o, [(S('open')[0], FIN)])
 
 # ---------------- eras: 1944 shots get the old look (no 1974 road in the imagery, dusty first road) ----------------
 OLD = ['cart_track', 'people', 'lay_road', 'straight', 'hairpins', 'traffic']
@@ -211,13 +234,16 @@ for idb in (tm.node_tree, M_old.node_tree):
 # ---------------- temple (gold) and the seven-hill label points ----------------
 PL = json.load(open('geo/places.json'))
 TP = loc(*PL['temple'])
-M_tg = emis('temple_gold', (1.0, 0.7, 0.18), 6.0); M_beam = emis('temple_beam', (1.0, 0.82, 0.4), 2.5)
-bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=TP + Vector((0, 0, 18))); dome = bpy.context.object; dome.scale = (34, 34, 26); dome.data.materials.append(M_tg)
-bpy.ops.mesh.primitive_cylinder_add(radius=26, depth=18, location=TP + Vector((0, 0, 9))); base = bpy.context.object; base.data.materials.append(M_tg)
-bpy.ops.mesh.primitive_cylinder_add(radius=3.5, depth=900, location=TP + Vector((0, 0, 450))); beam = bpy.context.object; beam.data.materials.append(M_beam)
-for o in (dome, base): show(o, [(1, END + 1)])
-show(beam, [(S('hills')[0], fr('hills', 0.85))])
-LBL = [(p['name'], loc(p['x'], p['y'], p['z'], 80)) for p in PL['peaks']] + [(PL['temple_name'], TP + Vector((0, 0, 120)))]
+GZ = max(elev_local(TP.x + dx, TP.y + dy) for dx in range(-160, 161, 20) for dy in range(-120, 251, 20)) + 0.4     # temple platform level
+TG = Vector((TP.x, TP.y, GZ))
+# wide ground far below the map edge so no empty space shows past the terrain in high shots
+bpy.ops.mesh.primitive_plane_add(size=160000, location=(TP.x, TP.y, -3)); skirt = bpy.context.object; skirt.name = 'skirt'
+skirt.data.materials.append(principled('skirt', (0.085, 0.10, 0.055), 1.0))
+pk = [loc(p['x'], p['y'], p['z']) for p in PL['peaks']]
+pk.sort(key=lambda q: math.atan2(q.y - TP.y, q.x - TP.x))
+hi_ = max(range(len(pk)), key=lambda i: pk[i].z); pk = pk[hi_ + 1:] + pk[:hi_ + 1]      # fly round the hills, ending on the highest (Narayanagiri)
+HN = ['శేషాద్రి', 'నీలాద్రి', 'గరుడాద్రి', 'అంజనాద్రి', 'వృషభాద్రి', 'నారాయణాద్రి']
+HILLS = list(zip(HN, pk))
 
 # ---------------- rockfall on the 1974 cut ----------------
 mid = [p for p in UP if 13000 <= p[3] <= 15000]
@@ -261,10 +287,22 @@ def shot(name, c0, c1, t0, t1=None, ln=30):
     a, b = S(name); K(a, c0, t0, ln); K(b, c1, t1 or t0, ln)
 V = Vector
 D = (T_ - A); D.z = 0; Dn = D.normalized(); Pn = V((-Dn.y, Dn.x, 0))
+E_, Nn = V((1, 0, 0)), V((0, 1, 0)); TA = TG + V((0, 0, 30)); TP_ = TP; TP = TG
 ha, hb = S('hills')
-K(ha, A - Dn * 5200 + Pn * 900 + V((0, 0, 7600)), TP, 24)
-K(fr('hills', 0.45), A - Dn * 1200 + Pn * 400 + V((0, 0, 4200)), TP, 26)
-K(hb, TP - Dn * 700 + Pn * 350 + V((0, 0, 620)), TP, 32)
+K(ha, TP + E_ * 5400 - Nn * 2000 + V((0, 0, 5200)), TA, 24)
+K(fr('hills', 0.42), TP + E_ * 2300 - Nn * 500 + V((0, 0, 1000)), TA, 26)
+K(fr('hills', 0.8), TP + E_ * 620 - Nn * 150 + V((0, 0, 200)), TA, 32)
+K(hb, TP + E_ * 430 - Nn * 60 + V((0, 0, 125)), TA, 34)
+sa_, sb_ = S('seven'); SEVK = []
+def hill_cam(P):
+    o_ = (P - TP); o_.z = 0; o_ = o_.normalized(); c_ = P + o_ * 1150; c_.z = max(P.z + 300, elev_local(c_.x, c_.y) + 160); return c_
+K(sa_, hill_cam(pk[0]) + V((0, 0, 900)) + (pk[0] - TP).normalized() * 900, pk[0], 26); SEVK.append(sa_)
+for i, P in enumerate(pk):
+    f_ = fr('seven', N0 + (N1 - N0) * (i + 0.5) / 7); K(f_, hill_cam(P), P, 28); SEVK.append(f_)
+K(fr('seven', N0 + (N1 - N0) * 6.6 / 7 + 0.03), TP + E_ * 1500 + Nn * 900 + V((0, 0, 700)), TA, 30)
+K(sb_, TP + E_ * 560 + Nn * 330 + V((0, 0, 190)), TA, 34)
+ga_, gb_ = S('govinda')
+K(ga_, TP + E_ * 400 - Nn * 40 + V((0, 0, 45)), TA + V((0, 0, 8)), 38); K(END, TP + E_ * 275 + Nn * 25 + V((0, 0, 62)), TA + V((0, 0, 14)), 40); TP = TP_
 shot('open', A - Dn * 3500 + Pn * 1500 + V((0, 0, 2200)), A - Dn * 2600 + Pn * 1100 + V((0, 0, 1900)), C + V((0, 0, 200)), ln=28)
 shot('two_roads', C - Dn * 1500 - Pn * 4200 + V((0, 0, 3200)), C - Dn * 900 - Pn * 3800 + V((0, 0, 2900)), C, ln=30)
 shot('cart_track', A - Dn * 900 + Pn * 500 + V((0, 0, 450)), A + Dn * 400 + Pn * 450 + V((0, 0, 520)), A + Dn * 1800 + V((0, 0, 150)), A + Dn * 2800 + V((0, 0, 250)), ln=32)
@@ -277,7 +315,7 @@ shot('second_road', C + Pn * 3500 - Dn * 2500 + V((0, 0, 3000)), C + Pn * 3000 -
 shot('rockfall', RC + Pn * 500 - Dn * 300 + V((0, 0, 330)), RC + Pn * 380 - Dn * 150 + V((0, 0, 260)), RC, ln=32)
 shot('old_runs', at(road1_up, 0.55) - Pn * 700 + V((0, 0, 500)), at(road1_up, 0.75) - Pn * 600 + V((0, 0, 480)), at(road1_up, 0.65), at(road1_up, 0.85), ln=30)
 fa, fb = S('finale')
-K(fa, C - Dn * 4500 - Pn * 3000 + V((0, 0, 3600)), C, 28); K(END, C - Dn * 6500 - Pn * 4500 + V((0, 0, 5200)), C, 26)
+K(fa, C - Dn * 4500 - Pn * 3000 + V((0, 0, 3600)), C, 28); K(fb, C - Dn * 6200 - Pn * 4300 + V((0, 0, 5000)), C, 26)
 starts_ = {k[0] for k in KEYS}
 for f, c_, t_, ln in KEYS:
     cam.location = c_; cam.keyframe_insert('location', frame=f); tgt.location = t_; tgt.keyframe_insert('location', frame=f)
@@ -287,20 +325,32 @@ for idb, path in ((cam, 'location'), (tgt, 'location'), (cd, 'lens')):
     for fc in fcurves(idb):
         if fc.data_path == path:
             for kp in fc.keyframe_points:
-                kp.handle_left_type = kp.handle_right_type = 'AUTO_CLAMPED'
+                kp.handle_left_type = kp.handle_right_type = 'AUTO' if sa_ < kp.co[0] < sb_ else 'AUTO_CLAMPED'
                 if int(round(kp.co[0])) in ends: kp.interpolation = 'CONSTANT'
 
 # close-up road sets and their cameras
 exec(open('close/close.py').read())
-# hill / temple labels: screen positions per frame of the hills shot (for the Remotion overlay)
+exec(open('temple.py').read())
+# the coarse terrain is only sunk under a close set while that set is on screen
+sk_ = terr.data.shape_keys.key_blocks.get('sunk') if terr.data.shape_keys else None
+if sk_:
+    for l in plan['lines']:
+        sk_.value = 1.0 if l['shot'] in CLOSE_SHOTS else 0.0; sk_.keyframe_insert('value', frame=S(l['shot'])[0])
+    for fc in fcurves(terr.data.shape_keys):
+        for kp in fc.keyframe_points: kp.interpolation = 'CONSTANT'
+# screen positions of the seven hills and the temple top, per frame of the divine shots (for the Remotion overlay)
 from bpy_extras.object_utils import world_to_camera_view
+LBL = [(n, p + V((0, 0, 70))) for n, p in HILLS] + [('వేంకటాద్రి', TPTOP)]
 lab = {}
-for f in range(S('hills')[0], S('hills')[1] + 1, 2):
-    sc.frame_set(f); row = []
-    for name, p in LBL:
-        q = world_to_camera_view(sc, cam, p); row.append([name, round(q.x, 4), round(1 - q.y, 4), int(q.z > 0 and 0 <= q.x <= 1 and 0 <= q.y <= 1)])
-    lab[f] = row
-json.dump({'step': 2, 'frames': lab}, open('brief/labels.json', 'w'), ensure_ascii=False)
+for nm in DIVINE:
+    a_, b_ = S(nm); b_ = END if nm == 'govinda' else b_; rows = {}
+    for f in range(a_, b_ + 1, 2):
+        sc.frame_set(f); cm = cam; row = []
+        for name, p in LBL:
+            q = world_to_camera_view(sc, cm, p); row.append([name, round(q.x, 4), round(1 - q.y, 4), int(q.z > 0 and -0.2 <= q.x <= 1.2 and -0.2 <= q.y <= 1.2)])
+        rows[f] = row
+    lab[nm] = rows
+json.dump({'step': 2, 'shots': lab}, open('brief/labels.json', 'w'), ensure_ascii=False)
 sc.frame_set(1)
 # camera targets for overlay labels (projected later in Remotion via a json)
 json.dump({'A': list(A), 'T': list(T_), 'H': list(H), 'RC': list(RC)}, open('brief/points.json', 'w'))
@@ -308,5 +358,5 @@ sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
 sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Punchy'
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
 os.makedirs('scene', exist_ok=True)
-bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath('scene/ghat.blend'))
+bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath('scene/ghat2.blend'))
 print('built', END, SH, 'hairpin_centre', tuple(round(v) for v in H))
