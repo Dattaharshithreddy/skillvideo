@@ -33,5 +33,5 @@ L = [
   "Know diabetes. Control diabetes. Live a healthier life.", ["Know", "Control", "healthier"], [["room_healthy", 1]]),
 ]
 lines = [{"text": t, "tts": s, "keywords": k, "audio": f"audio/l{i + 1:02d}.wav", "st": st} for i, (t, s, k, st) in enumerate(L)]
-json.dump({"gap": 0.05, "font": "Poppins", "lines": lines}, open('brief/plan.json', 'w'), indent=1, ensure_ascii=False)
+json.dump({"gap": 0.0, "font": "Poppins", "lines": lines}, open('brief/plan.json', 'w'), indent=1, ensure_ascii=False)
 print('ok', len(lines))

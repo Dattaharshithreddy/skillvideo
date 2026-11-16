@@ -59,22 +59,24 @@ for k, p in plans.items():
     if not RESPLIT: sh('ffmpeg', '-y', '-v', 'error', '-i', f'{vc}/{out}', '-af', POST, '-ar', '44100', '-ac', '1', f'{work}/{k}_post.wav')
     scale = dur(f'{work}/{k}_post.wav') / dur(f'{work}/{k}_joined.wav')
     folder = os.path.dirname(p['lines'][0]['audio']); os.makedirs(folder, exist_ok=True)
-    # cut between lines inside the real pauses: snap each estimated boundary to the nearest detected silence
-    det = subprocess.run(['ffmpeg', '-i', f'{work}/{k}_post.wav', '-af', 'silencedetect=noise=-38dB:d=0.22', '-f', 'null', '-'], capture_output=True, text=True).stderr
+    # One continuous take: slow the whole converted voice once, then slice it ONLY inside the long pauses that
+    # separate lines (no trimming, fades or padding per line), so the slices join back without a single break.
+    slow = f'{work}/{k}_slow.wav'
+    sh('ffmpeg', '-y', '-v', 'error', '-i', f'{work}/{k}_post.wav', '-af', 'atempo=0.92', '-ar', '44100', '-ac', '1', '-c:a', 'pcm_s16le', slow)
+    det = subprocess.run(['ffmpeg', '-i', slow, '-af', 'silencedetect=noise=-38dB:d=0.3', '-f', 'null', '-'], capture_output=True, text=True).stderr
     ss = [float(x.split('silence_start: ')[1].split()[0]) for x in det.splitlines() if 'silence_start' in x]
     se = [float(x.split('silence_end: ')[1].split()[0]) for x in det.splitlines() if 'silence_end' in x]
     sil = [((a_ + b_) / 2, b_ - a_) for a_, b_ in zip(ss, se)]
-    total = dur(f'{work}/{k}_post.wav'); cuts = [0.0]
+    total = dur(slow); cuts = [0.0]
     for i in range(n - 1):
-        est = (bounds[i][1] + SEP / 2) * scale
-        near = [m for m, L in sil if abs(m - est) < 1.2 and m > cuts[-1] + 0.5]
-        cuts.append(min(near, key=lambda m: abs(m - est)) if near else est)
-        print(k, 'line', i + 1, 'cut est', round(est, 2), '->', round(cuts[-1], 2), '' if near else 'NO_SILENCE', flush=True)
+        est = (bounds[i][1] + SEP / 2) * scale / 0.92
+        near = [(m, L) for m, L in sil if abs(m - est) < 0.6 and L > 0.5 and m > cuts[-1] + 0.5]
+        if not near: raise SystemExit(f'NO_PAUSE line {i + 1} near {est:.2f}s')
+        cuts.append(min(near, key=lambda q: abs(q[0] - est))[0])
+        print(k, 'line', i + 1, 'cut', round(est, 2), '->', round(cuts[-1], 2), flush=True)
     cuts.append(total)
     for i in range(n):
-        pad = 0.3 if p['lines'][i]['text'].endswith('?') else 0.45
-        sh('ffmpeg', '-y', '-v', 'error', '-i', f'{work}/{k}_post.wav', '-ss', f'{cuts[i]:.3f}', '-to', f'{cuts[i + 1]:.3f}',
-           '-af', TRIM + f',areverse,afade=t=in:d=0.02,areverse,atempo=0.92,apad=pad_dur={pad}', '-ar', '44100', '-ac', '1', p['lines'][i]['audio'])
+        sh('ffmpeg', '-y', '-v', 'error', '-i', slow, '-ss', f'{cuts[i]:.4f}', '-to', f'{cuts[i + 1]:.4f}', '-c:a', 'pcm_s16le', p['lines'][i]['audio'])
     tot = sum(dur(l['audio']) + p['gap'] for l in p['lines'])
     print(k, 'lines', n, 'total', round(tot, 1), flush=True)
 print('VOICE_DONE')

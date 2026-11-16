@@ -23,11 +23,9 @@ for st, a, m in edl:
         src = os.path.abspath(f"{SRC}/renders/seq/f_{ST['offset'][st] + min(avail - 1, int((a + j) * k)):05d}.jpg")
         n += 1; os.symlink(src, f'{d_}/c_{n:05d}.jpg')
 sh('ffmpeg', '-y', '-v', 'error', '-framerate', '30', '-i', f'{d_}/c_%05d.jpg', '-vf', 'format=yuv420p', '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', 'mg/public/bg.mp4')
-sh('ffmpeg', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=mono', '-t', str(p['gap']), 'renders/gap.wav')
-lst = []
-for l in p['lines']: lst += [f"file '{os.path.abspath(l['audio'])}'", f"file '{os.path.abspath('renders/gap.wav')}'"]
+lst = [f"file '{os.path.abspath(l['audio'])}'" for l in p['lines']]      # the lines are exact slices of one take: join with no gaps
 open('renders/audio.txt', 'w').write('\n'.join(lst) + '\n')
-sh('ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', 'renders/audio.txt', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11,apad=pad_dur=3', '-ar', '48000', 'mg/public/narration.wav')
+sh('ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', 'renders/audio.txt', '-af', 'volume=1.0,apad=pad_dur=3', '-ar', '48000', 'mg/public/narration.wav')
 json.dump({'fps': FPS, 'starts': starts, 'durs': durs, 'cuts': cuts, 'end': n, 'lines': [{'text': l['text'], 'keywords': l['keywords']} for l in p['lines']]},
           open('mg/src/timing.json', 'w'), indent=1)
 print('frames', n, 'seconds', round(n / FPS, 1), 'slowdowns', {s: round(min(1.0, (ST['frames'][s] - 8) / u), 2) for s, u in used.items()}); print('CUT_DONE')
