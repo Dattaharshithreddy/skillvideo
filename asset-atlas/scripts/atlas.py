@@ -79,8 +79,10 @@ def safe_name(s):
 def record(key, src, **extra):
     ASSETS.mkdir(parents=True, exist_ok=True)
     m = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
-    m[key] = dict(source=src["id"], name=src["name"], url=src["url"], license=src["license"],
-                  credit=src.get("credit", ""), fetched=datetime.date.today().isoformat(), **extra)
+    entry = dict(source=src["id"], name=src["name"], url=src["url"], license=src["license"],
+                 credit=src.get("credit", ""), fetched=datetime.date.today().isoformat())
+    entry.update(extra)                     # per-asset values (e.g. a 3dassets.dev credit) override the source defaults
+    m[key] = entry
     MANIFEST.write_text(json.dumps(m, indent=1) + "\n")
 
 
