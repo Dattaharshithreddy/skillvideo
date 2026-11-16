@@ -40,10 +40,20 @@ def smooth_z(pts, k=6):
     zz = np.convolve(np.pad(zs, k, mode='edge'), ker, mode='valid')
     return [Vector((p.x, p.y, z)) for p, z in zip(pts, zz)]
 def segment(pts, centre, radius):
-    idx = [i for i, p in enumerate(pts) if (p.xy - centre.xy).length < radius]
-    if not idx: return []
-    i0, i1 = min(idx), max(idx)
+    """Contiguous stretch of the road around the point nearest to centre, staying within radius (so it never leaves the set)."""
+    ic = min(range(len(pts)), key=lambda i: (pts[i].xy - centre.xy).length)
+    i0 = i1 = ic
+    while i0 > 0 and (pts[i0 - 1].xy - centre.xy).length < radius: i0 -= 1
+    while i1 < len(pts) - 1 and (pts[i1 + 1].xy - centre.xy).length < radius: i1 += 1
     return smooth_z(resample(pts[i0:i1 + 1]))
+def nearest_s(road, P):
+    """Arc length along road of the point nearest to P."""
+    best, bs, acc = 1e18, 0.0, 0.0
+    for a_, b_ in zip(road, road[1:]):
+        d_ = (a_.xy - P.xy).length
+        if d_ < best: best, bs = d_, acc
+        acc += (b_ - a_).length
+    return bs
 def curvature_pick(pts, dmin, dmax, raw):
     best, bi = -1, None
     for i in range(3, len(pts) - 3):
@@ -395,11 +405,11 @@ for k in range(4):
 track_cam('cart_track', cart, [(0.0, side_point(upA, lA * 0.3 + 16, -7, 2.2)), (1.0, side_point(upA, lA * 0.3 + 1.2 * (cb - ca) / 30 + 13, -8, 2.8))], 35)
 
 # 4) ROCK CUT on the 1974 road: falling boulders, barriers, road closed (shot: rockfall)
-rR = segment(UPp, RC, 150)
+rR = segment(UPp, RC, 260)
 gR, roadR, _ = build_set('setR', RC, rR, 7.5); scatter(gR)
-ra, rb = S('rockfall'); LR = roadlen(rR)
-mid_ = side_point(rR, LR * 0.5, 0, 0)
-t_ = (side_point(rR, LR * 0.5 + 2, 0, 0) - side_point(rR, LR * 0.5 - 2, 0, 0)); t_.z = 0; t_ = t_.normalized(); n_ = Vector((-t_.y, t_.x, 0))
+ra, rb = S('rockfall'); LR = roadlen(rR); sR = nearest_s(rR, RC)
+mid_ = side_point(rR, sR, 0, 0)
+t_ = (side_point(rR, sR + 2, 0, 0) - side_point(rR, sR - 2, 0, 0)); t_.z = 0; t_ = t_.normalized(); n_ = Vector((-t_.y, t_.x, 0))
 upslope = n_ if elev_local(*(mid_ + n_ * 30).xy) > elev_local(*(mid_ - n_ * 30).xy) else -n_
 bpy.ops.import_scene.gltf(filepath=f'{PH}m/boulder_01/boulder_01.gltf'); bsrc = [o for o in bpy.context.selected_objects if o.type == 'MESH'][0]
 M_rock2 = bsrc.data.materials[0] if bsrc.data.materials else principled('rock2', (0.4, 0.33, 0.28), 0.9)
@@ -419,7 +429,7 @@ for k, (key, off) in enumerate((('barrier_closed', -14), ('barrier_concrete', -1
     p = mid_ + t_ * off + Vector((-t_.y, t_.x, 0)) * (k - 1) * 2.3; e.location = p; e.rotation_euler.z = math.atan2(t_.y, t_.x)
     show(e, [(int(ra + (rb - ra) * 0.75), rb + 1)])
 rc_t = bpy.data.objects.new('R_focus', None); sc.collection.objects.link(rc_t); rc_t.location = mid_ + upslope * 6 + Vector((0, 0, 3))
-track_cam('rockfall', rc_t, [(0.0, side_point(rR, LR * 0.5 - 46, 0, 3.4)), (1.0, side_point(rR, LR * 0.5 - 32, 0, 2.8))], 30)
+track_cam('rockfall', rc_t, [(0.0, side_point(rR, sR - 46, 0, 3.4)), (1.0, side_point(rR, sR - 32, 0, 2.8))], 30)
 
 def only_in(objs, shots):
     for o in objs: key_hidden(o, lambda n: n not in shots)
@@ -437,4 +447,5 @@ for l in plan['lines']:
     a_ = S(l['shot'])[0]; mk = sc.timeline_markers.new(l['shot'], frame=a_); mk.camera = CLOSE.get(l['shot'], cam)
 sc.camera = cam
 json.dump({k: {'U': list(U), 'H': list(H)} for k in ['sets']}, open('brief/close_points.json', 'w'))
+print('LENS', round(LU), round(LH), round(LA), round(LR), 'sR', round(sR))
 print('CLOSE sets: U', tuple(round(v) for v in U), 'roads', len(rU), len(rH), len(rA), len(rR), 'close shots', sorted(CLOSE))
