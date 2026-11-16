@@ -10,7 +10,7 @@ for l in p['lines']:
     subprocess.run(['ffmpeg', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=mono', '-t', f'{d:.2f}', l['audio']], check=True)
     open(l['audio'] + '.placeholder', 'w').write('silent stand-in')
 PY
-[ -f geo/places.json ] || /opt/reel/geovenv/bin/python geo_places.py
+/opt/reel/geovenv/bin/python geo_places.py
 $B -b --python build.py > /tmp/gbuild.log 2>&1; grep -E "^built|Traceback|Error" /tmp/gbuild.log | cut -c1-300; grep -A8 Traceback /tmp/gbuild.log | head -12
 python3 - > /tmp/tframes.txt <<'PY'
 import json; t = json.load(open('brief/timing.json')); out = []
