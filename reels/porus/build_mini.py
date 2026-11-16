@@ -147,7 +147,7 @@ for i in range(NR + 1):
     if i: rf.append((2 * i - 2, 2 * i - 1, 2 * i + 1, 2 * i))
 wm = bpy.data.meshes.new('river'); wm.from_pydata(rv, [], rf); riverO = bpy.data.objects.new('river', wm); sc.collection.objects.link(riverO)
 M_water = bpy.data.materials.new('resin'); M_water.use_nodes = True; nt = M_water.node_tree; b = nt.nodes['Principled BSDF']
-b.inputs['Base Color'].default_value = (0.03, 0.12, 0.13, 1); b.inputs['Roughness'].default_value = 0.04; b.inputs['Specular IOR Level'].default_value = 0.8
+b.inputs['Base Color'].default_value = (0.02, 0.09, 0.09, 1); b.inputs['Roughness'].default_value = 0.14; b.inputs['Specular IOR Level'].default_value = 0.35
 wv = nt.nodes.new('ShaderNodeTexWave'); wv.inputs['Scale'].default_value = 60; wv.inputs['Distortion'].default_value = 6; wv.wave_type = 'BANDS'; wv.bands_direction = 'X'
 mp = nt.nodes.new('ShaderNodeMapping'); tc = nt.nodes.new('ShaderNodeTexCoord'); nt.links.new(tc.outputs['Object'], mp.inputs['Vector']); nt.links.new(mp.outputs['Vector'], wv.inputs['Vector'])
 mp.inputs['Location'].default_value[0] = 0.0; mp.inputs['Location'].keyframe_insert('default_value', frame=1, index=0)
@@ -233,7 +233,7 @@ M_wood = pbr('shaft', (0.42, 0.30, 0.16), 0.7); M_iron = pbr('iron', (0.55, 0.55
 def cyl(r, d, loc, rot, m):
     bpy.ops.mesh.primitive_cylinder_add(radius=r, depth=d, location=loc, rotation=rot, vertices=8); o = bpy.context.object; o.data.materials.append(m); return o
 def sarissa(objs):
-    return [cyl(0.05, 5.5, (0.35, 0.3, 3.4), (math.radians(8), 0, 0), M_wood)] + add_base(objs)
+    return [cyl(0.03, 5.5, (0.35, 0.3, 3.4), (math.radians(8), 0, 0), M_wood)] + add_base(objs)
 def plume(objs, z=2.0, base=True):
     bpy.ops.mesh.primitive_cone_add(vertices=8, radius1=0.12, radius2=0.04, depth=0.55, location=(0, 0.05, z)); p = bpy.context.object
     p.data.materials.append(pbr('plume', (0.85, 0.08, 0.06), 0.8)); p.rotation_euler = (math.radians(-25), 0, 0)
@@ -366,7 +366,7 @@ while n < 260:
     DRESS.append((o, 0.35 * THT[nm] * TK * sz + 0.004, THT[nm] * TK * sz))
 for k in range(40):
     x, y = random.uniform(-BX, BX), random.uniform(-BY, BY)
-    if free(x, y): o = inst('rock', ground(x, y), random.uniform(0, 6.28), K * random.uniform(0.6, 1.6)); DRESS.append((o, 0.008, 0.005))
+    if free(x, y): sz = random.uniform(0.5, 1.2); o = inst('rock', ground(x, y), random.uniform(0, 6.28), K * sz); DRESS.append((o, 0.016 * sz + 0.004, 0.02 * sz))
 # Porus's capital: brick walls, towers, gate, houses, saffron banners
 fd = V((0, 1)); fs = V((1, 0))
 inst('gate', G2(FORT + fd * 0.045), yaw_of(fd))
@@ -381,8 +381,8 @@ inst('gate', G2(TAXILA), yaw_of(td))
 for k in (-1, 1): inst('tower', G2(TAXILA + ts * 0.03 * k), 0); inst('wall', G2(TAXILA + ts * 0.055 * k), yaw_of(td))
 for k in range(6): inst('house', G2(TAXILA - td * 0.04 + ts * random.uniform(-0.05, 0.05)), random.choice((0, 1.57)))
 # camps
-for k in range(10): DRESS.append((inst('tent_r', ground(-0.05 + k * 0.03, yr(-0.05 + k * 0.03) + 0.2 + 0.02 * (k % 2)), random.uniform(0, 6.28)), 0.016, 0.02))
-for k in range(9): DRESS.append((inst('tent', ground(-0.12 + k * 0.035, yr(-0.12 + k * 0.035) - 0.2 - 0.02 * (k % 2)), random.uniform(0, 6.28)), 0.014, 0.02))
+for k in range(10): DRESS.append((inst('tent_r', ground(-0.05 + k * 0.03, yr(-0.05 + k * 0.03) + 0.2 + 0.02 * (k % 2)), random.uniform(0, 6.28)), 0.022, 0.025))
+for k in range(9): DRESS.append((inst('tent', ground(-0.12 + k * 0.035, yr(-0.12 + k * 0.035) - 0.2 - 0.02 * (k % 2)), random.uniform(0, 6.28)), 0.02, 0.022))
 # flock grass tufts as hair particles
 bpy.ops.mesh.primitive_cone_add(vertices=5, radius1=0.0005, radius2=0.0, depth=0.0018, location=(5, 5, -5)); tuft = bpy.context.object; tuft.name = 'tuft'
 tuft.data.materials.append(pbr('tuft', (0.32, 0.36, 0.12), 0.9)); move_to([tuft], SRC)
@@ -563,9 +563,9 @@ bg = wn.nodes['Background']; wn.links.new(env.outputs['Color'], bg.inputs['Color
 bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.angle = math.radians(3)
 TOD = {  # shot: (elevation, azimuth, energy, colour, world)
     'open': (16, 230, 4.0, (1.0, 0.78, 0.55), 0.35), 'demand': (30, 200, 4.2, (1, 0.9, 0.75), 0.4), 'ambhi': (35, 140, 4.2, (1, 0.93, 0.82), 0.4),
-    'river': (22, 210, 4.2, (1, 0.85, 0.65), 0.35), 'feint': (40, 120, 1.1, (0.45, 0.6, 1.0), 0.06), 'storm': (40, 120, 0.7, (0.45, 0.55, 1.0), 0.05),
+    'river': (22, 210, 4.2, (1, 0.85, 0.65), 0.35), 'feint': (40, 120, 2.2, (0.45, 0.6, 1.0), 0.12), 'storm': (40, 120, 1.6, (0.45, 0.55, 1.0), 0.1),
     'son': (20, 100, 2.6, (0.85, 0.85, 0.95), 0.2), 'battle': (12, 100, 4.0, (1.0, 0.78, 0.55), 0.3), 'king': (7, 260, 3.6, (1.0, 0.62, 0.35), 0.25),
-    'return': (55, 160, 4.0, (1, 0.95, 0.88), 0.45), 'murder': (40, 100, 0.35, (0.45, 0.55, 1.0), 0.02), 'legacy': (6, 250, 4.5, (1.0, 0.58, 0.28), 0.3)}
+    'return': (55, 160, 4.0, (1, 0.95, 0.88), 0.45), 'murder': (40, 100, 0.7, (0.45, 0.55, 1.0), 0.04), 'legacy': (6, 250, 4.5, (1.0, 0.58, 0.28), 0.3)}
 for name, (el, az, en, col, ws) in TOD.items():
     for f in S(name):
         sun.rotation_euler = (math.radians(90 - el), 0, math.radians(az - 90)); sun.keyframe_insert('rotation_euler', frame=f)
@@ -609,11 +609,11 @@ AM = TAXILA + td * 0.04
 shot('ambhi', T3(AM, 0.0) + V((0.08, -0.04, 0.016)), T3(AM, 0.0) + V((0.055, -0.03, 0.011)), T3(AM, 0.006), T3(AM + td * 0.02, 0.006), 55, 3.2)
 shot('river', T3(bank(-0.12, 1, 0.03), 0.007), T3(bank(0.10, 1, 0.03), 0.008), T3(bank(-0.10, -1, 0.006), 0.008), T3(bank(0.13, -1, 0.006), 0.008),
      45, 2.8)
-shot('feint', T3(bank(-0.12, -1, 0.07), 0.009), T3(bank(0.0, -1, 0.07), 0.009), T3(bank(-0.10, 1, 0.014), 0.005), T3(bank(0.03, 1, 0.014), 0.005), 50, 3.2)
+shot('feint', T3(bank(-0.12, -1, 0.09), 0.024), T3(bank(0.0, -1, 0.09), 0.022), T3(bank(-0.10, 1, 0.014), 0.005), T3(bank(0.03, 1, 0.014), 0.005), 50, 3.2)
 shot('storm', T3(ISLAND, 0.0) + V((0.09, 0.05, 0.022)), T3(ISLAND, 0.0) + V((0.06, -0.035, 0.014)), T3(ISLAND + V((0, 0.02)), 0.004), T3(ISLAND + V((0, -0.025)), 0.004), 50, 3.5)
 shot('son', T3(MUD, 0.0) + V((0.06, -0.05, 0.012)), T3(MUD, 0.0) + V((0.04, -0.03, 0.008)), T3(MUD + V((0, 0.01)), 0.004), T3(MUD + V((0, 0.025)), 0.003), 60, 3.0)
-shot('battle', T3(BF, 0.0) + V((0.0, -0.12, 0.03)), T3(BF, 0.0) + V((-0.07, -0.05, 0.01)), T3(BF + V((0.04, 0)), 0.006), T3(BF + V((-0.03, 0)), 0.005), 45, 4.0,
-     mid=(0.5, T3(BF, 0.0) + V((-0.02, -0.08, 0.015)), T3(BF, 0.006)))
+shot('battle', T3(BF, 0.0) + V((0.07, -0.07, 0.016)), T3(BF, 0.0) + V((-0.07, -0.05, 0.011)), T3(BF + V((0.06, 0)), 0.008), T3(BF + V((-0.05, 0)), 0.006), 50, 3.5,
+     mid=(0.5, T3(BF, 0.0) + V((0.0, -0.06, 0.012)), T3(BF + V((0.01, 0)), 0.007)))
 shot('king', T3(KG, 0.0) + V((-0.002, -0.035, 0.007)), T3(KG, 0.0) + V((0.0, -0.026, 0.007)), T3(KG, 0.008), None, 80, 2.4,
      f0=T3(KG + V((0.012, 0)), 0.013), f1=T3(KG + V((0.012, 0)), 0.014), mid=(0.62, T3(KG, 0.0) + V((-0.001, -0.03, 0.007)), T3(KG, 0.009), T3(KG + V((-0.016, 0)), 0.012)))
 shot('return', V((0.85, -0.10, 0.95)), V((0.78, -0.06, 0.85)), V((-0.02, -0.02, 0.0)), V((0.0, -0.02, 0.0)), 45, 8.0)
@@ -641,7 +641,7 @@ for l in plan['lines']:
         sc.frame_set(int(a_ + (b_ - a_) * x)); cp = cam.matrix_world.translation.copy(); tp = tgt.matrix_world.translation.copy()
         for o, r, hgt in DRESS:
             c = o.location + V((0, 0, hgt * 0.5)); d, t_ = seg_dist(c, cp, tp)
-            if (d < r + 0.004 and t_ < 0.97) or (c - cp).length < r + 0.01:
+            if (d < r + 0.005 and t_ < 0.97) or (o.location - cp).length < r + 0.035:
                 if (a_, b_) not in hide[id(o)]: hide[id(o)].append((a_, b_))
 nh = 0
 for o, r, hgt in DRESS:
