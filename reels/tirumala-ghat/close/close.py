@@ -148,7 +148,7 @@ def build_set(name, centre, road, width, lower_main=True):
     ob = bpy.data.objects.new(name + '_ground', me); sc.collection.objects.link(ob); ob.data.materials.append(M_ground)
     if lower_main:   # hide the coarse terrain under the patch
         tv = np.empty(len(terr.data.vertices) * 3, np.float32); terr.data.vertices.foreach_get('co', tv); tv = tv.reshape(-1, 3)
-        inside = (np.abs(tv[:, 0] - centre.x) < SQ - 22) & (np.abs(tv[:, 1] - centre.y) < SQ - 22); tv[inside, 2] -= 6.0
+        inside = (np.abs(tv[:, 0] - centre.x) < SQ - 22) & (np.abs(tv[:, 1] - centre.y) < SQ - 22); tv[inside, 2] -= 60.0
         terr.data.vertices.foreach_set('co', tv.ravel()); terr.data.update()
     # road ribbon
     rv, rf = [], []
@@ -205,7 +205,7 @@ def scatter(ob):
     ng = bpy.data.node_groups.new(ob.name + '_scatter', 'GeometryNodeTree')
     ng.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry'); ng.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
     N, L = ng.nodes, ng.links; gi = N.new('NodeGroupInput'); go = N.new('NodeGroupOutput'); j = N.new('GeometryNodeJoinGeometry'); L.new(gi.outputs[0], j.inputs[0])
-    for coll, dens, s0, s1, seed in ((TREES, 1 / 16, 0.8, 1.6, 3), (SHRUBS, 1 / 8, 0.7, 1.7, 4), (GRASSC, 1 / 4, 0.8, 1.8, 5)):
+    for coll, dens, s0, s1, seed in ((TREES, 1 / 7, 0.8, 1.6, 3), (SHRUBS, 1 / 5, 0.7, 1.7, 4), (GRASSC, 1 / 4, 0.8, 1.8, 5)):
         na = N.new('GeometryNodeInputNamedAttribute'); na.data_type = 'FLOAT'; na.inputs['Name'].default_value = 'veg'
         mul = N.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = dens; L.new(next(o_ for o_ in na.outputs if o_.enabled), mul.inputs[0])
         dp = N.new('GeometryNodeDistributePointsOnFaces'); dp.distribute_method = 'RANDOM'; dp.inputs['Seed'].default_value = seed
