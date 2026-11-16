@@ -24,10 +24,10 @@ def inside(box, p, m=1.02):
     return True
 def search(node, P, best):
     uri = node.get('content', {}).get('uri', '')
-    if node.get('geometricError', 1e9) < 20: print('  node err', round(node.get('geometricError'), 2), 'uri', uri.split('?')[0][-10:], 'kids', len(node.get('children', [])), 'keys', list(node.keys()))
+    if False: print('  node err', round(node.get('geometricError'), 2), 'uri', uri.split('?')[0][-10:], 'kids', len(node.get('children', [])), 'keys', list(node.keys()))
     if uri.split('?')[0].endswith('.json'):
         if 'session=' in uri: SESSION[0] = urllib.parse.parse_qs(urllib.parse.urlparse(uri).query)['session'][0]
-        node = get(uri).json()['root']
+        return search(get(uri).json()['root'], P, best)
     elif uri and node.get('geometricError', 1e9) < best[0]:
         best[0] = node['geometricError']; best[1] = uri
         b = node['boundingVolume']['box']; best.append((round(math.dist((0,0,0), b[3:6])), round(math.dist((0,0,0), b[6:9])), round(math.dist((0,0,0), b[9:12])), len(node.get('children', []))))
