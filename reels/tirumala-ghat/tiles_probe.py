@@ -15,10 +15,12 @@ def get(uri):
     if 'session=' in uri: SESSION[0] = urllib.parse.parse_qs(urllib.parse.urlparse(uri).query)['session'][0]
     return r
 def inside(box, p, m=1.02):
-    c = box[:3]; d = [p[i] - c[i] for i in range(3)]
+    c = box[:3]; d = [p[i] - c[i] for i in range(3)]; pn = math.sqrt(sum(x * x for x in p)); up = [x / pn for x in p]
     for ax in (box[3:6], box[6:9], box[9:12]):
         n2 = sum(a * a for a in ax)
-        if n2 > 0 and abs(sum(d[i] * ax[i] for i in range(3))) / n2 > m: return False
+        if n2 <= 0: continue
+        if abs(sum(ax[i] * up[i] for i in range(3))) / math.sqrt(n2) > 0.7: continue   # ignore the vertical extent
+        if abs(sum(d[i] * ax[i] for i in range(3))) / n2 > m: return False
     return True
 def search(node, P, best):
     uri = node.get('content', {}).get('uri', '')
