@@ -12,3 +12,10 @@ grep -E "Error|rror:" /tmp/pmtest.log | head -5
 ffmpeg -y -v error -pattern_type glob -i 'renders/mtest/*.jpg' -vf "scale=270:480,tile=6x4" -frames:v 1 renders/mtest_sheet.jpg
 aws s3 cp --only-show-errors renders/mtest_sheet.jpg s3://claude-reels-730335199669/preview/mtest_sheet.jpg && echo SHEET_UP
 echo TEST_DONE
+/opt/reel/blender/blender -b scene/porus_mini.blend --python probe_mini.py 2>/dev/null | grep PROBE > /opt/reel/pmprobe.txt
+python3 - <<'PY'
+import subprocess, glob
+fs = sorted(glob.glob('renders/mtest/*.jpg'))[1::2]
+subprocess.run(['ffmpeg','-y','-v','error'] + sum([['-i', f] for f in fs], []) + ['-filter_complex', ''.join(f'[{i}]scale=360:640[s{i}];' for i in range(len(fs))) + ''.join(f'[s{i}]' for i in range(len(fs))) + f'xstack=inputs={len(fs)}:layout=' + '|'.join(f'{(i%4)*360}_{(i//4)*640}' for i in range(len(fs))), 'renders/mtest_big.jpg'], check=True)
+PY
+aws s3 cp --only-show-errors renders/mtest_big.jpg s3://claude-reels-730335199669/preview/mtest_big.jpg && echo BIG_UP
