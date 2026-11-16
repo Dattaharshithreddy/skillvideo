@@ -105,3 +105,4 @@ project/
 - `references/script-formulas.md`: openers, connectors, structures, worked example
 - `references/prompting.md`: style presets, image/motion prompts, cutaway recipes
 - `references/models.md`: endpoints, costs, config keys, Blender alternative
+- `asset-atlas/SKILL.md`: where to get free 3D models, sets, characters, real locations and generators for Blender shots (43 sources, fetch tool, licence rules). Check it before modelling anything by hand.
