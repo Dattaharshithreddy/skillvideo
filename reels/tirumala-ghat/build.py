@@ -263,6 +263,22 @@ if len(pk) < 6:      # the stored list can be short: pick more hill tops straigh
     for q_ in cand_:
         if len(pk) >= 6: break
         if all((q_.xy - p_.xy).length > 650 for p_ in pk): pk.append(q_)
+if len(pk) < 6:      # still short: highest ground along each direction out from the temple
+    ring_ = []
+    xlo, xhi = meta['x0'] - OX + 700, meta['x0'] - OX + w * RES - 700; ylo, yhi = meta['y1'] - OY - h * RES + 700, meta['y1'] - OY - 700
+    for a_ in range(0, 360, 15):
+        best_ = None
+        for r_ in range(1000, 3300, 100):
+            x_, y_ = TP.x + r_ * math.cos(math.radians(a_)), TP.y + r_ * math.sin(math.radians(a_))
+            if not (xlo < x_ < xhi and ylo < y_ < yhi): break
+            z_ = elev_local(x_, y_)
+            if best_ is None or z_ > best_.z: best_ = Vector((x_, y_, z_))
+        if best_ is not None: ring_.append(best_)
+    ring_.sort(key=lambda q: -q.z)
+    for sep_ in (800, 500, 250, 0):
+        for q_ in ring_:
+            if len(pk) >= 6: break
+            if all((q_.xy - p_.xy).length > sep_ for p_ in pk): pk.append(q_)
 assert len(pk) >= 6, 'need six hill tops'; pk = pk[:6]
 print('HILL_TOPS', len(pk), [(round(q.x), round(q.y), round(q.z)) for q in pk])
 pk.sort(key=lambda q: math.atan2(q.y - TP.y, q.x - TP.x))
