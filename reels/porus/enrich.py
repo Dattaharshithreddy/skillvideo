@@ -48,7 +48,7 @@ def collection(name):
     bpy.context.view_layer.layer_collection.children[name].exclude = True; return c
 def load(key, target, ratio):
     before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=f'{PH}m/{key}/{key}.gltf')
-    new = [o for o in bpy.data.objects if o not in before]; meshes = [o for o in new if o.type == 'MESH']
+    new = [o for o in bpy.data.objects if o not in before]; names = [o.name for o in new]; meshes = [o for o in new if o.type == 'MESH']
     bpy.ops.object.select_all(action='DESELECT')
     for o in meshes: o.select_set(True)
     bpy.context.view_layer.objects.active = meshes[0]
@@ -57,11 +57,12 @@ def load(key, target, ratio):
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
     if ratio < 1:
         d = ob.modifiers.new('dec', 'DECIMATE'); d.ratio = ratio; bpy.ops.object.modifier_apply(modifier='dec')
-    ob.location = (0, 0, 0); ob.name = key
+    ob.location = (0, 0, 0); ob.name = key; keep = ob.name
     for c in list(ob.users_collection): c.objects.unlink(ob)
     target.objects.link(ob)
-    for o in new:
-        if o != ob and o.name in bpy.data.objects: bpy.data.objects.remove(o, do_unlink=True)
+    for n in names:
+        o = bpy.data.objects.get(n)
+        if o is not None and o != ob: bpy.data.objects.remove(o, do_unlink=True)
     for m in ob.data.materials:
         if m: m.surface_render_method = 'DITHERED'
     return ob
