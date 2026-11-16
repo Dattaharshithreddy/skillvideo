@@ -9,11 +9,11 @@ def _pm(name, col, rough, metal=0.0, emit=None, es=0.0):
     m = principled(name, col, rough); b_ = m.node_tree.nodes['Principled BSDF']; b_.inputs['Metallic'].default_value = metal
     if emit: b_.inputs['Emission Color'].default_value = (*emit, 1); b_.inputs['Emission Strength'].default_value = es
     return m
-MT = {'stone': _pm('tpl_stone', (0.60, 0.47, 0.33), 0.85), 'white': _pm('tpl_white', (0.95, 0.90, 0.80), 0.7),
-      'gold': _pm('tpl_gold', (1.0, 0.62, 0.13), 0.2, 1.0, (1.0, 0.5, 0.1), 1.4), 'roof': _pm('tpl_roof', (0.80, 0.70, 0.55), 0.8),
-      'dark': _pm('tpl_dark', (0.05, 0.035, 0.03), 0.9), 'pave': _pm('tpl_pave', (0.74, 0.66, 0.54), 0.9),
-      'water': _pm('tpl_water', (0.02, 0.22, 0.30), 0.04, 0.0, (0.02, 0.30, 0.38), 0.25), 'red': _pm('tpl_red', (0.75, 0.16, 0.08), 0.7),
-      'lamp': emis('tpl_lamp', (1.0, 0.62, 0.2), 9.0)}
+MT = {'stone': _pm('tpl_stone', (0.50, 0.30, 0.16), 0.85), 'white': _pm('tpl_white', (1.0, 0.93, 0.78), 0.7),
+      'gold': _pm('tpl_gold', (1.0, 0.52, 0.06), 0.3, 0.45, (1.0, 0.42, 0.04), 2.0), 'roof': _pm('tpl_roof', (0.78, 0.62, 0.42), 0.8),
+      'dark': _pm('tpl_dark', (0.07, 0.04, 0.03), 0.9), 'pave': _pm('tpl_pave', (0.40, 0.31, 0.22), 0.9), 'niche': _pm('tpl_niche', (0.86, 0.66, 0.38), 0.8),
+      'water': _pm('tpl_water', (0.01, 0.30, 0.42), 0.04, 0.0, (0.02, 0.45, 0.6), 0.5), 'red': _pm('tpl_red', (0.80, 0.10, 0.04), 0.7),
+      'mari': emis('tpl_marigold', (1.0, 0.50, 0.03), 2.4), 'lamp': emis('tpl_lamp', (1.0, 0.62, 0.2), 14.0)}
 class Acc:
     def __init__(s): s.v = []; s.f = []
     def box(s, cx, cy, z0, sx, sy, sz, taper=1.0):
@@ -36,6 +36,8 @@ def gopuram(cx, cy, z0, wy, dx, tiers, H, body='white'):
     for sx_ in (-1, 1):
         A_['gold'].box(cx + sx_ * (dx / 2 + 0.25), cy, z0, 0.25, wy * 0.24, bh * 0.74)
         for sy_ in (-1, 1): A_['white'].box(cx + sx_ * (dx / 2 + 0.2), cy + sy_ * wy * 0.19, z0, 0.5, 0.9, bh * 0.86)
+        A_['mari'].box(cx + sx_ * (dx / 2 + 0.45), cy, z0 + bh * 0.80, 0.3, wy * 0.46, 0.55)
+        for j in range(7): A_['mari'].box(cx + sx_ * (dx / 2 + 0.45), cy - wy * 0.21 + wy * 0.07 * j, z0 + bh * (0.80 - 0.10 - 0.12 * abs(3 - j) / 3), 0.25, 0.3, bh * (0.10 + 0.12 * abs(3 - j) / 3))
     z = z0 + bh + 0.5; th = H * 0.52 / tiers
     for i in range(tiers):
         k = 1 - 0.12 * i; k2 = 1 - 0.12 * (i + 1); w_, d_ = wy * k, dx * k
@@ -45,10 +47,10 @@ def gopuram(cx, cy, z0, wy, dx, tiers, H, body='white'):
             yy = cy - w_ / 2 + w_ * (j + 0.5) / n
             for sx_ in (-1, 1):
                 A_[body].box(cx + sx_ * (d_ / 2 + 0.2), yy, z + th * 0.08, 0.6, w_ / n * 0.6, th * 0.62)
-                A_['dark'].box(cx + sx_ * (d_ / 2 + 0.52), yy, z + th * 0.14, 0.06, w_ / n * 0.3, th * 0.4)
+                A_['niche'].box(cx + sx_ * (d_ / 2 + 0.52), yy, z + th * 0.14, 0.06, w_ / n * 0.3, th * 0.4)
                 A_[body].box(cx + sx_ * (d_ / 2 + 0.2), yy, z + th * 0.70, 0.75, w_ / n * 0.75, th * 0.16, 0.3)
         for sy_ in (-1, 1):
-            A_[body].box(cx, cy + sy_ * (w_ / 2 + 0.2), z + th * 0.08, d_ * 0.4, 0.6, th * 0.62); A_['dark'].box(cx, cy + sy_ * (w_ / 2 + 0.52), z + th * 0.14, d_ * 0.2, 0.06, th * 0.4)
+            A_[body].box(cx, cy + sy_ * (w_ / 2 + 0.2), z + th * 0.08, d_ * 0.4, 0.6, th * 0.62); A_['niche'].box(cx, cy + sy_ * (w_ / 2 + 0.52), z + th * 0.14, d_ * 0.2, 0.06, th * 0.4)
         z += th
     tw, td = wy * (1 - 0.12 * tiers), dx * (1 - 0.12 * tiers); rh = H * 0.16
     A_[body].box(cx, cy, z, td, tw, rh * 0.25)
@@ -63,7 +65,10 @@ def ring(key, x0, x1, y0, y1, z0, h, t):
     A_[key].box(x0 + t / 2, (y0 + y1) / 2, z0, t, y1 - y0 - 2 * t, h); A_[key].box(x1 - t / 2, (y0 + y1) / 2, z0, t, y1 - y0 - 2 * t, h)
 def wall(x0, x1, y0, y1, h, lamps=True):
     ring('stone', x0, x1, y0, y1, 0, h, 1.6); ring('white', x0 - 0.2, x1 + 0.2, y0 - 0.2, y1 + 0.2, h, 0.5, 2.0)
-    ring('red', x0 - 0.05, x1 + 0.05, y0 - 0.05, y1 + 0.05, h * 0.45, 0.5, 1.7)
+    for k in range(int((x1 - x0) / 2.4)):
+        for yy in (y0 - 0.06, y1 + 0.06): A_['red'].box(x0 + 1.2 + 2.4 * k, yy, 0.2, 1.2, 0.14, h - 0.2); A_['white'].box(x0 + 2.4 + 2.4 * k, yy, 0.2, 1.2, 0.12, h - 0.2)
+    for k in range(int((y1 - y0) / 2.4)):
+        for xx in (x0 - 0.06, x1 + 0.06): A_['red'].box(xx, y0 + 1.2 + 2.4 * k, 0.2, 0.14, 1.2, h - 0.2); A_['white'].box(xx, y0 + 2.4 + 2.4 * k, 0.2, 0.12, 1.2, h - 0.2)
     if lamps:
         P_ = 2 * (x1 - x0 + y1 - y0); n = int(P_ / 3.2)
         for j in range(n):
@@ -82,7 +87,7 @@ def hall(x0, x1, y0, y1, h):
             A_['stone'].box(x0 + 0.5 + (x1 - x0 - 1) * i / nx_, y0 + 0.5 + (y1 - y0 - 1) * j / ny_, 0, 0.7, 0.7, h - 0.8)
     A_['dark'].box((x0 + x1) / 2, (y0 + y1) / 2, 0, x1 - x0 - 2.2, y1 - y0 - 2.2, h - 1.0)
 # plinth / paving
-A_['pave'].box(0, 38, -45, 190, 216, 45)
+A_['pave'].box(0, 0, -45, 150, 104, 45); A_['pave'].box(3, 97, -45, 106, 90, 45)
 # outer wall, Mahadwaram, inner wall, Vendivakili
 wall(-63, 63, -40, 40, 7.5); wall(-46, 30, -26, 26, 6.5)
 gopuram(63, 0, 0, 17, 11, 5, 23); gopuram(30, 0, 0, 11, 8, 3, 14)
@@ -122,16 +127,20 @@ for k_, a_ in A_.items():
     if not a_.v: continue
     me_ = bpy.data.meshes.new('tpl_' + k_); me_.from_pydata(a_.v, [], a_.f); me_.update()
     o = bpy.data.objects.new('tpl_' + k_, me_); sc.collection.objects.link(o); o.data.materials.append(MT[k_]); o.parent = ROOT
+# warm lamps washing the towers in gold light
+for lx, ly, lz, pw in ((88, -10, 16, 5e5), (88, 10, 16, 5e5), (-20, 26, 30, 4e5), (-20, -26, 30, 4e5), (6, 0, 34, 4e5), (-46, 0, 30, 3e5), (46, 0, 26, 3e5), (3, 97, 22, 3e5)):
+    ld = bpy.data.lights.new('tpl_light', 'POINT'); ld.energy = pw; ld.color = (1.0, 0.58, 0.22); ld.shadow_soft_size = 3.0; ld.use_shadow = False
+    lo = bpy.data.objects.new('tpl_light', ld); sc.collection.objects.link(lo); lo.parent = ROOT; lo.location = (lx, ly, lz)
 # trees around the complex (Poly Haven, already loaded for the close sets)
 try:
     srcs = [o for o in TREES.objects if o.type == 'MESH']; rt = random.Random(5)
-    for i in range(70):
-        if i < 44:
-            a_ = rt.uniform(0, 2 * math.pi); px = math.cos(a_) * rt.uniform(118, 150); py = 38 + math.sin(a_) * rt.uniform(128, 160)
-        else: px = rt.uniform(-88, 88); py = rt.choice((rt.uniform(44, 57), rt.uniform(-58, -45)))
+    for i in range(110):
+        if i < 84:
+            a_ = rt.uniform(0, 2 * math.pi); px = math.cos(a_) * rt.uniform(84, 118); py = 40 + math.sin(a_) * rt.uniform(108, 140)
+        else: px = rt.uniform(-70, 70); py = rt.choice((rt.uniform(43, 50), rt.uniform(-50, -43)))
         s_ = srcs[i % len(srcs)]; t_o = s_.copy(); sc.collection.objects.link(t_o)
         wx, wy_ = TP.x + px * SCL, TP.y + py * SCL
-        inside = abs(px) < 95 and -70 < py < 146
+        inside = (abs(px) < 75 and abs(py) < 52) or (abs(px - 3) < 53 and 52 <= py < 142)
         t_o.location = (wx, wy_, GZ if inside else elev_local(wx, wy_)); k_ = rt.uniform(1.5, 2.6); t_o.scale = (k_, k_, k_); t_o.rotation_euler = (0, 0, rt.uniform(0, 6.28)); t_o.name = f'tpl_tree{i}'
 except Exception as ex_: print('temple trees skipped', ex_)
 TPTOP = Vector((TP.x + vx * SCL, TP.y, GZ + VTOP * SCL)); TPAIM = Vector((TP.x + 8 * SCL, TP.y, GZ + 13 * SCL))

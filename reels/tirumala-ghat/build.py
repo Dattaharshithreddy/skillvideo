@@ -129,7 +129,7 @@ if os.path.exists(HD):      # real sky with clouds, like the ghat road on a clea
     envt = wn.nodes.new('ShaderNodeTexEnvironment'); envt.image = bpy.data.images.load(HD); wn.links.new(envt.outputs['Color'], wn.nodes['Background'].inputs['Color'])
 else: wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color'])
 DIVINE = ['hills', 'seven', 'govinda']
-HD2 = next((p_ for p_ in ('/opt/reel/assets/ph/h/the_sky_is_on_fire_2k.exr', '/opt/reel/assets/ph/h/belfast_sunset_puresky_2k.exr') if os.path.exists(p_)), None)
+HD2 = next((p_ for p_ in ('/opt/reel/assets/ph/h/qwantani_dusk_2_puresky.exr', '/opt/reel/assets/ph/h/belfast_sunset_puresky_2k.exr') if os.path.exists(p_)), None)
 dv = wn.nodes.new('ShaderNodeValue'); dv.name = 'divine'
 if HD2 and os.path.exists(HD):
     e2 = wn.nodes.new('ShaderNodeTexEnvironment'); e2.image = bpy.data.images.load(HD2)
@@ -140,13 +140,13 @@ bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy 
 sun.rotation_euler = (math.radians(90 - 38), 0, math.radians(250 - 90))
 sun.data.angle = math.radians(1.5)
 day_rot = tuple(sun.rotation_euler)
-gd = Vector((math.sin(math.radians(112)), math.cos(math.radians(112)), math.tan(math.radians(17)))).normalized()   # low sun in the east-south-east
+gd = Vector((math.sin(math.radians(125)), math.cos(math.radians(125)), math.tan(math.radians(31)))).normalized()   # low sun in the east-south-east
 gold_rot = tuple((-gd).to_track_quat('-Z', 'Y').to_euler())
 for l in plan['lines']:
     a_ = S(l['shot'])[0]; g_ = l['shot'] in DIVINE
     sun.rotation_euler = gold_rot if g_ else day_rot; sun.keyframe_insert('rotation_euler', frame=a_)
-    sun.data.energy = 5.0 if g_ else 3.5; sun.data.keyframe_insert('energy', frame=a_)
-    sun.data.color = (1.0, 0.74, 0.42) if g_ else (1.0, 0.96, 0.9); sun.data.keyframe_insert('color', frame=a_)
+    sun.data.energy = 6.5 if g_ else 3.5; sun.data.keyframe_insert('energy', frame=a_)
+    sun.data.color = (1.0, 0.76, 0.46) if g_ else (1.0, 0.96, 0.9); sun.data.keyframe_insert('color', frame=a_)
     dv.outputs[0].default_value = 1.0 if g_ else 0.0; dv.outputs[0].keyframe_insert('default_value', frame=a_)
 for idb in (sun, sun.data, wn):
     for fc in fcurves(idb):
@@ -245,7 +245,10 @@ GZ = max(elev_local(TP.x + dx, TP.y + dy) for dx in range(-160, 161, 20) for dy 
 TG = Vector((TP.x, TP.y, GZ))
 # wide ground far below the map edge so no empty space shows past the terrain in high shots
 bpy.ops.mesh.primitive_plane_add(size=160000, location=(TP.x, TP.y, -3)); skirt = bpy.context.object; skirt.name = 'skirt'
-skirt.data.materials.append(principled('skirt', (0.085, 0.10, 0.055), 1.0))
+sm_ = principled('skirt', (0.03, 0.05, 0.025), 1.0); sn_ = sm_.node_tree.nodes.new('ShaderNodeTexNoise'); sn_.inputs['Scale'].default_value = 0.0006; sn_.inputs['Detail'].default_value = 8
+sx_ = sm_.node_tree.nodes.new('ShaderNodeMix'); sx_.data_type = 'RGBA'; sx_.inputs[6].default_value = (0.018, 0.035, 0.016, 1); sx_.inputs[7].default_value = (0.07, 0.085, 0.04, 1)
+sm_.node_tree.links.new(sm_.node_tree.nodes.new('ShaderNodeTexCoord').outputs['Object'], sn_.inputs['Vector']); sm_.node_tree.links.new(sn_.outputs['Fac'], sx_.inputs['Factor'])
+sm_.node_tree.links.new(sx_.outputs[2], sm_.node_tree.nodes['Principled BSDF'].inputs['Base Color']); skirt.data.materials.append(sm_)
 pk = [loc(p['x'], p['y'], p['z']) for p in PL['peaks']]
 pk.sort(key=lambda q: math.atan2(q.y - TP.y, q.x - TP.x))
 hi_ = max(range(len(pk)), key=lambda i: pk[i].z); pk = pk[hi_ + 1:] + pk[:hi_ + 1]      # fly round the hills, ending on the highest (Narayanagiri)
@@ -294,22 +297,22 @@ def shot(name, c0, c1, t0, t1=None, ln=30):
     a, b = S(name); K(a, c0, t0, ln); K(b, c1, t1 or t0, ln)
 V = Vector
 D = (T_ - A); D.z = 0; Dn = D.normalized(); Pn = V((-Dn.y, Dn.x, 0))
-E_, Nn = V((1, 0, 0)), V((0, 1, 0)); TA = TG + V((0, 0, 30)); TP_ = TP; TP = TG
+E_, Nn = V((1, 0, 0)), V((0, 1, 0)); TA = TG + V((22, 0, 26)); TP_ = TP; TP = TG
 ha, hb = S('hills')
 K(ha, TP + E_ * 5400 - Nn * 2000 + V((0, 0, 5200)), TA, 24)
-K(fr('hills', 0.42), TP + E_ * 2300 - Nn * 500 + V((0, 0, 1000)), TA, 26)
-K(fr('hills', 0.8), TP + E_ * 620 - Nn * 150 + V((0, 0, 200)), TA, 32)
-K(hb, TP + E_ * 430 - Nn * 60 + V((0, 0, 125)), TA, 34)
+K(fr('hills', 0.42), TP + E_ * 2300 - Nn * 950 + V((0, 0, 1150)), TA, 26)
+K(fr('hills', 0.8), TP + E_ * 700 - Nn * 400 + V((0, 0, 270)), TA, 34)
+K(hb, TP + E_ * 440 - Nn * 260 + V((0, 0, 135)), TA, 38)
 sa_, sb_ = S('seven'); SEVK = []
 def hill_cam(P):
-    o_ = (P - TP); o_.z = 0; o_ = o_.normalized(); c_ = P + o_ * 1150; c_.z = max(P.z + 300, elev_local(c_.x, c_.y) + 160); return c_
+    o_ = (P - TP); o_.z = 0; o_ = o_.normalized(); c_ = P + o_ * 1000; c_.z = max(P.z + 620, elev_local(c_.x, c_.y) + 200); return c_
 K(sa_, hill_cam(pk[0]) + V((0, 0, 900)) + (pk[0] - TP).normalized() * 900, pk[0], 26); SEVK.append(sa_)
 for i, P in enumerate(pk):
     f_ = fr('seven', N0 + (N1 - N0) * (i + 0.5) / 7); K(f_, hill_cam(P), P, 28); SEVK.append(f_)
 K(fr('seven', N0 + (N1 - N0) * 6.6 / 7 + 0.03), TP + E_ * 1500 + Nn * 900 + V((0, 0, 700)), TA, 30)
 K(sb_, TP + E_ * 560 + Nn * 330 + V((0, 0, 190)), TA, 34)
 ga_, gb_ = S('govinda')
-K(ga_, TP + E_ * 400 - Nn * 40 + V((0, 0, 45)), TA + V((0, 0, 8)), 38); K(END, TP + E_ * 275 + Nn * 25 + V((0, 0, 62)), TA + V((0, 0, 14)), 40); TP = TP_
+K(ga_, TP + E_ * 370 - Nn * 215 + V((0, 0, 72)), TA, 42); K(END, TP + E_ * 305 - Nn * 150 + V((0, 0, 90)), TA + V((0, 0, 4)), 46); TP = TP_
 shot('open', A - Dn * 3500 + Pn * 1500 + V((0, 0, 2200)), A - Dn * 2600 + Pn * 1100 + V((0, 0, 1900)), C + V((0, 0, 200)), ln=28)
 shot('two_roads', C - Dn * 1500 - Pn * 4200 + V((0, 0, 3200)), C - Dn * 900 - Pn * 3800 + V((0, 0, 2900)), C, ln=30)
 shot('cart_track', A - Dn * 900 + Pn * 500 + V((0, 0, 450)), A + Dn * 400 + Pn * 450 + V((0, 0, 520)), A + Dn * 1800 + V((0, 0, 150)), A + Dn * 2800 + V((0, 0, 250)), ln=32)
