@@ -6,7 +6,7 @@ import numpy as np
 from mathutils import Vector, noise
 HERE = os.path.dirname(os.path.abspath(__file__)); os.chdir(HERE); random.seed(7)
 V = Vector
-FPS = 30; GLB = '/opt/reel/assets/qs/public/glb/'; K = 1 / 72.0      # figure scale
+FPS = 30; GLB = '/opt/reel/assets/qs/public/glb/'; K = 1 / 150.0; TK = 1 / 260.0      # figure scale, tree scale (compressed, like real dioramas)
 plan = json.load(open('brief/plan.json'))
 def adur(p): return float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', p], capture_output=True, text=True).stdout)
 durs = [adur(l['audio']) for l in plan['lines']]
@@ -326,9 +326,9 @@ U['banner'] = glb_unit('banner', GLB + 'modular_medieval_buildings_pack/Banner.g
 U['house'] = glb_unit('house', GLB + 'real_time_strategy_pack/Houses_FirstAge_1_Level1.glb', 5.0)
 U['fire'] = glb_unit('fire', GLB + 'survival_pack/Bonfire.glb', 0.8)
 U['torch'] = glb_unit('torch', GLB + 'survival_pack/WoodenTorch.glb', 1.2)
-TREES = []
+TREES = []; THT = {}
 for nm, hgt in (('PalmTree_1', 11), ('PalmTree_2', 10), ('PalmTree_3', 12), ('CommonTree_1', 9), ('CommonTree_2', 8), ('CommonTree_3', 10), ('Bush_1', 2.2), ('Bush_2', 2.0)):
-    U[nm] = glb_unit(nm, GLB + f'nature_pack/{nm}.glb', hgt); TREES.append(nm)
+    U[nm] = glb_unit(nm, GLB + f'nature_pack/{nm}.glb', hgt); TREES.append(nm); THT[nm] = hgt
 U['rock'] = glb_unit('rock', GLB + 'medieval_village_pack/Rock_1.glb', 3.0, (0.5, 0.46, 0.4))
 
 def inst(cname, loc, yaw=0.0, s=K, name=None):
@@ -337,7 +337,7 @@ def inst(cname, loc, yaw=0.0, s=K, name=None):
 def yaw_of(d): return math.atan2(d.x, -d.y)       # glTF figures face -Y after import
 def G2(p, lift=0.0): return ground(p.x, p.y, lift)
 def block(cname, centre, facing, rows, cols, dx, dy, ranges, jitter=0.0015, s=K):
-    f = V((facing.x, facing.y)).normalized(); side = V((f.y, -f.x)); out = []
+    f = V((facing.x, facing.y)).normalized(); side = V((f.y, -f.x)); out = []; dx *= 0.55; dy *= 0.55; jitter *= 0.55
     for r in range(rows):
         for c in range(cols):
             p = centre + side * ((c - (cols - 1) / 2) * dx + random.uniform(-jitter, jitter)) - f * (r * dy + random.uniform(-jitter, jitter))
@@ -357,14 +357,16 @@ def free(x, y):
     for c, r in ((FORT, 0.09), (TAXILA, 0.08), (MUD, 0.08), (V((0.0, -0.17)), 0.14), (V((0.05, 0.17)), 0.12)):
         if (V((x, y)) - c).length < r: return False
     return abs(x) < BX - 0.02 and abs(y) < BY - 0.02
+DRESS = []          # (object, radius, height) -> hidden in any shot where it would block the lens
 n = 0
-while n < 150:
+while n < 260:
     x, y = random.uniform(-BX, BX), random.uniform(-BY, BY)
     if not free(x, y): continue
-    nm = random.choice(TREES); inst(nm, ground(x, y), random.uniform(0, 6.28), K * random.uniform(0.75, 1.25)); n += 1
-for k in range(30):
+    nm = random.choice(TREES); sz = random.uniform(0.75, 1.3); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz); n += 1
+    DRESS.append((o, 0.35 * THT[nm] * TK * sz + 0.004, THT[nm] * TK * sz))
+for k in range(40):
     x, y = random.uniform(-BX, BX), random.uniform(-BY, BY)
-    if free(x, y): inst('rock', ground(x, y), random.uniform(0, 6.28), K * random.uniform(0.6, 1.6))
+    if free(x, y): o = inst('rock', ground(x, y), random.uniform(0, 6.28), K * random.uniform(0.6, 1.6)); DRESS.append((o, 0.008, 0.005))
 # Porus's capital: brick walls, towers, gate, houses, saffron banners
 fd = V((0, 1)); fs = V((1, 0))
 inst('gate', G2(FORT + fd * 0.045), yaw_of(fd))
@@ -379,13 +381,13 @@ inst('gate', G2(TAXILA), yaw_of(td))
 for k in (-1, 1): inst('tower', G2(TAXILA + ts * 0.03 * k), 0); inst('wall', G2(TAXILA + ts * 0.055 * k), yaw_of(td))
 for k in range(6): inst('house', G2(TAXILA - td * 0.04 + ts * random.uniform(-0.05, 0.05)), random.choice((0, 1.57)))
 # camps
-for k in range(10): inst('tent_r', ground(-0.05 + k * 0.03, yr(-0.05 + k * 0.03) + 0.2 + 0.02 * (k % 2)), random.uniform(0, 6.28))
-for k in range(9): inst('tent', ground(-0.12 + k * 0.035, yr(-0.12 + k * 0.035) - 0.2 - 0.02 * (k % 2)), random.uniform(0, 6.28))
+for k in range(10): DRESS.append((inst('tent_r', ground(-0.05 + k * 0.03, yr(-0.05 + k * 0.03) + 0.2 + 0.02 * (k % 2)), random.uniform(0, 6.28)), 0.016, 0.02))
+for k in range(9): DRESS.append((inst('tent', ground(-0.12 + k * 0.035, yr(-0.12 + k * 0.035) - 0.2 - 0.02 * (k % 2)), random.uniform(0, 6.28)), 0.014, 0.02))
 # flock grass tufts as hair particles
-bpy.ops.mesh.primitive_cone_add(vertices=5, radius1=0.0009, radius2=0.0, depth=0.0035, location=(5, 5, -5)); tuft = bpy.context.object; tuft.name = 'tuft'
+bpy.ops.mesh.primitive_cone_add(vertices=5, radius1=0.0005, radius2=0.0, depth=0.0018, location=(5, 5, -5)); tuft = bpy.context.object; tuft.name = 'tuft'
 tuft.data.materials.append(pbr('tuft', (0.32, 0.36, 0.12), 0.9)); move_to([tuft], SRC)
 ps = terr.modifiers.new('flock', 'PARTICLE_SYSTEM').particle_system; pst = ps.settings
-pst.type = 'HAIR'; pst.count = 60000; pst.hair_length = 1.0; pst.render_type = 'OBJECT'; pst.instance_object = tuft
+pst.type = 'HAIR'; pst.count = 120000; pst.hair_length = 1.0; pst.render_type = 'OBJECT'; pst.instance_object = tuft
 pst.particle_size = 1.0; pst.size_random = 0.6; pst.use_rotations = True; pst.rotation_mode = 'NOR'; pst.phase_factor_random = 2.0
 ps.vertex_group_density = 'grass'
 
@@ -446,14 +448,14 @@ for o in cav:
     const(o, 'rotation_euler')
 for k in range(5):
     bpy.ops.object.light_add(type='POINT', location=ground(-0.12 + k * 0.06, yr(-0.12 + k * 0.06) + RWH + 0.02, 0.03)); pl = bpy.context.object
-    pl.data.energy = 0.0; pl.data.keyframe_insert('energy', frame=1); pl.data.energy = 0.03; pl.data.keyframe_insert('energy', frame=fa); pl.data.energy = 0.0; pl.data.keyframe_insert('energy', frame=fb + 1)
+    pl.data.energy = 0.0; pl.data.keyframe_insert('energy', frame=1); pl.data.energy = 0.25; pl.data.keyframe_insert('energy', frame=fa); pl.data.energy = 0.0; pl.data.keyframe_insert('energy', frame=fb + 1)
     pl.data.color = (1, 0.5, 0.2); pl.data.shadow_soft_size = 0.004; const(pl.data)
 watch = []
 for k in range(8):
     x = -0.18 + k * 0.05; f_ = inst('fire', G2(bank(x, -1, 0.05)), 0); show(f_, [(fa, S('storm')[0])])
     bpy.ops.object.light_add(type='POINT', location=ground(x, yr(x) - RWH - 0.06, 0.012)); pl = bpy.context.object; pl.data.color = (1, 0.45, 0.15); pl.data.shadow_soft_size = 0.003
     off = fr('feint', 0.45 + 0.45 * k / 8)          # fires die one by one -> they stopped reacting
-    for f, e in ((1, 0), (fa, 0.012), (off, 0.012), (off + 8, 0.0)): pl.data.energy = e; pl.data.keyframe_insert('energy', frame=f)
+    for f, e in ((1, 0), (fa, 0.12), (off, 0.12), (off + 8, 0.0)): pl.data.energy = e; pl.data.keyframe_insert('energy', frame=f)
     const(pl.data); watch.append(pl)
 # STORM (night, upstream): boats and swimming horses cross to the island, then wade on
 sa, sb = S('storm')
@@ -546,7 +548,7 @@ march([sh_], ma, fr('murder', 0.75), V((0.042, 0.033)))
 bpy.ops.object.light_add(type='POINT', location=ground(MT.x, MT.y + 0.016, 0.008)); mfl = bpy.context.object; mfl.data.color = (1, 0.45, 0.15); mfl.data.shadow_soft_size = 0.002
 for f in range(1, END + 1, 3):
     on = ma <= f <= fr('murder', 0.82)
-    mfl.data.energy = (0.006 * (0.8 + 0.4 * random.random())) if on else 0.0; mfl.data.keyframe_insert('energy', frame=f)
+    mfl.data.energy = (0.06 * (0.8 + 0.4 * random.random())) if on else 0.0; mfl.data.keyframe_insert('energy', frame=f)
 const(mfl.data)
 # LEGACY: Porus on his elephant on the south hill at sunset; camera pulls back to reveal the whole table
 la, lb = S('legacy')
@@ -561,9 +563,9 @@ bg = wn.nodes['Background']; wn.links.new(env.outputs['Color'], bg.inputs['Color
 bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.angle = math.radians(3)
 TOD = {  # shot: (elevation, azimuth, energy, colour, world)
     'open': (16, 230, 4.0, (1.0, 0.78, 0.55), 0.35), 'demand': (30, 200, 4.2, (1, 0.9, 0.75), 0.4), 'ambhi': (35, 140, 4.2, (1, 0.93, 0.82), 0.4),
-    'river': (22, 210, 4.2, (1, 0.85, 0.65), 0.35), 'feint': (40, 120, 0.35, (0.45, 0.6, 1.0), 0.03), 'storm': (40, 120, 0.15, (0.45, 0.55, 1.0), 0.02),
+    'river': (22, 210, 4.2, (1, 0.85, 0.65), 0.35), 'feint': (40, 120, 1.1, (0.45, 0.6, 1.0), 0.06), 'storm': (40, 120, 0.7, (0.45, 0.55, 1.0), 0.05),
     'son': (20, 100, 2.6, (0.85, 0.85, 0.95), 0.2), 'battle': (12, 100, 4.0, (1.0, 0.78, 0.55), 0.3), 'king': (7, 260, 3.6, (1.0, 0.62, 0.35), 0.25),
-    'return': (55, 160, 4.0, (1, 0.95, 0.88), 0.45), 'murder': (40, 100, 0.0, (1, 1, 1), 0.006), 'legacy': (6, 250, 4.5, (1.0, 0.58, 0.28), 0.3)}
+    'return': (55, 160, 4.0, (1, 0.95, 0.88), 0.45), 'murder': (40, 100, 0.35, (0.45, 0.55, 1.0), 0.02), 'legacy': (6, 250, 4.5, (1.0, 0.58, 0.28), 0.3)}
 for name, (el, az, en, col, ws) in TOD.items():
     for f in S(name):
         sun.rotation_euler = (math.radians(90 - el), 0, math.radians(az - 90)); sun.keyframe_insert('rotation_euler', frame=f)
@@ -595,26 +597,30 @@ def shot(n, c0, c1, t0, t1=None, ln=50, fst=2.8, f0=None, f1=None, mid=None):
     if mid: KK(int(a + (b - a) * mid[0]), mid[1], mid[2], ln, fst, mid[3] if len(mid) > 3 else mid[2])
     KK(b, c1, t1 or t0, ln, fst, f1 if f1 is not None else (t1 or t0))
 def P3(x, y, up): return ground(x, y, up)
-oy = yr(-0.2) + 0.16
-shot('open', P3(-0.06, oy + 0.015, 0.012), V((-0.95, 0.32, 0.55)), P3(-0.22, oy, 0.008), V((0.05, 0.0, 0.01)), 60, 4.0,
-     f0=P3(-0.16, oy, 0.008), f1=V((-0.1, 0.05, 0.02)), mid=(0.42, P3(-0.02, oy + 0.06, 0.05), P3(-0.2, oy, 0.006), P3(-0.12, oy, 0.006)))
-shot('demand', P3(FORT.x + 0.03, FORT.y + 0.2, 0.025), P3(FORT.x + 0.01, FORT.y + 0.15, 0.014), P3(FORT.x, FORT.y + 0.08, 0.02), None, 70, 3.2,
-     f0=P3(FORT.x, FORT.y + 0.12, 0.01), f1=P3(FORT.x, FORT.y + 0.085, 0.02))
-shot('ambhi', P3(TAXILA.x + 0.13, TAXILA.y - 0.12, 0.03), P3(TAXILA.x + 0.11, TAXILA.y - 0.075, 0.02), P3(TAXILA.x + 0.02, TAXILA.y - 0.02, 0.012), P3(TAXILA.x + 0.04, TAXILA.y - 0.05, 0.01), 60, 3.2)
-shot('river', P3(-0.1, yr(-0.1) + RWH + 0.03, 0.012), P3(0.12, yr(0.12) + RWH + 0.03, 0.014), P3(-0.05, yr(-0.05) - RWH - 0.01, 0.012), P3(0.18, yr(0.18) - RWH - 0.01, 0.012),
-     45, 2.4, f0=P3(-0.07, yr(-0.07) - RWH - 0.015, 0.01), f1=P3(0.16, yr(0.16) - RWH - 0.015, 0.01))
-shot('feint', P3(-0.1, yr(-0.1) - RWH - 0.07, 0.016), P3(0.02, yr(0.02) - RWH - 0.07, 0.016), P3(-0.08, yr(-0.08) + RWH + 0.02, 0.01), P3(0.04, yr(0.04) + RWH + 0.02, 0.01), 55, 2.8)
-shot('storm', P3(ISLAND.x + 0.1, ISLAND.y + 0.12, 0.05), P3(ISLAND.x + 0.07, ISLAND.y - 0.07, 0.025), P3(ISLAND.x, ISLAND.y + 0.03, 0.003), P3(ISLAND.x, ISLAND.y - 0.03, 0.004), 50, 3.2)
-shot('son', P3(MUD.x + 0.09, MUD.y - 0.06, 0.02), P3(MUD.x + 0.05, MUD.y - 0.035, 0.012), P3(MUD.x - 0.005, MUD.y + 0.01, 0.006), P3(MUD.x, MUD.y + 0.025, 0.003), 65, 2.8)
-shot('battle', P3(BF.x - 0.02, BF.y - 0.14, 0.05), P3(BF.x - 0.1, BF.y - 0.08, 0.02), P3(BF.x + 0.05, BF.y, 0.01), P3(BF.x - 0.04, BF.y, 0.008), 45, 3.5,
-     mid=(0.5, P3(BF.x + 0.02, BF.y - 0.07, 0.015), P3(BF.x, BF.y, 0.01)))
-shot('king', P3(KG.x - 0.002, KG.y - 0.05, 0.012), P3(KG.x + 0.0, KG.y - 0.032, 0.01), P3(KG.x, KG.y, 0.015), None, 85, 2.0,
-     f0=P3(KG.x + 0.012, KG.y, 0.022), f1=P3(KG.x + 0.012, KG.y, 0.025), mid=(0.62, P3(KG.x - 0.001, KG.y - 0.04, 0.011), P3(KG.x - 0.004, KG.y, 0.016), P3(KG.x - 0.016, KG.y, 0.02)))
+def O3(c, dx, dy, h, lift=0.0): return ground(c.x + dx, c.y + dy, h) if lift == 0 else V((c.x + dx, c.y + dy, hfun(c.x, c.y) + h))
+def T3(c, h): return ground(c.x, c.y, h)
+C0 = V((-0.30, yr(-0.30) + 0.15))           # leading Macedonian column (moves +x during open)
+shot('open', T3(C0, 0.0) + V((0.035, -0.03, 0.006)), V((-0.95, 0.32, 0.55)), T3(C0, 0.005), V((0.05, 0.0, 0.01)), 55, 4.0,
+     f0=T3(C0, 0.005), f1=V((-0.1, 0.05, 0.02)), mid=(0.42, T3(C0, 0.0) + V((0.09, -0.11, 0.05)), T3(C0 + V((0.05, 0)), 0.005)))
+PE = FORT + fd * 0.085
+shot('demand', T3(PE, 0.0) + V((0.06, 0.07, 0.014)), T3(PE, 0.0) + V((0.035, 0.045, 0.01)), T3(PE, 0.012), None, 60, 3.2,
+     f0=T3(PE + V((-0.02, 0.05)), 0.006), f1=T3(PE, 0.012))
+AM = TAXILA + td * 0.04
+shot('ambhi', T3(AM, 0.0) + V((0.08, -0.04, 0.016)), T3(AM, 0.0) + V((0.055, -0.03, 0.011)), T3(AM, 0.006), T3(AM + td * 0.02, 0.006), 55, 3.2)
+shot('river', T3(bank(-0.12, 1, 0.03), 0.007), T3(bank(0.10, 1, 0.03), 0.008), T3(bank(-0.10, -1, 0.006), 0.008), T3(bank(0.13, -1, 0.006), 0.008),
+     45, 2.8)
+shot('feint', T3(bank(-0.12, -1, 0.07), 0.009), T3(bank(0.0, -1, 0.07), 0.009), T3(bank(-0.10, 1, 0.014), 0.005), T3(bank(0.03, 1, 0.014), 0.005), 50, 3.2)
+shot('storm', T3(ISLAND, 0.0) + V((0.09, 0.05, 0.022)), T3(ISLAND, 0.0) + V((0.06, -0.035, 0.014)), T3(ISLAND + V((0, 0.02)), 0.004), T3(ISLAND + V((0, -0.025)), 0.004), 50, 3.5)
+shot('son', T3(MUD, 0.0) + V((0.06, -0.05, 0.012)), T3(MUD, 0.0) + V((0.04, -0.03, 0.008)), T3(MUD + V((0, 0.01)), 0.004), T3(MUD + V((0, 0.025)), 0.003), 60, 3.0)
+shot('battle', T3(BF, 0.0) + V((0.0, -0.12, 0.03)), T3(BF, 0.0) + V((-0.07, -0.05, 0.01)), T3(BF + V((0.04, 0)), 0.006), T3(BF + V((-0.03, 0)), 0.005), 45, 4.0,
+     mid=(0.5, T3(BF, 0.0) + V((-0.02, -0.08, 0.015)), T3(BF, 0.006)))
+shot('king', T3(KG, 0.0) + V((-0.002, -0.035, 0.007)), T3(KG, 0.0) + V((0.0, -0.026, 0.007)), T3(KG, 0.008), None, 80, 2.4,
+     f0=T3(KG + V((0.012, 0)), 0.013), f1=T3(KG + V((0.012, 0)), 0.014), mid=(0.62, T3(KG, 0.0) + V((-0.001, -0.03, 0.007)), T3(KG, 0.009), T3(KG + V((-0.016, 0)), 0.012)))
 shot('return', V((0.85, -0.10, 0.95)), V((0.78, -0.06, 0.85)), V((-0.02, -0.02, 0.0)), V((0.0, -0.02, 0.0)), 45, 8.0)
-shot('murder', P3(MT.x + 0.05, MT.y + 0.06, 0.014), P3(MT.x + 0.03, MT.y + 0.04, 0.01), P3(MT.x, MT.y, 0.012), None, 70, 2.4,
-     f0=P3(MT.x, MT.y, 0.015), f1=P3(MT.x - 0.006, MT.y - 0.004, 0.014))
-shot('legacy', P3(HILL.x - 0.05, HILL.y + 0.07, 0.035), V((0.95, -0.40, 0.5)), P3(HILL.x, HILL.y, 0.03), V((0.0, -0.05, 0.01)), 55, 3.5,
-     f0=P3(HILL.x, HILL.y, 0.03), f1=V((0.2, -0.2, 0.03)), mid=(0.55, P3(HILL.x - 0.12, HILL.y + 0.2, 0.12), P3(HILL.x, HILL.y, 0.03)))
+shot('murder', T3(MT, 0.0) + V((0.035, 0.04, 0.008)), T3(MT, 0.0) + V((0.022, 0.028, 0.006)), T3(MT, 0.007), None, 65, 2.4,
+     f0=T3(MT, 0.008), f1=T3(MT + V((-0.006, -0.004)), 0.008))
+shot('legacy', T3(HILL, 0.0) + V((-0.05, 0.06, 0.02)), V((0.95, -0.40, 0.5)), T3(HILL, 0.012), V((0.0, -0.05, 0.01)), 55, 3.5,
+     f0=T3(HILL, 0.012), f1=V((0.2, -0.2, 0.03)), mid=(0.55, T3(HILL, 0.0) + V((-0.12, 0.2, 0.1)), T3(HILL, 0.012)))
 for f, cpos, tpos, ln, fst, fpos in KEYS:
     cam.location = cpos; cam.keyframe_insert('location', frame=f); tgt.location = tpos; tgt.keyframe_insert('location', frame=f)
     foc.location = fpos; foc.keyframe_insert('location', frame=f)
@@ -626,6 +632,28 @@ for idb, paths in ((cam, ('location',)), (tgt, ('location',)), (foc, ('location'
             for kp in fc.keyframe_points:
                 kp.handle_left_type = kp.handle_right_type = 'AUTO_CLAMPED'
                 if int(round(kp.co[0])) in ends: kp.interpolation = 'CONSTANT'
+def seg_dist(p, a, b):
+    ab = b - a; t_ = max(0.0, min(1.0, (p - a).dot(ab) / max(ab.length_squared, 1e-9))); return (a + ab * t_ - p).length, t_
+hide = {id(o): [] for o, _, _ in DRESS}
+for l in plan['lines']:
+    a_, b_ = S(l['shot'])
+    for x in (0.0, 0.2, 0.4, 0.6, 0.8, 1.0):
+        sc.frame_set(int(a_ + (b_ - a_) * x)); cp = cam.matrix_world.translation.copy(); tp = tgt.matrix_world.translation.copy()
+        for o, r, hgt in DRESS:
+            c = o.location + V((0, 0, hgt * 0.5)); d, t_ = seg_dist(c, cp, tp)
+            if (d < r + 0.004 and t_ < 0.97) or (c - cp).length < r + 0.01:
+                if (a_, b_) not in hide[id(o)]: hide[id(o)].append((a_, b_))
+nh = 0
+for o, r, hgt in DRESS:
+    hs = sorted(hide[id(o)])
+    if not hs: continue
+    nh += 1; vis = []; cur = 1
+    for a_, b_ in hs:
+        if a_ > cur: vis.append((cur, a_))
+        cur = max(cur, b_ + 1)
+    vis.append((cur, END + 2)); show(o, vis)
+print('hidden occluders', nh)
+sc.frame_set(1)
 sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
 sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Punchy'
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
