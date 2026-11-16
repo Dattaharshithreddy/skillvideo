@@ -225,10 +225,13 @@ def vehicle(key):
     before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=gl); new = [o for o in bpy.data.objects if o not in before]
     bpy.context.view_layer.update()
     # drop stray ground slabs / backdrops: meshes much wider than the model is tall
-    for o in [o for o in new if o.type == 'MESH']:
+    names = [o.name for o in new]; drop = []
+    for o in new:
+        if o.type != 'MESH' or o.children: continue
         lo, hi = bbox([o]); dd = hi - lo
-        if max(dd.x, dd.y) > 25 or (min(dd.x, dd.y) > 5.5 and dd.z < 0.3): bpy.data.objects.remove(o, do_unlink=True)
-    new = [o for o in new if o.name in bpy.data.objects]
+        if max(dd.x, dd.y) > 25 or (min(dd.x, dd.y) > 5.5 and dd.z < 0.3): drop.append(o.name)
+    for n_ in drop: bpy.data.objects.remove(bpy.data.objects[n_], do_unlink=True)
+    new = [bpy.data.objects[n_] for n_ in names if n_ not in drop and n_ in bpy.data.objects]
     roots = [o for o in new if o.parent is None]
     e = bpy.data.objects.new('veh_' + key, None); sc.collection.objects.link(e)
     for r in roots: r.parent = e

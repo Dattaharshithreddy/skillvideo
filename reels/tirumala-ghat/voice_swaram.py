@@ -6,20 +6,20 @@ W = '/opt/reel/sv/reels/tirumala-ghat'; os.chdir(W); os.makedirs('audio_te', exi
 SW = '/home/ubuntu/Swaram'; VOL = '/var/lib/docker/volumes/swaram_voicebox-data/_data'
 DC = ['docker', 'compose', '-f', 'docker-compose.yml', '-f', 'docker-compose.cloud.yml']
 p = json.load(open('brief/plan.json'))
-MOOD = {'hills': '(story, slow)', 'open': '(story)', 'two_roads': '(surprise)', 'cart_track': '(story)', 'people': '(talk)', 'lay_road': '(talk)',
-        'straight': '(talk)', 'hairpins': '(story)', 'traffic': '(story)', 'second_road': '(story)', 'rockfall': '(fear, slow)',
-        'old_runs': '(story, speed 0.95)', 'finale': '(happy, slow)'}
+MOOD = {'hills': '(story)', 'open': '(talk)', 'two_roads': '(surprise)', 'cart_track': '(talk)', 'people': '(talk)', 'lay_road': '(talk)',
+        'straight': '(talk)', 'hairpins': '(talk)', 'traffic': '(talk)', 'second_road': '(talk)', 'rockfall': '(fear)',
+        'old_runs': '(happy)', 'finale': '(story)'}
 def sentences(t): return [s.strip() for s in re.split(r'(?<=[.?!])\s+', t) if s.strip()]
 if sys.argv[1] == 'make':
     lines, owner = [], []
     for i, l in enumerate(p['lines']):
         ss = sentences(l['tts'])
         for k, s in enumerate(ss):
-            pause = 0.9 if k == len(ss) - 1 else (0.6 if s.endswith('…') else 0.4)
+            pause = 0.7 if k == len(ss) - 1 else (0.5 if s.endswith('…') else 0.3)
             lines.append(f"{MOOD[l['shot']]} {s} [pause {pause}]"); owner.append(i)
     script = '\n'.join(lines); words = sum(len(l['tts'].split()) for l in p['lines'])
-    target = round(words * 0.62 + 0.5 * len(lines))
-    json.dump({'profile': 'Datta', 'script': script, 'target_seconds': target}, open(f'{VOL}/tirumala_te_req.json', 'w'), ensure_ascii=False)
+    target = ''
+    json.dump({'profile': 'Datta', 'script': script}, open(f'{VOL}/tirumala_te_req.json', 'w'), ensure_ascii=False)
     json.dump(owner, open('audio_te/owner.json', 'w'))
     call = ("import json,os,urllib.request\n"
             "key=open('/app/data/.swk').read().strip()\n"
