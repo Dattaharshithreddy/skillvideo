@@ -286,6 +286,8 @@ for idb, path in ((cam, 'location'), (tgt, 'location'), (cd, 'lens')):
                 kp.handle_left_type = kp.handle_right_type = 'AUTO_CLAMPED'
                 if int(round(kp.co[0])) in ends: kp.interpolation = 'CONSTANT'
 
+# close-up road sets and their cameras
+exec(open('close/close.py').read())
 # hill / temple labels: screen positions per frame of the hills shot (for the Remotion overlay)
 from bpy_extras.object_utils import world_to_camera_view
 lab = {}
