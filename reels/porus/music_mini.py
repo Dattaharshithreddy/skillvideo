@@ -38,7 +38,7 @@ for q in (0.06, 0.3, 0.52, 0.8):
     lp = np.convolve(nz, np.ones(220) / 220, mode='same') * np.exp(-tt * 1.1) * np.minimum(tt / 0.05, 1)
     add(lp / np.abs(lp).max(), a + (b - a) * q + 0.15, 0.55)
 rain = np.convolve(rng.standard_normal(n), np.ones(6) / 6, mode='same')
-env = np.zeros(n); env[int((a - 1.5) * SR):int(b * SR)] = 1.0; env = np.convolve(env, np.ones(SR) / SR, mode='same')
+env = np.zeros(n); env[int((a - 1.5) * SR):int(b * SR)] = 1.0; cs = np.cumsum(np.concatenate([np.zeros(SR // 2), env, np.zeros(SR // 2)])); env = (cs[SR:SR + n] - cs[:n]) / SR
 mix += 0.05 * rain * env
 # ending: tanpura + bell
 def pluck(f0, length=5.0):
