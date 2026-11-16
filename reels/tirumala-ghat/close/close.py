@@ -75,7 +75,9 @@ M_road, nt, b, d_as = pbr_tex('road_close', 'asphalt_04', 0.25)
 dirt = img(nt, f'{PH}t/red_laterite_soil_stones/Diffuse.jpg', vec=tiled(nt, 0.3))
 era_r = nt.nodes.new('ShaderNodeValue'); era_r.name = 'era'
 mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; nt.links.new(era_r.outputs[0], mx.inputs['Factor'])
-nt.links.new(d_as.outputs['Color'], mx.inputs[6]); nt.links.new(dirt.outputs['Color'], mx.inputs[7]); nt.links.new(mx.outputs[2], b.inputs['Base Color'])
+dk = nt.nodes.new('ShaderNodeMix'); dk.data_type = 'RGBA'; dk.blend_type = 'MULTIPLY'; dk.inputs['Factor'].default_value = 1.0; dk.inputs[7].default_value = (0.22, 0.22, 0.24, 1)
+nt.links.new(d_as.outputs['Color'], dk.inputs[6])
+nt.links.new(dk.outputs[2], mx.inputs[6]); nt.links.new(dirt.outputs['Color'], mx.inputs[7]); nt.links.new(mx.outputs[2], b.inputs['Base Color'])
 # ground: satellite colour from far, forest-floor / laterite detail near, rock face on steep cuts
 def ground_material():
     m = bpy.data.materials.new('ground_close'); m.use_nodes = True; nt = m.node_tree; b = nt.nodes['Principled BSDF']
@@ -83,7 +85,7 @@ def ground_material():
     uv = nt.nodes.new('ShaderNodeUVMap'); uv.uv_map = 'UV'
     sat = img(nt, os.path.abspath('geo/gm.jpg' if os.path.exists('geo/gm.jpg') else 'geo/s2.png'), vec=uv.outputs['UV'])
     v = tiled(nt, 0.22)
-    g1 = img(nt, f'{PH}t/forest_ground_04/Diffuse.jpg', vec=v); g2 = img(nt, f'{PH}t/red_laterite_soil_stones/Diffuse.jpg', vec=v)
+    g1 = img(nt, f'{PH}t/sparse_grass/Diffuse.jpg', vec=v); g2 = img(nt, f'{PH}t/forrest_ground_01/Diffuse.jpg', vec=v)
     rk = img(nt, f'{PH}t/rock_face_03/Diffuse.jpg', vec=tiled(nt, 0.12))
     nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 0.03; nt.links.new(nt.nodes.new('ShaderNodeTexCoord').outputs['Object'], nz.inputs['Vector'])
     gm = nt.nodes.new('ShaderNodeMix'); gm.data_type = 'RGBA'; nt.links.new(nz.outputs['Fac'], gm.inputs['Factor'])
@@ -93,8 +95,10 @@ def ground_material():
     gain = nt.nodes.new('ShaderNodeMath'); gain.operation = 'MULTIPLY'; gain.inputs[1].default_value = 2.4; nt.links.new(bw.outputs[0], gain.inputs[0])
     tint = nt.nodes.new('ShaderNodeMix'); tint.data_type = 'RGBA'; tint.blend_type = 'MULTIPLY'; tint.inputs['Factor'].default_value = 1.0
     nt.links.new(sat.outputs['Color'], tint.inputs[6]); nt.links.new(gain.outputs[0], tint.inputs[7])
-    blend = nt.nodes.new('ShaderNodeMix'); blend.data_type = 'RGBA'; blend.inputs['Factor'].default_value = 0.45
-    nt.links.new(tint.outputs[2], blend.inputs[6]); nt.links.new(gm.outputs[2], blend.inputs[7])
+    grn = nt.nodes.new('ShaderNodeMix'); grn.data_type = 'RGBA'; grn.blend_type = 'MULTIPLY'; grn.inputs['Factor'].default_value = 1.0; grn.inputs[7].default_value = (0.55, 0.85, 0.35, 1)
+    nt.links.new(gm.outputs[2], grn.inputs[6])
+    blend = nt.nodes.new('ShaderNodeMix'); blend.data_type = 'RGBA'; blend.inputs['Factor'].default_value = 0.75
+    nt.links.new(tint.outputs[2], blend.inputs[6]); nt.links.new(grn.outputs[2], blend.inputs[7])
     geo = nt.nodes.new('ShaderNodeNewGeometry'); sep = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(geo.outputs['Normal'], sep.inputs[0])
     steep = nt.nodes.new('ShaderNodeMapRange'); steep.inputs['From Min'].default_value = 0.82; steep.inputs['From Max'].default_value = 0.62
     nt.links.new(sep.outputs['Z'], steep.inputs['Value'])
@@ -194,11 +198,12 @@ def ph_collection(name, keys, ratio):
     return c
 TREES = ph_collection('close_trees', ['island_tree_01', 'island_tree_02', 'tree_small_02'], 0.06)
 SHRUBS = ph_collection('close_shrubs', ['shrub_01', 'shrub_02', 'shrub_03', 'shrub_04', 'wild_rooibos_bush', 'boulder_01'], 0.3)
+GRASSC = ph_collection('close_grass', ['grass_medium_01', 'grass_medium_02'], 0.35)
 def scatter(ob):
     ng = bpy.data.node_groups.new(ob.name + '_scatter', 'GeometryNodeTree')
     ng.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry'); ng.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
     N, L = ng.nodes, ng.links; gi = N.new('NodeGroupInput'); go = N.new('NodeGroupOutput'); j = N.new('GeometryNodeJoinGeometry'); L.new(gi.outputs[0], j.inputs[0])
-    for coll, dens, s0, s1, seed in ((TREES, 1 / 90, 0.7, 1.3, 3), (SHRUBS, 1 / 18, 0.6, 1.5, 4)):
+    for coll, dens, s0, s1, seed in ((TREES, 1 / 30, 0.8, 1.5, 3), (SHRUBS, 1 / 9, 0.7, 1.7, 4), (GRASSC, 1 / 2.5, 0.8, 1.8, 5)):
         na = N.new('GeometryNodeInputNamedAttribute'); na.data_type = 'FLOAT'; na.inputs['Name'].default_value = 'veg'
         mul = N.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = dens; L.new(na.outputs['Attribute'], mul.inputs[0])
         dp = N.new('GeometryNodeDistributePointsOnFaces'); dp.distribute_method = 'RANDOM'; dp.inputs['Seed'].default_value = seed
@@ -214,7 +219,7 @@ def scatter(ob):
 # ---------------- Sketchfab vehicles (CC-BY), normalised so +Y is forward, wheels on z=0 ----------------
 VEH = {}   # key -> collection
 SPEC = {'bus_tata': 11.0, 'bus_indian': 11.5, 'bus_1940': 9.0, 'car_wagonr': 3.6, 'car_sx4': 4.3, 'car_nano': 3.1, 'car_1940': 4.6,
-        'bullock': 5.0, 'walker': 1.68, 'barrier_closed': 2.4, 'barrier_concrete': 2.0}
+        'bullock': 5.0, 'bullock2': 4.2, 'walker': 1.68, 'barrier_closed': 2.4, 'barrier_concrete': 2.0}
 FLIP = json.load(open('close/flip.json')) if os.path.exists('close/flip.json') else {}
 def bbox(objs):
     pts = [o.matrix_world @ Vector(c) for o in objs if o.type == 'MESH' for c in o.bound_box]
@@ -242,8 +247,33 @@ def vehicle(key):
     bpy.context.view_layer.update(); lo, hi = bbox(new); dd = hi - lo
     k = SPEC[key] / (dd.z if walker else max(dd.x, dd.y)); e.scale = (k, k, k); bpy.context.view_layer.update()
     lo, hi = bbox(new); e.location -= Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, lo.z)); bpy.context.view_layer.update()
+    if key in ('bus_tata', 'bus_indian'):
+        lo, hi = bbox(new); Hh = hi.z - lo.z
+        pm = bpy.data.materials.new('apsrtc_' + key); pm.use_nodes = True; pb = pm.node_tree.nodes['Principled BSDF']
+        ca = pm.node_tree.nodes.new('ShaderNodeVertexColor'); ca.layer_name = 'paint'; pm.node_tree.links.new(ca.outputs['Color'], pb.inputs['Base Color'])
+        sp_ = pm.node_tree.nodes.new('ShaderNodeSeparateColor'); pm.node_tree.links.new(ca.outputs['Color'], sp_.inputs[0])
+        rg = pm.node_tree.nodes.new('ShaderNodeMapRange'); rg.inputs['From Min'].default_value = 0.0; rg.inputs['From Max'].default_value = 0.2
+        rg.inputs['To Min'].default_value = 0.08; rg.inputs['To Max'].default_value = 0.45; pm.node_tree.links.new(sp_.outputs[0], rg.inputs['Value']); pm.node_tree.links.new(rg.outputs[0], pb.inputs['Roughness'])
+        BANDS = [(0.10, (0.02, 0.02, 0.02)), (0.25, (0.50, 0.03, 0.06)), (0.30, (1.0, 0.72, 0.05)), (0.52, (0.93, 0.90, 0.82)),
+                 (0.78, (0.03, 0.05, 0.07)), (0.93, (0.93, 0.90, 0.82)), (1.01, (1.0, 0.72, 0.05))]
+        for o in new:
+            if o.type != 'MESH': continue
+            me_ = o.data; va = me_.color_attributes.new('paint', 'FLOAT_COLOR', 'POINT'); mw = o.matrix_world
+            for v in me_.vertices:
+                q = ((mw @ v.co).z - lo.z) / Hh
+                col_ = next(c_ for lim, c_ in BANDS if q <= lim)
+                va.data[v.index].color = (*col_, 1)
+            me_.materials.clear(); me_.materials.append(pm)
+        # APSRTC lettering on the front and both sides
+        fnt = bpy.data.curves.new('apsrtc_txt', 'FONT'); fnt.body = 'A P S R T C'; fnt.align_x = 'CENTER'; fnt.size = 0.34
+        tm_ = emis('apsrtc_white', (1, 1, 1), 1.2)
+        for nm_, loc_, rot_ in (('f', (0, hi.y + 0.03, lo.z + Hh * 0.82), (math.pi / 2, 0, math.pi)), ('l', (lo.x - 0.03, 0, lo.z + Hh * 0.42), (math.pi / 2, 0, -math.pi / 2)),
+                                ('r', (hi.x + 0.03, 0, lo.z + Hh * 0.42), (math.pi / 2, 0, math.pi / 2))):
+            t_o = bpy.data.objects.new(f'apsrtc_{key}_{nm_}', fnt); sc.collection.objects.link(t_o); t_o.location = loc_; t_o.rotation_euler = rot_
+            t_o.data.materials.append(tm_) if not t_o.data.materials else None; new.append(t_o)
     c = bpy.data.collections.new('veh_' + key); sc.collection.children.link(c); bpy.context.view_layer.layer_collection.children[c.name].exclude = True
     for o in [e] + new:
+        if o.type == 'FONT' and o.parent is None: o.parent = e; o.matrix_parent_inverse = e.matrix_world.inverted()
         for cc in list(o.users_collection): cc.objects.unlink(o)
         c.objects.link(o)
     # looping animations (bullock walk, pedestrian walk)
@@ -333,8 +363,8 @@ rA = segment(DNp, lowA, 260); upA = list(reversed(rA))
 gA, roadA, _ = build_set('setA', lowA, rA, 3.6); scatter(gA)
 ca, cb = S('cart_track'); LA = roadlen(upA)
 crvA, lA = path('pathA', upA, 0.0); crvA2, _ = path('pathA2', upA, 1.1)
-cart = driver('A_cart', crvA, lA, ca, cb + 1, lA * 0.3, 1.2, [(ca, cb + 1)], vehicle('bullock'))
-driver('A_cart2', crvA, lA, ca, cb + 1, lA * 0.3 - 14, 1.2, [(ca, cb + 1)], vehicle('bullock'))
+cart = driver('A_cart', crvA, lA, ca, cb + 1, lA * 0.3, 1.2, [(ca, cb + 1)], vehicle('bullock2'))
+driver('A_cart2', crvA, lA, ca, cb + 1, lA * 0.3 - 14, 1.2, [(ca, cb + 1)], vehicle('bullock2'))
 for k in range(4):
     driver(f'A_walk{k}', crvA2, lA, ca, cb + 1, lA * 0.3 + 6 + k * 3.2, 1.25, [(ca, cb + 1)], vehicle('walker'))
 track_cam('cart_track', cart, [(0.0, side_point(upA, lA * 0.3 - 12, -6, 2.4)), (1.0, side_point(upA, lA * 0.3 + 1.2 * (cb - ca) / 30 - 4, -7, 3.2))], 35)

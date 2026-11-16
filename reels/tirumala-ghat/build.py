@@ -91,7 +91,7 @@ bs.inputs['Roughness'].default_value = 0.9
 GM = os.path.exists('geo/gm.jpg')
 if GM or os.path.exists('geo/s2.png'):
     img = nt.nodes.new('ShaderNodeTexImage'); img.image = bpy.data.images.load(os.path.abspath('geo/gm.jpg' if GM else 'geo/s2.png')); img.interpolation = 'Cubic'
-    hsv = nt.nodes.new('ShaderNodeHueSaturation'); hsv.inputs['Saturation'].default_value = 1.08 if GM else 1.15; hsv.inputs['Value'].default_value = 1.0 if GM else 1.6
+    hsv = nt.nodes.new('ShaderNodeHueSaturation'); hsv.inputs['Saturation'].default_value = 1.45 if GM else 1.15; hsv.inputs['Value'].default_value = 2.1 if GM else 1.6
     bc = nt.nodes.new('ShaderNodeBrightContrast'); bc.inputs['Contrast'].default_value = 0.15
     nt.links.new(img.outputs['Color'], hsv.inputs['Color']); nt.links.new(hsv.outputs['Color'], bc.inputs['Color'])
     col_out = bc.outputs['Color']
@@ -112,7 +112,7 @@ terr.data.materials.append(tm)
 # ---------------- sky, sun, haze ----------------
 wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True; wn = wd.node_tree
 sky = wn.nodes.new('ShaderNodeTexSky'); sky.sky_type = 'NISHITA'
-sky.sun_elevation = math.radians(38); sky.sun_rotation = math.radians(250); sky.altitude = 900; sky.air_density = 1.6; sky.dust_density = 2.5
+sky.sun_elevation = math.radians(38); sky.sun_rotation = math.radians(250); sky.altitude = 900; sky.air_density = 1.0; sky.dust_density = 0.6
 wn.links.new(sky.outputs['Color'], wn.nodes['Background'].inputs['Color']); wn.nodes['Background'].inputs['Strength'].default_value = 0.9
 bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.energy = 5.0; sun.data.color = (1.0, 0.96, 0.9)
 sun.rotation_euler = (math.radians(90 - 38), 0, math.radians(250 - 90))
@@ -301,7 +301,7 @@ sc.frame_set(1)
 # camera targets for overlay labels (projected later in Remotion via a json)
 json.dump({'A': list(A), 'T': list(T_), 'H': list(H), 'RC': list(RC)}, open('brief/points.json', 'w'))
 sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
-sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Medium High Contrast'
+sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Punchy'
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
 os.makedirs('scene', exist_ok=True)
 bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath('scene/ghat.blend'))

@@ -15,6 +15,7 @@ for key in man:
     lo, hi = bbox(new); d = hi - lo; sizes[key] = [round(v, 2) for v in d]
     # scale anything that is clearly not in metres to a plausible size (vehicles ~ length, people ~ height)
     target = {'bus': 11.0, 'car': 4.0, 'bul': 4.5, 'wal': 1.7, 'bar': 2.0}[key[:3]]
+    print('MATS', key, len([o for o in new if o.type=='MESH']), sorted({(m.name if m else None) for o in new if o.type=='MESH' for m in o.data.materials})[:8])
     ref = d.z if key.startswith('wal') else max(d.x, d.y)
     k = target / ref if ref > 0 else 1
     e = bpy.data.objects.new(key + '_root', None); sc.collection.objects.link(e)
