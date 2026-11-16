@@ -29,6 +29,7 @@ def search(node, P, best):
         node = get(uri).json()['root']
     elif uri and node.get('geometricError', 1e9) < best[0]:
         best[0] = node['geometricError']; best[1] = uri
+        b = node['boundingVolume']['box']; best.append((round(math.dist((0,0,0), b[3:6])), round(math.dist((0,0,0), b[6:9])), round(math.dist((0,0,0), b[9:12])), len(node.get('children', []))))
     for k in node.get('children', []):
         if inside(k['boundingVolume']['box'], P): search(k, P, best)
 pts = {'bengaluru': (12.9763, 77.5929, 920), 'tirumala_temple': (13.6833, 79.3474, 850), 'ghat_mid': (13.66, 79.37, 500)}
@@ -36,4 +37,4 @@ for name in sys.argv[1:] or pts:
     la, lo, h = pts[name]; SESSION[0] = None; CALLS[0] = 0; best = [1e9, None]
     search(get('/v1/3dtiles/root.json').json()['root'], ecef(la, lo, h), best)
     r = get(best[1]); open(f'/tmp/{name}.glb', 'wb').write(r.content)
-    print(name, 'finest error m', round(best[0], 2), 'glb KB', len(r.content) // 1024, 'requests', CALLS[0], flush=True)
+    print(name, 'finest error m', round(best[0], 2), 'glb KB', len(r.content) // 1024, 'requests', CALLS[0], 'leaf box half-axes m + nkids', best[-1], flush=True)
