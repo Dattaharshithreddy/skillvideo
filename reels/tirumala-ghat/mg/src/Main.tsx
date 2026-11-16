@@ -40,6 +40,15 @@ const CH: Ch[][] = T.lines.map((ln, i) => {
       const e = tc + (d * cw) / total; out.push({words: cur, s: tc, e}); tc = e; cur = []; cw = 0;
     }
   });
+  const NTc: number[] = (T as any).name_t || [];
+  if (ln.shot === 'seven' && NTc.length === 7) {      // hill names are shown by the gold labels at their spoken times; captions only for the sentences around them
+    const q = words.findIndex((x) => /\?$/.test(x)); let dots = 0; let e2 = -1;
+    words.forEach((x, k) => { if (k > q && /\.$/.test(x) && e2 < 0) e2 = k; });
+    const mk = (ws: string[], a: number, b: number): Ch[] => { const res: Ch[] = []; const per = (b - a) / Math.max(1, Math.ceil(ws.length / 3));
+      for (let k = 0; k < ws.length; k += 3) res.push({words: ws.slice(k, k + 3), s: a + per * (k / 3), e: a + per * (k / 3 + 1)}); return res; };
+    const s0 = T.starts[i], dd = T.durs[i];
+    return [...mk(words.slice(0, q + 1), s0 + 0.2, s0 + NTc[0] * dd - 0.25), ...mk(words.slice(e2 + 1), s0 + NTc[6] * dd + 1.3, s0 + dd - 0.5)];
+  }
   return out;
 });
 const Captions: React.FC = () => {
