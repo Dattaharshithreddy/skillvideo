@@ -21,7 +21,7 @@ PY
   echo PREP_DONE
 fi
 if [ "$1" = "prep" ] || [ "$1" = "build" ]; then
-  $B -b --python build.py > /opt/reel/gbuild2.log 2>&1
+  python3 plan.py > /dev/null; $B -b --python build.py > /opt/reel/gbuild2.log 2>&1
   grep -E "^built|^CLOSE|^TEMPLE|^LENS|Traceback|Error" /opt/reel/gbuild2.log | cut -c1-400; grep -A14 Traceback /opt/reel/gbuild2.log | head -18
   echo BUILD_DONE
 fi
