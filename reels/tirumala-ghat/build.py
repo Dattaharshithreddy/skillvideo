@@ -251,18 +251,19 @@ sm_.node_tree.links.new(sm_.node_tree.nodes.new('ShaderNodeTexCoord').outputs['O
 sm_.node_tree.links.new(sx_.outputs[2], sm_.node_tree.nodes['Principled BSDF'].inputs['Base Color']); skirt.data.materials.append(sm_)
 pk = [loc(p['x'], p['y'], p['z']) for p in PL['peaks']]
 if len(pk) < 6:      # the stored list can be short: pick more hill tops straight from the terrain around the temple
-    k_ = max(2, int(260 / RES)); cand_ = []
+    k_ = max(2, int(180 / RES)); cand_ = []
     for r_ in range(k_, h - k_, 3):
         for c_ in range(k_, w - k_, 3):
             z_ = dem[r_, c_]
             if z_ >= dem[r_ - k_:r_ + k_ + 1, c_ - k_:c_ + k_ + 1].max():
                 q_ = Vector((meta['x0'] + (c_ + 0.5) * RES - OX, meta['y1'] - (r_ + 0.5) * RES - OY, float(z_) - ZB)); d_ = (q_.xy - TP.xy).length
                 edge_ = min(c_, w - c_, r_, h - r_) * RES
-                if 700 < d_ < 3800 and edge_ > 900 and q_.z > TP.z - 60: cand_.append(q_)
+                if 600 < d_ < 5000 and edge_ > 700 and q_.z > TP.z - 220: cand_.append(q_)
     cand_.sort(key=lambda q: -q.z)
     for q_ in cand_:
         if len(pk) >= 6: break
-        if all((q_.xy - p_.xy).length > 850 for p_ in pk): pk.append(q_)
+        if all((q_.xy - p_.xy).length > 650 for p_ in pk): pk.append(q_)
+assert len(pk) >= 6, 'need six hill tops'; pk = pk[:6]
 print('HILL_TOPS', len(pk), [(round(q.x), round(q.y), round(q.z)) for q in pk])
 pk.sort(key=lambda q: math.atan2(q.y - TP.y, q.x - TP.x))
 hi_ = max(range(len(pk)), key=lambda i: pk[i].z); pk = pk[hi_ + 1:] + pk[:hi_ + 1]      # fly round the hills, ending on the highest (Narayanagiri)
