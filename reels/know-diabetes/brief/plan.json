@@ -1,0 +1,247 @@
+{
+ "gap": 0.05,
+ "font": "Poppins",
+ "lines": [
+  {
+   "text": "Always thirsty? Always tired? Running to the bathroom again and again? Raju has all three.",
+   "tts": "Always thirsty? Always tired? Running to the bathroom, again and again? Raju has all three.",
+   "keywords": [
+    "thirsty?",
+    "tired?",
+    "three."
+   ],
+   "audio": "audio/l01.wav",
+   "st": [
+    [
+     "room_in",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "These can be warning signs of diabetes.",
+   "tts": "These can be warning signs... of diabetes.",
+   "keywords": [
+    "warning",
+    "diabetes."
+   ],
+   "audio": "audio/l02.wav",
+   "st": [
+    [
+     "body_wide",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "When we eat, the body breaks food down into glucose, the sugar in our blood. It is fuel for muscles, the brain and every organ.",
+   "tts": "When we eat, the body breaks food down into glucose, the sugar in our blood. It is fuel for muscles, the brain, and every organ.",
+   "keywords": [
+    "glucose,",
+    "fuel"
+   ],
+   "audio": "audio/l03.wav",
+   "st": [
+    [
+     "gut",
+     0.55
+    ],
+    [
+     "vessels",
+     0.45
+    ]
+   ]
+  },
+  {
+   "text": "To get inside the cells, glucose needs insulin, a hormone made by the pancreas.",
+   "tts": "To get inside the cells, glucose needs insulin... a hormone made by the pancreas.",
+   "keywords": [
+    "insulin,",
+    "pancreas."
+   ],
+   "audio": "audio/l04.wav",
+   "st": [
+    [
+     "pancreas",
+     0.5
+    ],
+    [
+     "muscle",
+     0.5
+    ]
+   ]
+  },
+  {
+   "text": "In Type 1 diabetes, the immune system destroys the cells that make insulin.",
+   "tts": "In type one diabetes, the immune system destroys the cells that make insulin.",
+   "keywords": [
+    "Type",
+    "1",
+    "destroys"
+   ],
+   "audio": "audio/l05.wav",
+   "st": [
+    [
+     "pancreas_tired",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "In Type 2, insulin is there, but the cells stop responding to it.",
+   "tts": "In type two, insulin is there... but the cells stop responding to it.",
+   "keywords": [
+    "Type",
+    "2,",
+    "stop"
+   ],
+   "audio": "audio/l06.wav",
+   "st": [
+    [
+     "vessels_stuck",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "And in pregnancy, hormones can cause gestational diabetes.",
+   "tts": "And in pregnancy, hormones can cause gestational diabetes.",
+   "keywords": [
+    "pregnancy,",
+    "gestational"
+   ],
+   "audio": "audio/l07.wav",
+   "st": [
+    [
+     "body_wide",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "The signs: thirst, frequent urination, hunger, tiredness, blurred vision, and wounds that heal slowly. But many people with Type 2 notice nothing for years.",
+   "tts": "The signs: thirst, frequent urination, hunger, tiredness, blurred vision, and wounds that heal slowly. But many people with type two, notice nothing for years.",
+   "keywords": [
+    "signs:",
+    "nothing",
+    "years."
+   ],
+   "audio": "audio/l08.wav",
+   "st": [
+    [
+     "room_out",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Family history, age, inactivity and excess weight raise the risk. It is not simply caused by eating sweets.",
+   "tts": "Family history, age, inactivity, and excess weight, raise the risk. It is not simply caused by eating sweets.",
+   "keywords": [
+    "risk.",
+    "not",
+    "sweets."
+   ],
+   "audio": "audio/l09.wav",
+   "st": [
+    [
+     "fat",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Left high for years, blood sugar damages the heart, kidneys, eyes and nerves.",
+   "tts": "Left high for years, blood sugar damages the heart, kidneys, eyes, and nerves.",
+   "keywords": [
+    "heart,",
+    "kidneys,",
+    "eyes",
+    "nerves."
+   ],
+   "audio": "audio/l10.wav",
+   "st": [
+    [
+     "heart",
+     0.25
+    ],
+    [
+     "kidney",
+     0.25
+    ],
+    [
+     "eye",
+     0.25
+    ],
+    [
+     "feet",
+     0.25
+    ]
+   ]
+  },
+  {
+   "text": "Doctors confirm it with blood tests: fasting glucose 126 or above, 200 or above two hours after a glucose drink, or HbA1c 6.5 percent or above. Don't diagnose yourself from one home reading.",
+   "tts": "Doctors confirm it with blood tests: fasting glucose, one twenty-six or above. Two hundred or above, two hours after a glucose drink. Or H-b-A-one-c, six point five percent or above. Don't diagnose yourself from one home reading.",
+   "keywords": [
+    "126",
+    "200",
+    "6.5",
+    "Don't"
+   ],
+   "audio": "audio/l11.wav",
+   "st": [
+    [
+     "body_wide",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "The good news: diabetes can be managed. Eat balanced meals, stay active, check your sugar as advised, and never stop your medicines on your own.",
+   "tts": "The good news: diabetes can be managed. Eat balanced meals, stay active, check your sugar as advised, and never stop your medicines on your own.",
+   "keywords": [
+    "managed.",
+    "active,",
+    "never"
+   ],
+   "audio": "audio/l12.wav",
+   "st": [
+    [
+     "room_healthy",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Type 1 can't be prevented by lifestyle. But the risk of Type 2 can often be reduced.",
+   "tts": "Type one can't be prevented by lifestyle. But the risk of type two, can often be reduced.",
+   "keywords": [
+    "can't",
+    "reduced."
+   ],
+   "audio": "audio/l13.wav",
+   "st": [
+    [
+     "room_healthy",
+     1
+    ]
+   ]
+  },
+  {
+   "text": "Know diabetes. Control diabetes. Live a healthier life.",
+   "tts": "Know diabetes. Control diabetes. Live a healthier life.",
+   "keywords": [
+    "Know",
+    "Control",
+    "healthier"
+   ],
+   "audio": "audio/l14.wav",
+   "st": [
+    [
+     "room_healthy",
+     1
+    ]
+   ]
+  }
+ ]
+}
