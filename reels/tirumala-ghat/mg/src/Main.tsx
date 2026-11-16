@@ -172,8 +172,13 @@ const Hills: React.FC = () => {
 };
 const Seven: React.FC = () => {
   const f = useCurrentFrame(); const {t, active, dur} = useShot('seven'); if (!active) return null;
-  const row = labRow('seven', f); const [n0, n1] = (T as any).names || [0.27, 0.72];
-  const cur = Math.floor(interpolate(t / dur, [n0, n1], [0, 7], clamp));
+  const row = labRow('seven', f); const NT: number[] = (T as any).name_t || [];
+  let cur = -1; NT.forEach((x, i) => { if (t / dur >= x) cur = i; });
+  const on = (k: number) => k <= cur;
+  const L = cur >= 0 && row[cur] ? row[cur] : null; const at = cur >= 0 ? Math.round(NT[cur] * dur) : 0;
+  const s = spring({frame: t - at, fps: FPS, config: {damping: 13, stiffness: 160}});
+  const vis = L ? L[3] === 1 : false;
+  const px = L && vis ? Math.min(880, Math.max(200, L[1] * 1080)) : 540, py = L && vis ? Math.min(1120, Math.max(560, L[2] * 1920)) : 760;
   return <Fade t={t} dur={dur}>
     <Pop at={4} t={t} style={{position: 'absolute', width: '100%', top: 150, textAlign: 'center'}}>
       <div style={{fontFamily: SERIF, fontSize: 104, fontWeight: 900, lineHeight: 1.3, ...goldText}}>ఏడుకొండలు</div>
@@ -181,20 +186,15 @@ const Seven: React.FC = () => {
     </Pop>
     <div style={{position: 'absolute', top: 372, width: '100%', display: 'flex', justifyContent: 'center', gap: 12}}>
       {Array.from({length: 7}).map((_, k) => <div key={k} style={{width: 46, height: 46, borderRadius: 23, fontFamily: FONT, fontWeight: 900, fontSize: 26, lineHeight: '46px', textAlign: 'center',
-        color: k < cur || (k === cur && t / dur >= n0) ? '#3a1800' : 'rgba(255,255,255,0.7)', background: k < cur || (k === cur && t / dur >= n0) ? 'linear-gradient(180deg,#FFE9A0,#F3A52A)' : 'rgba(20,10,0,0.55)',
-        border: '2px solid rgba(255,214,120,0.8)', boxShadow: k === cur && t / dur >= n0 ? '0 0 22px #FFC23D' : undefined}}>{k + 1}</div>)}
+        color: on(k) ? '#3a1800' : 'rgba(255,255,255,0.7)', background: on(k) ? 'linear-gradient(180deg,#FFE9A0,#F3A52A)' : 'rgba(20,10,0,0.55)',
+        border: '2px solid rgba(255,214,120,0.8)', boxShadow: k === cur ? '0 0 22px #FFC23D' : undefined}}>{k + 1}</div>)}
     </div>
-    {row.map(([n, x, y, v], k) => {
-      const at = Math.round(dur * (n0 + ((n1 - n0) * k) / 7)); if (!v || t < at) return null;
-      const s = spring({frame: t - at, fps: FPS, config: {damping: 13, stiffness: 160}}); const big = k === cur || (k === 6 && cur >= 6);
-      const px = Math.min(900, Math.max(180, x * 1080)), py = Math.min(1150, Math.max(520, y * 1920));
-      return <div key={k} style={{position: 'absolute', left: px, top: py, transform: `translate(-50%, -100%) scale(${s * (big ? 1 : 0.72)})`, transformOrigin: '50% 100%', textAlign: 'center', opacity: big ? 1 : 0.85}}>
-        <div style={{display: 'inline-block', padding: '8px 24px 4px', borderRadius: 18, background: 'rgba(40,14,0,0.78)', border: '3px solid #FFC23D', boxShadow: '0 0 30px rgba(255,180,50,0.65)',
-          fontFamily: SERIF, fontWeight: 900, fontSize: 58}}><span style={{...goldText, filter: undefined}}>{k + 1}. {n}</span></div>
-        <div style={{width: 4, height: 70, background: 'linear-gradient(180deg,#FFC23D,rgba(255,194,61,0.1))', margin: '0 auto'}} />
-        <div style={{width: 18, height: 18, borderRadius: 9, background: '#FFE9A0', boxShadow: '0 0 20px #FFC23D', margin: '-6px auto 0'}} />
-      </div>;
-    })}
+    {L && <div style={{position: 'absolute', left: px, top: py, transform: `translate(-50%, -100%) scale(${s})`, transformOrigin: '50% 100%', textAlign: 'center'}}>
+      <div style={{display: 'inline-block', padding: '10px 30px 6px', borderRadius: 20, background: 'rgba(40,14,0,0.8)', border: '3px solid #FFC23D', boxShadow: '0 0 34px rgba(255,180,50,0.7)',
+        fontFamily: SERIF, fontWeight: 900, fontSize: 76, whiteSpace: 'nowrap'}}><span style={{...goldText, filter: undefined}}>{cur + 1}. {L[0]}</span></div>
+      {vis && <div style={{width: 4, height: 70, background: 'linear-gradient(180deg,#FFC23D,rgba(255,194,61,0.1))', margin: '0 auto'}} />}
+      {vis && <div style={{width: 18, height: 18, borderRadius: 9, background: '#FFE9A0', boxShadow: '0 0 20px #FFC23D', margin: '-6px auto 0'}} />}
+    </div>}
   </Fade>;
 };
 const Govinda: React.FC = () => {

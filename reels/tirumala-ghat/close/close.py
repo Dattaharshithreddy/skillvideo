@@ -404,7 +404,8 @@ for nm_, s_off in (('c1', 0.0), ('c2', -16.0)):
         driver(f'A_bull_{nm_}_{crv_.name[-2:]}', crv_, lA, ca, cb + 1, lA * 0.3 + s_off + 3.4, 1.2, [(ca, cb + 1)], vehicle('zebu'))
 for k in range(4):
     driver(f'A_walk{k}', crvA2, lA, ca, cb + 1, lA * 0.3 + 9 + k * 2.6, 1.25, [(ca, cb + 1)], vehicle('walker'))
-track_cam('cart_track', cart, [(0.0, side_point(upA, lA * 0.3 + 16, -7, 2.2)), (1.0, side_point(upA, lA * 0.3 + 1.2 * (cb - ca) / 30 + 13, -8, 2.8))], 35)
+_mid = lA * 0.3 + 0.6 * (cb - ca) / 30 - 6
+track_cam('cart_track', cart, [(0.0, side_point(upA, _mid, -12, 2.4)), (1.0, side_point(upA, _mid + 1.5, -11.5, 2.6))], 30)
 
 # 4) ROCK CUT on the 1974 road: falling boulders, barriers, road closed (shot: rockfall)
 rR = segment(UPp, RC, 260)

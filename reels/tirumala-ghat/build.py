@@ -18,9 +18,9 @@ def S(name): return SH[SHOT[name]]
 def fr(name, x): a, b = S(name); return int(a + (b - a) * x)
 FIN = S('finale')[1] + 1          # aerial road overlays stop here; the closing temple shot is clean
 XT = json.load(open('brief/extra_times.json')) if os.path.exists('brief/extra_times.json') else {}
-sv = XT.get('seven'); N0, N1 = ((sv['sent'][1][0] / durs[SHOT['seven']], sv['sent'][1][1] / durs[SHOT['seven']]) if sv and len(sv['sent']) > 2 else (0.27, 0.72))
+sv = XT.get('seven'); NT = [x / sv['dur'] for x in sv['names']] if sv and len(sv.get('names', [])) == 7 else [0.27 + 0.45 * i / 7 for i in range(7)]; N0, N1 = NT[0], NT[6]
 
-json.dump({'starts': starts, 'durs': durs, 'end': END, 'names': [N0, N1], 'lines': [{'text': l['text'], 'keywords': l['keywords'], 'shot': l['shot']} for l in plan['lines']]},
+json.dump({'starts': starts, 'durs': durs, 'end': END, 'names': [N0, N1], 'name_t': NT, 'lines': [{'text': l['text'], 'keywords': l['keywords'], 'shot': l['shot']} for l in plan['lines']]},
           open('brief/timing.json', 'w'), indent=1)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -308,8 +308,8 @@ def hill_cam(P):
     o_ = (P - TP); o_.z = 0; o_ = o_.normalized(); c_ = P + o_ * 1000; c_.z = max(P.z + 620, elev_local(c_.x, c_.y) + 200); return c_
 K(sa_, hill_cam(pk[0]) + V((0, 0, 900)) + (pk[0] - TP).normalized() * 900, pk[0], 26); SEVK.append(sa_)
 for i, P in enumerate(pk):
-    f_ = fr('seven', N0 + (N1 - N0) * (i + 0.5) / 7); K(f_, hill_cam(P), P, 28); SEVK.append(f_)
-K(fr('seven', N0 + (N1 - N0) * 6.6 / 7 + 0.03), TP + E_ * 1500 + Nn * 900 + V((0, 0, 700)), TA, 30)
+    f_ = fr('seven', NT[i] + 0.35 * (NT[i + 1] - NT[i])); K(f_, hill_cam(P), P, 28); SEVK.append(f_)
+K(fr('seven', min(0.9, NT[6] + 0.04)), TP + E_ * 1300 + Nn * 800 + V((0, 0, 600)), TA, 30)
 K(sb_, TP + E_ * 560 + Nn * 330 + V((0, 0, 190)), TA, 34)
 ga_, gb_ = S('govinda')
 K(ga_, TP + E_ * 500 - Nn * 300 + V((0, 0, 105)), TA, 42); K(END, TP + E_ * 430 - Nn * 235 + V((0, 0, 125)), TA + V((0, 0, 3)), 44); TP = TP_
@@ -368,5 +368,5 @@ sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
 sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Punchy'
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
 os.makedirs('scene', exist_ok=True)
-bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath('scene/ghat2.blend'))
+bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath('scene/ghat3.blend'))
 print('built', END, SH, 'hairpin_centre', tuple(round(v) for v in H))

@@ -8,19 +8,23 @@ DC = ['docker', 'compose', '-f', 'docker-compose.yml', '-f', 'docker-compose.clo
 p = json.load(open('brief/plan.json'))
 MOOD = {'hills': '(story)', 'open': '(talk)', 'two_roads': '(surprise)', 'cart_track': '(talk)', 'people': '(talk)', 'lay_road': '(talk)',
         'straight': '(talk)', 'hairpins': '(talk)', 'traffic': '(talk)', 'second_road': '(talk)', 'rockfall': '(fear)',
-        'old_runs': '(happy)', 'finale': '(story)'}
+        'old_runs': '(happy)', 'finale': '(story)', 'seven': '(story)', 'govinda': '(happy)'}
 def sentences(t): return [s.strip() for s in re.split(r'(?<=[.?!])\s+', t) if s.strip()]
 if sys.argv[1] == 'make':
-    lines, owner = [], []
+    lines, owner, names = [], [], []
     for i, l in enumerate(p['lines']):
         ss = sentences(l['tts'])
         for k, s in enumerate(ss):
             pause = 0.7 if k == len(ss) - 1 else (0.5 if s.endswith('…') else 0.3)
+            if l['shot'] == 'seven' and s.count(',') >= 5:        # the seven hill names: one slow line each
+                for nm in [x.strip(' .') for x in s.split(',')]:
+                    lines.append(f"(story, slow) {nm}. [pause 0.45]"); owner.append(i); names.append(len(lines) - 1)
+                continue
             lines.append(f"{MOOD[l['shot']]} {s} [pause {pause}]"); owner.append(i)
     script = '\n'.join(lines); words = sum(len(l['tts'].split()) for l in p['lines'])
     target = ''
     json.dump({'profile': 'Datta', 'script': script}, open(f'{VOL}/tirumala_te_req.json', 'w'), ensure_ascii=False)
-    json.dump(owner, open('audio_te/owner.json', 'w'))
+    json.dump(owner, open('audio_te/owner.json', 'w')); json.dump(names, open('audio_te/names.json', 'w'))
     call = ("import json,os,urllib.request\n"
             "key=open('/app/data/.swk').read().strip()\n"
             "req=urllib.request.Request('http://localhost:17493/indic/narrate',data=open('/app/data/tirumala_te_req.json','rb').read(),"
@@ -55,4 +59,9 @@ if sys.argv[1] == 'split':
         subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', wav, '-ss', f'{a:.3f}', '-to', f'{b:.3f}', '-ar', '44100', '-ac', '1', out], check=True)
         if os.path.exists(out + '.placeholder'): os.remove(out + '.placeholder')
     json.dump([{'line': x.get('text', ''), 'start': t(x, 'start'), 'end': t(x, 'end'), 'para': owner[j]} for j, x in enumerate(L)], open('brief/sentences.json', 'w'), ensure_ascii=False)
+    names = json.load(open('audio_te/names.json')) if os.path.exists('audio_te/names.json') else []
+    if names:
+        i7 = owner[names[0]]; a7 = st[[j for j, o in enumerate(owner) if o == i7][0]] if i7 else 0.0
+        nx7 = [j for j, o in enumerate(owner) if o == i7 + 1]; b7 = st[nx7[0]] if nx7 else dur
+        json.dump({'seven': {'dur': b7 - a7, 'names': [st[j] - a7 for j in names]}}, open('brief/extra_times.json', 'w'))
     print('total', round(dur, 1), 'SPLIT_DONE')
