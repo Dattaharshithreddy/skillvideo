@@ -41,6 +41,7 @@ Everything that moves must be **keyframed** (helpers do it). That is how motion 
 | Animation | `key_obj(obj, frame, loc/rot/scale)`, `animate(fn(t, k, frame))` for per-frame logic, `ease()` |
 
 ## Assets (free; downloaded and cached on the server in `~/.cache/cgi-assets`)
+- **Anything Poly Haven does not have** (buildings, castles, hills, characters, anatomy, real locations, trains): `asset-atlas/` in this skill. Start with `asset-atlas/SUBJECTS.md`, fetch with `python3 asset-atlas/scripts/atlas.py`, credit per `atlas.py credits`.
 - **Poly Haven (CC0):** HDRIs, PBR textures, models via `ph_hdri/ph_material/ph_model`; `cz.ph_search('models', 'food')` lists ids.
 - **Humans:** MPFB (the MakeHuman plugin for Blender) exports CC0 realistic humans; Mixamo (free Adobe login) gives rigged characters and animations as FBX → `import_model`. For lip/expressions use a character with ARKit-style shape keys (`jawOpen`, `eyeBlinkLeft`, `mouthSmileLeft`…) and `shape_key()`.
 - **Anatomy:** BodyParts3D (CC BY-SA, credit it in the description) gives real scanned bones and organs as OBJ → `import_model`.
