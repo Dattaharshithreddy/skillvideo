@@ -14,8 +14,9 @@ co = np.empty(len(me.vertices) * 3, np.float32); me.vertices.foreach_get('co', c
 def dist_to(p): return np.hypot(xy[:, 0] - p[0], xy[:, 1] - p[1])
 # distance to river centre line (dense sampling)
 seg = np.concatenate([np.linspace(R[i], R[i + 1], 8, endpoint=False) for i in range(len(R) - 1)])
-from scipy.spatial import cKDTree
-driver, _ = cKDTree(seg).query(xy)
+driver = np.empty(len(xy))
+for i0 in range(0, len(xy), 20000):
+    q = xy[i0:i0 + 20000]; driver[i0:i0 + 20000] = np.sqrt(((q[:, None, :] - seg[None, ::2, :]) ** 2).sum(-1).min(1))
 # clumpy farmland noise: low-res random grid, bilinear upsampled
 def field(cell, seed):
     g = np.random.default_rng(seed).random((80, 80)); mn = xy.min(0)
