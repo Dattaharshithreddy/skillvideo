@@ -36,6 +36,13 @@ def elev_local(x, y):
     c = min(max(c, 0), w - 1.001); r = min(max(r, 0), h - 1.001); c0, r0 = int(c), int(r); fc, frr = c - c0, r - r0
     return float(dem[r0, c0] * (1 - fc) * (1 - frr) + dem[r0, c0 + 1] * fc * (1 - frr) + dem[r0 + 1, c0] * (1 - fc) * frr + dem[r0 + 1, c0 + 1] * fc * frr) - ZB
 
+# level the ground under the temple complex (20 m terrain data is too lumpy for a building group this size)
+_pl = json.load(open('geo/places.json')); _tx, _ty = _pl['temple'][0], _pl['temple'][1]
+_gx = meta['x0'] + (np.arange(w) + 0.5) * RES; _gy = meta['y1'] - (np.arange(h) + 0.5) * RES; _GX, _GY = np.meshgrid(_gx, _gy)
+_d = np.hypot(np.maximum(np.abs(_GX - _tx) - 175, 0), np.maximum(np.abs(_GY - (_ty + 65)) - 195, 0))
+_wt = np.clip(1 - _d / 110, 0, 1); _wt = _wt * _wt * (3 - 2 * _wt)
+dem = (dem * (1 - _wt) + float(np.median(dem[_d == 0])) * _wt).astype(dem.dtype)
+
 # ---------------- helpers ----------------
 def fcurves(idb):
     ad = idb.animation_data

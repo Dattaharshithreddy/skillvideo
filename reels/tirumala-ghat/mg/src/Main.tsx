@@ -171,8 +171,8 @@ const Hills: React.FC = () => {
   </Fade>;
 };
 const Seven: React.FC = () => {
-  const {t, active, dur} = useShot('seven'); if (!active) return null;
-  const f = useCurrentFrame(); const row = labRow('seven', f); const [n0, n1] = (T as any).names || [0.27, 0.72];
+  const f = useCurrentFrame(); const {t, active, dur} = useShot('seven'); if (!active) return null;
+  const row = labRow('seven', f); const [n0, n1] = (T as any).names || [0.27, 0.72];
   const cur = Math.floor(interpolate(t / dur, [n0, n1], [0, 7], clamp));
   return <Fade t={t} dur={dur}>
     <Pop at={4} t={t} style={{position: 'absolute', width: '100%', top: 150, textAlign: 'center'}}>
