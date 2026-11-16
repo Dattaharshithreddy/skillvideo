@@ -1,112 +1,291 @@
 {
- "gap": 0.15,
- "lang": "en",
+ "gap": 0.0,
+ "lang": "te",
  "lines": [
   {
    "shot": "open",
-   "text": "326 BC. Alexander the Great had already crushed the mighty Persian Empire. Now he stood at the gates of India. One by one, the kings in his path bowed… all except one. Purushottam. The Greeks called him Porus.",
-   "tts": "326 BC. Alexander the Great had already crushed the mighty Persian Empire. Now he stood at the gates of India. One by one, the kings in his path bowed… all except one. Purushottam. The Greeks called him Porus.",
-   "keywords": [
-    "326",
-    "BC.",
-    "Porus."
+   "parts": [
+    [
+     "story",
+     "క్రీస్తు పూర్వం 326."
+    ],
+    [
+     "story",
+     "పర్షియా సామ్రాజ్యాన్నే కూల్చేసిన అలెగ్జాండర్… భారతదేశం గడప దగ్గర నిలబడ్డాడు."
+    ],
+    [
+     "talk",
+     "దారిలో ఉన్న రాజులంతా తలవంచారు… ఒక్కడు తప్ప."
+    ],
+    [
+     "story, slow",
+     "జీలం నది అవతల… పౌరవ రాజు, పురు."
+    ],
+    [
+     "talk",
+     "మనం పురుషోత్తముడు అంటాం. గ్రీకులు పోరస్ అని రాశారు."
+    ]
    ],
-   "audio": "audio/p01.wav"
+   "text": "క్రీస్తు పూర్వం 326. పర్షియా సామ్రాజ్యాన్నే కూల్చేసిన అలెగ్జాండర్… భారతదేశం గడప దగ్గర నిలబడ్డాడు. దారిలో ఉన్న రాజులంతా తలవంచారు… ఒక్కడు తప్ప. జీలం నది అవతల… పౌరవ రాజు, పురు. మనం పురుషోత్తముడు అంటాం. గ్రీకులు పోరస్ అని రాశారు.",
+   "tts": "క్రీస్తు పూర్వం 326. పర్షియా సామ్రాజ్యాన్నే కూల్చేసిన అలెగ్జాండర్… భారతదేశం గడప దగ్గర నిలబడ్డాడు. దారిలో ఉన్న రాజులంతా తలవంచారు… ఒక్కడు తప్ప. జీలం నది అవతల… పౌరవ రాజు, పురు. మనం పురుషోత్తముడు అంటాం. గ్రీకులు పోరస్ అని రాశారు.",
+   "keywords": [
+    "326.",
+    "తప్ప.",
+    "పురు."
+   ],
+   "audio": "audio_mini/l01.wav"
+  },
+  {
+   "shot": "demand",
+   "parts": [
+    [
+     "talk",
+     "కప్పం కట్టి లొంగిపొమ్మని అలెగ్జాండర్ కబురు పంపాడు."
+    ],
+    [
+     "anger",
+     "పురు జవాబు ఒక్కటే… సరిహద్దులోనే కలుద్దాం. కానీ ఆయుధాలతో!"
+    ]
+   ],
+   "text": "కప్పం కట్టి లొంగిపొమ్మని అలెగ్జాండర్ కబురు పంపాడు. పురు జవాబు ఒక్కటే… సరిహద్దులోనే కలుద్దాం. కానీ ఆయుధాలతో!",
+   "tts": "కప్పం కట్టి లొంగిపొమ్మని అలెగ్జాండర్ కబురు పంపాడు. పురు జవాబు ఒక్కటే… సరిహద్దులోనే కలుద్దాం. కానీ ఆయుధాలతో!",
+   "keywords": [
+    "కప్పం",
+    "ఆయుధాలతో!"
+   ],
+   "audio": "audio_mini/l02.wav"
   },
   {
    "shot": "ambhi",
-   "text": "But the first blow against Porus did not come from a foreigner… it came from his own neighbour. Ambhi, the king of Taxila. Out of an old hatred for Porus, he opened his gates to Alexander, and joined hands with the enemy.",
-   "tts": "But the first blow against Porus did not come from a foreigner… it came from his own neighbour. Ambhi, the king of Taxila. Out of an old hatred for Porus, he opened his gates to Alexander, and joined hands with the enemy.",
-   "keywords": [
-    "neighbour.",
-    "Ambhi,",
-    "enemy."
+   "parts": [
+    [
+     "sad",
+     "కానీ పురుకి మొదటి దెబ్బ కొట్టింది విదేశీయుడు కాదు… పొరుగు రాజే."
+    ],
+    [
+     "disgust",
+     "తక్షశిల రాజు అంభి. పురు మీద పాత పగతో, అలెగ్జాండర్‌కి కోట తలుపులు తెరిచాడు. సైన్యాన్ని కూడా ఇచ్చాడు."
+    ]
    ],
-   "audio": "audio/p02.wav"
+   "text": "కానీ పురుకి మొదటి దెబ్బ కొట్టింది విదేశీయుడు కాదు… పొరుగు రాజే. తక్షశిల రాజు అంభి. పురు మీద పాత పగతో, అలెగ్జాండర్‌కి కోట తలుపులు తెరిచాడు. సైన్యాన్ని కూడా ఇచ్చాడు.",
+   "tts": "కానీ పురుకి మొదటి దెబ్బ కొట్టింది విదేశీయుడు కాదు… పొరుగు రాజే. తక్షశిల రాజు అంభి. పురు మీద పాత పగతో, అలెగ్జాండర్‌కి కోట తలుపులు తెరిచాడు. సైన్యాన్ని కూడా ఇచ్చాడు.",
+   "keywords": [
+    "అంభి.",
+    "పగతో,"
+   ],
+   "audio": "audio_mini/l03.wav"
   },
   {
    "shot": "river",
-   "text": "With Ambhi's help, Alexander reached the banks of the Jhelum. On the far side waited the army of Porus. By the Greeks' own count… two hundred war elephants. Horses panic at the very sight of them. Crossing head-on was impossible.",
-   "tts": "With Ambhi's help, Alexander reached the banks of the Jhelum. On the far side waited the army of Porus. By the Greeks' own count… two hundred war elephants. Horses panic at the very sight of them. Crossing head-on was impossible.",
-   "keywords": [
-    "Jhelum.",
-    "elephants.",
-    "impossible."
+   "parts": [
+    [
+     "story",
+     "అలా అలెగ్జాండర్ జీలం నది ఒడ్డుకు చేరాడు. వర్షాలకు నది ఉప్పొంగి ప్రవహిస్తోంది."
+    ],
+    [
+     "surprise",
+     "అవతలి ఒడ్డున పురు సైన్యం… ముందు వరుసలో యుద్ధ ఏనుగులు!"
+    ],
+    [
+     "talk",
+     "ఏనుగుల్ని చూస్తేనే గ్రీకు గుర్రాలు బెదిరిపోతాయి. ఎదురుగా నది దాటడం అసాధ్యం."
+    ]
    ],
-   "audio": "audio/p03.wav"
+   "text": "అలా అలెగ్జాండర్ జీలం నది ఒడ్డుకు చేరాడు. వర్షాలకు నది ఉప్పొంగి ప్రవహిస్తోంది. అవతలి ఒడ్డున పురు సైన్యం… ముందు వరుసలో యుద్ధ ఏనుగులు! ఏనుగుల్ని చూస్తేనే గ్రీకు గుర్రాలు బెదిరిపోతాయి. ఎదురుగా నది దాటడం అసాధ్యం.",
+   "tts": "అలా అలెగ్జాండర్ జీలం నది ఒడ్డుకు చేరాడు. వర్షాలకు నది ఉప్పొంగి ప్రవహిస్తోంది. అవతలి ఒడ్డున పురు సైన్యం… ముందు వరుసలో యుద్ధ ఏనుగులు! ఏనుగుల్ని చూస్తేనే గ్రీకు గుర్రాలు బెదిరిపోతాయి. ఎదురుగా నది దాటడం అసాధ్యం.",
+   "keywords": [
+    "జీలం",
+    "ఏనుగులు!",
+    "అసాధ్యం."
+   ],
+   "audio": "audio_mini/l04.wav"
   },
   {
    "shot": "feint",
-   "text": "So Alexander turned to deception. Night after night, he sent his cavalry racing up and down the bank. Shouting, trumpets, torches… as if the attack had begun. Every time, Porus's army rose and stood ready. Until finally… exhausted, they stopped reacting.",
-   "tts": "So Alexander turned to deception. Night after night, he sent his cavalry racing up and down the bank. Shouting, trumpets, torches… as if the attack had begun. Every time, Porus's army rose and stood ready. Until finally… exhausted, they stopped reacting.",
-   "keywords": [
-    "deception.",
-    "torches…",
-    "exhausted,"
+   "parts": [
+    [
+     "talk",
+     "అందుకే అలెగ్జాండర్ ఒక ఎత్తు వేశాడు. రాత్రి రాత్రీ ఒడ్డున అటూ ఇటూ గుర్రాలను పరుగెత్తించాడు. అరుపులు, కాగడాలు… ఇప్పుడే దాడి అన్నట్టు."
+    ],
+    [
+     "talk",
+     "పురు సైన్యం ప్రతిసారీ లేచి సిద్ధమయ్యేది. చివరికి అలసిపోయి… పట్టించుకోవడం మానేసింది."
+    ]
    ],
-   "audio": "audio/p04.wav"
+   "text": "అందుకే అలెగ్జాండర్ ఒక ఎత్తు వేశాడు. రాత్రి రాత్రీ ఒడ్డున అటూ ఇటూ గుర్రాలను పరుగెత్తించాడు. అరుపులు, కాగడాలు… ఇప్పుడే దాడి అన్నట్టు. పురు సైన్యం ప్రతిసారీ లేచి సిద్ధమయ్యేది. చివరికి అలసిపోయి… పట్టించుకోవడం మానేసింది.",
+   "tts": "అందుకే అలెగ్జాండర్ ఒక ఎత్తు వేశాడు. రాత్రి రాత్రీ ఒడ్డున అటూ ఇటూ గుర్రాలను పరుగెత్తించాడు. అరుపులు, కాగడాలు… ఇప్పుడే దాడి అన్నట్టు. పురు సైన్యం ప్రతిసారీ లేచి సిద్ధమయ్యేది. చివరికి అలసిపోయి… పట్టించుకోవడం మానేసింది.",
+   "keywords": [
+    "ఎత్తు",
+    "కాగడాలు…",
+    "అలసిపోయి…"
+   ],
+   "audio": "audio_mini/l05.wav"
   },
   {
    "shot": "storm",
-   "text": "That was the moment Alexander had been waiting for. One night… thunder, lightning, pouring rain. Under the cover of that storm, he marched upstream, and secretly crossed the river.",
-   "tts": "That was the moment Alexander had been waiting for. One night… thunder, lightning, pouring rain. Under the cover of that storm, he marched upstream, and secretly crossed the river.",
-   "keywords": [
-    "storm,",
-    "secretly"
+   "parts": [
+    [
+     "fear",
+     "ఒక రాత్రి… ఉరుములు, మెరుపులు, కుండపోత వాన."
+    ],
+    [
+     "fear",
+     "ఆ తుఫాను చప్పుడులో, అలెగ్జాండర్ నది ఎగువకు వెళ్ళి, రహస్యంగా నది దాటాడు."
+    ],
+    [
+     "surprise",
+     "తెల్లవారి చూస్తే… అది అవతలి ఒడ్డు కాదు, నది మధ్యలో ఒక దీవి! ఛాతీ లోతు నీళ్లలో మళ్ళీ నడిచి దాటారు."
+    ]
    ],
-   "audio": "audio/p05.wav"
+   "text": "ఒక రాత్రి… ఉరుములు, మెరుపులు, కుండపోత వాన. ఆ తుఫాను చప్పుడులో, అలెగ్జాండర్ నది ఎగువకు వెళ్ళి, రహస్యంగా నది దాటాడు. తెల్లవారి చూస్తే… అది అవతలి ఒడ్డు కాదు, నది మధ్యలో ఒక దీవి! ఛాతీ లోతు నీళ్లలో మళ్ళీ నడిచి దాటారు.",
+   "tts": "ఒక రాత్రి… ఉరుములు, మెరుపులు, కుండపోత వాన. ఆ తుఫాను చప్పుడులో, అలెగ్జాండర్ నది ఎగువకు వెళ్ళి, రహస్యంగా నది దాటాడు. తెల్లవారి చూస్తే… అది అవతలి ఒడ్డు కాదు, నది మధ్యలో ఒక దీవి! ఛాతీ లోతు నీళ్లలో మళ్ళీ నడిచి దాటారు.",
+   "keywords": [
+    "తుఫాను",
+    "రహస్యంగా",
+    "దీవి!"
+   ],
+   "audio": "audio_mini/l06.wav"
+  },
+  {
+   "shot": "son",
+   "parts": [
+    [
+     "sad",
+     "వాళ్ళని ఆపడానికి పురు తన కొడుకుని రథాలతో పంపాడు. కానీ వర్షానికి నేలంతా బురద. రథ చక్రాలు కూరుకుపోయాయి."
+    ],
+    [
+     "sad",
+     "యువరాజు ఆ పోరులోనే నేలకొరిగాడు."
+    ]
+   ],
+   "text": "వాళ్ళని ఆపడానికి పురు తన కొడుకుని రథాలతో పంపాడు. కానీ వర్షానికి నేలంతా బురద. రథ చక్రాలు కూరుకుపోయాయి. యువరాజు ఆ పోరులోనే నేలకొరిగాడు.",
+   "tts": "వాళ్ళని ఆపడానికి పురు తన కొడుకుని రథాలతో పంపాడు. కానీ వర్షానికి నేలంతా బురద. రథ చక్రాలు కూరుకుపోయాయి. యువరాజు ఆ పోరులోనే నేలకొరిగాడు.",
+   "keywords": [
+    "కొడుకుని",
+    "బురద.",
+    "నేలకొరిగాడు."
+   ],
+   "audio": "audio_mini/l07.wav"
   },
   {
    "shot": "battle",
-   "text": "By dawn, the enemy was standing on Porus's side of the river. Still, Porus did not retreat. He sent his elephants forward. On one side, elephants like moving hills. On the other, the long Macedonian pikes. It became one of the hardest battles Alexander ever fought.",
-   "tts": "By dawn, the enemy was standing on Porus's side of the river. Still, Porus did not retreat. He sent his elephants forward. On one side, elephants like moving hills. On the other, the long Macedonian pikes. It became one of the hardest battles Alexander ever fought.",
-   "keywords": [
-    "retreat.",
-    "elephants",
-    "hardest"
+   "parts": [
+    [
+     "anger",
+     "అయినా పురు వెనకడుగు వేయలేదు. ఏనుగుల్ని ముందుకు నడిపించాడు."
+    ],
+    [
+     "anger",
+     "ఒకవైపు కొండల్లాంటి ఏనుగులు, మరోవైపు పొడవాటి మాసిడోనియన్ బల్లాలు."
+    ],
+    [
+     "talk",
+     "మావటీలను గురి చూసి కొట్టారు. గాయపడిన ఏనుగులు బెదిరి, సొంత సైన్యం మీదకే తిరిగాయి."
+    ],
+    [
+     "story",
+     "అలెగ్జాండర్ జీవితంలోనే అత్యంత కఠినమైన యుద్ధాల్లో ఇదొకటి."
+    ]
    ],
-   "audio": "audio/p06.wav"
+   "text": "అయినా పురు వెనకడుగు వేయలేదు. ఏనుగుల్ని ముందుకు నడిపించాడు. ఒకవైపు కొండల్లాంటి ఏనుగులు, మరోవైపు పొడవాటి మాసిడోనియన్ బల్లాలు. మావటీలను గురి చూసి కొట్టారు. గాయపడిన ఏనుగులు బెదిరి, సొంత సైన్యం మీదకే తిరిగాయి. అలెగ్జాండర్ జీవితంలోనే అత్యంత కఠినమైన యుద్ధాల్లో ఇదొకటి.",
+   "tts": "అయినా పురు వెనకడుగు వేయలేదు. ఏనుగుల్ని ముందుకు నడిపించాడు. ఒకవైపు కొండల్లాంటి ఏనుగులు, మరోవైపు పొడవాటి మాసిడోనియన్ బల్లాలు. మావటీలను గురి చూసి కొట్టారు. గాయపడిన ఏనుగులు బెదిరి, సొంత సైన్యం మీదకే తిరిగాయి. అలెగ్జాండర్ జీవితంలోనే అత్యంత కఠినమైన యుద్ధాల్లో ఇదొకటి.",
+   "keywords": [
+    "వెనకడుగు",
+    "బల్లాలు.",
+    "కఠినమైన"
+   ],
+   "audio": "audio_mini/l08.wav"
   },
   {
    "shot": "king",
-   "text": "Wounded all over… Porus fought to the very end. He was brought before Alexander as a prisoner. How shall I treat you, Alexander asked. Porus raised his head and said just one thing… As a king treats a king.",
-   "tts": "Wounded all over… Porus fought to the very end. He was brought before Alexander as a prisoner. How shall I treat you, Alexander asked. Porus raised his head and said just one thing… As a king treats a king.",
-   "keywords": [
-    "Wounded",
-    "king",
-    "king."
+   "parts": [
+    [
+     "sad",
+     "ఒంటి నిండా గాయాలు… అయినా పురు చివరి వరకూ పోరాడాడు."
+    ],
+    [
+     "story",
+     "బందీగా అలెగ్జాండర్ ముందు నిలబెట్టారు."
+    ],
+    [
+     "talk",
+     "నిన్ను ఎలా చూడాలి, అని అడిగాడు అలెగ్జాండర్."
+    ],
+    [
+     "story, slow",
+     "పురు తల ఎత్తి అన్నాడు… ఒక రాజు, ఇంకో రాజుని ఎలా చూస్తాడో… అలా."
+    ]
    ],
-   "audio": "audio/p07.wav"
+   "text": "ఒంటి నిండా గాయాలు… అయినా పురు చివరి వరకూ పోరాడాడు. బందీగా అలెగ్జాండర్ ముందు నిలబెట్టారు. నిన్ను ఎలా చూడాలి, అని అడిగాడు అలెగ్జాండర్. పురు తల ఎత్తి అన్నాడు… ఒక రాజు, ఇంకో రాజుని ఎలా చూస్తాడో… అలా.",
+   "tts": "ఒంటి నిండా గాయాలు… అయినా పురు చివరి వరకూ పోరాడాడు. బందీగా అలెగ్జాండర్ ముందు నిలబెట్టారు. నిన్ను ఎలా చూడాలి, అని అడిగాడు అలెగ్జాండర్. పురు తల ఎత్తి అన్నాడు… ఒక రాజు, ఇంకో రాజుని ఎలా చూస్తాడో… అలా.",
+   "keywords": [
+    "గాయాలు…",
+    "రాజు,",
+    "అలా."
+   ],
+   "audio": "audio_mini/l09.wav"
   },
   {
    "shot": "return",
-   "text": "Alexander was so moved that he gave Porus his kingdom back… and made it even larger. Soon after, Alexander's weary army refused to march any deeper into India.",
-   "tts": "Alexander was so moved that he gave Porus his kingdom back… and made it even larger. Soon after, Alexander's weary army refused to march any deeper into India.",
-   "keywords": [
-    "kingdom",
-    "refused"
+   "parts": [
+    [
+     "happy",
+     "ఆ మాటకి అలెగ్జాండర్ ముగ్ధుడయ్యాడు. పురు రాజ్యాన్ని పురుకే తిరిగిచ్చాడు… ఇంకా పెద్దది చేసి."
+    ],
+    [
+     "talk",
+     "కొన్నాళ్ళకే, అలసిపోయిన గ్రీకు సైన్యం బియాస్ నది దగ్గర ఆగిపోయింది. ఇంకా ముందుకు వెళ్ళేది లేదని తేల్చి చెప్పింది."
+    ]
    ],
-   "audio": "audio/p08.wav"
+   "text": "ఆ మాటకి అలెగ్జాండర్ ముగ్ధుడయ్యాడు. పురు రాజ్యాన్ని పురుకే తిరిగిచ్చాడు… ఇంకా పెద్దది చేసి. కొన్నాళ్ళకే, అలసిపోయిన గ్రీకు సైన్యం బియాస్ నది దగ్గర ఆగిపోయింది. ఇంకా ముందుకు వెళ్ళేది లేదని తేల్చి చెప్పింది.",
+   "tts": "ఆ మాటకి అలెగ్జాండర్ ముగ్ధుడయ్యాడు. పురు రాజ్యాన్ని పురుకే తిరిగిచ్చాడు… ఇంకా పెద్దది చేసి. కొన్నాళ్ళకే, అలసిపోయిన గ్రీకు సైన్యం బియాస్ నది దగ్గర ఆగిపోయింది. ఇంకా ముందుకు వెళ్ళేది లేదని తేల్చి చెప్పింది.",
+   "keywords": [
+    "తిరిగిచ్చాడు…",
+    "బియాస్",
+    "లేదని"
+   ],
+   "audio": "audio_mini/l10.wav"
   },
   {
    "shot": "murder",
-   "text": "But the story did not end there. After Alexander died, his general Eudemus… plotted against Porus, and had him killed.",
-   "tts": "But the story did not end there. After Alexander died, his general Eudemus… plotted against Porus, and had him killed.",
-   "keywords": [
-    "Eudemus…",
-    "killed."
+   "parts": [
+    [
+     "sad",
+     "కానీ కథ అక్కడ ముగియలేదు. అలెగ్జాండర్ చనిపోయాక, అతని సేనాని యూడెమస్… మోసంతో పురుని హత్య చేశాడు."
+    ]
    ],
-   "audio": "audio/p09.wav"
+   "text": "కానీ కథ అక్కడ ముగియలేదు. అలెగ్జాండర్ చనిపోయాక, అతని సేనాని యూడెమస్… మోసంతో పురుని హత్య చేశాడు.",
+   "tts": "కానీ కథ అక్కడ ముగియలేదు. అలెగ్జాండర్ చనిపోయాక, అతని సేనాని యూడెమస్… మోసంతో పురుని హత్య చేశాడు.",
+   "keywords": [
+    "యూడెమస్…",
+    "హత్య"
+   ],
+   "audio": "audio_mini/l11.wav"
   },
   {
    "shot": "legacy",
-   "text": "Betrayed by a neighbour. Deceived in the dark. Killed by a conspiracy. Yet history remembers Porus in just one word… a king.",
-   "tts": "Betrayed by a neighbour. Deceived in the dark. Killed by a conspiracy. Yet history remembers Porus in just one word… a king.",
-   "keywords": [
-    "Betrayed",
-    "king."
+   "parts": [
+    [
+     "story",
+     "పొరుగువాడి ద్రోహం. చీకట్లో మోసం. చివరికి కుట్రతో మరణం."
+    ],
+    [
+     "story, slow",
+     "అయినా చరిత్ర పురుని ఒక్క మాటతో గుర్తుంచుకుంది… రాజు."
+    ],
+    [
+     "happy",
+     "ఇది… చరిత్ర చెప్పిన కథ."
+    ]
    ],
-   "audio": "audio/p10.wav"
+   "text": "పొరుగువాడి ద్రోహం. చీకట్లో మోసం. చివరికి కుట్రతో మరణం. అయినా చరిత్ర పురుని ఒక్క మాటతో గుర్తుంచుకుంది… రాజు. ఇది… చరిత్ర చెప్పిన కథ.",
+   "tts": "పొరుగువాడి ద్రోహం. చీకట్లో మోసం. చివరికి కుట్రతో మరణం. అయినా చరిత్ర పురుని ఒక్క మాటతో గుర్తుంచుకుంది… రాజు. ఇది… చరిత్ర చెప్పిన కథ.",
+   "keywords": [
+    "ద్రోహం.",
+    "రాజు.",
+    "కథ."
+   ],
+   "audio": "audio_mini/l12.wav"
   }
  ]
 }
