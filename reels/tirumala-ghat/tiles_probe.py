@@ -30,8 +30,13 @@ def search(node, P, best):
     elif uri and node.get('geometricError', 1e9) < best[0]:
         best[0] = node['geometricError']; best[1] = uri
         b = node['boundingVolume']['box']; best.append((round(math.dist((0,0,0), b[3:6])), round(math.dist((0,0,0), b[6:9])), round(math.dist((0,0,0), b[9:12])), len(node.get('children', []))))
-    for k in node.get('children', []):
-        if inside(k['boundingVolume']['box'], P): search(k, P, best)
+    kids = node.get('children', []); hit = [k for k in kids if inside(k['boundingVolume']['box'], P)]
+    if kids and not hit and node.get('geometricError', 1e9) < 20:
+        for k in kids:
+            b = k['boundingVolume']; bx = b.get('box'); c = bx[:3]; d = [P[i] - c[i] for i in range(3)]
+            print('   miss kid err', round(k.get('geometricError', 0), 2), 'keys', list(k.keys()), 'uri', k.get('content', {}).get('uri', '')[-6:],
+                  'ratios', [round(abs(sum(d[i] * ax[i] for i in range(3))) / max(sum(a * a for a in ax), 1e-9), 2) for ax in (bx[3:6], bx[6:9], bx[9:12])])
+    for k in hit: search(k, P, best)
 pts = {'bengaluru': (12.9763, 77.5929, 920), 'tirumala_temple': (13.6833, 79.3474, 850), 'ghat_mid': (13.66, 79.37, 500)}
 for name in sys.argv[1:] or pts:
     la, lo, h = pts[name]; SESSION[0] = None; CALLS[0] = 0; best = [1e9, None]
