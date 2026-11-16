@@ -33,7 +33,8 @@ for k, t in U.items():
     print(k, round(best[2], 2), 'exp', round(exp, 2), flush=True)
 '''
 open(f'{V}/cb_knowdm.py', 'w').write(CB)
-if '--skip-tts' not in sys.argv:
+RESPLIT = '--resplit' in sys.argv     # reuse the converted voice, only redo the line cuts
+if '--skip-tts' not in sys.argv and not RESPLIT:
     sh('docker', 'exec', 'voicebox', 'sh', '-c', 'cd /app && python /app/data/knowdm/cb_knowdm.py')
 work = '/opt/reel/vox/knowdm'; os.makedirs(work, exist_ok=True)
 sh('ffmpeg', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=22050:cl=mono', '-t', str(SEP), f'{work}/sep.wav')
@@ -46,21 +47,34 @@ for k, p in plans.items():
         lst += [f"file '{tr}'", f"file '{work}/sep.wav'"]
     open(f'{work}/{k}_list.txt', 'w').write('\n'.join(lst) + '\n')
     sh('ffmpeg', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', f'{work}/{k}_list.txt', '-ar', '22050', f'{work}/{k}_joined.wav')
-    vc = f'{work}/{k}_vc'; subprocess.run(['rm', '-rf', vc]); os.makedirs(vc)
-    subprocess.run(['/opt/reel/svenv/bin/python', 'inference.py', '--source', f'{work}/{k}_joined.wav', '--target', '/opt/reel/vox/ref_clean.wav',
+    vc = f'{work}/{k}_vc'
+    if not RESPLIT:
+      subprocess.run(['rm', '-rf', vc]); os.makedirs(vc)
+      subprocess.run(['/opt/reel/svenv/bin/python', 'inference.py', '--source', f'{work}/{k}_joined.wav', '--target', '/opt/reel/vox/ref_clean.wav',
                     '--output', vc, '--diffusion-steps', '50', '--length-adjust', '1.0', '--inference-cfg-rate', '0.7', '--f0-condition', 'False',
                     '--fp16', 'False', '--checkpoint', 'runs/harshith/ft_model.pth',
                     '--config', 'configs/presets/config_dit_mel_seed_uvit_whisper_small_wavenet.yml'],
                    cwd='/opt/reel/seed-vc', check=True, stdout=subprocess.DEVNULL, stderr=open(f'/tmp/vc_{k}.log', 'w'))
     out = sorted(os.listdir(vc))[0]
-    sh('ffmpeg', '-y', '-v', 'error', '-i', f'{vc}/{out}', '-af', POST, '-ar', '44100', '-ac', '1', f'{work}/{k}_post.wav')
+    if not RESPLIT: sh('ffmpeg', '-y', '-v', 'error', '-i', f'{vc}/{out}', '-af', POST, '-ar', '44100', '-ac', '1', f'{work}/{k}_post.wav')
     scale = dur(f'{work}/{k}_post.wav') / dur(f'{work}/{k}_joined.wav')
     folder = os.path.dirname(p['lines'][0]['audio']); os.makedirs(folder, exist_ok=True)
-    for i, (a, b) in enumerate(bounds):
-        a0 = max(0, (a - SEP / 2) * scale) if i else 0; b0 = (b + SEP / 2) * scale
+    # cut between lines inside the real pauses: snap each estimated boundary to the nearest detected silence
+    det = subprocess.run(['ffmpeg', '-i', f'{work}/{k}_post.wav', '-af', 'silencedetect=noise=-38dB:d=0.22', '-f', 'null', '-'], capture_output=True, text=True).stderr
+    ss = [float(x.split('silence_start: ')[1].split()[0]) for x in det.splitlines() if 'silence_start' in x]
+    se = [float(x.split('silence_end: ')[1].split()[0]) for x in det.splitlines() if 'silence_end' in x]
+    sil = [((a_ + b_) / 2, b_ - a_) for a_, b_ in zip(ss, se)]
+    total = dur(f'{work}/{k}_post.wav'); cuts = [0.0]
+    for i in range(n - 1):
+        est = (bounds[i][1] + SEP / 2) * scale
+        near = [m for m, L in sil if abs(m - est) < 1.2 and m > cuts[-1] + 0.5]
+        cuts.append(min(near, key=lambda m: abs(m - est)) if near else est)
+        print(k, 'line', i + 1, 'cut est', round(est, 2), '->', round(cuts[-1], 2), '' if near else 'NO_SILENCE', flush=True)
+    cuts.append(total)
+    for i in range(n):
         pad = 0.3 if p['lines'][i]['text'].endswith('?') else 0.45
-        sh('ffmpeg', '-y', '-v', 'error', '-i', f'{work}/{k}_post.wav', '-ss', f'{a0:.3f}', '-to', f'{b0:.3f}',
-           '-af', TRIM + f',atempo=0.92,apad=pad_dur={pad}', '-ar', '44100', '-ac', '1', p['lines'][i]['audio'])
+        sh('ffmpeg', '-y', '-v', 'error', '-i', f'{work}/{k}_post.wav', '-ss', f'{cuts[i]:.3f}', '-to', f'{cuts[i + 1]:.3f}',
+           '-af', TRIM + f',areverse,afade=t=in:d=0.02,areverse,atempo=0.92,apad=pad_dur={pad}', '-ar', '44100', '-ac', '1', p['lines'][i]['audio'])
     tot = sum(dur(l['audio']) + p['gap'] for l in p['lines'])
     print(k, 'lines', n, 'total', round(tot, 1), flush=True)
 print('VOICE_DONE')
