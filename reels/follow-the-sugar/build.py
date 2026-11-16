@@ -264,6 +264,19 @@ ORG = heart_m + art_m + kid_m + brain_m + eye_m + liver_m + stom_m + panc_m + gu
 # visceral fat: a soft glowing mass around the gut (only in the fat station)
 fatb = sphere('visceral_fat', GC + Vector((0, -0.035, 0.04)), 0.1, M['fat'], scale=(1.25, 0.55, 0.95), seg=48, ring=24)
 
+# ---- Raju's skin: the "old" skin texture has dark age spots; blend it toward an even warm brown ----
+for o in [o for o in bpy.data.objects if o.name == 'raju_body']:
+    for slot in o.material_slots:
+        m = slot.material
+        if not m or not m.use_nodes or m.get('even_skin'): continue
+        m['even_skin'] = 1; nt = m.node_tree
+        bs = next((n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+        if not bs or not bs.inputs['Base Color'].links: continue
+        src = bs.inputs['Base Color'].links[0].from_socket
+        mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs['Factor'].default_value = 0.6
+        mx.inputs[7].default_value = (0.36, 0.21, 0.13, 1)
+        nt.links.new(src, mx.inputs[6]); nt.links.new(mx.outputs[2], bs.inputs['Base Color'])
+        if 'Roughness' in bs.inputs and not bs.inputs['Roughness'].links: bs.inputs['Roughness'].default_value = 0.55
 # ---- X-ray state per station ----
 XK = []
 for s in STN['order']:
@@ -293,7 +306,8 @@ for o in [o for o in bpy.data.objects if o.name.startswith('raju_body') and o.na
         nt.links.new(tr.outputs[0], shell.inputs[1]); nt.links.new(em.outputs[0], shell.inputs[2])
         nt.links.new(src_, mix.inputs[1]); nt.links.new(shell.outputs[0], mix.inputs[2]); nt.links.new(mix.outputs[0], outn.inputs['Surface'])
         keys(mix.inputs['Fac'], XK)
-        try: m.surface_render_method = 'BLENDED'
+        # keep DITHERED: BLENDED draws the skin over the clothes (shirt vanished in the room shots)
+        try: m.surface_render_method = 'DITHERED'
         except Exception: pass
         m.use_backface_culling = True
 def inside_except(hide):
