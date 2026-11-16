@@ -33,21 +33,25 @@ veg *= np.clip((driver - RW / 2 - 25) / 120, 0, 1) * 0.6 + 0.4   # thinner right
 veg[dist_to(pts['O']) < 520] = 0                                 # open battlefield
 veg[dist_to(pts['KG']) < 120] = 0
 veg[dist_to(pts['FORT']) < 140] = 0
+nearw = np.zeros(len(xy))
+for k, r in [('O', 1300), ('FORT', 600), ('RIDGE', 600), ('FN', 450), ('FS', 450), ('CROSS', 700)]:
+    nearw = np.maximum(nearw, np.clip(1 - dist_to(pts[k]) / r, 0, 1) ** 0.5)
+nearv = veg * nearw; farv = veg * (1 - nearw)
 grass = np.zeros(len(xy))
 for k, r in [('O', 650), ('KG', 160), ('FORT', 260), ('RIDGE', 220), ('FN', 260), ('FS', 260), ('CROSS', 420)]:
     grass = np.maximum(grass, np.clip(1 - dist_to(pts[k]) / r, 0, 1))
 grass[driver < RW / 2 + 6] = 0
 grass *= 0.55 + 0.45 * field(40, 3)
-for name, arr in (('veg', veg), ('grass', grass)):
+for name, arr in (('veg', farv), ('near', nearv), ('grass', grass)):
     a = me.attributes.get(name) or me.attributes.new(name, 'FLOAT', 'POINT'); a.data.foreach_set('value', arr.astype(np.float32))
-print('veg mean', round(float(veg.mean()), 4), 'grass mean', round(float(grass.mean()), 4))
+print('veg mean', round(float(farv.mean()), 4), 'near mean', round(float(nearv.mean()), 5), 'grass mean', round(float(grass.mean()), 4))
 
 # ---------- import Poly Haven models into hidden collections ----------
 def collection(name):
     c = bpy.data.collections.new(name); sc.collection.children.link(c)
     bpy.context.view_layer.layer_collection.children[name].exclude = True; return c
-def load(key, target, ratio):
-    before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=f'{PH}m/{key}/{key}.gltf')
+def load(key, target, ratio, path=None, height=None):
+    before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=path or f'{PH}m/{key}/{key}.gltf')
     new = [o for o in bpy.data.objects if o not in before]; names = [o.name for o in new]; meshes = [o for o in new if o.type == 'MESH']
     bpy.ops.object.select_all(action='DESELECT')
     for o in meshes: o.select_set(True)
@@ -55,6 +59,9 @@ def load(key, target, ratio):
     if len(meshes) > 1: bpy.ops.object.join()
     ob = bpy.context.view_layer.objects.active; ob.parent = None
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+    if height:
+        zs = [v.co.z for v in ob.data.vertices]; k = height / (max(zs) - min(zs)); ob.scale = (k, k, k)
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
     if ratio < 1:
         d = ob.modifiers.new('dec', 'DECIMATE'); d.ratio = ratio; bpy.ops.object.modifier_apply(modifier='dec')
     ob.location = (0, 0, 0); ob.name = key; keep = ob.name
@@ -66,11 +73,14 @@ def load(key, target, ratio):
     for m in ob.data.materials:
         if m: m.surface_render_method = 'DITHERED'
     return ob
-TREES = collection('veg_trees'); SHRUBS = collection('veg_shrubs'); GRASS = collection('veg_grass')
-for k in ('island_tree_01', 'island_tree_02', 'island_tree_03', 'tree_small_02'): load(k, TREES, 0.25)
+TREES = collection('veg_trees'); FAR = collection('veg_far'); SHRUBS = collection('veg_shrubs'); GRASS = collection('veg_grass')
+for k in ('island_tree_01', 'island_tree_02', 'tree_small_02'): load(k, TREES, 0.12)
+QN = '/opt/reel/assets/qs/public/glb/nature_pack/'
+for k, hgt in (('CommonTree_1', 13), ('CommonTree_2', 11), ('CommonTree_3', 14), ('CommonTree_4', 12), ('CommonTree_5', 10), ('Bush_1', 2.5)):
+    load(k, FAR, 1.0, QN + k + '.glb', hgt)
 for k in ('shrub_01', 'shrub_02', 'shrub_03', 'shrub_04', 'wild_rooibos_bush', 'boulder_01'): load(k, SHRUBS, 0.4)
 for k in ('grass_medium_01', 'grass_medium_02', 'grass_bermuda_01'): load(k, GRASS, 0.5)
-tris = {o.name: sum(len(p.vertices) - 2 for p in o.data.polygons) for c in (TREES, SHRUBS, GRASS) for o in c.objects}
+tris = {o.name: sum(len(p.vertices) - 2 for p in o.data.polygons) for c in (TREES, FAR, SHRUBS, GRASS) for o in c.objects}
 print('tris', tris)
 
 # ---------- geometry nodes scatter ----------
@@ -83,8 +93,10 @@ L.new(gi.outputs[0], join.inputs[0])
 def layer(attr, coll, density, smin, smax, seed):
     na = N.new('GeometryNodeInputNamedAttribute'); na.data_type = 'FLOAT'; na.inputs['Name'].default_value = attr
     dp = N.new('GeometryNodeDistributePointsOnFaces'); dp.distribute_method = 'RANDOM'
-    dp.inputs['Density'].default_value = density; dp.inputs['Seed'].default_value = seed
-    L.new(gi.outputs[0], dp.inputs['Mesh']); L.new(na.outputs['Attribute'], dp.inputs['Density Factor'])
+    dp.inputs['Seed'].default_value = seed
+    dm = N.new('ShaderNodeMath'); dm.operation = 'MULTIPLY'; dm.inputs[1].default_value = density
+    L.new(na.outputs['Attribute'], dm.inputs[0])
+    L.new(gi.outputs[0], dp.inputs['Mesh']); L.new(dm.outputs[0], dp.inputs['Density'])
     ci = N.new('GeometryNodeCollectionInfo'); ci.inputs['Collection'].default_value = coll
     ci.inputs['Separate Children'].default_value = True; ci.inputs['Reset Children'].default_value = True
     rr = N.new('FunctionNodeRandomValue'); rr.data_type = 'FLOAT_VECTOR'; rr.inputs[1].default_value = (0, 0, 6.283); rr.inputs['Seed'].default_value = seed + 1
@@ -93,8 +105,9 @@ def layer(attr, coll, density, smin, smax, seed):
     L.new(dp.outputs['Points'], io.inputs['Points']); L.new(ci.outputs[0], io.inputs['Instance'])
     L.new(rr.outputs[0], io.inputs['Rotation']); L.new(rs.outputs[1], io.inputs['Scale'])
     L.new(io.outputs[0], join.inputs[0])
-layer('veg', TREES, 1 / 900, 0.8, 1.5, 10)
-layer('veg', SHRUBS, 1 / 250, 0.7, 1.6, 20)
+layer('veg', FAR, 1 / 700, 0.8, 1.4, 10)
+layer('near', TREES, 1 / 700, 0.7, 1.3, 11)
+layer('near', SHRUBS, 1 / 150, 0.7, 1.6, 20)
 layer('grass', GRASS, 0.35, 0.7, 1.4, 30)
 L.new(join.outputs[0], go.inputs[0])
 mod = terr.modifiers.new('scatter', 'NODES'); mod.node_group = ng
