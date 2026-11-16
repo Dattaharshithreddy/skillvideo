@@ -653,7 +653,7 @@ for l in plan['lines']:
         sc.frame_set(int(a_ + (b_ - a_) * x)); cp = cam.matrix_world.translation.copy(); tp = tgt.matrix_world.translation.copy()
         for o, r, hgt in DRESS:
             c = o.location + V((0, 0, hgt * 0.5)); d, t_ = seg_dist(c, cp, tp)
-            if (d < r + 0.005 and t_ < 0.97) or (o.location - cp).length < r + 0.035:
+            if (d < r + 0.006 and t_ < 0.97) or (o.location - cp).length < r + 0.06:
                 if (a_, b_) not in hide[id(o)]: hide[id(o)].append((a_, b_))
 nh = 0
 for o, r, hgt in DRESS:

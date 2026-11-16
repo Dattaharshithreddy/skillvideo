@@ -4,6 +4,7 @@ $B -b --python build_mini.py > /tmp/pmbuild.log 2>&1; grep -E "^built|hidden|Tra
 N=$(python3 -c "import json;print(json.load(open('brief/timing.json'))['end'])")
 mkdir -p renders/mseq
 $B -b scene/porus_mini.blend -P /opt/reel/eevee.py -o "$W/renders/mseq/f_#####" -s 1 -e $N -a > /tmp/pmrender.log 2>&1
+while pgrep -f "porus_mini.blend" >/dev/null; do sleep 20; done
 echo RENDERED $(ls renders/mseq | wc -l) of $N
 mkdir -p mg/public mg/out
 ffmpeg -y -v error -framerate 30 -i renders/mseq/f_%05d.jpg -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p mg/public/bg.mp4
