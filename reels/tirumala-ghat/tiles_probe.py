@@ -1,48 +1,37 @@
-"""Probe Google Photorealistic 3D Tiles detail over Tirumala: descend toward a point, report geometric error per level."""
-import json, math, subprocess, sys, urllib.parse, requests
+"""Probe Google Photorealistic 3D Tiles detail: depth-first search with backtracking toward a point; report finest geometric error."""
+import math, subprocess, sys, urllib.parse, requests
 K = subprocess.run(['aws', 'ssm', 'get-parameter', '--name', '/reel/google_maps_key', '--with-decryption', '--region', 'ap-south-1',
                     '--query', 'Parameter.Value', '--output', 'text'], capture_output=True, text=True).stdout.strip()
-B = 'https://tile.googleapis.com'
+B = 'https://tile.googleapis.com'; S = requests.Session(); SESSION = [None]; CALLS = [0]
 def ecef(lat, lon, h=0):
     a = 6378137.0; e2 = 6.69437999014e-3; la, lo = math.radians(lat), math.radians(lon)
     n = a / math.sqrt(1 - e2 * math.sin(la) ** 2)
     return ((n + h) * math.cos(la) * math.cos(lo), (n + h) * math.cos(la) * math.sin(lo), (n * (1 - e2) + h) * math.sin(la))
-pts = {'bengaluru': (12.9763, 77.5929, 920), 'tirupati_town': (13.6288, 79.4192, 160), 'temple': (13.6833, 79.3474, 850)}
-S = requests.Session(); session = None
 def get(uri):
-    global session
     u = urllib.parse.urljoin(B, uri); q = {'key': K}
-    if session and 'session=' not in u: q['session'] = session
-    r = S.get(u, params=q, timeout=60)
+    if SESSION[0] and 'session=' not in u: q['session'] = SESSION[0]
+    CALLS[0] += 1; r = S.get(u, params=q, timeout=60)
     if r.status_code != 200: raise SystemExit(f'HTTP {r.status_code} on {uri.split("?")[0][:80]}')
+    if 'session=' in uri: SESSION[0] = urllib.parse.parse_qs(urllib.parse.urlparse(uri).query)['session'][0]
     return r
-def inside(box, p, m=1.05):
+def inside(box, p, m=1.02):
     c = box[:3]; d = [p[i] - c[i] for i in range(3)]
     for ax in (box[3:6], box[6:9], box[9:12]):
         n2 = sum(a * a for a in ax)
         if n2 > 0 and abs(sum(d[i] * ax[i] for i in range(3))) / n2 > m: return False
     return True
-def dist(box, p): return 0 if inside(box, p) else 1 + math.dist(box[:3], p)
-for name, (la, lo, h) in pts.items():
-    session = None; P = ecef(la, lo, h); node = get('/v1/3dtiles/root.json').json()['root']; lvl = 0; glbs = 0; parent_kids = None
-    while True:
-        kids = node.get('children', [])
-        if not kids:
-            print(name, 'leaf', lvl, 'content', node.get('content', {}).get('uri', '')[:40].split('?')[0], 'n_inside_siblings', len([k for k in parent_kids if inside(k['boundingVolume']['box'], P)]) if parent_kids else None)
-            c = node.get('content', {}).get('uri')
-            if c and c.split('?')[0].endswith('.json'):
-                if 'session=' in c: session = urllib.parse.parse_qs(urllib.parse.urlparse(c).query)['session'][0]
-                node = get(c).json()['root']; continue
-            break
-        parent_kids = kids; node = min(kids, key=lambda k: dist(k['boundingVolume']['box'], P)); lvl += 1
-        c = node.get('content', {}).get('uri', '')
-        if c and 'session=' in c: session = urllib.parse.parse_qs(urllib.parse.urlparse(c).query)['session'][0]
-        if c.split('?')[0].endswith('.glb'):
-            glbs += 1
-            if True:
-                print(name, 'lvl', lvl, 'err', round(node['geometricError'], 2), 'box half', round(math.dist((0, 0, 0), node['boundingVolume']['box'][3:6])), flush=True)
-        if c.split('?')[0].endswith('.json'):
-            node = get(c).json()['root']
-    r = get(node['content']['uri']) if node.get('content', {}).get('uri', '').split('?')[0].endswith('.glb') else None
-    print(name, 'deepest err', node.get('geometricError'), 'glb bytes', len(r.content) if r else None, flush=True)
-    if r: open(f'/tmp/{name}.glb', 'wb').write(r.content)
+def search(node, P, best):
+    uri = node.get('content', {}).get('uri', '')
+    if uri.split('?')[0].endswith('.json'):
+        if 'session=' in uri: SESSION[0] = urllib.parse.parse_qs(urllib.parse.urlparse(uri).query)['session'][0]
+        node = get(uri).json()['root']
+    elif uri and node.get('geometricError', 1e9) < best[0]:
+        best[0] = node['geometricError']; best[1] = uri
+    for k in node.get('children', []):
+        if inside(k['boundingVolume']['box'], P): search(k, P, best)
+pts = {'bengaluru': (12.9763, 77.5929, 920), 'tirumala_temple': (13.6833, 79.3474, 850), 'ghat_mid': (13.66, 79.37, 500)}
+for name in sys.argv[1:] or pts:
+    la, lo, h = pts[name]; SESSION[0] = None; CALLS[0] = 0; best = [1e9, None]
+    search(get('/v1/3dtiles/root.json').json()['root'], ecef(la, lo, h), best)
+    r = get(best[1]); open(f'/tmp/{name}.glb', 'wb').write(r.content)
+    print(name, 'finest error m', round(best[0], 2), 'glb KB', len(r.content) // 1024, 'requests', CALLS[0], flush=True)
