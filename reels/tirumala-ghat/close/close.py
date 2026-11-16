@@ -137,7 +137,7 @@ def build_set(name, centre, road, width, lower_main=True):
     uv = me.uv_layers.new(name='UV')
     uv.data.foreach_set('uv', np.stack([(gx - meta['x0']) / (meta['x1'] - meta['x0']), (gy - meta['y0']) / (meta['y1'] - meta['y0'])], 1).astype(np.float32).ravel())
     me.update(); me.validate(); me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
-    a = me.attributes.new('veg', 'FLOAT', 'POINT'); vg = np.clip((D - (half + 4)) / 10, 0, 1) * (0.5 + 0.5 * rng.random(D.shape))
+    a = me.attributes.new('veg', 'FLOAT', 'POINT'); vg = np.clip((D - (half + 4)) / 10, 0, 1) * np.clip((75 - D) / 15, 0, 1) * (0.5 + 0.5 * rng.random(D.shape))
     a.data.foreach_set('value', vg.ravel().astype(np.float32))
     ob = bpy.data.objects.new(name + '_ground', me); sc.collection.objects.link(ob); ob.data.materials.append(M_ground)
     if lower_main:   # hide the coarse terrain under the patch
@@ -192,8 +192,8 @@ def ph_collection(name, keys, ratio):
         for m in ob.data.materials:
             if m: m.surface_render_method = 'DITHERED'
     return c
-TREES = ph_collection('close_trees', ['island_tree_01', 'island_tree_02', 'tree_small_02'], 0.15)
-SHRUBS = ph_collection('close_shrubs', ['shrub_01', 'shrub_02', 'shrub_03', 'shrub_04', 'wild_rooibos_bush', 'boulder_01'], 0.5)
+TREES = ph_collection('close_trees', ['island_tree_01', 'island_tree_02', 'tree_small_02'], 0.06)
+SHRUBS = ph_collection('close_shrubs', ['shrub_01', 'shrub_02', 'shrub_03', 'shrub_04', 'wild_rooibos_bush', 'boulder_01'], 0.3)
 def scatter(ob):
     ng = bpy.data.node_groups.new(ob.name + '_scatter', 'GeometryNodeTree')
     ng.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry'); ng.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
@@ -340,7 +340,7 @@ for k in range(4):
 track_cam('cart_track', cart, [(0.0, side_point(upA, lA * 0.3 - 12, -6, 2.4)), (1.0, side_point(upA, lA * 0.3 + 1.2 * (cb - ca) / 30 - 4, -7, 3.2))], 35)
 
 # 4) ROCK CUT on the 1974 road: falling boulders, barriers, road closed (shot: rockfall)
-rR = segment(UPp, RC, 260)
+rR = segment(UPp, RC, 150)
 gR, roadR, _ = build_set('setR', RC, rR, 7.5); scatter(gR)
 ra, rb = S('rockfall'); LR = roadlen(rR)
 mid_ = side_point(rR, LR * 0.5, 0, 0)
@@ -365,6 +365,16 @@ for k, (key, off) in enumerate((('barrier_closed', -14), ('barrier_concrete', -1
     show(e, [(int(ra + (rb - ra) * 0.75), rb + 1)])
 rc_t = bpy.data.objects.new('R_focus', None); sc.collection.objects.link(rc_t); rc_t.location = mid_ + upslope * 6 + Vector((0, 0, 3))
 track_cam('rockfall', rc_t, [(0.0, mid_ - t_ * 42 - upslope * 4 + Vector((0, 0, 3.2))), (1.0, mid_ - t_ * 30 - upslope * 3 + Vector((0, 0, 2.6)))], 30)
+
+def only_in(objs, shots):
+    for o in objs:
+        o.hide_render = True; o.keyframe_insert('hide_render', frame=1)
+        for n in shots:
+            a_, b_ = S(n); o.hide_render = False; o.keyframe_insert('hide_render', frame=a_); o.hide_render = True; o.keyframe_insert('hide_render', frame=b_ + 1)
+        for fc in fcurves(o):
+            if fc.data_path == 'hide_render':
+                for kp in fc.keyframe_points: kp.interpolation = 'CONSTANT'
+only_in([gU, roadU], ['open']); only_in([gH, roadH], ['traffic', 'old_runs']); only_in([gA, roadA], ['cart_track']); only_in([gR, roadR], ['rockfall'])
 
 # era: road surface dirt in old shots
 for l in plan['lines']:
