@@ -205,7 +205,7 @@ def scatter(ob):
     ng = bpy.data.node_groups.new(ob.name + '_scatter', 'GeometryNodeTree')
     ng.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry'); ng.interface.new_socket('Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
     N, L = ng.nodes, ng.links; gi = N.new('NodeGroupInput'); go = N.new('NodeGroupOutput'); j = N.new('GeometryNodeJoinGeometry'); L.new(gi.outputs[0], j.inputs[0])
-    for coll, dens, s0, s1, seed in ((TREES, 1 / 45, 0.8, 1.5, 3), (SHRUBS, 1 / 14, 0.7, 1.7, 4), (GRASSC, 1 / 5, 0.8, 1.8, 5)):
+    for coll, dens, s0, s1, seed in ((TREES, 1 / 16, 0.8, 1.6, 3), (SHRUBS, 1 / 8, 0.7, 1.7, 4), (GRASSC, 1 / 4, 0.8, 1.8, 5)):
         na = N.new('GeometryNodeInputNamedAttribute'); na.data_type = 'FLOAT'; na.inputs['Name'].default_value = 'veg'
         mul = N.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = dens; L.new(next(o_ for o_ in na.outputs if o_.enabled), mul.inputs[0])
         dp = N.new('GeometryNodeDistributePointsOnFaces'); dp.distribute_method = 'RANDOM'; dp.inputs['Seed'].default_value = seed
@@ -221,7 +221,7 @@ def scatter(ob):
 # ---------------- Sketchfab vehicles (CC-BY), normalised so +Y is forward, wheels on z=0 ----------------
 VEH = {}   # key -> collection
 SPEC = {'bus_tata': 11.0, 'bus_indian': 11.5, 'bus_1940': 9.0, 'car_wagonr': 3.6, 'car_sx4': 4.3, 'car_nano': 3.1, 'car_1940': 4.6,
-        'bullock': 5.0, 'bullock2': 4.2, 'walker': 1.68, 'barrier_closed': 2.4, 'barrier_concrete': 2.0}
+        'bullock': 5.0, 'bullock2': 4.2, 'zebu': 2.3, 'walker': 1.68, 'barrier_closed': 2.4, 'barrier_concrete': 2.0}
 FLIP = json.load(open('close/flip.json')) if os.path.exists('close/flip.json') else {}
 def bbox(objs):
     pts = [o.matrix_world @ Vector(c) for o in objs if o.type == 'MESH' for c in o.bound_box]
@@ -293,6 +293,10 @@ def vehicle(key):
         if o.type == 'FONT' and o.parent is None: o.parent = e; o.matrix_parent_inverse = e.matrix_world.inverted()
         for cc in list(o.users_collection): cc.objects.unlink(o)
         c.objects.link(o)
+    walk = [a_ for a_ in bpy.data.actions if 'walk' in a_.name.lower()]
+    if key == 'zebu' and walk:
+        for o in new:
+            if o.type == 'ARMATURE' and o.animation_data: o.animation_data.action = walk[0]
     # looping animations (bullock walk, pedestrian walk)
     for o in new:
         if o.animation_data and o.animation_data.action:
@@ -381,10 +385,14 @@ gA, roadA, _ = build_set('setA', lowA, rA, 3.6); scatter(gA)
 ca, cb = S('cart_track'); LA = roadlen(upA)
 crvA, lA = path('pathA', upA, 0.0); crvA2, _ = path('pathA2', upA, 1.1)
 cart = driver('A_cart', crvA, lA, ca, cb + 1, lA * 0.3, 1.2, [(ca, cb + 1)], vehicle('bullock2'))
-driver('A_cart2', crvA, lA, ca, cb + 1, lA * 0.3 - 14, 1.2, [(ca, cb + 1)], vehicle('bullock2'))
+driver('A_cart2', crvA, lA, ca, cb + 1, lA * 0.3 - 16, 1.2, [(ca, cb + 1)], vehicle('bullock2'))
+crvB1, _ = path('pathA_b1', upA, 0.55); crvB2, _ = path('pathA_b2', upA, -0.55)
+for nm_, s_off in (('c1', 0.0), ('c2', -16.0)):
+    for crv_ in (crvB1, crvB2):
+        driver(f'A_bull_{nm_}_{crv_.name[-2:]}', crv_, lA, ca, cb + 1, lA * 0.3 + s_off + 3.4, 1.2, [(ca, cb + 1)], vehicle('zebu'))
 for k in range(4):
-    driver(f'A_walk{k}', crvA2, lA, ca, cb + 1, lA * 0.3 + 6 + k * 3.2, 1.25, [(ca, cb + 1)], vehicle('walker'))
-track_cam('cart_track', cart, [(0.0, side_point(upA, lA * 0.3 - 12, -6, 2.4)), (1.0, side_point(upA, lA * 0.3 + 1.2 * (cb - ca) / 30 - 4, -7, 3.2))], 35)
+    driver(f'A_walk{k}', crvA2, lA, ca, cb + 1, lA * 0.3 + 9 + k * 2.6, 1.25, [(ca, cb + 1)], vehicle('walker'))
+track_cam('cart_track', cart, [(0.0, side_point(upA, lA * 0.3 + 16, -7, 2.2)), (1.0, side_point(upA, lA * 0.3 + 1.2 * (cb - ca) / 30 + 13, -8, 2.8))], 35)
 
 # 4) ROCK CUT on the 1974 road: falling boulders, barriers, road closed (shot: rockfall)
 rR = segment(UPp, RC, 150)
