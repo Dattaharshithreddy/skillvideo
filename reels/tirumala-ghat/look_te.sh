@@ -27,7 +27,7 @@ fc-list | grep -ci telugu
 D=/opt/reel/share/e1376f7f43dd/tl2; rm -rf $D; mkdir -p $D
 for f in $(cat /tmp/tframes.txt | tr ',' ' '); do
   n=$(printf "%05d" $f)
-  (cd mg && npx remotion still src/index.ts Main out/o_$n.png --frame=$((f-1)) --props='{"bg":"bg.mp4","audio":"narration.wav","preview":true}' --log=error) 
-  ffmpeg -y -v error -i renders/test/t_$n.jpg -i mg/out/o_$n.png -filter_complex "[1]colorkey=0x26304a:0.35:0.2[o];[0][o]overlay" -vf scale=540:960 $D/s_$n.jpg 2>/dev/null || cp renders/test/t_$n.jpg $D/s_$n.jpg
+  (cd mg && npx remotion still src/index.ts Main out/o_$n.png --frame=$((f-1)) --props='{"bg":"bg.mp4","audio":"narration.wav","preview":true}' --image-format=png --log=error)
+  ffmpeg -y -v error -i renders/test/t_$n.jpg -i mg/out/o_$n.png -filter_complex "[0][1]overlay,scale=540:960"  $D/s_$n.jpg 2>/dev/null || cp renders/test/t_$n.jpg $D/s_$n.jpg
 done
 ls $D | wc -l; echo LOOK_TE_DONE

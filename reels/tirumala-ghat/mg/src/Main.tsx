@@ -82,7 +82,7 @@ const Era: React.FC<{bg: string; preview: boolean}> = ({bg, preview}) => {
   const f = useCurrentFrame(); const p = sepiaClip(f); if (p <= 0) return null;
   const flick = 0.93 + 0.07 * Math.sin(f * 1.7) * Math.sin(f * 0.37);
   return <AbsoluteFill style={{clipPath: `inset(0 ${100 - p}% 0 0)`}}>
-    {preview ? <AbsoluteFill style={{background: '#6b5a3e'}} /> :
+    {preview ? <AbsoluteFill style={{background: 'rgba(120,90,50,0.45)'}} /> :
       <OffthreadVideo src={staticFile(bg)} muted style={{filter: `sepia(0.9) contrast(1.15) brightness(${flick})`}} />}
     <Grain />
     <AbsoluteFill style={{background: 'radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(30,18,5,0.6) 100%)'}} />
@@ -207,8 +207,8 @@ const Credits: React.FC = () => (
     Roads: © OpenStreetMap contributors (ODbL)</div>
 );
 export const Main: React.FC<{bg: string; audio: string; preview: boolean}> = ({bg, audio, preview}) => (
-  <AbsoluteFill style={{background: '#0b1020'}}>
-    {preview ? <AbsoluteFill style={{background: 'linear-gradient(#26304a, #0b1020)'}} /> : <OffthreadVideo src={staticFile(bg)} muted />}
+  <AbsoluteFill style={{background: preview ? 'transparent' : '#0b1020'}}>
+    {!preview && <OffthreadVideo src={staticFile(bg)} muted />}
     <Era bg={bg} preview={preview} />
     {!preview && <Audio src={staticFile(audio)} />}
     <Dips /><Hills /><Open /><TwoRoads /><Track /><People /><Lay /><Straight /><Hairpins /><Traffic /><Second /><Rock /><Finale /><Stamp /><Captions /><Credits />
