@@ -7,7 +7,7 @@ SW = '/home/ubuntu/Swaram'; VOL = '/var/lib/docker/volumes/swaram_voicebox-data/
 DC = ['docker', 'compose', '-f', 'docker-compose.yml', '-f', 'docker-compose.cloud.yml']
 p = json.load(open('brief/plan.json'))
 MOOD = {'hills': '(story)', 'open': '(talk)', 'two_roads': '(surprise)', 'cart_track': '(talk)', 'people': '(talk)', 'lay_road': '(talk)',
-        'straight': '(talk)', 'hairpins': '(talk)', 'traffic': '(talk)', 'second_road': '(talk)', 'rockfall': '(fear)',
+        'straight': '(talk)', 'hairpins': '(talk)', 'traffic': '(talk)', 'second_road': '(talk)', 'rockfall': '(talk)',
         'old_runs': '(happy)', 'finale': '(story)', 'seven': '(story)', 'govinda': '(happy)'}
 def sentences(t): return [s.strip() for s in re.split(r'(?<=[.?!])\s+', t) if s.strip()]
 if sys.argv[1] == 'make':
