@@ -251,6 +251,14 @@ BLD = {  # name: (file, height m, colour)
  'pac': ('6Story_Stack_Mat', 0.034, (0.85, 0.78, 0.62)), 'donor': ('2Story_Columns_Mat', 0.015, (0.80, 0.66, 0.40)),
 }
 for k_, (f_, h_, c_) in BLD.items(): U[k_] = glb_unit(k_, B3 + f_ + '.glb', h_, c_)
+# real guest houses rebuilt in 3D by Model Forge from YouTube frames of the actual buildings
+MFB = set()
+for k_, f_ in (('nand', 'nandakam'), ('panch', 'panchajanyam'), ('kaus', 'kausthubham'), ('vakula', 'vakulamatha'), ('pac', 'pac5')):
+    p_ = f'mf/b_{f_}.glb'
+    if os.path.exists(p_) and os.environ.get('NOMF') != '1':
+        try: U[k_] = glb_unit(k_ + '_mf', p_, BLD[k_][1] * 1.25); MFB.add(k_)
+        except Exception as ex_: print('mf building skipped', f_, ex_)
+print('MF BUILDINGS', sorted(MFB))
 PEOPLE = [('m_cas', 'modular_men/Casual.glb', WHITE), ('m_farm', 'modular_men/Farmer.glb', (0.96, 0.95, 0.9)), ('m_cas2', 'modular_men/Casual2.glb', SAFF),
           ('w_cas', 'modular_women/Casual.glb', (0.85, 0.15, 0.35)), ('w_form', 'modular_women/Formal.glb', (0.95, 0.65, 0.1)), ('w_work', 'modular_women/Worker.glb', (0.15, 0.55, 0.35))]
 WALK, IDLE = [], []
@@ -316,7 +324,7 @@ def face_to(p, q): return yaw_of((q - p).normalized())       # building fronts f
 TOPS = {}
 for k_, p in NB.items():
     yaw = face_to(p, TPc); h_ = BLD[k_][1]
-    n_ = 3 if k_ in ('nand', 'vakula') else (2 if k_ in ('panch', 'pac') else 1)
+    n_ = 1 if k_ in MFB else (3 if k_ in ('nand', 'vakula') else (2 if k_ in ('panch', 'pac') else 1))
     side = V((math.cos(yaw), math.sin(yaw))); w_ = h_ * 1.05
     for j in range(n_): binst(k_, p + side * (j - (n_ - 1) / 2) * w_, yaw)
     fwd = (TPc - p).normalized()
