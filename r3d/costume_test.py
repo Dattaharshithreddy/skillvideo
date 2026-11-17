@@ -59,6 +59,7 @@ def tint_skin(bm, col):
                 for l in links: s = l.to_socket; nt.links.remove(l); nt.links.new(mx.outputs['Result'], s)
     for sl in bm.material_slots:
         if sl.material and sl.material.use_nodes: walk(sl.material.node_tree)
+    print('TINT', [sl.material.name for sl in bm.material_slots if sl.material], len(seen))
 def body_pts(bm):
     dg = bpy.context.evaluated_depsgraph_get(); ev = bm.evaluated_get(dg); me = ev.to_mesh(); vg = bm.vertex_groups['body'].index; M = bm.matrix_world
     p = [M @ v.co for v in me.vertices if any(g.group == vg and g.weight > 0.5 for g in v.groups)]; ev.to_mesh_clear(); return p
@@ -104,9 +105,26 @@ def turban(P, m):
     bpy.ops.mesh.primitive_uv_sphere_add(radius=r * 0.78, location=(c.x, c.y, c.z - 0.01)); o = bpy.context.object; o.scale = (1, 1.12, 0.55); o.data.materials.append(m); bpy.ops.object.shade_smooth()
 from mathutils import Matrix
 from mathutils.bvhtree import BVHTree
-def attach(objs, rig, bone):
+def merge(objs):
+    objs = [o for o in objs if o and o.name in bpy.data.objects]
+    bpy.ops.object.select_all(action='DESELECT')
     for o in objs:
-        mw = o.matrix_world.copy(); o.parent = rig; o.parent_type = 'BONE'; o.parent_bone = bone; bpy.context.view_layer.update(); o.matrix_world = mw
+        o.select_set(True)
+        if o.type != 'MESH': bpy.context.view_layer.objects.active = o; bpy.ops.object.convert(target='MESH')
+    bpy.context.view_layer.objects.active = objs[0]
+    for o in objs: o.select_set(True)
+    bpy.ops.object.convert(target='MESH')          # applies modifiers (solidify, bevel)
+    bpy.ops.object.join(); o = bpy.context.view_layer.objects.active
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True); return o
+def attach(objs, rig, bone):
+    bpy.context.view_layer.update()
+    pb = rig.pose.bones[bone]
+    B = rig.matrix_world @ pb.matrix @ Matrix.Translation((0, pb.bone.length, 0))
+    for o in objs:
+        mw = o.matrix_world.copy(); o.parent = rig; o.parent_type = 'BONE'; o.parent_bone = bone
+        o.matrix_parent_inverse = B.inverted(); o.matrix_basis = mw
+    bpy.context.view_layer.update()
+    for o in objs: print('ATTACH', bone, o.name, 'drift', round((o.matrix_world.translation - (B @ o.matrix_parent_inverse @ o.matrix_basis).translation).length, 4))
 def bone_pos(rig, bone, tail=False):
     pb = rig.pose.bones[bone]; return rig.matrix_world @ (pb.tail if tail else pb.head)
 def necklace(bm, rig, P, H, gold, gem, pearl):
@@ -126,7 +144,7 @@ def necklace(bm, rig, P, H, gold, gem, pearl):
             lo = min(out[-nb:], key=lambda o: o.location.z).location
             bpy.ops.mesh.primitive_uv_sphere_add(radius=0.022, location=lo + Vector((0, -0.008, -0.025))); pd = bpy.context.object; pd.scale = (1, 0.45, 1.3); pd.data.materials.append(gold); out.append(pd)
             bpy.ops.mesh.primitive_uv_sphere_add(radius=0.013, location=lo + Vector((0, -0.016, -0.025))); gm = bpy.context.object; gm.scale = (1, 0.6, 1.2); gm.data.materials.append(gem); out.append(gm)
-    attach(out, rig, 'spine01'); return out
+    m = merge(out); attach([m], rig, 'spine01'); return out
 def kit(name, at, scale=1.0, rot=None, zero_to_origin=True):
     with bpy.data.libraries.load('/opt/r3d/assets/kit.blend', link=False) as (src, dst): dst.collections = [name]
     c = dst.collections[0]; bpy.context.scene.collection.children.link(c)
@@ -153,9 +171,9 @@ for x, y, male, outfit, role in cast:
         GLD = bpy.data.materials.get('k_gold'); RB = bpy.data.materials.get('k_ruby'); PRL = bpy.data.materials.get('k_pearl')
         if role in ('king', 'queen'):
             sc = 0.9 if role == 'king' else 0.62
-            attach(kit('crown_kireetam', (top.x, top.y, top.z - 0.105 - 1.3 * sc), sc), rig, 'head')
+            attach([merge(kit('crown_kireetam', (top.x, top.y, top.z - 0.06 - 1.3 * sc), sc))], rig, 'head')
             GLD = bpy.data.materials['k_gold']; RB = bpy.data.materials['k_ruby']; PRL = bpy.data.materials['k_pearl']
-            necklace(bm, rig, P, H, GLD, RB, PRL)
+            nk = necklace(bm, rig, P, H, GLD, RB, PRL); print('NECKLACE beads', len(nk))
             for side in ('L', 'R'):
                 ua = bone_pos(rig, f'upperarm01.{side}').lerp(bone_pos(rig, f'upperarm02.{side}', True), 0.55)
                 bpy.ops.mesh.primitive_torus_add(major_radius=0.05, minor_radius=0.009, location=ua); o = bpy.context.object; o.data.materials.append(GLD)
@@ -164,9 +182,9 @@ for x, y, male, outfit, role in cast:
         if role == 'soldier':
             turban(P, cloth('turb_s', (0.5, 0.35, 0.2), bw=0.0))
             fa = bone_pos(rig, 'lowerarm01.R').lerp(bone_pos(rig, 'lowerarm02.R', True), 0.5)
-            attach(kit('shield_dhal', (fa.x + 0.07, fa.y, fa.z - 1.0 * 0.8), 0.8, rot=math.pi / 2), rig, 'lowerarm02.R')
+            attach([merge(kit('shield_dhal', (fa.x - 0.07, fa.y, fa.z - 1.0 * 0.8), 0.8, rot=math.pi / 2))], rig, 'lowerarm02.R')
             hd = bone_pos(rig, 'wrist.L')
-            attach(kit('spear_bhala', (hd.x + 0.02, hd.y - 0.03, hd.z - 1.0), 0.95), rig, 'wrist.L')
+            attach([merge(kit('spear_bhala', (hd.x + 0.02, hd.y - 0.03, hd.z - 1.0), 0.95))], rig, 'wrist.L')
         print('CAST', role, 'ok')
     except Exception: traceback.print_exc(limit=3)
 kit('banner_flag', (-2.6, 1.6, 0), 1.0); kit('war_drum_nagara', (2.6, 0.9, 0), 1.0)
