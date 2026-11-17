@@ -1,10 +1,10 @@
 """Step 1: encode every prompt with Wan's UMT5 text encoder once, save the embeddings, then exit (keeps RAM low)."""
 import json, torch, ftfy, html, re
 from transformers import AutoTokenizer, UMT5EncoderModel
-M = 'Wan-AI/Wan2.2-TI2V-5B-Diffusers'
+M = '/opt/wan/model'
 P = json.load(open('ai/prompts.json'))
 tok = AutoTokenizer.from_pretrained(M, subfolder='tokenizer')
-te = UMT5EncoderModel.from_pretrained(M, subfolder='text_encoder', torch_dtype=torch.bfloat16).to('cuda').eval()
+te = UMT5EncoderModel.from_pretrained(M, subfolder='text_encoder', torch_dtype=torch.bfloat16, device_map='cuda').eval()
 def clean(t): return re.sub(r'\s+', ' ', html.unescape(html.unescape(ftfy.fix_text(t)))).strip()
 @torch.no_grad()
 def enc(t):

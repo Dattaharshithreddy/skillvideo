@@ -1,13 +1,15 @@
 """Step 2: generate each miniature clip with Wan 2.2 TI2V-5B from the saved prompt embeddings (no text encoder in memory).
 Usage: python ai/wan_gen.py [clip ids...]   (default: all clips not yet rendered)"""
 import json, os, sys, time, torch
-from diffusers import WanPipeline, AutoencoderKLWan
+from diffusers import WanPipeline, AutoencoderKLWan, WanTransformer3DModel
 from diffusers.utils import export_to_video
-M = 'Wan-AI/Wan2.2-TI2V-5B-Diffusers'
+M = '/opt/wan/model'
 W, H, NF, STEPS = int(os.environ.get('W', 576)), int(os.environ.get('H', 1024)), int(os.environ.get('NF', 97)), int(os.environ.get('STEPS', 30))
 P = json.load(open('ai/prompts.json')); E = torch.load('ai/embeds.pt')
 vae = AutoencoderKLWan.from_pretrained(M, subfolder='vae', torch_dtype=torch.float32)
-pipe = WanPipeline.from_pretrained(M, vae=vae, text_encoder=None, tokenizer=None, torch_dtype=torch.bfloat16).to('cuda')
+tr = WanTransformer3DModel.from_pretrained(M, subfolder='transformer', torch_dtype=torch.bfloat16, device_map='cuda')
+pipe = WanPipeline.from_pretrained(M, vae=vae, transformer=tr, text_encoder=None, tokenizer=None, torch_dtype=torch.bfloat16)
+pipe.vae.to('cuda')
 os.makedirs('ai/clips', exist_ok=True)
 ids = sys.argv[1:] or [c['id'] for c in P['clips']]
 for i, cid in enumerate(ids):
