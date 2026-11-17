@@ -300,7 +300,7 @@ elif SHOT == 'storm':       # storm night, high wide; Greeks cross upstream on r
         for k in range(6):
             m_ = inst(random.choice(GRK), (x + (k % 3 - 1) * 0.3, y0 + (k // 3 - 0.5) * 0.35, -0.05), FACE_S, S, 'crosser'); m_.parent = rf
         key(rf, 1, location=Vector((x, y0 + river_y(x) * 0.0 + 3.5, -0.12))); key(rf, NF, location=Vector((x, river_y(x) - 3.2, -0.12))); linear(rf)
-    move([(0, (14, -36, 24), (28, 2, 0), 3.0), (1, (18, -28, 13), (32, 1, 0), 2.4)])
+    move([(0, (22, -16, 7.5), (31, 2, 0), 2.2), (1, (27.5, -10.5, 3.6), (33, 0.5, 0), 1.8)])
     TRACKS = {'crossing': (33.0, river_y(33.0), 0.4)}
 elif SHOT == 'son':         # tracking beside chariots stuck in the mud; Puru's son
     light('day'); base_armies(elephants=False)

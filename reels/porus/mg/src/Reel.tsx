@@ -59,7 +59,7 @@ const track = (shot: string, key: string, t: number): [number, number, number] |
 const Pin: React.FC<{shot: string; k: string; label: string; sub?: string; at: number; t: number; c?: string; up?: number; until?: number}> = ({shot, k, label, sub, at, t, c = GOLD, up = 120, until = 1e9}) => {
   const p = track(shot, k, t); if (!p || !p[2] || t > until) return null;
   const s = spring({frame: t - at, fps: FPS, config: {damping: 13, stiffness: 160}}); if (t < at) return null;
-  const x = Math.min(900, Math.max(180, p[0] * 1080)), y = Math.min(1500, Math.max(380, p[1] * 1920));
+  const x = Math.min(900, Math.max(180, p[0] * 1080)), y = Math.min(1160, Math.max(380, p[1] * 1920));
   return <div style={{position: 'absolute', left: x, top: y, transform: `translate(-50%, -100%) scale(${s})`, transformOrigin: '50% 100%', textAlign: 'center'}}>
     <div style={{display: 'inline-block', padding: '8px 26px 6px', borderRadius: 18, background: 'rgba(30,12,0,0.82)', border: `3px solid ${c}`,
       boxShadow: `0 0 30px ${c}88`, fontFamily: SERIF, fontWeight: 900, fontSize: 54, whiteSpace: 'nowrap', color: 'white'}}>
@@ -145,13 +145,13 @@ const Open: React.FC = () => {
   const {t, active, dur} = useShot('open'); if (!active) return null;
   const tO = interpolate(t, [dur * 0.36, dur * 0.42 + 1], [1, 0], clamp);
   return <Fade t={t} dur={dur}>
-    <Pop at={6} t={t} style={{position: 'absolute', width: '100%', top: 170, textAlign: 'center', opacity: tO}}>
+    <AbsoluteFill style={{opacity: tO}}><Pop at={6} t={t} style={{position: 'absolute', width: '100%', top: 170, textAlign: 'center'}}>
       <div style={{display: 'inline-block', fontFamily: FONT, fontWeight: 900, fontSize: 40, color: '#3a1800', background: 'linear-gradient(180deg,#FFE9A0,#F3A52A)',
         borderRadius: 40, padding: '4px 30px', marginBottom: 10}}>క్రీ.పూ. 326</div>
       <div style={{fontFamily: SERIF, fontSize: 132, fontWeight: 900, lineHeight: 1.25, ...goldText}}>పురు</div>
       <div style={{fontFamily: SERIF, fontSize: 56, fontWeight: 900, color: 'white', textShadow: '0 4px 18px rgba(0,0,0,0.8)'}}>vs అలెగ్జాండర్</div>
       <div style={{fontFamily: FONT, fontSize: 34, fontWeight: 800, color: 'rgba(255,240,210,0.95)', marginTop: 6, textShadow: '0 3px 12px rgba(0,0,0,0.9)'}}>హైడాస్పెస్ (జీలం) యుద్ధం</div>
-    </Pop>
+    </Pop></AbsoluteFill>
     <Pin shot="open" k="greek" label="అలెగ్జాండర్ సైన్యం" at={Math.round(dur * 0.45)} t={t} c={BLUE} up={70} />
     <Pin shot="open" k="indian" label="పురు సైన్యం" at={Math.round(dur * 0.62)} t={t} up={70} />
     <Pin shot="open" k="river" label="జీలం నది" at={Math.round(dur * 0.78)} t={t} c={BLUE} up={50} />
@@ -175,7 +175,7 @@ const Ambhi: React.FC = () => {
 };
 const River: React.FC = () => {
   const {t, active, dur} = useShot('river'); if (!active) return null;
-  const n = Math.round(interpolate(t, [dur * 0.38, dur * 0.7 + 1], [0, 200], {...clamp, easing: ease}));
+  const n = Math.round(interpolate(t, [dur * 0.36, dur * 0.62 + 1], [1, 200], {...clamp, easing: ease}));
   return <Fade t={t} dur={dur}>
     <Pin shot="river" k="river" label="జీలం నది" sub="వరదలో ఉప్పొంగి" at={8} t={t} c={BLUE} up={60} />
     {t > dur * 0.36 && <Pop at={Math.round(dur * 0.36)} t={t} style={{position: 'absolute', left: 70, top: 250}}>
