@@ -7,6 +7,7 @@ SW = '/home/ubuntu/Swaram'; VOL = '/var/lib/docker/volumes/swaram_voicebox-data/
 DC = ['docker', 'compose', '-f', 'docker-compose.yml', '-f', 'docker-compose.cloud.yml']
 p = json.load(open('brief/plan.json'))
 def sentences(t): return [s.strip() for s in re.split(r'(?<=[.?!])\s+', t) if s.strip()]
+TK = sys.argv[2] if len(sys.argv) > 2 and sys.argv[1] == 'make' else ''
 if sys.argv[1] == 'make':
     lines, owner, names = [], [], []
     for i, l in enumerate(p['lines']):
@@ -35,7 +36,8 @@ if sys.argv[1] == 'make':
         print(r.stdout[-300:], r.stderr[-600:])
     finally:
         os.remove(f'{VOL}/.swk')
-    resp = json.load(open(f'{VOL}/porus_te_resp.json')); json.dump(resp, open('audio_mini/narrate.json', 'w'), ensure_ascii=False, indent=1)
+    resp = json.load(open(f'{VOL}/porus_te_resp.json')); json.dump(resp, open(f'audio_mini/narrate{TK}.json', 'w'), ensure_ascii=False, indent=1)
+    import shutil; shutil.copy(f"{SW}/output/narrations/{resp['audio_url'].split('/')[-1]}", f'audio_mini/full{TK}.wav')
     print('target', target, 'keys', list(resp.keys()), 'audio_url', resp.get('audio_url'), 'lines', len(resp.get('lines', [])), 'script lines', len(lines))
     print('MAKE_DONE')
 if sys.argv[1] == 'split':

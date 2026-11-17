@@ -2,7 +2,7 @@
 Each line = one shot; parts = (mood, sentence). Moods: story, talk, happy, sad, fear, surprise, anger, disgust (+ slow)."""
 import json
 P = [
- ("open", [("story", "క్రీస్తు పూర్వం 326."),
+ ("open", [("story", "క్రీస్తు పూర్వం మూడు వందల ఇరవై ఆరు."),
            ("story", "పర్షియా సామ్రాజ్యాన్నే కూల్చేసిన అలెగ్జాండర్… భారతదేశం గడప దగ్గర నిలబడ్డాడు."),
            ("talk", "దారిలో ఉన్న రాజులంతా తలవంచారు… ఒక్కడు తప్ప."),
            ("story, slow", "జీలం నది అవతల… పౌరవ రాజు, పురు."),
@@ -36,7 +36,8 @@ P = [
              ("story, slow", "అయినా చరిత్ర పురుని ఒక్క మాటతో గుర్తుంచుకుంది… రాజు."),
              ("happy", "ఇది… చరిత్ర చెప్పిన కథ.")], ["ద్రోహం.", "రాజు.", "కథ."]),
 ]
-lines = [{"shot": s, "parts": [list(p) for p in parts], "text": " ".join(t for _, t in parts), "tts": " ".join(t for _, t in parts),
+def disp(t): return t.replace("క్రీస్తు పూర్వం మూడు వందల ఇరవై ఆరు.", "క్రీస్తు పూర్వం 326.")
+lines = [{"shot": s, "parts": [list(p) for p in parts], "text": disp(" ".join(t for _, t in parts)), "tts": " ".join(t for _, t in parts),
           "keywords": k, "audio": f"audio_mini/l{i+1:02d}.wav"} for i, (s, parts, k) in enumerate(P)]
 json.dump({"gap": 0.0, "lang": "te", "lines": lines}, open('brief/plan.json', 'w'), indent=1, ensure_ascii=False)
 print(len(lines), sum(len(l['text'].split()) for l in lines), 'words')
