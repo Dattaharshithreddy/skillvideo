@@ -43,9 +43,12 @@ def build(name, x, fn):
     new = [o for o in bpy.data.objects if o not in before]
     rigs = [o for o in new if o.type == 'ARMATURE']; meshes = [o for o in new if o.type in ('MESH', 'CURVE')]
     meshes = [o for o in meshes if not o.hide_render]
-    m = merge(meshes)
-    for o in [o for o in new if o.name in bpy.data.objects and o != m]: bpy.data.objects.remove(o)
-    m.parent = None
+    names = [o.name for o in new]
+    m = merge(meshes); mw = m.matrix_world.copy(); m.parent = None; m.matrix_world = mw; keep = m.name
+    bpy.context.view_layer.objects.active = m; bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+    for nm in names:
+        o = bpy.data.objects.get(nm)
+        if o and nm != keep: bpy.data.objects.remove(o)
     me = m.data; zmin = min(v.co.z for v in me.vertices); cx = sum(v.co.x for v in me.vertices) / len(me.vertices); cy = sum(v.co.y for v in me.vertices) / len(me.vertices)
     for v in me.vertices: v.co.x -= cx; v.co.y -= cy; v.co.z -= zmin
     m.location = (0, 0, 0)
