@@ -260,9 +260,14 @@ sky = w_.node_tree.nodes.new('ShaderNodeTexSky'); sky.sky_type = 'NISHITA'; sky.
 w_.node_tree.links.new(sky.outputs[0], bg.inputs[0]); bg.inputs[1].default_value = 0.18
 bpy.ops.object.light_add(type='SUN', rotation=(math.radians(55), 0, math.radians(140))); sun = bpy.context.object; sun.data.energy = 3.2; sun.data.color = (1, 0.9, 0.78); sun.data.angle = math.radians(4)
 sc.render.engine = 'CYCLES'; sc.cycles.device = 'GPU'
-prefs = bpy.context.preferences.addons['cycles'].preferences; prefs.compute_device_type = 'OPTIX'; prefs.get_devices()
+prefs = bpy.context.preferences.addons['cycles'].preferences
+try: prefs.compute_device_type = 'OPTIX'
+except TypeError: pass
+prefs.get_devices()
 for d in prefs.devices: d.use = (d.type == 'OPTIX')
-sc.cycles.samples = int(os.environ.get('SPP', 32)); sc.cycles.use_denoising = True; sc.cycles.denoiser = 'OPTIX'
+sc.cycles.samples = int(os.environ.get('SPP', 32)); sc.cycles.use_denoising = True
+try: sc.cycles.denoiser = 'OPTIX'
+except TypeError: sc.cycles.denoiser = 'OPENIMAGEDENOISE'
 sc.render.resolution_x, sc.render.resolution_y = 1080, 1920; sc.render.resolution_percentage = int(os.environ.get('PCT', 100))
 sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Medium High Contrast'; sc.view_settings.exposure = float(os.environ.get('EV', 0.0))
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
