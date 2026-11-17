@@ -29,6 +29,12 @@ def search(q):
             out.append(u)
         return out[:7]
     except Exception as e: print('search fail', q, e); return []
+def bing(q):
+    try:
+        h = S.get('https://www.bing.com/images/search', params={'q': q, 'form': 'HDRSC2', 'first': 1}, timeout=20).text
+        u = re.findall(r'murl&quot;:&quot;(.*?)&quot;', h)
+        print('bing', q, len(u), flush=True); return u[:12]
+    except Exception as e: print('bing fail', e); return []
 def page_imgs(u):
     try:
         h = S.get(u, timeout=20).text
@@ -47,10 +53,11 @@ for key in (sys.argv[1:] or list(Q)):
     os.makedirs(f'refs/{key}', exist_ok=True)
     cands = list(SEED.get(key, []))
     for q in Q[key]:
+        cands += bing(q)
         for p in search(q): cands += page_imgs(p)
     seen, ims = set(), []
     with cf.ThreadPoolExecutor(8) as ex:
-        for u, im in ex.map(grab, [c for c in dict.fromkeys(cands)][:40]):
+        for u, im in ex.map(grab, [c for c in dict.fromkeys(cands)][:60]):
             if im is None: continue
             sig = im.resize((8, 8)).tobytes()
             if sig in seen: continue
