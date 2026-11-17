@@ -85,7 +85,7 @@ MS = 1 / 760.0        # temple model (already x1.7 inside temple.py) -> about 1/
 # ---------------- the board: Tirumala plateau ringed by the hills ----------------
 BX, BY = 0.60, 0.40
 BASE = 0.012
-TPc = V((0.0, -0.06))                       # temple centre
+TPc = V((-0.03, 0.0))                       # temple centre (+Y = north, +X = east, as on the satellite view)
 # seven hills: six around the town, Venkatadri is the plateau the temple stands on
 HILLS = [('seshadri', -0.50, 0.24, 0.085, 0.09), ('neeladri', -0.26, 0.35, 0.07, 0.075), ('garudadri', 0.04, 0.37, 0.09, 0.085),
          ('anjanadri', 0.31, 0.34, 0.075, 0.075), ('vrushabhadri', 0.52, 0.18, 0.07, 0.075), ('narayanadri', 0.52, -0.27, 0.095, 0.085)]
@@ -99,15 +99,39 @@ def hfun(x, y):
     return BASE + (z - BASE) * ex
 def ground(x, y, lift=0.0): return V((x, y, hfun(x, y) + lift))
 def town(x, y): return ((x - TPc.x) / 0.47) ** 2 + ((y - TPc.y + 0.02) / 0.30) ** 2      # <1 inside the town
+# Layout traced from the Google satellite view: the temple inside the square of the Mada streets, the outer ring road
+# to the east, Sankumitta road running SW->SE past the CRO, and the roads out to the guest-house clusters.
+MADA = (TPc + V((0.0, 0.05)), 0.21, 0.18)          # centre, half-width, half-height
+def _seg(px, py, a, b):
+    ax, ay = a.x, a.y; bx, by = b.x, b.y; vx, vy = bx - ax, by - ay
+    t = max(0.0, min(1.0, ((px - ax) * vx + (py - ay) * vy) / (vx * vx + vy * vy)))
+    return math.hypot(px - ax - t * vx, py - ay - t * vy)
+ROADS = [(TPc + V(a), TPc + V(b)) for a, b in (
+    ((-0.20, -0.24), (0.22, -0.14)),     # Sankumitta road past the CRO
+    ((0.12, -0.13), (0.21, -0.36)),      # Bhanumati road down to Panchajanyam
+    ((-0.03, -0.13), (-0.10, -0.38)),    # south to Padmavathi
+    ((0.21, 0.10), (0.27, 0.24)),        # north-east to Nandakam / Vakulamatha
+    ((-0.21, -0.02), (-0.36, 0.10)),     # west to Seshadri Nagar
+    ((0.21, 0.0), (0.42, 0.0)))]         # the east approach to the Mahadwaram
 def road(x, y):
-    """distance to the painted roads: a ring around the temple, four spokes, an outer loop"""
-    dx, dy = x - TPc.x, y - TPc.y - 0.07; r = math.hypot(dx / 1.15, dy)
-    d = abs(r - 0.215)
-    d = min(d, abs(math.hypot(dx / 1.35, dy / 1.0) - 0.33))
-    for ang in (0.15, 1.75, 3.3, 4.6):
-        ux, uy = math.cos(ang), math.sin(ang); t_ = dx * ux + dy * uy
-        if 0.22 < t_ < 0.45: d = min(d, abs(-dx * uy + dy * ux))
+    """distance to the painted roads"""
+    c, hx, hy = MADA; dx, dy = abs(x - c.x), abs(y - c.y)
+    d = abs(dy - hy) if dx <= hx else math.hypot(dx - hx, dy - hy) if dy > hy else 9
+    if dy <= hy: d = min(d, abs(dx - hx))
+    rx, ry = (x - TPc.x) / 0.36, (y - TPc.y + 0.01) / 0.34      # outer ring road: eastern half-ellipse
+    if x - TPc.x > -0.05: d = min(d, abs(math.hypot(rx, ry) - 1.0) * 0.35)
+    for a, b in ROADS: d = min(d, _seg(x, y, a, b))
     return d
+# Alwar Tank (south-west) and the two curved Vaikuntam queue complexes wrapping the temple on the west and south
+TANK = (TPc + V((-0.20, -0.27)), 0.065, 0.045)
+def in_tank(x, y): c, ax, ay = TANK; return ((x - c.x) / ax) ** 2 + ((y - c.y) / ay) ** 2
+QARCS = [(TPc + V((-0.02, -0.03)), 0.235, 0.275, math.radians(160), math.radians(222)),
+         (TPc + V((-0.02, -0.03)), 0.235, 0.275, math.radians(236), math.radians(298))]
+def in_qarc(x, y, pad=0.0):
+    for c, r0, r1, a0, a1 in QARCS:
+        r = math.hypot(x - c.x, y - c.y); a = math.atan2(y - c.y, x - c.x) % (2 * math.pi)
+        if r0 - pad < r < r1 + pad and a0 - pad * 4 < a < a1 + pad * 4: return True
+    return False
 NXg, NYg = 360, 240
 xs = np.linspace(-BX, BX, NXg); ys = np.linspace(-BY, BY, NYg)
 verts = [(x, y, hfun(x, y)) for y in ys for x in xs]
@@ -126,6 +150,8 @@ for k, (x, y, z) in enumerate(verts):
     if z - BASE > 0.05: c = c.lerp(V((0.42, 0.36, 0.28)), min(1, (z - BASE - 0.05) / 0.03) * (0.5 + 0.5 * n2))   # rocky tops
     rd = road(x, y)
     if rd < 0.006 and tw > 0.3: c = c.lerp(V((0.30, 0.26, 0.22)), min(1, (0.006 - rd) / 0.003) * 0.8)
+    tk = in_tank(x, y)
+    if tk < 1.25: c = c.lerp(V((0.36, 0.33, 0.27)), min(1, (1.25 - tk) * 4))     # stone steps round the tank
     ca.data[k].color = (c.x, c.y, c.z, 1)
     gws.append(0.0 if tw > 0.2 else 0.4 + 0.6 * max(0, n1))
 for k, wv in enumerate(gws): gw.add([k], wv, 'REPLACE')
@@ -179,6 +205,36 @@ GOP = ROOT.matrix_world @ V((63, 0, 20))           # Mahadwaram gopuram top (eas
 print('TEMPLE top', tuple(round(c, 4) for c in TPTOP), 'gopuram', tuple(round(c, 4) for c in GOP))
 # temple flat platform so the model never floats
 box('tpl_plinth', (TP.x + 0.0, TP.y + 0.08, GZ - 0.004), (0.32, 0.40, 0.008), pbr('plinth', (0.50, 0.44, 0.36), 0.9))
+
+# ---------------- Alwar Tank and the Vaikuntam queue complexes ----------------
+def _ellipse_disc(name, c, ax, ay, z, mat, n=48):
+    vs = [(c.x, c.y, z)] + [(c.x + ax * math.cos(2 * math.pi * i / n), c.y + ay * math.sin(2 * math.pi * i / n), z) for i in range(n)]
+    fs = [(0, 1 + i, 1 + (i + 1) % n) for i in range(n)]
+    m_ = bpy.data.meshes.new(name); m_.from_pydata(vs, [], fs); o_ = bpy.data.objects.new(name, m_); sc.collection.objects.link(o_)
+    o_.data.materials.append(mat); return o_
+_tc, _tax, _tay = TANK
+_tz = max(hfun(_tc.x + _tax * math.cos(a), _tc.y + _tay * math.sin(a)) for a in np.linspace(0, 6.28, 24)) + 0.0006
+_ellipse_disc('alwar_tank', _tc, _tax, _tay, _tz, pbr('alwar_water', (0.03, 0.22, 0.27), 0.04))
+def _arc_block(name, c, r0, r1, a0, a1, h, mat, n=28, zoff=0.0):
+    vs, fs = [], []
+    for i in range(n + 1):
+        a = a0 + (a1 - a0) * i / n
+        for r in (r0, r1):
+            x, y = c.x + r * math.cos(a), c.y + r * math.sin(a); z0 = hfun(x, y) - 0.002 + zoff
+            vs += [(x, y, z0), (x, y, z0 + 0.002 + h)]
+    for i in range(n):
+        b = 4 * i; nb = b + 4                    # per step: inner-bottom, inner-top, outer-bottom, outer-top
+        fs += [(b + 1, b + 3, nb + 3, nb + 1), (b, nb, nb + 2, b + 2), (b, b + 1, nb + 1, nb), (b + 2, nb + 2, nb + 3, b + 3)]
+    fs += [(0, 2, 3, 1), (4 * n, 4 * n + 1, 4 * n + 3, 4 * n + 2)]
+    m_ = bpy.data.meshes.new(name); m_.from_pydata(vs, [], fs); m_.update(); o_ = bpy.data.objects.new(name, m_); sc.collection.objects.link(o_)
+    o_.data.materials.append(mat); return o_
+M_qc = pbr('queue_cream', (0.82, 0.74, 0.58), 0.75); M_qr = pbr('queue_roof', (0.55, 0.16, 0.08), 0.8); M_qw = pbr('qwin', (0.10, 0.12, 0.14), 0.3)
+for qi, (c, r0, r1, a0, a1) in enumerate(QARCS):
+    _arc_block(f'vqc{qi}', c, r0, r1, a0, a1, 0.011, M_qc)
+    _arc_block(f'vqc{qi}_roof', c, r0 - 0.002, r1 + 0.002, a0 - 0.006, a1 + 0.006, 0.0018, M_qr, zoff=0.011)
+    for k in range(9):                           # window bands
+        a = a0 + (a1 - a0) * (k + 0.5) / 9
+        _arc_block(f'vqc{qi}_w{k}', c, r0 - 0.0004, r0 + 0.0002, a - 0.02, a + 0.02, 0.0016, M_qw, n=4, zoff=0.006)
 
 # ---------------- assets ----------------
 SRC = coll('sources'); bpy.context.view_layer.layer_collection.children['sources'].exclude = True
@@ -246,15 +302,18 @@ CREAM, WHITE, MAROON, SAFF, GOLD = (0.93, 0.86, 0.70), (0.95, 0.94, 0.90), (0.55
 BLD = {  # name: (file, height m, colour)
  'gen4': ('4Story_Mat', 0.024, (0.80, 0.62, 0.38)), 'gen3': ('3Story_Balcony_Mat', 0.019, (0.78, 0.50, 0.32)), 'gen2': ('2Story_Wide_Mat', 0.013, (0.75, 0.42, 0.26)),
  'gen2b': ('2Story_Balcony_Mat', 0.013, (0.82, 0.70, 0.45)), 'cot': ('1Story_GableRoof_Mat', 0.008, (0.70, 0.30, 0.18)), 'cot2': ('1Story_Mat', 0.007, (0.80, 0.66, 0.42)),
- 'nand': ('4Story_Wide_2Doors_Roof_Mat', 0.026, (0.82, 0.55, 0.28)), 'panch': ('4Story_Center_Mat', 0.026, (0.62, 0.72, 0.85)),
- 'kaus': ('3Story_Balcony_Mat', 0.021, (0.55, 0.75, 0.52)), 'vakula': ('4Story_Wide_2Doors_Mat', 0.030, (0.88, 0.50, 0.45)),
- 'pac': ('6Story_Stack_Mat', 0.034, (0.85, 0.78, 0.62)), 'donor': ('2Story_Columns_Mat', 0.015, (0.80, 0.66, 0.40)),
+ # colours sampled from the real buildings (Google Maps / YouTube photos)
+ 'nand': ('4Story_Wide_2Doors_Roof_Mat', 0.026, (0.90, 0.74, 0.68)), 'panch': ('4Story_Center_Mat', 0.026, (0.80, 0.86, 0.94)),
+ 'kaus': ('4Story_Mat', 0.028, (0.88, 0.86, 0.80)), 'vakula': ('4Story_Wide_2Doors_Mat', 0.030, (0.93, 0.80, 0.78)),
+ 'pac': ('6Story_Stack_Mat', 0.034, (0.95, 0.62, 0.30)), 'donor': ('2Story_Columns_Mat', 0.015, (0.80, 0.66, 0.40)),
+ 'sapth': ('4Story_Mat', 0.022, (0.92, 0.88, 0.76)), 'padma': ('3Story_Balcony_Mat', 0.018, (0.95, 0.92, 0.86)),
 }
 for k_, (f_, h_, c_) in BLD.items(): U[k_] = glb_unit(k_, B3 + f_ + '.glb', h_, c_)
-# real guest houses rebuilt in 3D by Model Forge from YouTube frames of the actual buildings
+# real guest houses rebuilt in 3D by Model Forge from photos of the actual buildings
 MFB = set()
-for k_, f_ in (('nand', 'nandakam'), ('panch', 'panchajanyam'), ('kaus', 'kausthubham'), ('vakula', 'vakulamatha'), ('pac', 'pac5')):
-    p_ = f'mf/b_{f_}.glb'
+for k_, f_ in (('nand', 'nandakam'), ('panch', 'panchajanyam'), ('kaus', 'kausthubham'), ('vakula', 'vakulamatha'), ('pac', 'pac5'),
+               ('padma', 'padmavathi'), ('sapth', 'sapthagiri')):
+    p_ = f'mf/b_{f_}_m.glb' if os.path.exists(f'mf/b_{f_}_m.glb') else f'mf/b_{f_}.glb'      # _m = built from the Google Maps photo
     if os.path.exists(p_) and os.environ.get('NOMF') != '1':
         try: U[k_] = glb_unit(k_ + '_mf', p_, BLD[k_][1] * 1.25); MFB.add(k_)
         except Exception as ex_: print('mf building skipped', f_, ex_)
@@ -319,7 +378,9 @@ def sign(p, yaw, w=0.016, h=0.004, z=0.006):
         c = box('sign_p', (sx * w * 0.4, 0.0, -z / 2), (0.0006, 0.0006, z), M_signf); c.parent = e
     return e
 # named guest houses (positions on the board); facing the nearest road
-NB = {'nand': V((0.27, -0.17)), 'panch': V((0.36, 0.02)), 'kaus': V((0.27, 0.16)), 'vakula': V((-0.29, -0.14)), 'pac': V((-0.17, -0.31)), 'donor': V((0.08, -0.29))}
+# real bearings from the temple (Google Maps coordinates), distance compressed: r_board = 0.21 + 0.13 * r_m / 800
+NB = {'nand': V((0.25, 0.13)), 'vakula': V((0.22, 0.20)), 'sapth': V((0.233, -0.095)), 'kaus': V((0.26, -0.154)), 'pac': V((0.213, -0.226)),
+      'panch': V((0.165, -0.30)), 'padma': V((-0.131, -0.325)), 'donor': V((0.12, -0.12))}
 def face_to(p, q): return yaw_of((q - p).normalized())       # building fronts face -Y after glTF import, like the figures
 TOPS = {}
 for k_, p in NB.items():
@@ -332,10 +393,11 @@ for k_, p in NB.items():
     TOPS[k_] = G2(p, h_ + 0.004)
 # the town: rest houses and cottages fill the plateau
 OCC = [(TPc + V((0, 0.06)), 0.20), (TPc + V((0, 0.17)), 0.14)] + [(p, 0.03 + 0.012 * (k in ('nand', 'vakula', 'pac'))) for k, p in NB.items()]
-COL = {'seshadri': V((-0.40, 0.11)), 'garudadri': V((0.17, 0.27)), 'anjanadri': V((0.30, 0.20))}
+COL = {'seshadri': V((-0.40, 0.11)), 'garudadri': V((0.10, 0.31)), 'anjanadri': V((0.36, 0.25))}
 for k, p in COL.items(): OCC.append((p, 0.06))
 def ok(x, y, r):
     if town(x, y) > 1.0 or road(x, y) < 0.012 + r * 0.5: return False
+    if in_tank(x, y) < 1.6 or in_qarc(x, y, 0.012): return False
     if hfun(x, y) - BASE > 0.03: return False
     return all((V((x, y)) - c).length > rr + r for c, rr in OCC)
 GEN = []
@@ -356,9 +418,17 @@ for k, c in COL.items():
     TOPS[k] = G2(c, 0.012)
 TOPS['temple'] = TPTOP
 # street lamps along the ring road
-for i in range(36):
-    a = 2 * math.pi * i / 36; p = TPc + V((1.15 * 0.215 * math.cos(a), 0.07 + 0.215 * math.sin(a)))
-    if ok(p.x, p.y, 0.0) or town(p.x, p.y) < 1: inst('lamp', G2(p), a, TK)
+def mada_pt(t):
+    c, hx, hy = MADA; L = 4 * (hx + hy); u = (t % 1.0) * 2 * (hx + hy) * 2; per = 2 * (hx + hy)
+    seg = [(V((-hx, -hy)), V((hx, -hy))), (V((hx, -hy)), V((hx, hy))), (V((hx, hy)), V((-hx, hy))), (V((-hx, hy)), V((-hx, -hy)))]
+    for a, b in seg:
+        l = (b - a).length
+        if u <= l: return c + a + (b - a) * (u / l), (b - a).normalized()
+        u -= l
+    return c + seg[-1][1], (seg[-1][1] - seg[-1][0]).normalized()
+for i in range(40):
+    p, tg = mada_pt(i / 40); p = p + V((tg.y, -tg.x)) * 0.008
+    inst('lamp', G2(p), yaw_of(tg), TK)
 # forest on the hills
 DRESS = []
 n = 0; tries = 0
@@ -400,10 +470,9 @@ crowd(NB['pac'] + pd * 0.035, -pd, 3, 8, 0.0045, 0.005, walk=False)
 for k_ in ('nand', 'panch', 'kaus', 'vakula'):
     d_ = (TPc - NB[k_]).normalized(); g_ = crowd(NB[k_] + d_ * 0.04, d_, 2, 5, 0.0048, 0.006)
     if MOVE: march(g_, 1, END, d_ * 0.03)
-# families strolling along the ring road
+# families strolling round the Mada streets
 for i in range(28):
-    a = random.uniform(0, 2 * math.pi); r_ = 0.215
-    p = TPc + V((1.15 * r_ * math.cos(a), 0.07 + r_ * math.sin(a))); tg = V((-math.sin(a) * 1.15, math.cos(a))).normalized()
+    p, tg = mada_pt(random.random())
     g_ = crowd(p, tg, random.randint(1, 3), random.randint(2, 3), 0.0045, 0.006)
     if MOVE: march(g_, 1, END, tg * random.uniform(0.02, 0.05))
 # ---------------- divine symbols floating over their guest houses ----------------
@@ -477,18 +546,18 @@ a0, b0 = S('hook')
 KK(a0, CA(T3(EP, 0.006), 0, 6, 0.05, 35), T3(EP + V((-0.05, 0)), 0.008), 35, 3.2, T3(EP, 0.005))
 KK(int(a0 + (b0 - a0) * 0.45), CA(T3(TPc + V((0.06, 0)), 0.02), 8, 16, 0.16, 35), T3(TPc + V((0.03, 0)), 0.02), 35, 4.0, T3(TPc + V((0.06, 0)), 0.02))
 KK(b0, CA(T3(TPc + V((0, 0.03)), 0.01), -15, 38, 0.72, 35), T3(TPc + V((0, 0.03)), 0.01), 35, 9.0, T3(TPc + V((0, 0.03)), 0.01))
-SH2('count', T3(V((-0.24, -0.10)), 0.008), T3(V((0.22, -0.10)), 0.008), -100, -80, 34, 30, 0.34, 0.30, 35, 7.0)
+SH2('count', T3(V((-0.27, -0.06)), 0.008), T3(V((0.19, -0.06)), 0.008), -100, -80, 34, 30, 0.34, 0.30, 35, 7.0)
 SH2('rename', T3(NB['donor'], 0.008), T3(NB['donor'], 0.009), AZ(NB['donor'], TPc) - 25, AZ(NB['donor'], TPc) - 8, 16, 12, 0.09, 0.06, 40, 4.0)
 for sh, k_, dz in (('nandakam', 'nand', 0.012), ('panchajanyam', 'panch', 0.012), ('kausthubham', 'kaus', 0.01), ('vakula', 'vakula', 0.014)):
     az = AZ(NB[k_], TPc)
     SH2(sh, T3(NB[k_], dz), T3(NB[k_], dz), az - 30, az + 5, 20, 14, 0.13, 0.085, 35, 4.5)
-SH2('four', T3(V((-0.02, -0.04)), 0.01), T3(V((-0.02, -0.04)), 0.01), -95, -80, 58, 52, 0.80, 0.72, 35, 11.0)
+SH2('four', T3(V((0.17, -0.03)), 0.01), T3(V((0.17, -0.03)), 0.01), -110, -70, 58, 52, 0.70, 0.62, 35, 11.0)
 az = AZ(NB['pac'], TPc)
 SH2('pac', T3(NB['pac'] + (TPc - NB['pac']).normalized() * 0.06, 0.006), T3(NB['pac'], 0.012), az + 30, az + 10, 9, 16, 0.07, 0.12, 35, 4.0)
 SH2('gods', T3(TPc + V((-0.03, 0.12)), 0.015), T3(TPc + V((-0.06, 0.17)), 0.01), 60, 95, 30, 18, 0.40, 0.20, 35, 5.0)
 SH2('hills', T3(COL['seshadri'], 0.012), T3(COL['anjanadri'], 0.012), -80, -100, 30, 26, 0.24, 0.24, 35, 6.0,
     mid=(0.5, T3(COL['garudadri'], 0.014), -90, 30, 0.26))
-SH2('more', T3(V((-0.30, -0.02)), 0.008), T3(V((0.30, 0.0)), 0.008), -60, -120, 22, 22, 0.20, 0.20, 35, 5.0)
+SH2('more', T3(V((-0.33, 0.04)), 0.008), T3(V((0.27, 0.06)), 0.008), -60, -120, 22, 22, 0.20, 0.20, 35, 5.0)
 a9, b9 = S('finale'); P = T3(TPc + V((0.0, 0.0)), 0.03)
 KK(a9, CA(P, 30, 32, 0.55, 35), P, 35, 6.0, P)
 KK(int(a9 + (b9 - a9) * 0.6), CA(P, 10, 18, 0.32, 35), P, 35, 4.5, P)
