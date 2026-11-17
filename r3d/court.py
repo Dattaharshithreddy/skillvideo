@@ -171,7 +171,7 @@ bpy.ops.object.light_add(type='AREA', location=(0, 4, HZ + 0.3)); a = bpy.contex
 bpy.ops.object.light_add(type='AREA', location=(TX - 0.3, TY - 3.5, 3.0)); k = bpy.context.object; k.data.energy = 250; k.data.size = 2; k.rotation_euler = (math.radians(70), 0, 0); k.data.color = (1, 0.8, 0.6)
 s = bpy.context.scene; s.render.engine = 'CYCLES'; s.cycles.device = 'CPU'; s.cycles.samples = int(os.environ.get('SPP', 80)); s.cycles.use_denoising = True
 s.view_settings.view_transform = 'AgX'; s.view_settings.look = 'AgX - Medium High Contrast'; s.view_settings.exposure = float(os.environ.get('EV', 0.0))
-os.makedirs('/opt/r3d/out', exist_ok=True); bpy.ops.wm.save_as_mainfile(filepath='/opt/r3d/out/court.blend')
+os.makedirs('/opt/r3d/out', exist_ok=True)
 for name, loc, tgt, lens, fd, rx, ry in (('wide', (-1.2, -9.5, 1.5), (0.2, 7.5, 2.0), 22, 16, 1080, 1920), ('king', (0.3, 6.2, 1.55), (TX, TY, 1.75), 45, 3.2, 1080, 1920),
                                          ('ministers', (-0.2, 1.8, 1.45), (0.0, 6.4, 1.5), 32, 5.0, 1920, 1080)):
     bpy.ops.object.camera_add(location=loc); cam = bpy.context.object; bpy.ops.object.empty_add(location=tgt); e = bpy.context.object
@@ -179,4 +179,4 @@ for name, loc, tgt, lens, fd, rx, ry in (('wide', (-1.2, -9.5, 1.5), (0.2, 7.5, 
     cam.data.dof.use_dof = True; cam.data.dof.focus_distance = fd; cam.data.dof.aperture_fstop = 4
     s.camera = cam; s.render.resolution_x, s.render.resolution_y = rx, ry; s.render.resolution_percentage = int(os.environ.get('PCT', 50))
     s.render.filepath = f'/opt/r3d/out/court_{name}.png'; bpy.ops.render.render(write_still=True)
-print('COURT_DONE')
+bpy.ops.wm.save_as_mainfile(filepath='/opt/r3d/out/court.blend'); print('COURT_DONE')
