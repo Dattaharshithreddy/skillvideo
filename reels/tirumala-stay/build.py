@@ -145,15 +145,19 @@ for k, (x, y, z) in enumerate(verts):
     n1 = noise.noise(V((x * 14, y * 14, 2.0))); n2 = noise.noise(V((x * 55, y * 55, 5.0)))
     c = V((0.10, 0.24, 0.06)).lerp(V((0.22, 0.34, 0.09)), 0.5 + 0.5 * n1)             # Seshachalam forest green
     tw = max(0.0, min(1.0, (1.0 - town(x, y)) * 4))
-    town_c = V((0.58, 0.45, 0.30)).lerp(V((0.40, 0.42, 0.22)), max(0.0, n1) * 0.9)     # warm laterite with green patches
-    c = c.lerp(town_c, tw * (0.55 - 0.35 * max(0.0, n1)))
+    town_c = V((0.24, 0.35, 0.12)).lerp(V((0.55, 0.52, 0.44)), max(0.0, n1) * 0.55)    # lawns with paved patches
+    c = c.lerp(town_c, tw * 0.9)
+    mc_, mhx, mhy = MADA
+    if abs(x - mc_.x) < mhx + 0.03 and abs(y - mc_.y) < mhy + 0.03 and tw > 0.3:
+        c = c.lerp(V((0.70, 0.66, 0.58)) * (0.93 + 0.07 * n2), 0.92)                   # granite paving round the temple
     if z - BASE > 0.05: c = c.lerp(V((0.42, 0.36, 0.28)), min(1, (z - BASE - 0.05) / 0.03) * (0.5 + 0.5 * n2))   # rocky tops
     rd = road(x, y)
-    if rd < 0.006 and tw > 0.3: c = c.lerp(V((0.30, 0.26, 0.22)), min(1, (0.006 - rd) / 0.003) * 0.8)
+    if rd < 0.007 and tw > 0.3: c = c.lerp(V((0.16, 0.16, 0.17)), min(1, (0.007 - rd) / 0.003) * 0.95)   # asphalt
     tk = in_tank(x, y)
     if tk < 1.25: c = c.lerp(V((0.36, 0.33, 0.27)), min(1, (1.25 - tk) * 4))     # stone steps round the tank
     ca.data[k].color = (c.x, c.y, c.z, 1)
-    gws.append(0.0 if tw > 0.2 else 0.4 + 0.6 * max(0, n1))
+    paved = (abs(x - MADA[0].x) < MADA[1] + 0.03 and abs(y - MADA[0].y) < MADA[2] + 0.03) or rd < 0.01 or tk < 1.3
+    gws.append(0.0 if (tw > 0.2 and paved) else (0.3 + 0.3 * max(0, n1) if tw > 0.2 else 0.4 + 0.6 * max(0, n1)))
 for k, wv in enumerate(gws): gw.add([k], wv, 'REPLACE')
 tm = bpy.data.materials.new('board_paint'); tm.use_nodes = True; nt = tm.node_tree; bs = nt.nodes['Principled BSDF']
 attr = nt.nodes.new('ShaderNodeAttribute'); attr.attribute_name = 'paint'; nt.links.new(attr.outputs['Color'], bs.inputs['Base Color'])
@@ -162,24 +166,25 @@ nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 900;
 bm = nt.nodes.new('ShaderNodeBump'); bm.inputs['Strength'].default_value = 0.35; bm.inputs['Distance'].default_value = 0.0006
 nt.links.new(nz.outputs['Fac'], bm.inputs['Height']); nt.links.new(bm.outputs['Normal'], bs.inputs['Normal'])
 terr.data.materials.append(tm)
-# board edges (MDF), table, room
-M_mdf = pbr('mdf', (0.10, 0.065, 0.04), 0.6)
-for nm, loc, dims in (('edgeN', (0, BY + 0.004, BASE / 2 - 0.004), (2 * BX + 0.016, 0.008, BASE + 0.008)), ('edgeS', (0, -BY - 0.004, BASE / 2 - 0.004), (2 * BX + 0.016, 0.008, BASE + 0.008)),
-                      ('edgeE', (BX + 0.004, 0, BASE / 2 - 0.004), (0.008, 2 * BY, BASE + 0.008)), ('edgeW', (-BX - 0.004, 0, BASE / 2 - 0.004), (0.008, 2 * BY, BASE + 0.008))):
-    box(nm, loc, dims, M_mdf)
-M_table = bpy.data.materials.new('table'); M_table.use_nodes = True; nt = M_table.node_tree; b = nt.nodes['Principled BSDF']
-wt = nt.nodes.new('ShaderNodeTexWave'); wt.inputs['Scale'].default_value = 6; wt.inputs['Distortion'].default_value = 9; wt.inputs['Detail'].default_value = 4
-cr = nt.nodes.new('ShaderNodeValToRGB'); cr.color_ramp.elements[0].color = (0.07, 0.035, 0.018, 1); cr.color_ramp.elements[1].color = (0.11, 0.055, 0.025, 1)
-b.inputs['Base Color'].default_value = (0.05, 0.025, 0.012, 1); b.inputs['Roughness'].default_value = 0.45
-box('table', (0, 0, -0.025), (3.2, 2.2, 0.05), M_table)
-M_wall = emis('room', (0.22, 0.10, 0.03), 0.35)
-bpy.ops.mesh.primitive_cylinder_add(radius=3.5, depth=4, location=(0, 0, 1.0), vertices=48); wall = bpy.context.object; wall.data.materials.append(M_wall)
-wall.visible_shadow = False
-for k in range(14):        # warm room lamps far behind -> bokeh balls
-    a = random.uniform(0, 2 * math.pi); r = random.uniform(2.2, 3.2)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=random.uniform(0.02, 0.05), location=(r * math.cos(a), r * math.sin(a), random.uniform(0.15, 0.9)))
-    bl = bpy.context.object; bl.data.materials.append(emis(f'bokeh{k}', random.choice([(1, 0.62, 0.3), (1, 0.75, 0.45), (1, 0.5, 0.2)]), random.uniform(6, 14)))
-    bl.visible_shadow = False
+# the landscape beyond the board: the Seshachalam hills rolling away into the haze (no table, no room)
+NA = 220; AR = 4.0
+def apron_h(x, y):
+    dx_, dy_ = max(0.0, abs(x) - BX), max(0.0, abs(y) - BY); d = math.hypot(dx_, dy_)
+    if d == 0: return BASE - 0.004
+    ridge = 0.32 * (1 - math.exp(-d / 1.1)) * (0.55 + 0.45 * noise.noise(V((x * 0.9, y * 0.9, 7.0))))
+    return BASE + ridge * min(1, d / 0.08) + 0.02 * noise.noise(V((x * 4, y * 4, 3.0))) * min(1, d / 0.1)
+av = [(x, y, apron_h(x, y)) for y in np.linspace(-AR, AR, NA) for x in np.linspace(-AR, AR, NA)]
+af = [(j * NA + i, j * NA + i + 1, (j + 1) * NA + i + 1, (j + 1) * NA + i) for j in range(NA - 1) for i in range(NA - 1)]
+am = bpy.data.meshes.new('apron'); am.from_pydata(av, [], af); am.update()
+for p in am.polygons: p.use_smooth = True
+apron = bpy.data.objects.new('apron', am); sc.collection.objects.link(apron)
+aca = am.color_attributes.new('paint', 'FLOAT_COLOR', 'POINT')
+for k, (x, y, z) in enumerate(av):
+    n1 = noise.noise(V((x * 3, y * 3, 2.0)))
+    c = V((0.09, 0.21, 0.05)).lerp(V((0.20, 0.31, 0.08)), 0.5 + 0.5 * n1)
+    if z - BASE > 0.22: c = c.lerp(V((0.40, 0.34, 0.26)), min(1, (z - BASE - 0.22) / 0.08) * 0.6)
+    aca.data[k].color = (c.x, c.y, c.z, 1)
+apron.data.materials.append(tm)  # same painted-ground material as the board
 
 # ---------------- the temple (same model as the ghat-road reel), shrunk onto the board ----------------
 TP = V((TPc.x, TPc.y, hfun(TPc.x, TPc.y)))
@@ -459,6 +464,13 @@ for k in range(700):        # trees inside the town gaps
     if not ok(x, y, 0.006): continue
     nm = random.choice(TREES[:5]); sz = random.uniform(0.6, 1.0); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz)
     DRESS.append((o, 0.35 * THT[nm] * TK * sz + 0.003, THT[nm] * TK * sz))
+for k in range(2600):        # forest on the outer hills, thinning into the haze
+    x, y = random.uniform(-2.2, 2.2), random.uniform(-2.2, 2.2)
+    if abs(x) < BX + 0.01 and abs(y) < BY + 0.01: continue
+    d = math.hypot(max(0.0, abs(x) - BX), max(0.0, abs(y) - BY))
+    if random.random() > math.exp(-d / 0.9): continue
+    nm = random.choice(TREES[:5]); sz = random.uniform(1.2, 2.0) * (1 + d * 0.6)
+    inst(nm, V((x, y, apron_h(x, y) - 0.001)), random.uniform(0, 6.28), TK * sz)
 bpy.ops.mesh.primitive_cone_add(vertices=5, radius1=0.0005, radius2=0.0, depth=0.0018, location=(5, 5, -5)); tuft = bpy.context.object; tuft.name = 'tuft'
 tuft.data.materials.append(pbr('tuft', (0.32, 0.36, 0.12), 0.9)); move_to([tuft], SRC)
 ps = terr.modifiers.new('flock', 'PARTICLE_SYSTEM').particle_system; pst = ps.settings
@@ -509,7 +521,15 @@ for shn, k_, hn in (('nandakam', 'nand', 'sword'), ('panchajanyam', 'panch', 'co
 
 # ---------------- light per shot ----------------
 wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True; wn = wd.node_tree
-bg = wn.nodes['Background']; bg.inputs['Color'].default_value = (1.0, 0.72, 0.48, 1)
+bg = wn.nodes['Background']
+_tc = wn.nodes.new('ShaderNodeTexCoord'); _sx = wn.nodes.new('ShaderNodeSeparateXYZ'); _mr = wn.nodes.new('ShaderNodeMapRange')
+_mr.inputs['From Min'].default_value = -0.05; _mr.inputs['From Max'].default_value = 0.55
+_cr = wn.nodes.new('ShaderNodeValToRGB'); _cr.color_ramp.elements[0].color = (1.0, 0.86, 0.68, 1); _cr.color_ramp.elements[1].color = (0.36, 0.56, 0.88, 1)
+wn.links.new(_tc.outputs['Generated'], _sx.inputs['Vector']); wn.links.new(_sx.outputs['Z'], _mr.inputs['Value'])
+wn.links.new(_mr.outputs['Result'], _cr.inputs['Fac']); wn.links.new(_cr.outputs['Color'], bg.inputs['Color'])
+_vol = wn.nodes.new('ShaderNodeVolumePrincipled'); _vol.inputs['Density'].default_value = 0.11
+_vol.inputs['Color'].default_value = (0.98, 0.88, 0.76, 1); _vol.inputs['Anisotropy'].default_value = 0.45
+wn.links.new(_vol.outputs['Volume'], wn.nodes['World Output'].inputs['Volume'])     # morning haze over the hills
 bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.angle = math.radians(3)
 GOLDEN = (1.0, 0.72, 0.45)
 TOD = {'hook': (14, 235, 3.3, GOLDEN, 0.32), 'count': (32, 210, 3.3, (1, 0.88, 0.72), 0.4), 'rename': (34, 200, 3.3, (1, 0.9, 0.78), 0.42),
@@ -525,7 +545,7 @@ for idb in (sun, sun.data): const(idb)
 for fc in act_fcurves(wn.animation_data.action) if wn.animation_data else []:
     for kp in fc.keyframe_points: kp.interpolation = 'CONSTANT'
 bpy.ops.object.light_add(type='AREA', location=(0.0, -0.9, 0.9)); fill = bpy.context.object; fill.data.size = 1.2; fill.rotation_euler = (math.radians(45), 0, 0)
-fill.data.color = (0.8, 0.88, 1.0); fill.data.energy = 9
+fill.data.color = (0.8, 0.88, 1.0); fill.data.energy = 0.0   # sky light does the fill now
 # warm glow over the temple in the golden shots
 bpy.ops.object.light_add(type='POINT', location=TPTOP + V((0.03, 0, 0.05))); tglow = bpy.context.object; tglow.data.color = (1, 0.6, 0.2); tglow.data.shadow_soft_size = 0.02
 for name in TOD:

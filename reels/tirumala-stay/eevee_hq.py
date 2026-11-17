@@ -10,6 +10,9 @@ try:
     e.use_fast_gi = True; e.fast_gi_resolution = '2'
     e.shadow_ray_count = 2; e.shadow_step_count = 8
 except Exception as ex: print('eevee opt', ex)
+try:
+    e.volumetric_end = 8.0; e.volumetric_tile_size = '8'; e.volumetric_samples = 64; e.use_volumetric_shadows = True
+except Exception as ex: print('eevee vol', ex)
 s.render.use_motion_blur = False
 s.render.use_persistent_data = True
 s.render.use_overwrite = False
