@@ -8,7 +8,7 @@ SHIRT = G('toigo_fisherman_sweater') or G('janexx_old_female_sweater'); PANTS = 
 WHITE_ROSE = brocade('kabayi_white', (0.93, 0.91, 0.85), scale=22, dot=0.12)           # Vijayanagara: white silk, gold roses
 RED_JAMA = brocade('jama_red', (0.3, 0.015, 0.025), scale=26, dot=0.12)               # court: red brocade choga
 GREEN_PATKA = cloth('patka_green2', (0.03, 0.2, 0.09), bw=0.12, sheen=0.4)
-GOLD_PATKA = cloth('patka_gold2', (0.75, 0.55, 0.22), border=(0.5, 0.03, 0.05), bw=0.12, sheen=0.4, metal_border=False)
+GOLD_PATKA = cloth('patka_gold3', (0.85, 0.6, 0.18), border=(0.55, 0.03, 0.06), bw=0.15, sheen=0.5, metal_border=False)
 CAP = brocade('kullayi_brocade', (0.88, 0.8, 0.6), motif=(1.0, 0.75, 0.35), scale=40, dot=0.12, hem=0)
 PAGDI_SAFF = turban_mat('pagdi_saffron2', (0.85, 0.28, 0.02), band=(0.95, 0.55, 0.08)); PAGDI_W = cloth('pagdi_white', (0.95, 0.93, 0.88), bw=0, sheen=0.3)
 CHURI = cloth('churidar_white', (0.92, 0.9, 0.85), bw=0)
@@ -33,12 +33,12 @@ def ancient_king():   # Chola/ancient: bare chest, silk dhoti, uttariya, kireeta
     top, r, hd = head_info(P); attach([merge(kit('crown_kireetam', (top.x, top.y, top.z - 0.06 - 1.3 * 0.9), 0.9))], rig, 'head')
     necklace(bm, rig); armlets(rig); earrings(P, rig); moustache(bm, rig, P); tilak(P, rig)
 def queen():
-    bm, rig, P = person(1.3, 0, 0, False, [('ind_sareeskirt', QS), ('toigo_camisole_top', QB), ('ind_pallu', QP)])
+    bm, rig, P = person(1.3, 0, 0, False, [('ind_sareeskirt', QS), ('toigo_camisole_top', QB), ('ind_pallu_full', QP)])
     top, r, hd = head_info(P); attach([merge(kit('crown_kireetam', (top.x, top.y, top.z - 0.045 - 1.3 * 0.42), 0.42))], rig, 'head')
     necklace(bm, rig, layers=((0.06, 0.075, 30), (0.12, 0.09, 40), (0.18, 0.1, 48))); armlets(rig); earrings(P, rig); tilak(P, rig)
 def mantri():
     bm, rig, P = person(2.6, 0, 0, True, [('ind_dhoti', MW), ('ind_uttariya_diag', MU), ('ind_janeu', JN)], age=0.75, weight=0.6, hair=False)
-    turban2(P, rig, MT, 'mantri', jewel=True, kalgi=False, pearls=False); moustache(bm, rig, P, 0.006); tilak(P, rig, (0.9, 0.9, 0.85))
+    turban2(P, rig, MT, 'pagdi', jewel=True, kalgi=False, pearls=False); moustache(bm, rig, P, 0.006); tilak(P, rig, (0.9, 0.9, 0.85))
 for n, f in (('vijayanagara', vijayanagara), ('court_king', court_king), ('ancient_king', ancient_king), ('queen', queen), ('mantri', mantri)): look(n, f)
 print('CAST', cast)
 # backdrop: warm palace wall + floor

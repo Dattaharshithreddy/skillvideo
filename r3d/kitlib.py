@@ -13,7 +13,7 @@ def find(kind, pat):
     return sorted(set(r))
 SKINS = find('skins', '*.mhmat')
 SK_M = [s for s in SKINS if any(k in s for k in ('middleage_asian_male', 'young_asian_male'))] or SKINS
-SK_F = [s for s in SKINS if any(k in s.lower() for k in ('indian_female', 'middleage_asian_female', 'young_asian_female'))] or SKINS
+SK_F = [s for s in SKINS if 'indian_female' in s.lower()] or [s for s in SKINS if 'asian_female' in s] or SKINS
 EYES = find('eyes', '*.mhclo'); BROWS = find('eyebrows', '*.mhclo')
 HAIR_F = [h for h in find('hair', '*.mhclo') if any(k in h.lower() for k in ('braid_bun', 'hair_bun', 'french_braid_bun'))] or [h for h in find('hair', '*.mhclo') if any(k in h.lower() for k in ('braid', 'bun', 'ponytail'))] or [h for h in find('hair', '*.mhclo') if 'long' in h.lower()]
 print('HAIR_F', [os.path.basename(h) for h in HAIR_F])
@@ -198,7 +198,7 @@ def person(x, y, rot, male, outfit, sit=False, age=0.5, muscle=0.6, weight=0.5, 
              'cupsize': 0.5, 'firmness': 0.5, 'race': {'african': 0.3, 'asian': 0.5, 'caucasian': 0.2}}
     bm = HumanService.create_human(mask_helpers=True, feet_on_ground=True, scale=0.1, macro_detail_dict=macro)
     HumanService.set_character_skin(skin or random.choice(SK_M if male else SK_F), bm, skin_type='ENHANCED_SSS')
-    tint_skin(bm, (0.82, 0.6, 0.45) if male else (0.8, 0.58, 0.44))
+    tint_skin(bm, (0.82, 0.6, 0.45) if male else (0.95, 0.8, 0.68))
     rig = HumanService.add_builtin_rig(bm, 'default')
     add(EYES[0], bm, 'Eyes'); add(BROWS[0], bm, 'Eyebrows')
     if hair: add(random.choice(HAIR_M if male else HAIR_F), bm, 'Hair'); hair_fix(bm)
@@ -252,6 +252,11 @@ def kullayi(P, rig, m):
     cap = lathe_obj('kullayi', prof, m, (c.x, c.y, z0)); cap.scale = (1, 1.12, 1)
     bpy.ops.mesh.primitive_torus_add(major_radius=R + 0.006, minor_radius=0.011, location=(c.x, c.y, z0 + 0.012)); rr = bpy.context.object; rr.scale = (1, 1.12, 1); rr.data.materials.append(GOLD()); _smooth(rr)
     parts = [cap, rr]
+    for zz, rf in ((0.07, 0.97), (0.15, 0.86), (0.23, 0.66)):
+        bpy.ops.mesh.primitive_torus_add(major_radius=R * rf + 0.003, minor_radius=0.005, location=(c.x, c.y, z0 + zz)); bb = bpy.context.object; bb.scale = (1, 1.12, 1); bb.data.materials.append(GOLD()); parts.append(_smooth(bb))
+    parts.append(ball(0.024, (c.x, c.y, z0 + 0.335), GOLD(), (1, 1, 1.2), 16))
+    front = min(hd, key=lambda p: p.y); fy = front.y - 0.03
+    parts += [ball(0.02, (c.x, fy, z0 + 0.05), GOLD(), (1, 0.4, 1.3), 16), ball(0.011, (c.x, fy - 0.006, z0 + 0.05), solid('k_ruby2', (0.6, 0.01, 0.03), 0.05), (1, 0.6, 1.2))]
     back = max(hd, key=lambda p: p.y)
     for dx in (-0.03, 0.03):   # two ribbons down the back
         bpy.ops.mesh.primitive_plane_add(size=1, location=(c.x + dx, back.y + 0.02, z0 - 0.12)); rb = bpy.context.object; rb.scale = (0.022, 1, 0.13); rb.rotation_euler = (math.radians(90 - 8), 0, dx * 3)

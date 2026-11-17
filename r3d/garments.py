@@ -106,7 +106,7 @@ def join(objs):
 
 jobs = []
 def job(f): jobs.append(f); return f
-ONLY = ONLY or 'ind_patka'
+ONLY = ONLY or 'ind_patka,ind_pallu_full'
 
 @job
 def ind_dhoti():      # Telugu panche: ankle length, front pleats, pinned at the waist
@@ -192,14 +192,27 @@ def ind_jama_long():       # ankle-length royal kabayi skirt (Vijayanagara)
 @job
 def ind_patka():           # waist sash: band plus two decorated ends hanging in front
     bm, P, H = make_base(1.0)
-    band = tube('ind_patka', P, H, H * 0.605, H * 0.565, 0.03, 0.0, 0.0, cols=64, rows=4, front_pleats=False)
+    band = tube('ind_patka', P, H, H * 0.6, H * 0.578, 0.028, 0.0, 0.0, cols=64, rows=3, front_pleats=False)
     cx, cy, rx, ry = ext(P, H * 0.58, H * 0.6, xmax=0.25)
     ends = []
-    for dx in (-0.038, 0.038):
-        ends.append(strip('pend', [Vector((cx + dx, cy - ry - 0.04, H * 0.58)), Vector((cx + dx * 1.1, cy - ry - 0.06, H * 0.45)), Vector((cx + dx * 1.15, cy - ry - 0.06, H * 0.34))], 0.07, cols=4, rows=20, pin_ends=(True, False)))
+    for dx in (-0.03, 0.03):
+        ends.append(strip('pend', [Vector((cx + dx, cy - ry - 0.035, H * 0.585)), Vector((cx + dx * 1.1, cy - ry - 0.07, H * 0.42)), Vector((cx + dx * 1.2, cy - ry - 0.07, H * 0.27))], 0.05, cols=4, rows=20, pin_ends=(True, False)))
     o = join([band] + ends)
     global SKIRT; SKIRT = False
     simulate(o, bm, frames=25, stiff=8, bend=0.2); SKIRT = True; save(o, bm, 'ind_patka', 'Patka waist sash with hanging ends')
+
+@job
+def ind_pallu_full():   # nivi pallu: right hip -> across the chest -> over the left shoulder -> down the back to the knee
+    bm, P, H = make_base(0.0)
+    cx, cy, rx, ry = ext(P, H * 0.80, H * 0.82, xmax=0.22)
+    sh = Vector((cx + rx * 0.5, cy, H * 0.835))
+    path = [Vector((cx - rx * 0.75, cy - ry - 0.02, H * 0.585)), Vector((cx - rx * 0.35, cy - ry - 0.05, H * 0.67)), Vector((cx + rx * 0.05, cy - ry - 0.06, H * 0.75)),
+            Vector((cx + rx * 0.35, cy - ry - 0.02, H * 0.81)), sh + Vector((0, 0, 0.025)), Vector((cx + rx * 0.5, cy + ry + 0.04, H * 0.76)),
+            Vector((cx + rx * 0.45, cy + ry + 0.07, H * 0.55)), Vector((cx + rx * 0.4, cy + ry + 0.08, H * 0.32))]
+    o = strip('ind_pallu_full', path, 0.34, cols=12, rows=72, pin_ends=(False, False))
+    global SKIRT; SKIRT = False
+    hug(o, bm, 0.018); simulate(o, bm, frames=8, stiff=6, bend=0.05, mass=0.1); SKIRT = True
+    save(o, bm, 'ind_pallu_full', 'Full nivi pallu across the chest and over the left shoulder')
 
 for f in jobs:
     if ONLY and f.__name__ not in ONLY.split(','): continue
