@@ -209,3 +209,82 @@ def seat(rig, bm, seat_z, at_xy):
     """Move a seated character so the pelvis rests on a seat top at seat_z, centred at at_xy."""
     p = (bone_pos(rig, 'pelvis.L') + bone_pos(rig, 'pelvis.R')) / 2
     rig.location += Vector((at_xy[0] - p.x, at_xy[1] - p.y, seat_z + 0.09 - p.z)); bpy.context.view_layer.update(); return body_pts(bm)
+
+# ---------------- royal attire (researched: Vijayanagara kabayi + kullayi; court jama + patka + pagdi with sarpech/kalgi) ----------------
+def brocade(name, base, motif=(1.0, 0.72, 0.3), scale=28.0, dot=0.18, hem=0.05, sheen=0.3, obj_coords=False):
+    """Silk with a woven gold 'buta' motif (Voronoi dots -> small rosettes) and a zari hem."""
+    m = bpy.data.materials.get(name)
+    if m: return m
+    m = bpy.data.materials.new(name); m.use_fake_user = True; m.use_nodes = True; nt = m.node_tree; b = nt.nodes['Principled BSDF']
+    b.inputs['Roughness'].default_value = 0.55; b.inputs['Sheen Weight'].default_value = sheen
+    co = nt.nodes.new('ShaderNodeTexCoord'); vor = nt.nodes.new('ShaderNodeTexVoronoi'); vor.inputs['Scale'].default_value = scale; vor.inputs['Randomness'].default_value = 0.0
+    nt.links.new(co.outputs['Object' if obj_coords else 'UV'], vor.inputs['Vector'])
+    d = nt.nodes.new('ShaderNodeMath'); d.operation = 'LESS_THAN'; d.inputs[1].default_value = dot; nt.links.new(vor.outputs['Distance'], d.inputs[0])
+    # petals: a second smaller ring around each dot
+    ring = nt.nodes.new('ShaderNodeMath'); ring.operation = 'COMPARE'; ring.inputs[1].default_value = dot * 1.7; ring.inputs[2].default_value = 0.035; nt.links.new(vor.outputs['Distance'], ring.inputs[0])
+    mot = nt.nodes.new('ShaderNodeMath'); mot.operation = 'MAXIMUM'; nt.links.new(d.outputs[0], mot.inputs[0]); nt.links.new(ring.outputs[0], mot.inputs[1])
+    fac = mot
+    if hem:
+        sep = nt.nodes.new('ShaderNodeSeparateXYZ'); uv = nt.nodes.new('ShaderNodeUVMap'); nt.links.new(uv.outputs['UV'], sep.inputs[0])
+        h = nt.nodes.new('ShaderNodeMath'); h.operation = 'LESS_THAN'; h.inputs[1].default_value = hem; nt.links.new(sep.outputs['Y'], h.inputs[0])
+        fac = nt.nodes.new('ShaderNodeMath'); fac.operation = 'MAXIMUM'; nt.links.new(mot.outputs[0], fac.inputs[0]); nt.links.new(h.outputs[0], fac.inputs[1])
+    mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs['A'].default_value = (*base, 1); mx.inputs['B'].default_value = (*motif, 1)
+    nt.links.new(fac.outputs[0], mx.inputs['Factor']); nt.links.new(mx.outputs['Result'], b.inputs['Base Color']); nt.links.new(fac.outputs[0], b.inputs['Metallic'])
+    rr = nt.nodes.new('ShaderNodeMapRange'); rr.inputs[3].default_value = 0.6; rr.inputs[4].default_value = 0.28; nt.links.new(fac.outputs[0], rr.inputs[0]); nt.links.new(rr.outputs[0], b.inputs['Roughness'])
+    return m
+def _smooth(o):
+    bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o; bpy.ops.object.shade_smooth(); return o
+def lathe_obj(name, prof, m, loc, seg=48):
+    import bmesh
+    me = bpy.data.meshes.new(name); b = bmesh.new(); rings = []
+    for r, z in prof: rings.append([b.verts.new((r * math.cos(2 * math.pi * i / seg), r * math.sin(2 * math.pi * i / seg), z)) for i in range(seg)])
+    for a, c in zip(rings, rings[1:]):
+        for i in range(seg): b.faces.new((a[i], a[(i + 1) % seg], c[(i + 1) % seg], c[i]))
+    b.to_mesh(me); b.free(); o = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(o); o.location = loc; o.data.materials.append(m)
+    for p in o.data.polygons: p.use_smooth = True
+    return o
+def kullayi(P, rig, m):
+    """Vijayanagara conical brocade cap (Krishnadevaraya statue at Tirumala): tall, slightly bulbous cone, rolled rim, two ribbons."""
+    c, r, hd = head_info(P); R = r + 0.018; z0 = c.z - 0.075
+    prof = [(R, 0.0), (R + 0.012, 0.012), (R + 0.004, 0.03), (R * 0.98, 0.06), (R * 0.9, 0.13), (R * 0.72, 0.21), (R * 0.5, 0.27), (R * 0.28, 0.31), (R * 0.1, 0.335), (0.0, 0.34)]
+    cap = lathe_obj('kullayi', prof, m, (c.x, c.y, z0)); cap.scale = (1, 1.12, 1)
+    bpy.ops.mesh.primitive_torus_add(major_radius=R + 0.006, minor_radius=0.011, location=(c.x, c.y, z0 + 0.012)); rr = bpy.context.object; rr.scale = (1, 1.12, 1); rr.data.materials.append(GOLD()); _smooth(rr)
+    parts = [cap, rr]
+    back = max(hd, key=lambda p: p.y)
+    for dx in (-0.03, 0.03):   # two ribbons down the back
+        bpy.ops.mesh.primitive_plane_add(size=1, location=(c.x + dx, back.y + 0.02, z0 - 0.12)); rb = bpy.context.object; rb.scale = (0.022, 1, 0.13); rb.rotation_euler = (math.radians(90 - 8), 0, dx * 3)
+        rb.data.materials.append(m); s = rb.modifiers.new('s', 'SOLIDIFY'); s.thickness = 0.003; parts.append(rb)
+    t = merge(parts); attach([t], rig, 'head'); return t
+def royal_pagdi(P, rig, m, pearls=True):
+    """Court turban: wrapped pagdi + gold sarpech with ruby at front + kalgi plume + pearl string."""
+    c, r, hd = head_info(P); parts = []
+    for k in range(6):
+        bpy.ops.mesh.primitive_torus_add(major_radius=(r + 0.014) * (1 + 0.02 * k), minor_radius=0.021, location=(c.x, c.y, c.z - 0.08 + k * 0.025),
+                                         rotation=(0.14 * (-1) ** k, 0.1 * (-1) ** (k + 1), 0), major_segments=48, minor_segments=12)
+        o = bpy.context.object; o.scale = (1, 1.15, 1); o.data.materials.append(m); parts.append(_smooth(o))
+    parts.append(ball(r * 0.9, (c.x, c.y, c.z + 0.035), m, (1, 1.15, 0.5), 24))
+    front = min(hd, key=lambda p: p.y); fy = front.y - 0.035; fz = c.z - 0.0
+    gold = GOLD(); ruby = solid('k_ruby2', (0.6, 0.01, 0.03), 0.05); emer = solid('k_emer2', (0.0, 0.35, 0.12), 0.05); pearl = solid('k_pearl2', (0.95, 0.92, 0.86), 0.2)
+    parts.append(ball(0.03, (c.x, fy, fz), gold, (1.0, 0.35, 1.4), 16)); parts.append(ball(0.016, (c.x, fy - 0.008, fz), ruby, (1, 0.6, 1.2)))
+    for k, dx in enumerate((-0.045, -0.025, 0.025, 0.045)): parts.append(ball(0.008, (c.x + dx, fy + 0.006 * abs(dx) * 40, fz - 0.01 + 0.004 * k % 2), emer if k % 2 else ruby))
+    # kalgi: curved gold stem + white plume
+    bpy.ops.curve.primitive_bezier_curve_add(); cu = bpy.context.object; sp = cu.data.splines[0]; sp.bezier_points.add(1)
+    for bp, p in zip(sp.bezier_points, [(c.x, fy + 0.005, fz + 0.03), (c.x + 0.005, fy + 0.02, fz + 0.12), (c.x + 0.04, fy + 0.07, fz + 0.17)]):
+        bp.co = cu.matrix_world.inverted() @ Vector(p); bp.handle_left_type = bp.handle_right_type = 'AUTO'
+    cu.data.bevel_depth = 0.004; cu.data.materials.append(gold); parts.append(cu)
+    for k in range(9):
+        a = k / 8; bpy.ops.mesh.primitive_cone_add(radius1=0.006, radius2=0.0, depth=0.07, location=(c.x + 0.02 + a * 0.03, fy + 0.04 + a * 0.03, fz + 0.15 + a * 0.02), rotation=(0.6 + a * 0.5, 0.3, 0))
+        f = bpy.context.object; f.scale = (1, 0.3, 1); f.data.materials.append(pearl); parts.append(f)
+    if pearls:
+        for k in range(40):
+            a = 2 * math.pi * k / 40; parts.append(ball(0.0055, (c.x + (r + 0.04) * math.cos(a), c.y + (r + 0.04) * 1.15 * math.sin(a), c.z - 0.045 + 0.012 * math.sin(a * 2)), pearl, (1, 1, 1), 8))
+    t = merge(parts); attach([t], rig, 'head'); return t
+def earrings(P, rig, m=None):
+    c, r, hd = head_info(P); z = c.z - 0.13; gold = GOLD(); pearl = solid('k_pearl2', (0.95, 0.92, 0.86), 0.2); out = []
+    for side in (min, max):
+        e = side([p for p in hd if abs(p.z - z) < 0.02] or hd, key=lambda p: p.x)
+        sx = 1 if side is max else -1
+        out.append(ball(0.012, (e.x + sx * 0.008, e.y, z - 0.03), gold, (1, 1, 1.2))); out.append(ball(0.009, (e.x + sx * 0.008, e.y, z - 0.05), pearl))
+    attach([merge(out)], rig, 'head')
+def pearl_ropes(bm, rig, n=3):
+    return necklace(bm, rig, layers=tuple((0.09 + 0.07 * k, 0.09 + 0.012 * k, 40 + 12 * k) for k in range(n)))

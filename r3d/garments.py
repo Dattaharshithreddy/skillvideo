@@ -77,14 +77,14 @@ def make_base(gender):
     CROTCH[bm.name] = (min(p.z for p in mid) if mid else H * 0.47) - 0.01; print('CROTCH', CROTCH[bm.name] / H)
     return bm, P, H
 
-def tube(name, P, H, top, bot, ease, flare, pleat_amp, cols=64, rows=36, front_pleats=True):
+def tube(name, P, H, top, bot, ease, flare, pleat_amp, cols=64, rows=36, front_pleats=True, all_pleats=0.0):
     cx, cy, rx0, ry0 = ext(P, top - 0.015, top + 0.015, xmax=0.25)
     def fn(u, v):
         z = top + (bot - top) * v
         rx = rx0 + ease + flare * v ** 1.3; ry = ry0 + ease + flare * 0.8 * v ** 1.3
         a = 2 * math.pi * u + math.pi / 2           # seam at the back (+y); front (-y) at u=0.5
         fr = max(0.0, -math.sin(a)) if front_pleats else 0.0               # 1 at front centre
-        pl = 1 + pleat_amp * fr ** 2 * math.sin(u * 2 * math.pi * 22) * min(1, v * 4)
+        pl = 1 + (pleat_amp * fr ** 2 + all_pleats) * math.sin(u * 2 * math.pi * 22) * min(1, v * 4)
         return Vector((cx + rx * pl * math.cos(a), cy + ry * pl * math.sin(a), z))
     return grid_obj(name, cols, rows, fn, pin_rows=(0,))
 
@@ -106,7 +106,7 @@ def join(objs):
 
 jobs = []
 def job(f): jobs.append(f); return f
-ONLY = ONLY or 'ind_uttariya_diag,ind_janeu'
+ONLY = ONLY or 'ind_jama_skirt,ind_patka,ind_jama_long'
 
 @job
 def ind_dhoti():      # Telugu panche: ankle length, front pleats, pinned at the waist
@@ -178,6 +178,28 @@ def ind_janeu():           # sacred thread (yajnopavita): left shoulder -> right
     hug(o, bm, 0.004); SKIRT = True
     o.vertex_groups.remove(o.vertex_groups['pin']); gb = o.vertex_groups.new(name='body'); gb.add(list(range(len(o.data.vertices))), 1.0, 'REPLACE')
     save(o, bm, 'ind_janeu', 'Sacred thread')
+
+@job
+def ind_jama_skirt():      # flared knee-length skirt of the jama / kabayi, gathered all round
+    bm, P, H = make_base(1.0)
+    o = tube('ind_jama_skirt', P, H, H * 0.6, H * 0.27, 0.02, 0.2, 0.0, cols=96, all_pleats=0.035, front_pleats=False)
+    simulate(o, bm, stiff=10, bend=0.3); save(o, bm, 'ind_jama_skirt', 'Jama/kabayi flared skirt, knee length')
+@job
+def ind_jama_long():       # ankle-length royal kabayi skirt (Vijayanagara)
+    bm, P, H = make_base(1.0)
+    o = tube('ind_jama_long', P, H, H * 0.6, H * 0.07, 0.02, 0.17, 0.0, cols=96, all_pleats=0.03, front_pleats=False)
+    simulate(o, bm, stiff=10, bend=0.3); save(o, bm, 'ind_jama_long', 'Long royal tunic skirt')
+@job
+def ind_patka():           # waist sash: band plus two decorated ends hanging in front
+    bm, P, H = make_base(1.0)
+    band = tube('ind_patka', P, H, H * 0.605, H * 0.565, 0.03, 0.0, 0.0, cols=64, rows=4, front_pleats=False)
+    cx, cy, rx, ry = ext(P, H * 0.58, H * 0.6, xmax=0.25)
+    ends = []
+    for dx in (-0.05, 0.05):
+        ends.append(strip('pend', [Vector((cx + dx, cy - ry - 0.04, H * 0.58)), Vector((cx + dx * 1.2, cy - ry - 0.06, H * 0.45)), Vector((cx + dx * 1.3, cy - ry - 0.06, H * 0.33))], 0.11, cols=4, rows=20, pin_ends=(True, False)))
+    o = join([band] + ends)
+    global SKIRT; SKIRT = False
+    simulate(o, bm, frames=25, stiff=8, bend=0.2); SKIRT = True; save(o, bm, 'ind_patka', 'Patka waist sash with hanging ends')
 
 for f in jobs:
     if ONLY and f.__name__ not in ONLY.split(','): continue
