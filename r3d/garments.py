@@ -106,7 +106,7 @@ def join(objs):
 
 jobs = []
 def job(f): jobs.append(f); return f
-ONLY = ONLY or 'ind_jama_skirt,ind_patka,ind_jama_long'
+ONLY = ONLY or 'ind_patka'
 
 @job
 def ind_dhoti():      # Telugu panche: ankle length, front pleats, pinned at the waist
@@ -195,8 +195,8 @@ def ind_patka():           # waist sash: band plus two decorated ends hanging in
     band = tube('ind_patka', P, H, H * 0.605, H * 0.565, 0.03, 0.0, 0.0, cols=64, rows=4, front_pleats=False)
     cx, cy, rx, ry = ext(P, H * 0.58, H * 0.6, xmax=0.25)
     ends = []
-    for dx in (-0.05, 0.05):
-        ends.append(strip('pend', [Vector((cx + dx, cy - ry - 0.04, H * 0.58)), Vector((cx + dx * 1.2, cy - ry - 0.06, H * 0.45)), Vector((cx + dx * 1.3, cy - ry - 0.06, H * 0.33))], 0.11, cols=4, rows=20, pin_ends=(True, False)))
+    for dx in (-0.038, 0.038):
+        ends.append(strip('pend', [Vector((cx + dx, cy - ry - 0.04, H * 0.58)), Vector((cx + dx * 1.1, cy - ry - 0.06, H * 0.45)), Vector((cx + dx * 1.15, cy - ry - 0.06, H * 0.34))], 0.07, cols=4, rows=20, pin_ends=(True, False)))
     o = join([band] + ends)
     global SKIRT; SKIRT = False
     simulate(o, bm, frames=25, stiff=8, bend=0.2); SKIRT = True; save(o, bm, 'ind_patka', 'Patka waist sash with hanging ends')

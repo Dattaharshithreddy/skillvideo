@@ -12,10 +12,11 @@ def find(kind, pat):
     for root in (UD, SD): r += glob.glob(os.path.join(root, kind, '**', pat), recursive=True)
     return sorted(set(r))
 SKINS = find('skins', '*.mhmat')
-SK_M = [s for s in SKINS if any(k in s for k in ('middleage_asian_male', 'middleage_african_male', 'young_asian_male', 'old_darkskinned_male', 'young_african_male'))] or SKINS
+SK_M = [s for s in SKINS if any(k in s for k in ('middleage_asian_male', 'young_asian_male'))] or SKINS
 SK_F = [s for s in SKINS if any(k in s.lower() for k in ('indian_female', 'middleage_asian_female', 'young_asian_female'))] or SKINS
 EYES = find('eyes', '*.mhclo'); BROWS = find('eyebrows', '*.mhclo')
-HAIR_F = [h for h in find('hair', '*.mhclo') if any(k in h.lower() for k in ('braid', 'bun', 'long'))] or find('hair', '*.mhclo')
+HAIR_F = [h for h in find('hair', '*.mhclo') if any(k in h.lower() for k in ('braid', 'bun', 'ponytail'))] or [h for h in find('hair', '*.mhclo') if 'long' in h.lower()]
+print('HAIR_F', [os.path.basename(h) for h in HAIR_F])
 HAIR_M = [h for h in find('hair', '*.mhclo') if 'short' in h.lower()] or find('hair', '*.mhclo')
 POSES = find('poses', 'standing0*.bvh'); SIT = [p for p in find('poses', '*.bvh') if any(k in p for k in ('sittingdefault', 'sit01', 'sittingnatural'))]
 def G(name):
@@ -197,7 +198,7 @@ def person(x, y, rot, male, outfit, sit=False, age=0.5, muscle=0.6, weight=0.5, 
              'cupsize': 0.5, 'firmness': 0.5, 'race': {'african': 0.3, 'asian': 0.5, 'caucasian': 0.2}}
     bm = HumanService.create_human(mask_helpers=True, feet_on_ground=True, scale=0.1, macro_detail_dict=macro)
     HumanService.set_character_skin(skin or random.choice(SK_M if male else SK_F), bm, skin_type='ENHANCED_SSS')
-    tint_skin(bm, (0.74, 0.52, 0.38) if male else (0.84, 0.62, 0.48))
+    tint_skin(bm, (0.82, 0.6, 0.45) if male else (0.8, 0.58, 0.44))
     rig = HumanService.add_builtin_rig(bm, 'default')
     add(EYES[0], bm, 'Eyes'); add(BROWS[0], bm, 'Eyebrows')
     if hair: add(random.choice(HAIR_M if male else HAIR_F), bm, 'Hair')
@@ -211,17 +212,17 @@ def seat(rig, bm, seat_z, at_xy):
     rig.location += Vector((at_xy[0] - p.x, at_xy[1] - p.y, seat_z + 0.09 - p.z)); bpy.context.view_layer.update(); return body_pts(bm)
 
 # ---------------- royal attire (researched: Vijayanagara kabayi + kullayi; court jama + patka + pagdi with sarpech/kalgi) ----------------
-def brocade(name, base, motif=(1.0, 0.72, 0.3), scale=28.0, dot=0.18, hem=0.05, sheen=0.3, obj_coords=False):
+def brocade(name, base, motif=(1.0, 0.72, 0.3), scale=28.0, dot=0.18, hem=0.05, sheen=0.3, obj_coords=True):
     """Silk with a woven gold 'buta' motif (Voronoi dots -> small rosettes) and a zari hem."""
     m = bpy.data.materials.get(name)
     if m: return m
     m = bpy.data.materials.new(name); m.use_fake_user = True; m.use_nodes = True; nt = m.node_tree; b = nt.nodes['Principled BSDF']
     b.inputs['Roughness'].default_value = 0.55; b.inputs['Sheen Weight'].default_value = sheen
-    co = nt.nodes.new('ShaderNodeTexCoord'); vor = nt.nodes.new('ShaderNodeTexVoronoi'); vor.inputs['Scale'].default_value = scale; vor.inputs['Randomness'].default_value = 0.0
+    co = nt.nodes.new('ShaderNodeTexCoord'); vor = nt.nodes.new('ShaderNodeTexVoronoi'); vor.inputs['Scale'].default_value = scale * (3.2 if obj_coords else 1.0); vor.inputs['Randomness'].default_value = 0.0
     nt.links.new(co.outputs['Object' if obj_coords else 'UV'], vor.inputs['Vector'])
     d = nt.nodes.new('ShaderNodeMath'); d.operation = 'LESS_THAN'; d.inputs[1].default_value = dot; nt.links.new(vor.outputs['Distance'], d.inputs[0])
     # petals: a second smaller ring around each dot
-    ring = nt.nodes.new('ShaderNodeMath'); ring.operation = 'COMPARE'; ring.inputs[1].default_value = dot * 1.7; ring.inputs[2].default_value = 0.035; nt.links.new(vor.outputs['Distance'], ring.inputs[0])
+    ring = nt.nodes.new('ShaderNodeMath'); ring.operation = 'COMPARE'; ring.inputs[1].default_value = dot * 1.6; ring.inputs[2].default_value = 0.02; nt.links.new(vor.outputs['Distance'], ring.inputs[0])
     mot = nt.nodes.new('ShaderNodeMath'); mot.operation = 'MAXIMUM'; nt.links.new(d.outputs[0], mot.inputs[0]); nt.links.new(ring.outputs[0], mot.inputs[1])
     fac = mot
     if hem:
@@ -229,7 +230,8 @@ def brocade(name, base, motif=(1.0, 0.72, 0.3), scale=28.0, dot=0.18, hem=0.05, 
         h = nt.nodes.new('ShaderNodeMath'); h.operation = 'LESS_THAN'; h.inputs[1].default_value = hem; nt.links.new(sep.outputs['Y'], h.inputs[0])
         fac = nt.nodes.new('ShaderNodeMath'); fac.operation = 'MAXIMUM'; nt.links.new(mot.outputs[0], fac.inputs[0]); nt.links.new(h.outputs[0], fac.inputs[1])
     mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs['A'].default_value = (*base, 1); mx.inputs['B'].default_value = (*motif, 1)
-    nt.links.new(fac.outputs[0], mx.inputs['Factor']); nt.links.new(mx.outputs['Result'], b.inputs['Base Color']); nt.links.new(fac.outputs[0], b.inputs['Metallic'])
+    sc = nt.nodes.new('ShaderNodeMath'); sc.operation = 'MULTIPLY'; sc.inputs[1].default_value = 0.75; nt.links.new(fac.outputs[0], sc.inputs[0])
+    nt.links.new(sc.outputs[0], mx.inputs['Factor']); nt.links.new(mx.outputs['Result'], b.inputs['Base Color']); nt.links.new(sc.outputs[0], b.inputs['Metallic'])
     rr = nt.nodes.new('ShaderNodeMapRange'); rr.inputs[3].default_value = 0.6; rr.inputs[4].default_value = 0.28; nt.links.new(fac.outputs[0], rr.inputs[0]); nt.links.new(rr.outputs[0], b.inputs['Roughness'])
     return m
 def _smooth(o):
@@ -258,12 +260,12 @@ def kullayi(P, rig, m):
 def royal_pagdi(P, rig, m, pearls=True):
     """Court turban: wrapped pagdi + gold sarpech with ruby at front + kalgi plume + pearl string."""
     c, r, hd = head_info(P); parts = []
-    for k in range(6):
-        bpy.ops.mesh.primitive_torus_add(major_radius=(r + 0.014) * (1 + 0.02 * k), minor_radius=0.021, location=(c.x, c.y, c.z - 0.08 + k * 0.025),
-                                         rotation=(0.14 * (-1) ** k, 0.1 * (-1) ** (k + 1), 0), major_segments=48, minor_segments=12)
-        o = bpy.context.object; o.scale = (1, 1.15, 1); o.data.materials.append(m); parts.append(_smooth(o))
-    parts.append(ball(r * 0.9, (c.x, c.y, c.z + 0.035), m, (1, 1.15, 0.5), 24))
-    front = min(hd, key=lambda p: p.y); fy = front.y - 0.035; fz = c.z - 0.0
+    for k in range(9):
+        bpy.ops.mesh.primitive_torus_add(major_radius=(r + 0.012) * (1 + 0.015 * k), minor_radius=0.03, location=(c.x, c.y, c.z - 0.055 + k * 0.016),
+                                         rotation=(0.22 * (-1) ** k, 0.16 * (-1) ** (k + 1), 0), major_segments=56, minor_segments=12)
+        o = bpy.context.object; o.scale = (1, 1.15, 0.45); o.data.materials.append(m); parts.append(_smooth(o))
+    parts.append(ball(r * 0.95, (c.x, c.y, c.z + 0.07), m, (1, 1.15, 0.45), 24))
+    front = min(hd, key=lambda p: p.y); fy = front.y - 0.04; fz = c.z + 0.02
     gold = GOLD(); ruby = solid('k_ruby2', (0.6, 0.01, 0.03), 0.05); emer = solid('k_emer2', (0.0, 0.35, 0.12), 0.05); pearl = solid('k_pearl2', (0.95, 0.92, 0.86), 0.2)
     parts.append(ball(0.03, (c.x, fy, fz), gold, (1.0, 0.35, 1.4), 16)); parts.append(ball(0.016, (c.x, fy - 0.008, fz), ruby, (1, 0.6, 1.2)))
     for k, dx in enumerate((-0.045, -0.025, 0.025, 0.045)): parts.append(ball(0.008, (c.x + dx, fy + 0.006 * abs(dx) * 40, fz - 0.01 + 0.004 * k % 2), emer if k % 2 else ruby))
