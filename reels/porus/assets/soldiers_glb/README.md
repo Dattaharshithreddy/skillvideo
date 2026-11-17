@@ -7,7 +7,7 @@ One static posed figure per type, ~44-47k triangles each, Y-up, metres, feet at 
 - greek_white / greek_red: Macedonian soldiers, bronze helmet and round shield
 - alexander, puru (puru wears the tall crown)
 
-Skin, cloth weave, pleats and borders are baked into one 2048 albedo texture per figure (JPEG inside the GLB); metal parts keep metallic=1. Skin is a procedural mottled tone (the original MPFB skin images were not packed in army.blend). No skeleton: figures are posed statues, fine for miniature crowds; use instancing.
+Skin, cloth weave, pleats and borders are baked into one 4096 albedo texture per figure (JPEG inside the GLB); metal parts keep metallic=1. Skin is a procedural mottled tone (the original MPFB skin images were not packed in army.blend). No skeleton: figures are posed statues, fine for miniature crowds; use instancing.
 
 ## Not here yet
 War elephant, Puru's royal elephant, horse: Model Forge GLBs exist only on the stopped GPU server. Use stand-ins until AWS is unblocked.

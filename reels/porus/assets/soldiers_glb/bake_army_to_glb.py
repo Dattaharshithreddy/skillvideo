@@ -39,6 +39,18 @@ def prep(m):
                         c=(0.04,0.03,0.02,1) if 'eyebrow' in name else (0.85,0.85,0.83,1) if 'high-poly' in name else (0.30,0.18,0.09,1)
                         try: sock.default_value=c
                         except: pass
+    if 'high-poly' in name:
+        # procedural eye: white sclera, brown iris, black pupil, facing -Y (front)
+        tc=N.new('ShaderNodeTexCoord'); dp=N.new('ShaderNodeVectorMath'); dp.operation='DOT_PRODUCT'
+        dp.inputs[1].default_value=(0,-1,0)
+        nt.links.new(tc.outputs['Normal'],dp.inputs[0])
+        ramp=N.new('ShaderNodeValToRGB'); e=ramp.color_ramp.elements; e[0].position=0.86; e[0].color=(0.82,0.80,0.76,1)
+        e[1].position=0.875; e[1].color=(0.16,0.08,0.03,1)
+        e2=e.new(0.955); e2.color=(0.22,0.11,0.04,1); e3=e.new(0.965); e3.color=(0.01,0.01,0.01,1)
+        ramp.color_ramp.interpolation='LINEAR'
+        nt.links.new(dp.outputs['Value'],ramp.inputs['Fac'])
+        for l in list(bc.links): nt.links.remove(l)
+        nt.links.new(ramp.outputs['Color'],bc)
     if 'king_silk' in name and not bc.is_linked: bc.default_value=(0.36,0.04,0.06,1)
     return src
 os.makedirs('/home/claude/conv/glb2',exist_ok=True)
@@ -54,13 +66,15 @@ for c in bpy.data.collections:
     uv=me.uv_layers.new(name='bake'); me.uv_layers.active=uv
     bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.uv.smart_project(angle_limit=1.15, island_margin=float(os.environ.get('IM','0.003')))
+    bpy.ops.uv.pack_islands(rotate=True, margin=float(os.environ.get('IM','0.003')))
     bpy.ops.object.mode_set(mode='OBJECT')
     img=bpy.data.images.new(v+'_albedo',TEX,TEX); img.generated_color=(0.6,0.55,0.5,1); img.colorspace_settings.name='sRGB'
     mats=[sl.material for sl in ob.material_slots if sl.material]
     nodes={}
-    meta={}
+    meta={}; flat={}
     for m in set(mats):
         b=prep(m)
+        if not b.inputs['Base Color'].is_linked: flat[m]=tuple(b.inputs['Base Color'].default_value)
         mi=b.inputs['Metallic']; ro=b.inputs['Roughness']
         nm=m.name.lower(); metal=any(k in nm for k in ('gold','bronze','steel','brass','silver','iron','metal'))
         meta[m]=(1.0 if metal or (not mi.is_linked and mi.default_value>0.5) else 0.0,
@@ -74,8 +88,11 @@ for c in bpy.data.collections:
     for m,(t,b) in nodes.items():
         nt=m.node_tree; uvn=nt.nodes.new('ShaderNodeUVMap'); uvn.uv_map='bake'
         nt.links.new(uvn.outputs['UV'],t.inputs['Vector'])
-        for l in list(b.inputs['Base Color'].links): nt.links.remove(l)
-        nt.links.new(t.outputs['Color'],b.inputs['Base Color'])
+        if m in flat:
+            nt.nodes.remove(t); nt.nodes.remove(uvn); b.inputs['Base Color'].default_value=flat[m]
+        else:
+            for l in list(b.inputs['Base Color'].links): nt.links.remove(l)
+            nt.links.new(t.outputs['Color'],b.inputs['Base Color'])
         for k in ('Roughness','Metallic'):
             for l in list(b.inputs[k].links): nt.links.remove(l)
         b.inputs['Metallic'].default_value, b.inputs['Roughness'].default_value = meta[m]
