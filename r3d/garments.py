@@ -37,6 +37,7 @@ def grid_obj(name, cols, rows, fn, pin_rows=(), pin_fn=None):
         if w > 0: pin.add([idx], w, 'REPLACE')
     return o
 
+CROTCH = {}; SKIRT = True
 def simulate(o, bm, frames=45, stiff=12.0, bend=0.4, mass=0.25):
     col = bm.modifiers.new('col', 'COLLISION'); bm.collision.thickness_outer = 0.006; bm.collision.cloth_friction = 8
     c = o.modifiers.new('Cloth', 'CLOTH'); s = c.settings
@@ -48,7 +49,12 @@ def simulate(o, bm, frames=45, stiff=12.0, bend=0.4, mass=0.25):
     bpy.context.view_layer.objects.active = o; o.select_set(True)
     bpy.ops.object.modifier_apply(modifier='Cloth'); bm.modifiers.remove(col)
     o.vertex_groups.remove(o.vertex_groups['pin'])
-    g = o.vertex_groups.new(name='body'); g.add(list(range(len(o.data.vertices))), 1.0, 'REPLACE')
+    for m in list(bm.modifiers):
+        if m.type == 'MASK': bm.modifiers.remove(m)
+    bpy.context.view_layer.update()
+    crotch = CROTCH.get(bm.name, -1)
+    gb = o.vertex_groups.new(name='body'); gs = o.vertex_groups.new(name='helper-skirt')
+    for v in o.data.vertices: (gs if (SKIRT and v.co.z < crotch) else gb).add([v.index], 1.0, 'REPLACE')
 
 def save(o, bm, name, desc):
     o.scale = bm.scale
@@ -61,15 +67,18 @@ def save(o, bm, name, desc):
 def make_base(gender):
     fresh()
     bm = HumanService.create_human(mask_helpers=True, feet_on_ground=True, scale=0.1, macro_detail_dict={'gender': gender, 'age': 0.5, 'muscle': 0.5, 'weight': 0.5, 'height': 0.5, 'proportions': 0.5, 'cupsize': 0.5, 'firmness': 0.5, 'race': {'african': 0.33, 'asian': 0.33, 'caucasian': 0.34}})
-    bpy.context.view_layer.update(); P = body_pts(bm); H = max(p.z for p in P); return bm, P, H
+    bpy.context.view_layer.update(); P = body_pts(bm); H = max(p.z for p in P)
+    leg = [p for p in P if abs(p.x) < 0.03 and p.z < H * 0.6]
+    CROTCH[bm.name] = (max(p.z for p in leg) if leg else H * 0.47) - 0.02
+    return bm, P, H
 
 def tube(name, P, H, top, bot, ease, flare, pleat_amp, cols=64, rows=36, front_pleats=True):
     cx, cy, rx0, ry0 = ext(P, top - 0.015, top + 0.015, xmax=0.25)
     def fn(u, v):
         z = top + (bot - top) * v
         rx = rx0 + ease + flare * v ** 1.3; ry = ry0 + ease + flare * 0.8 * v ** 1.3
-        a = 2 * math.pi * u - math.pi / 2           # u=0 at the front (-y)
-        fr = max(0.0, math.cos(a + math.pi / 2)) if front_pleats else 0.0   # 1 at front centre
+        a = 2 * math.pi * u + math.pi / 2           # seam at the back (+y); front (-y) at u=0.5
+        fr = max(0.0, -math.sin(a)) if front_pleats else 0.0               # 1 at front centre
         pl = 1 + pleat_amp * fr ** 2 * math.sin(u * 2 * math.pi * 22) * min(1, v * 4)
         return Vector((cx + rx * pl * math.cos(a), cy + ry * pl * math.sin(a), z))
     return grid_obj(name, cols, rows, fn, pin_rows=(0,))
@@ -120,7 +129,8 @@ def ind_pallu():      # pallu: right hip -> across chest -> over left shoulder -
     pin = o.vertex_groups['pin']
     for v in o.data.vertices:   # also pin across the shoulder so it stays put
         if (v.co - sh).length < 0.09: pin.add([v.index], 1.0, 'REPLACE')
-    simulate(o, bm, frames=40, stiff=6, bend=0.1); save(o, bm, 'ind_pallu', 'Saree pallu over the left shoulder')
+    global SKIRT; SKIRT = False
+    simulate(o, bm, frames=60, stiff=4, bend=0.05, mass=0.15); SKIRT = True; save(o, bm, 'ind_pallu', 'Saree pallu over the left shoulder')
 @job
 def ind_uttariyam():  # angavastram/uttariyam: stole around the back of the neck, both ends down the front
     bm, P, H = make_base(1.0)
@@ -129,11 +139,15 @@ def ind_uttariyam():  # angavastram/uttariyam: stole around the back of the neck
     L = [Vector((cx - rx * 0.45, cy - ry - 0.01, H * 0.52)), Vector((cx - rx * 0.4, cy - ry - 0.02, H * 0.74)), Vector((nk[0] - nk[2] - 0.03, nk[1], H * 0.85)),
          Vector((nk[0], nk[1] + nk[3] + 0.03, H * 0.86)), Vector((nk[0] + nk[2] + 0.03, nk[1], H * 0.85)),
          Vector((cx + rx * 0.4, cy - ry - 0.02, H * 0.74)), Vector((cx + rx * 0.45, cy - ry - 0.01, H * 0.52))]
-    o = strip('ind_uttariyam', L, 0.13, cols=6, rows=56, pin_ends=(False, False))
+    L = [Vector((cx - rx * 0.42, cy - ry + 0.015, H * 0.55)), Vector((cx - rx * 0.38, cy - ry + 0.01, H * 0.74)), Vector((nk[0] - nk[2] - 0.015, nk[1] - 0.01, H * 0.845)),
+         Vector((nk[0], nk[1] + nk[3] + 0.015, H * 0.85)), Vector((nk[0] + nk[2] + 0.015, nk[1] - 0.01, H * 0.845)),
+         Vector((cx + rx * 0.38, cy - ry + 0.01, H * 0.74)), Vector((cx + rx * 0.42, cy - ry + 0.015, H * 0.55))]
+    o = strip('ind_uttariyam', L, 0.10, cols=6, rows=64, pin_ends=(False, False))
     pin = o.vertex_groups['pin']
     for v in o.data.vertices:
-        if v.co.z > H * 0.82: pin.add([v.index], 1.0, 'REPLACE')
-    simulate(o, bm, frames=35, stiff=8, bend=0.2); save(o, bm, 'ind_uttariyam', 'Angavastram / uttariyam stole')
+        if v.co.z > H * 0.835 and v.co.y > nk[1]: pin.add([v.index], 1.0, 'REPLACE')
+    global SKIRT; SKIRT = False
+    simulate(o, bm, frames=70, stiff=3, bend=0.03, mass=0.15); SKIRT = True; save(o, bm, 'ind_uttariyam', 'Angavastram / uttariyam stole')
 
 for f in jobs:
     if ONLY and f.__name__ not in ONLY.split(','): continue

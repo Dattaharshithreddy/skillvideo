@@ -108,14 +108,27 @@ for k in range(7):
     a = k * 2 * math.pi / 7; x = 0.4 + 0.04 * math.cos(a); y = 0.05 + 0.04 * math.sin(a)
     cyl(0.004, 0.75, (x + 0.06, y, 1.0), WOOD, rot=(0, 0.15, 0), v=6); cone(0.012, 0, 0.06, (x + 0.12, y, 1.38), SAFF, rot=(0, 0.15, 0))
 sheet.append(c)
-# 6 kireetam crown
+# 6 kireetam crown: gem-set band, stacked bulbous tiers, lotus-bud finial, side flares
 c = coll('crown_kireetam')
-loft('kireetam', [(0.105, 0.0), (0.11, 0.03), (0.1, 0.06), (0.085, 0.14), (0.07, 0.22), (0.05, 0.3), (0.03, 0.36), (0.012, 0.41), (0.0, 0.43)], GOLD)
-for z, r in ((0.015, 0.108), (0.07, 0.097), (0.15, 0.083), (0.23, 0.068), (0.31, 0.047)): tor(r, 0.008, (0, 0, z), GOLD)
-for k in range(12): a = k * 2 * math.pi / 12; sph(0.012, (0.11 * math.cos(a), 0.11 * math.sin(a), 0.035), RUBY if k % 2 else EMER)
-for z, r, n in ((0.11, 0.09, 10), (0.19, 0.076, 8), (0.27, 0.058, 6)):
-    for k in range(n): a = k * 2 * math.pi / n; sph(0.009, (r * math.cos(a), r * math.sin(a), z), PEARL)
-sph(0.022, (0, -0.105, 0.09), RUBY, (1, 0.6, 1.3)); cone(0.014, 0, 0.05, (0, 0, 0.45), GOLD)
+prof = []
+for k in range(41):
+    t = k / 40; z = t * 0.36
+    r = 0.104 * (1 - 0.72 * t) * (1 + 0.16 * math.sin(t * math.pi * 5) ** 2)
+    prof.append((r, z))
+prof += [(0.03, 0.37), (0.04, 0.39), (0.03, 0.42), (0.0, 0.47)]
+loft('kireetam', prof, GOLD, seg=64)
+cyl(0.108, 0.045, (0, 0, 0.02), GOLD, v=64)
+for z in (0.0, 0.043): tor(0.109, 0.005, (0, 0, z), GOLD)
+for k in range(16): a = k * 2 * math.pi / 16; sph(0.011, (0.112 * math.cos(a), 0.112 * math.sin(a), 0.022), RUBY if k % 2 else EMER, (1, 1, 1.3))
+for z, n in ((0.075, 14), (0.15, 12), (0.22, 10), (0.29, 8)):
+    r = 0.104 * (1 - 0.72 * z / 0.36) * (1 + 0.16 * math.sin(z / 0.36 * math.pi * 5) ** 2) + 0.004
+    for k in range(n): a = k * 2 * math.pi / n; sph(0.008, (r * math.cos(a), r * math.sin(a), z), PEARL)
+sph(0.026, (0, -0.112, 0.07), RUBY, (1, 0.5, 1.3)); tor(0.03, 0.005, (0, -0.11, 0.07), GOLD, rot=(math.pi / 2, 0, 0), sc=(1, 1.3, 1))
+for sx in (-1, 1):
+    me = bpy.data.meshes.new('flare'); b = bmesh.new(); pts = [(0, 0), (0.05, 0.02), (0.09, 0.08), (0.08, 0.14), (0.05, 0.11), (0.03, 0.06)]
+    vs = [b.verts.new((sx * (0.1 + px), 0, 0.03 + pz)) for px, pz in pts]; b.faces.new(vs); b.to_mesh(me); b.free()
+    f = bpy.data.objects.new('flare', me); cur.objects.link(f); mat(f, GOLD); f.modifiers.new('s', 'SOLIDIFY').thickness = 0.008
+cone(0.012, 0, 0.04, (0, 0, 0.485), GOLD)
 for o in c.objects: o.location.z += 1.3
 sheet.append(c)
 # 7 royal jewellery: necklace with pendant, armlets, earrings

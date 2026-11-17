@@ -37,10 +37,10 @@ def cloth(name, col, border=(1.0, 0.7, 0.25), mode='hem', bw=0.045, sheen=0.3, m
     if metal_border: nt.links.new(fac.outputs[0], b.inputs['Metallic'])
     bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.08; nt.links.new(weave.outputs['Fac'], bp.inputs['Height']); nt.links.new(bp.outputs['Normal'], b.inputs['Normal'])
     return m
-COTTON = cloth('cotton', (0.88, 0.86, 0.8)); SILK_R = cloth('silk_red', (0.5, 0.02, 0.05), bw=0.08, sheen=0.8)
-SAREE_G = cloth('saree_green', (0.05, 0.32, 0.12), bw=0.07, sheen=0.7); SAREE_GP = cloth('pallu_green', (0.05, 0.32, 0.12), mode='edge', sheen=0.7)
-SAREE_M = cloth('saree_maroon', (0.42, 0.02, 0.12), bw=0.08, sheen=0.8); SAREE_MP = cloth('pallu_maroon', (0.42, 0.02, 0.12), mode='edge', sheen=0.8)
-UTT = cloth('utt_cream', (0.9, 0.85, 0.7), mode='edge'); UTT_K = cloth('utt_gold', (0.95, 0.75, 0.35), mode='edge', sheen=0.8)
+COTTON = cloth('cotton', (0.88, 0.86, 0.8)); SILK_R = cloth('silk_red', (0.32, 0.01, 0.025), bw=0.08, sheen=0.25)
+SAREE_G = cloth('saree_green', (0.05, 0.32, 0.12), bw=0.07, sheen=0.25); SAREE_GP = cloth('pallu_green', (0.05, 0.32, 0.12), mode='edge', sheen=0.25)
+SAREE_M = cloth('saree_maroon', (0.42, 0.02, 0.12), bw=0.08, sheen=0.25); SAREE_MP = cloth('pallu_maroon', (0.42, 0.02, 0.12), mode='edge', sheen=0.25)
+UTT = cloth('utt_cream', (0.9, 0.85, 0.7), mode='edge'); UTT_K = cloth('utt_gold', (0.95, 0.75, 0.35), mode='edge', sheen=0.25)
 BLOUSE = cloth('blouse', (0.65, 0.4, 0.05), bw=0.0); SOLD = cloth('soldier_dhoti', (0.75, 0.6, 0.45), border=(0.4, 0.05, 0.05), metal_border=False)
 TURB = cloth('turban_red', (0.7, 0.07, 0.05), bw=0.0)
 
@@ -67,6 +67,15 @@ def person(x, y, male, outfit):
              'race': {'african': 0.3, 'asian': 0.5, 'caucasian': 0.2}}
     bm = HumanService.create_human(mask_helpers=True, feet_on_ground=True, scale=0.1, macro_detail_dict=macro)
     HumanService.set_character_skin(random.choice(SK_M if male else SK_F), bm, skin_type='ENHANCED_SSS')
+    for sl in bm.material_slots:
+        m = sl.material
+        if not m or not m.use_nodes: continue
+        nt = m.node_tree
+        for n in [n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED']:
+            inp = n.inputs['Base Color']
+            if inp.links:
+                src = inp.links[0].from_socket; mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.blend_type = 'MULTIPLY'; mx.inputs['Factor'].default_value = 1
+                mx.inputs['B'].default_value = (0.78, 0.58, 0.44, 1) if male else (0.86, 0.66, 0.52, 1); nt.links.new(src, mx.inputs['A']); nt.links.new(mx.outputs['Result'], inp)
     rig = HumanService.add_builtin_rig(bm, 'default')
     add(eyes[0], bm, 'Eyes'); add(brows[0], bm, 'Eyebrows')
     if not male: add(random.choice(hair_f), bm, 'Hair')
@@ -88,9 +97,9 @@ def turban(P, m):
 def kit(name, at, scale=1.0, rot=None, zero_to_origin=True):
     with bpy.data.libraries.load('/opt/r3d/assets/kit.blend', link=False) as (src, dst): dst.collections = [name]
     c = dst.collections[0]; bpy.context.scene.collection.children.link(c)
-    objs = [o for o in c.objects]; mn = Vector((min(o.location.x for o in objs), 0, 0))
+    objs = [o for o in c.objects]; cx = sum(o.location.x for o in objs) / len(objs); base = Vector((cx, 0, 0))
     for o in objs:
-        o.location = (o.location - Vector((sum(q.location.x for q in objs) / len(objs), 0, 0))) * scale + Vector(at); o.scale *= scale
+        o.location = (o.location - base) * scale + Vector(at); o.scale *= scale
         if rot: o.rotation_euler.rotate_axis('Z', rot)
     return objs
 
@@ -108,7 +117,7 @@ for x, y, male, outfit, role in cast:
         if role == 'king': kit('crown_kireetam', (top.x, top.y, top.z - 0.07 - 1.3 * 0.95), 0.95); kit('royal_jewellery', (x, y + 0.02, H * 0.81 - 1.45 * 0.9 + 0.0), 0.9)
         if role == 'queen': kit('crown_kireetam', (top.x, top.y, top.z - 0.06 - 1.3 * 0.6), 0.6)
         if role == 'soldier':
-            turban(P, cloth('turb_s', (0.5, 0.35, 0.2), bw=0.0)); kit('shield_dhal', (x - 0.32, y - 0.15, H * 0.55 - 1.0 * 0.9), 0.9)
+            turban(P, cloth('turb_s', (0.5, 0.35, 0.2), bw=0.0)); kit('shield_dhal', (x - 0.34, y - 0.12, H * 0.5 - 1.0 * 0.8), 0.8)
             kit('spear_bhala', (x + 0.38, y + 0.05, 0), 0.95)
         print('CAST', role, 'ok')
     except Exception: traceback.print_exc(limit=3)
