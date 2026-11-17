@@ -16,7 +16,7 @@ random.seed(4)
 def mat(name, col, rough=0.6, metal=0.0, emit=None):
     m = bpy.data.materials.new(name); m.use_nodes = True; b = m.node_tree.nodes['Principled BSDF']
     b.inputs['Base Color'].default_value = (*col, 1); b.inputs['Roughness'].default_value = rough; b.inputs['Metallic'].default_value = metal
-    return m
+    m.use_fake_user = True; return m
 WHITE = mat('cotton', (0.85, 0.83, 0.78), 0.9); SAFF = mat('saffron', (0.9, 0.38, 0.05), 0.8); STONE = mat('stone', (0.62, 0.56, 0.47), 0.85)
 GOLD = mat('gold', (1.0, 0.72, 0.25), 0.25, 1.0); GROUND = mat('ground', (0.55, 0.48, 0.38), 0.95); TURB = mat('turban', (0.75, 0.1, 0.08), 0.8)
 def human(x, y, rot, i):
