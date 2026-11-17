@@ -3,7 +3,7 @@ Every prompt gets the same style prefix so the whole reel reads as one handcraft
 import json
 STYLE = ""
 NEG = ("cartoon, anime, 2D, illustration, real people, modern objects, text, subtitles, watermark, logo, "
-       "oversaturated, yellow tint, green tint, color cast, washed out, grey sky, empty sky, tiny distant figures, "
+       "oversaturated, yellow tint, green tint, red tint, color cast, washed out, grey sky, empty sky, black background, dark empty background, underexposed, too dark, tiny distant figures, "
        "blurry subject, low quality, jpeg artifacts, deformed, extra limbs, distorted faces, static image, frozen, jerky motion, flicker, morphing")
 KF = json.load(open('ai/keyframes.json'))
 MOTION = {
