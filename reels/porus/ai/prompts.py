@@ -1,11 +1,12 @@
 """Clip prompts for the AI miniature version (Wan 2.2 TI2V-5B). One list of clips per narration shot.
 Every prompt gets the same style prefix so the whole reel reads as one handcrafted tabletop diorama."""
 import json
-STYLE = ("Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, "
-         "model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, "
-         "warm cinematic light, highly detailed, ancient India 326 BC. ")
-NEG = ("cartoon, anime, 2D, illustration, real people, photograph of real life, modern objects, text, subtitles, watermark, logo, "
-       "blurry subject, low quality, jpeg artifacts, deformed, extra limbs, distorted faces, static, frozen, flicker")
+STYLE = ("Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines that move smoothly and naturally, "
+         "model trees and flock grass, resin river, shallow depth of field, natural neutral daylight with balanced true-to-life colors, "
+         "muted earthy tones, soft shadows, crisp detail, smooth cinematic camera motion, ancient India 326 BC. ")
+NEG = ("cartoon, anime, 2D, illustration, real people, modern objects, text, subtitles, watermark, logo, "
+       "oversaturated, yellow tint, green tint, color cast, sepia, neon colors, overexposed, "
+       "blurry subject, low quality, jpeg artifacts, deformed, extra limbs, distorted faces, static image, frozen, jerky motion, flicker, morphing")
 C = {
  'open': [
   "A long column of tiny Macedonian phalanx soldiers with bronze helmets, round shields and very long upright pikes marches across a dusty plain, slow camera dolly alongside them, golden morning light.",

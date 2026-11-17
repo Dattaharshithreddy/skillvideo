@@ -17,7 +17,8 @@ for i, l in enumerate(p['lines']):
     for cid, nf in zip(cl, per):
         src = f'ai/clips/{cid}.mp4'; d = dur(src); want = nf / 30.0; k = want / d
         out = f'ai/seg/{i:02d}_{cid}.mp4'
-        vf = (f"setpts={k:.5f}*PTS,fps=30,scale=1080:1920:flags=lanczos,unsharp=5:5:0.6,"
+        vf = (f"eq=saturation=0.86:gamma=1.02,colorbalance=rm=0.02:gm=-0.03:bm=0.04:rh=0.0:gh=-0.02:bh=0.03,"
+              f"setpts={k:.5f}*PTS,minterpolate=fps=30:mi_mode=blend,scale=1080:1920:flags=lanczos,unsharp=5:5:0.6,"
               f"trim=end_frame={nf},setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop={nf}")
         subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', src, '-vf', vf, '-frames:v', str(nf), '-an', '-c:v', 'libx264', '-preset', 'fast', '-crf', '16', '-pix_fmt', 'yuv420p', out], check=True)
         lst.append(out); print('SEG', out, nf, 'stretch', round(k, 2))
