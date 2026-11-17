@@ -249,10 +249,10 @@ def board(text, loc, rot_z=0.0, w=6.0, h=1.4, bg=(0.07, 0.07, 0.09), fg=(0.97, 0
     e = bpy.data.objects.new('board_' + text[:8], None); bpy.context.scene.collection.objects.link(e)
     for o in objs: o.parent = e
     e.location = loc; e.rotation_euler.z = rot_z; return e
-board('326 BC', (-6, -4.2, 2.6), 0.0, w=4.2, size=0.9)
-board('HYDASPES RIVER', (8, -5.0, 2.3), 0.0, w=7.5, bg=(0.08, 0.2, 0.55), size=0.7)
-board('ALEXANDER', (5.5, 7.2, 2.6), 0.0, w=5.5, bg=(0.5, 0.05, 0.05), size=0.8)
-board('200 WAR ELEPHANTS', (-10, -9.0, 2.4), 0.0, w=9.0, bg=(0.07, 0.07, 0.09), size=0.7)
+if not os.environ.get('NOBOARDS'): board('326 BC', (-6, -4.2, 2.6), 0.0, w=4.2, size=0.9)
+if not os.environ.get('NOBOARDS'): board('HYDASPES RIVER', (8, -5.0, 2.3), 0.0, w=7.5, bg=(0.08, 0.2, 0.55), size=0.7)
+if not os.environ.get('NOBOARDS'): board('ALEXANDER', (5.5, 7.2, 2.6), 0.0, w=5.5, bg=(0.5, 0.05, 0.05), size=0.8)
+if not os.environ.get('NOBOARDS'): board('200 WAR ELEPHANTS', (-10, -9.0, 2.4), 0.0, w=9.0, bg=(0.07, 0.07, 0.09), size=0.7)
 
 # ---------------- light, render ----------------
 w_ = bpy.data.worlds.new('w'); sc.world = w_; w_.use_nodes = True; bg = w_.node_tree.nodes['Background']
@@ -291,6 +291,20 @@ cam_d.dof.aperture_fstop = f0; cam_d.dof.keyframe_insert('aperture_fstop', frame
 sc.render.use_motion_blur = True; sc.render.motion_blur_shutter = 0.4
 sc.render.filepath = OUT + '/'
 bpy.ops.wm.save_as_mainfile(filepath=f'/opt/reel/mini3d/diorama2_{SHOT}.blend')
+if os.environ.get('TRACK'):
+    import json
+    from bpy_extras.object_utils import world_to_camera_view
+    pz = ground_z(0, -10.4) + float(os.environ.get('HOWDAH_Z', 3.28)) * ES * 1.12 + HS * 1.05
+    A = {'river': (-3.0, 2.5 * math.sin(-0.21), 0.0), 'greek': (0, 16.5, 0.6), 'indian': (0, -17.5, 0.6), 'elephants': (-7.0, -11.0, 1.1),
+         'puru': (0, -10.4, pz), 'alexander': (0.6, 9.4, ground_z(0.6, 9.4) + HS * 1.05), 'horse': (-0.4, 9.6, ground_z(-0.4, 9.6) + ES * 1.5)}
+    out = {}
+    for f in range(1, NF + 1):
+        sc.frame_set(f); fr = {}
+        for k, p in A.items():
+            v = world_to_camera_view(sc, cam, Vector(p)); fr[k] = [round(v.x, 4), round(1 - v.y, 4), round(v.z, 2)]
+        out[f] = fr
+    json.dump(out, open(f'/opt/reel/mini3d/tracks_{SHOT}.json', 'w')); print('TRACKS_DONE', SHOT); raise SystemExit
+
 if os.environ.get('STILL'):
     sc.frame_set(int(os.environ['STILL'])); sc.render.filepath = OUT + f'/still_{os.environ["STILL"]}.jpg'; bpy.ops.render.render(write_still=True)
 else:
