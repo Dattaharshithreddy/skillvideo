@@ -1,6 +1,8 @@
 """Step 2: generate each miniature clip with Wan 2.2 TI2V-5B from the saved prompt embeddings (no text encoder in memory).
 Usage: python ai/wan_gen.py [clip ids...]   (default: all clips not yet rendered)"""
-import json, os, sys, time, torch
+import json, os, sys, time
+os.environ.setdefault('PYTORCH_CUDA_ALLOC_CONF', 'expandable_segments:True')
+import torch
 from diffusers import WanPipeline, AutoencoderKLWan, WanTransformer3DModel
 from diffusers.utils import export_to_video
 M = '/opt/wan/model'
@@ -9,7 +11,7 @@ P = json.load(open('ai/prompts.json')); E = torch.load('ai/embeds.pt')
 vae = AutoencoderKLWan.from_pretrained(M, subfolder='vae', torch_dtype=torch.float32)
 tr = WanTransformer3DModel.from_pretrained(M, subfolder='transformer', torch_dtype=torch.bfloat16, device_map='cuda')
 pipe = WanPipeline.from_pretrained(M, vae=vae, transformer=tr, text_encoder=None, tokenizer=None, torch_dtype=torch.bfloat16)
-pipe.vae.to('cuda')
+pipe.vae.to('cuda'); pipe.vae.enable_tiling()
 os.makedirs('ai/clips', exist_ok=True)
 ids = sys.argv[1:] or [c['id'] for c in P['clips']]
 for i, cid in enumerate(ids):
@@ -18,6 +20,6 @@ for i, cid in enumerate(ids):
     t0 = time.time(); g = torch.Generator('cuda').manual_seed(1000 + i)
     fr = pipe(prompt_embeds=E[cid].to('cuda', torch.bfloat16), negative_prompt_embeds=E['neg'].to('cuda', torch.bfloat16),
               height=H, width=W, num_frames=NF, guidance_scale=5.0, num_inference_steps=STEPS, generator=g).frames[0]
-    export_to_video(fr, out, fps=24)
+    export_to_video(fr, out, fps=24); torch.cuda.empty_cache()
     print('CLIP', cid, round(time.time() - t0), 's', flush=True)
 print('GEN_DONE')
