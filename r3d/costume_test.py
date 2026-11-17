@@ -37,13 +37,28 @@ def cloth(name, col, border=(1.0, 0.7, 0.25), mode='hem', bw=0.045, sheen=0.3, m
     if metal_border: nt.links.new(fac.outputs[0], b.inputs['Metallic'])
     bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = 0.08; nt.links.new(weave.outputs['Fac'], bp.inputs['Height']); nt.links.new(bp.outputs['Normal'], b.inputs['Normal'])
     return m
-COTTON = cloth('cotton', (0.88, 0.86, 0.8)); SILK_R = cloth('silk_red', (0.32, 0.01, 0.025), bw=0.08, sheen=0.25)
+COTTON = cloth('cotton', (0.88, 0.86, 0.8)); SILK_R = cloth('silk_red', (0.16, 0.004, 0.012), bw=0.08, sheen=0.1)
 SAREE_G = cloth('saree_green', (0.05, 0.32, 0.12), bw=0.07, sheen=0.25); SAREE_GP = cloth('pallu_green', (0.05, 0.32, 0.12), mode='edge', sheen=0.25)
 SAREE_M = cloth('saree_maroon', (0.42, 0.02, 0.12), bw=0.08, sheen=0.25); SAREE_MP = cloth('pallu_maroon', (0.42, 0.02, 0.12), mode='edge', sheen=0.25)
 UTT = cloth('utt_cream', (0.9, 0.85, 0.7), mode='edge'); UTT_K = cloth('utt_gold', (0.95, 0.75, 0.35), mode='edge', sheen=0.25)
 BLOUSE = cloth('blouse', (0.65, 0.4, 0.05), bw=0.0); SOLD = cloth('soldier_dhoti', (0.75, 0.6, 0.45), border=(0.4, 0.05, 0.05), metal_border=False)
 TURB = cloth('turban_red', (0.7, 0.07, 0.05), bw=0.0)
 
+def tint_skin(bm, col):
+    seen = set()
+    def walk(nt):
+        if nt is None or nt.name in seen: return
+        seen.add(nt.name)
+        for n in list(nt.nodes):
+            if n.type == 'GROUP': walk(n.node_tree)
+            if n.type == 'TEX_IMAGE' and n.image and n.image.colorspace_settings.name == 'sRGB':
+                links = [l for l in nt.links if l.from_node == n and l.from_socket.name == 'Color']
+                if not links: continue
+                mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.blend_type = 'MULTIPLY'; mx.inputs['Factor'].default_value = 1; mx.inputs['B'].default_value = (*col, 1)
+                nt.links.new(n.outputs['Color'], mx.inputs['A'])
+                for l in links: s = l.to_socket; nt.links.remove(l); nt.links.new(mx.outputs['Result'], s)
+    for sl in bm.material_slots:
+        if sl.material and sl.material.use_nodes: walk(sl.material.node_tree)
 def body_pts(bm):
     dg = bpy.context.evaluated_depsgraph_get(); ev = bm.evaluated_get(dg); me = ev.to_mesh(); vg = bm.vertex_groups['body'].index; M = bm.matrix_world
     p = [M @ v.co for v in me.vertices if any(g.group == vg and g.weight > 0.5 for g in v.groups)]; ev.to_mesh_clear(); return p
@@ -67,22 +82,15 @@ def person(x, y, male, outfit):
              'race': {'african': 0.3, 'asian': 0.5, 'caucasian': 0.2}}
     bm = HumanService.create_human(mask_helpers=True, feet_on_ground=True, scale=0.1, macro_detail_dict=macro)
     HumanService.set_character_skin(random.choice(SK_M if male else SK_F), bm, skin_type='ENHANCED_SSS')
-    for sl in bm.material_slots:
-        m = sl.material
-        if not m or not m.use_nodes: continue
-        nt = m.node_tree
-        for n in [n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED']:
-            inp = n.inputs['Base Color']
-            if inp.links:
-                src = inp.links[0].from_socket; mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.blend_type = 'MULTIPLY'; mx.inputs['Factor'].default_value = 1
-                mx.inputs['B'].default_value = (0.78, 0.58, 0.44, 1) if male else (0.86, 0.66, 0.52, 1); nt.links.new(src, mx.inputs['A']); nt.links.new(mx.outputs['Result'], inp)
+    tint_skin(bm, (0.72, 0.5, 0.36) if male else (0.82, 0.6, 0.46))
     rig = HumanService.add_builtin_rig(bm, 'default')
+    if not getattr(person, 'shown', 0): print('BONES', [b.name for b in rig.pose.bones][:60]); person.shown = 1
     add(eyes[0], bm, 'Eyes'); add(brows[0], bm, 'Eyebrows')
     if not male: add(random.choice(hair_f), bm, 'Hair')
     for g, m in outfit: add(G(g) if not g.endswith('.mhclo') else g, bm, 'Clothes', m)
     if not male: add(TOP, bm, 'Clothes', BLOUSE)
     pose_ok(rig, bm)
-    rig.location = (x, y, 0); bpy.context.view_layer.update(); return bm, body_pts(bm)
+    rig.location = (x, y, 0); bpy.context.view_layer.update(); return bm, body_pts(bm), rig
 def head_top(P):
     nk = [p for p in P if 0.86 * max(q.z for q in P) < p.z < 0.89 * max(q.z for q in P)]
     nx = sum(p.x for p in nk) / len(nk); ny = sum(p.y for p in nk) / len(nk)
@@ -94,13 +102,41 @@ def turban(P, m):
         bpy.ops.mesh.primitive_torus_add(major_radius=(r + 0.012) * (1 - k * 0.09), minor_radius=0.02, location=(c.x, c.y, c.z - 0.085 + k * 0.024), rotation=(random.uniform(-0.15, 0.15), random.uniform(-0.15, 0.15), 0))
         o = bpy.context.object; o.scale = (1, 1.12, 1); o.data.materials.append(m); bpy.ops.object.shade_smooth()
     bpy.ops.mesh.primitive_uv_sphere_add(radius=r * 0.78, location=(c.x, c.y, c.z - 0.01)); o = bpy.context.object; o.scale = (1, 1.12, 0.55); o.data.materials.append(m); bpy.ops.object.shade_smooth()
+from mathutils import Matrix
+from mathutils.bvhtree import BVHTree
+def attach(objs, rig, bone):
+    for o in objs:
+        mw = o.matrix_world.copy(); o.parent = rig; o.parent_type = 'BONE'; o.parent_bone = bone; bpy.context.view_layer.update(); o.matrix_world = mw
+def bone_pos(rig, bone, tail=False):
+    pb = rig.pose.bones[bone]; return rig.matrix_world @ (pb.tail if tail else pb.head)
+def necklace(bm, rig, P, H, gold, gem, pearl):
+    dg = bpy.context.evaluated_depsgraph_get(); ev = bm.evaluated_get(dg); bvh = BVHTree.FromObject(ev, dg)
+    n0 = bone_pos(rig, 'neck01'); out = []
+    for strand, (drop, rad, nb) in enumerate(((0.07, 0.085, 36), (0.13, 0.1, 44))):
+        prev = None
+        for k in range(nb + 1):
+            a = math.pi * k / nb                         # half ring over the front
+            p = Vector((n0.x + rad * 1.2 * math.cos(a), n0.y - rad * math.sin(a), n0.z - 0.01 - drop * math.sin(a) ** 2))
+            loc, nrm, i, d = bvh.find_nearest(p)
+            if loc is None: continue
+            q = loc + nrm * 0.008
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.006 if strand == 0 else 0.007, location=q, segments=12, ring_count=8)
+            o = bpy.context.object; o.data.materials.append(gold if (k % 3) else pearl); out.append(o)
+        if strand == 1:
+            lo = min(out[-nb:], key=lambda o: o.location.z).location
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.022, location=lo + Vector((0, -0.008, -0.025))); pd = bpy.context.object; pd.scale = (1, 0.45, 1.3); pd.data.materials.append(gold); out.append(pd)
+            bpy.ops.mesh.primitive_uv_sphere_add(radius=0.013, location=lo + Vector((0, -0.016, -0.025))); gm = bpy.context.object; gm.scale = (1, 0.6, 1.2); gm.data.materials.append(gem); out.append(gm)
+    attach(out, rig, 'spine01'); return out
 def kit(name, at, scale=1.0, rot=None, zero_to_origin=True):
     with bpy.data.libraries.load('/opt/r3d/assets/kit.blend', link=False) as (src, dst): dst.collections = [name]
     c = dst.collections[0]; bpy.context.scene.collection.children.link(c)
     objs = [o for o in c.objects]; cx = sum(o.location.x for o in objs) / len(objs); base = Vector((cx, 0, 0))
     for o in objs:
         o.location = (o.location - base) * scale + Vector(at); o.scale *= scale
-        if rot: o.rotation_euler.rotate_axis('Z', rot)
+    if rot:
+        A = Vector(at); R = Matrix.Translation(A) @ Matrix.Rotation(rot, 4, 'Z') @ Matrix.Translation(-A)
+        bpy.context.view_layer.update()
+        for o in objs: o.matrix_world = R @ o.matrix_world
     return objs
 
 KD = os.path.join(UD, 'clothes')
@@ -111,14 +147,26 @@ cast = [(-1.6, 0.3, True, [('ind_dhoti', COTTON), ('ind_uttariyam', UTT)], 'vill
         (1.65, 0.3, True, [('ind_dhoti', SOLD)], 'soldier')]
 for x, y, male, outfit, role in cast:
     try:
-        bm, P = person(x, y, male, [(os.path.join(KD, g, g + '.mhclo'), m) for g, m in outfit])
+        bm, P, rig = person(x, y, male, [(os.path.join(KD, g, g + '.mhclo'), m) for g, m in outfit])
         top, r = head_top(P); H = max(p.z for p in P)
         if role == 'villager': turban(P, TURB)
-        if role == 'king': kit('crown_kireetam', (top.x, top.y, top.z - 0.07 - 1.3 * 0.95), 0.95); kit('royal_jewellery', (x, y + 0.02, H * 0.81 - 1.45 * 0.9 + 0.0), 0.9)
-        if role == 'queen': kit('crown_kireetam', (top.x, top.y, top.z - 0.06 - 1.3 * 0.6), 0.6)
+        GLD = bpy.data.materials.get('k_gold'); RB = bpy.data.materials.get('k_ruby'); PRL = bpy.data.materials.get('k_pearl')
+        if role in ('king', 'queen'):
+            sc = 0.9 if role == 'king' else 0.62
+            attach(kit('crown_kireetam', (top.x, top.y, top.z - 0.105 - 1.3 * sc), sc), rig, 'head')
+            GLD = bpy.data.materials['k_gold']; RB = bpy.data.materials['k_ruby']; PRL = bpy.data.materials['k_pearl']
+            necklace(bm, rig, P, H, GLD, RB, PRL)
+            for side in ('L', 'R'):
+                ua = bone_pos(rig, f'upperarm01.{side}').lerp(bone_pos(rig, f'upperarm02.{side}', True), 0.55)
+                bpy.ops.mesh.primitive_torus_add(major_radius=0.05, minor_radius=0.009, location=ua); o = bpy.context.object; o.data.materials.append(GLD)
+                d = (bone_pos(rig, f'upperarm02.{side}', True) - bone_pos(rig, f'upperarm01.{side}')).normalized(); o.rotation_mode = 'QUATERNION'; o.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(d)
+                attach([o], rig, f'upperarm02.{side}')
         if role == 'soldier':
-            turban(P, cloth('turb_s', (0.5, 0.35, 0.2), bw=0.0)); kit('shield_dhal', (x - 0.34, y - 0.12, H * 0.5 - 1.0 * 0.8), 0.8)
-            kit('spear_bhala', (x + 0.38, y + 0.05, 0), 0.95)
+            turban(P, cloth('turb_s', (0.5, 0.35, 0.2), bw=0.0))
+            fa = bone_pos(rig, 'lowerarm01.R').lerp(bone_pos(rig, 'lowerarm02.R', True), 0.5)
+            attach(kit('shield_dhal', (fa.x + 0.07, fa.y, fa.z - 1.0 * 0.8), 0.8, rot=math.pi / 2), rig, 'lowerarm02.R')
+            hd = bone_pos(rig, 'wrist.L')
+            attach(kit('spear_bhala', (hd.x + 0.02, hd.y - 0.03, hd.z - 1.0), 0.95), rig, 'wrist.L')
         print('CAST', role, 'ok')
     except Exception: traceback.print_exc(limit=3)
 kit('banner_flag', (-2.6, 1.6, 0), 1.0); kit('war_drum_nagara', (2.6, 0.9, 0), 1.0)

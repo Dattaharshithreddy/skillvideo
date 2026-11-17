@@ -127,7 +127,8 @@ sph(0.026, (0, -0.112, 0.07), RUBY, (1, 0.5, 1.3)); tor(0.03, 0.005, (0, -0.11, 
 for sx in (-1, 1):
     me = bpy.data.meshes.new('flare'); b = bmesh.new(); pts = [(0, 0), (0.05, 0.02), (0.09, 0.08), (0.08, 0.14), (0.05, 0.11), (0.03, 0.06)]
     vs = [b.verts.new((sx * (0.1 + px), 0, 0.03 + pz)) for px, pz in pts]; b.faces.new(vs); b.to_mesh(me); b.free()
-    f = bpy.data.objects.new('flare', me); cur.objects.link(f); mat(f, GOLD); f.modifiers.new('s', 'SOLIDIFY').thickness = 0.008
+    f = bpy.data.objects.new('flare', me); cur.objects.link(f); mat(f, GOLD); f.modifiers.new('s', 'SOLIDIFY').thickness = 0.008; f.modifiers.new('b', 'BEVEL').width = 0.003
+    for k in range(3): sph(0.006, (sx * (0.13 + k * 0.02), -0.004, 0.08 + k * 0.03), RUBY)
 cone(0.012, 0, 0.04, (0, 0, 0.485), GOLD)
 for o in c.objects: o.location.z += 1.3
 sheet.append(c)

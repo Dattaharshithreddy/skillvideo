@@ -38,6 +38,11 @@ def grid_obj(name, cols, rows, fn, pin_rows=(), pin_fn=None):
     return o
 
 CROTCH = {}; SKIRT = True
+def hug(o, bm, off=0.007):
+    sw = o.modifiers.new('sw', 'SHRINKWRAP'); sw.target = bm; sw.wrap_method = 'NEAREST_SURFACEPOINT'; sw.wrap_mode = 'OUTSIDE_SURFACE'; sw.offset = off
+    sm = o.modifiers.new('sm', 'SMOOTH'); sm.factor = 0.5; sm.iterations = 4
+    bpy.context.view_layer.objects.active = o; o.select_set(True)
+    bpy.ops.object.modifier_apply(modifier='sw'); bpy.ops.object.modifier_apply(modifier='sm')
 def simulate(o, bm, frames=45, stiff=12.0, bend=0.4, mass=0.25):
     col = bm.modifiers.new('col', 'COLLISION'); bm.collision.thickness_outer = 0.006; bm.collision.cloth_friction = 8
     c = o.modifiers.new('Cloth', 'CLOTH'); s = c.settings
@@ -101,6 +106,7 @@ def join(objs):
 
 jobs = []
 def job(f): jobs.append(f); return f
+ONLY = ONLY or 'ind_pallu,ind_uttariyam'
 
 @job
 def ind_dhoti():      # Telugu panche: ankle length, front pleats, pinned at the waist
@@ -130,7 +136,7 @@ def ind_pallu():      # pallu: right hip -> across chest -> over left shoulder -
     for v in o.data.vertices:   # also pin across the shoulder so it stays put
         if (v.co - sh).length < 0.09: pin.add([v.index], 1.0, 'REPLACE')
     global SKIRT; SKIRT = False
-    simulate(o, bm, frames=60, stiff=4, bend=0.05, mass=0.15); SKIRT = True; save(o, bm, 'ind_pallu', 'Saree pallu over the left shoulder')
+    hug(o, bm, 0.012); simulate(o, bm, frames=10, stiff=6, bend=0.05, mass=0.1); SKIRT = True; save(o, bm, 'ind_pallu', 'Saree pallu over the left shoulder')
 @job
 def ind_uttariyam():  # angavastram/uttariyam: stole around the back of the neck, both ends down the front
     bm, P, H = make_base(1.0)
@@ -147,7 +153,7 @@ def ind_uttariyam():  # angavastram/uttariyam: stole around the back of the neck
     for v in o.data.vertices:
         if v.co.z > H * 0.835 and v.co.y > nk[1]: pin.add([v.index], 1.0, 'REPLACE')
     global SKIRT; SKIRT = False
-    simulate(o, bm, frames=70, stiff=3, bend=0.03, mass=0.15); SKIRT = True; save(o, bm, 'ind_uttariyam', 'Angavastram / uttariyam stole')
+    hug(o, bm, 0.008); simulate(o, bm, frames=8, stiff=6, bend=0.05, mass=0.1); SKIRT = True; save(o, bm, 'ind_uttariyam', 'Angavastram / uttariyam stole')
 
 for f in jobs:
     if ONLY and f.__name__ not in ONLY.split(','): continue
