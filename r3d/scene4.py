@@ -68,7 +68,7 @@ def texify(m, role, scale, tint=None):
     if os.path.exists(f'{PH}/{role}_nor.jpg'):
         nm = nt.nodes.new('ShaderNodeNormalMap'); nt.links.new(img(f'{PH}/{role}_nor.jpg', True).outputs['Color'], nm.inputs['Color']); nt.links.new(nm.outputs['Normal'], b.inputs['Normal'])
 DARK = nmat('dark', (0.04, 0.03, 0.025), 0.9)
-texify(GROUND, 'ground', 0.45); texify(STONE, 'stone', 0.5, (1.0, 0.92, 0.8)); texify(PLASTER, 'plaster', 0.6, (1.05, 1.0, 0.9))
+texify(GROUND, 'ground', 0.3); texify(STONE, 'stone', 0.35, (1.0, 0.95, 0.85)); texify(PLASTER, 'plaster', 0.5, (1.0, 0.96, 0.88))
 WOOD = nmat('wood', (0.3, 0.18, 0.1), 0.7); texify(WOOD, 'wood', 0.8, (0.8, 0.55, 0.35))
 NICHE = nmat('niche', (0.32, 0.28, 0.22), 0.9, bump=0.3, scale=10)
 
@@ -271,7 +271,7 @@ if os.path.exists(PH + '/sky.hdr'):
     env = w.node_tree.nodes.new('ShaderNodeTexEnvironment'); env.image = bpy.data.images.load(PH + '/sky.hdr')
     w.node_tree.links.new(env.outputs[0], w.node_tree.nodes['Background'].inputs[0]); w.node_tree.nodes['Background'].inputs[1].default_value = 0.7
 bpy.ops.object.light_add(type='SUN', rotation=(math.radians(70), 0, math.radians(235))); sun = bpy.context.object
-sun.data.energy = 4.5; sun.data.color = (1.0, 0.82, 0.62); sun.data.angle = math.radians(1.5)
+sun.data.energy = 4.0; sun.data.color = (1.0, 0.82, 0.62); sun.data.angle = math.radians(1.5)
 s = bpy.context.scene; s.render.engine = 'CYCLES'; s.cycles.device = 'CPU'; s.cycles.samples = int(os.environ.get('SPP', 64)); s.cycles.use_denoising = True
 s.render.resolution_x, s.render.resolution_y = 1080, 1920; s.render.resolution_percentage = int(os.environ.get('PCT', 50))
 s.view_settings.view_transform = 'AgX'; s.view_settings.look = 'AgX - Medium High Contrast'; s.view_settings.exposure = float(os.environ.get('EV', -0.3))

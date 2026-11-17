@@ -17,6 +17,8 @@ hdr = get('https://api.polyhaven.com/assets?t=hdris&c=outdoor')
 for k in ['kiara_1_dawn', 'golden_bay', 'spruit_sunrise', 'kloofendal_43d_clear', 'sunflowers']:
     if k in hdr: pick['hdri'] = k; break
 else: pick['hdri'] = sorted(hdr)[0]
+pick = {'ground': 'precast_stone_paving', 'stone': 'white_sandstone_blocks_02', 'plaster': 'white_stucco', 'wood': 'oak_wood_planks', 'hdri': 'qwantani_late_afternoon_puresky'}
+import shutil; [os.remove(os.path.join(OUT, f)) for f in os.listdir(OUT)]
 print('PICK', pick)
 def dl(u, p):
     if not os.path.exists(p): urllib.request.urlretrieve(u, p) if False else open(p, 'wb').write(urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=120).read())
