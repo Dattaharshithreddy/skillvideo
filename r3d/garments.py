@@ -68,8 +68,8 @@ def make_base(gender):
     fresh()
     bm = HumanService.create_human(mask_helpers=True, feet_on_ground=True, scale=0.1, macro_detail_dict={'gender': gender, 'age': 0.5, 'muscle': 0.5, 'weight': 0.5, 'height': 0.5, 'proportions': 0.5, 'cupsize': 0.5, 'firmness': 0.5, 'race': {'african': 0.33, 'asian': 0.33, 'caucasian': 0.34}})
     bpy.context.view_layer.update(); P = body_pts(bm); H = max(p.z for p in P)
-    leg = [p for p in P if abs(p.x) < 0.03 and p.z < H * 0.6]
-    CROTCH[bm.name] = (max(p.z for p in leg) if leg else H * 0.47) - 0.02
+    mid = [p for p in P if abs(p.x) < 0.015 and p.z < H * 0.7]
+    CROTCH[bm.name] = (min(p.z for p in mid) if mid else H * 0.47) - 0.01; print('CROTCH', CROTCH[bm.name] / H)
     return bm, P, H
 
 def tube(name, P, H, top, bot, ease, flare, pleat_amp, cols=64, rows=36, front_pleats=True):
