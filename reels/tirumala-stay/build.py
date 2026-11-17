@@ -144,7 +144,7 @@ for nm, loc, dims in (('edgeN', (0, BY + 0.004, BASE / 2 - 0.004), (2 * BX + 0.0
 M_table = bpy.data.materials.new('table'); M_table.use_nodes = True; nt = M_table.node_tree; b = nt.nodes['Principled BSDF']
 wt = nt.nodes.new('ShaderNodeTexWave'); wt.inputs['Scale'].default_value = 6; wt.inputs['Distortion'].default_value = 9; wt.inputs['Detail'].default_value = 4
 cr = nt.nodes.new('ShaderNodeValToRGB'); cr.color_ramp.elements[0].color = (0.07, 0.035, 0.018, 1); cr.color_ramp.elements[1].color = (0.11, 0.055, 0.025, 1)
-nt.links.new(wt.outputs['Fac'], cr.inputs['Fac']); nt.links.new(cr.outputs['Color'], b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.35
+b.inputs['Base Color'].default_value = (0.05, 0.025, 0.012, 1); b.inputs['Roughness'].default_value = 0.45
 box('table', (0, 0, -0.025), (3.2, 2.2, 0.05), M_table)
 M_wall = emis('room', (0.22, 0.10, 0.03), 0.35)
 bpy.ops.mesh.primitive_cylinder_add(radius=3.5, depth=4, location=(0, 0, 1.0), vertices=48); wall = bpy.context.object; wall.data.materials.append(M_wall)
@@ -165,6 +165,14 @@ exec(open('../tirumala-ghat/temple.py').read(), _tg)
 ROOT = _tg['ROOT']; ROOT.location = (TP.x, TP.y, GZ); s_ = _tg['SCL'] * MS; ROOT.scale = (s_, s_, s_)
 for o in bpy.data.objects:
     if o.type == 'LIGHT' and o.name.startswith('tpl_light'): o.data.energy *= s_ * s_ * 3; o.data.shadow_soft_size *= s_
+for m_ in bpy.data.materials:
+    b_ = m_.node_tree.nodes.get('Principled BSDF') if m_.use_nodes else None
+    if not b_: continue
+    if m_.name == 'tpl_gold':
+        b_.inputs['Base Color'].default_value = (1.0, 0.62, 0.12, 1); b_.inputs['Metallic'].default_value = 1.0; b_.inputs['Roughness'].default_value = 0.22
+        b_.inputs['Emission Color'].default_value = (1.0, 0.55, 0.1, 1); b_.inputs['Emission Strength'].default_value = 0.9
+    if m_.name == 'tpl_white': b_.inputs['Base Color'].default_value = (0.92, 0.88, 0.80, 1)
+    if m_.name == 'tpl_red': b_.inputs['Base Color'].default_value = (0.72, 0.08, 0.04, 1)
 bpy.context.view_layer.update()
 TPTOP = ROOT.matrix_world @ V((_tg['vx'], 0, _tg['VTOP']))
 GOP = ROOT.matrix_world @ V((63, 0, 20))           # Mahadwaram gopuram top (east)
@@ -236,11 +244,11 @@ def glb_unit(name, path, height, color=None):
 U = {}
 CREAM, WHITE, MAROON, SAFF, GOLD = (0.93, 0.86, 0.70), (0.95, 0.94, 0.90), (0.55, 0.12, 0.08), (0.95, 0.52, 0.08), (0.95, 0.72, 0.2)
 BLD = {  # name: (file, height m, colour)
- 'gen4': ('4Story_Mat', 0.024, (0.98, 0.86, 0.62)), 'gen3': ('3Story_Balcony_Mat', 0.019, (0.98, 0.78, 0.55)), 'gen2': ('2Story_Wide_Mat', 0.013, (0.95, 0.70, 0.50)),
- 'gen2b': ('2Story_Balcony_Mat', 0.013, (0.98, 0.92, 0.75)), 'cot': ('1Story_GableRoof_Mat', 0.008, (0.95, 0.62, 0.45)), 'cot2': ('1Story_Mat', 0.007, (0.98, 0.88, 0.66)),
- 'nand': ('4Story_Wide_2Doors_Roof_Mat', 0.026, (0.95, 0.84, 0.62)), 'panch': ('4Story_Center_Mat', 0.026, (0.86, 0.90, 0.97)),
- 'kaus': ('3Story_Balcony_Mat', 0.021, (0.82, 0.93, 0.80)), 'vakula': ('4Story_Wide_2Doors_Mat', 0.030, (0.98, 0.80, 0.66)),
- 'pac': ('6Story_Stack_Mat', 0.034, WHITE), 'donor': ('2Story_Columns_Mat', 0.015, (0.96, 0.90, 0.76)),
+ 'gen4': ('4Story_Mat', 0.024, (0.80, 0.62, 0.38)), 'gen3': ('3Story_Balcony_Mat', 0.019, (0.78, 0.50, 0.32)), 'gen2': ('2Story_Wide_Mat', 0.013, (0.75, 0.42, 0.26)),
+ 'gen2b': ('2Story_Balcony_Mat', 0.013, (0.82, 0.70, 0.45)), 'cot': ('1Story_GableRoof_Mat', 0.008, (0.70, 0.30, 0.18)), 'cot2': ('1Story_Mat', 0.007, (0.80, 0.66, 0.42)),
+ 'nand': ('4Story_Wide_2Doors_Roof_Mat', 0.026, (0.82, 0.55, 0.28)), 'panch': ('4Story_Center_Mat', 0.026, (0.62, 0.72, 0.85)),
+ 'kaus': ('3Story_Balcony_Mat', 0.021, (0.55, 0.75, 0.52)), 'vakula': ('4Story_Wide_2Doors_Mat', 0.030, (0.88, 0.50, 0.45)),
+ 'pac': ('6Story_Stack_Mat', 0.034, (0.85, 0.78, 0.62)), 'donor': ('2Story_Columns_Mat', 0.015, (0.80, 0.66, 0.40)),
 }
 for k_, (f_, h_, c_) in BLD.items(): U[k_] = glb_unit(k_, B3 + f_ + '.glb', h_, c_)
 PEOPLE = [('m_cas', 'modular_men/Casual.glb', WHITE), ('m_farm', 'modular_men/Farmer.glb', (0.96, 0.95, 0.9)), ('m_cas2', 'modular_men/Casual2.glb', SAFF),
@@ -407,14 +415,13 @@ for shn, k_, hn in (('nandakam', 'nand', 'sword'), ('panchajanyam', 'panch', 'co
 
 # ---------------- light per shot ----------------
 wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True; wn = wd.node_tree
-env = wn.nodes.new('ShaderNodeTexEnvironment'); env.image = bpy.data.images.load('/opt/reel/assets/ph/h/kiara_1_dawn.exr')
-bg = wn.nodes['Background']; wn.links.new(env.outputs['Color'], bg.inputs['Color'])
+bg = wn.nodes['Background']; bg.inputs['Color'].default_value = (1.0, 0.72, 0.48, 1)
 bpy.ops.object.light_add(type='SUN'); sun = bpy.context.object; sun.data.angle = math.radians(3)
 GOLDEN = (1.0, 0.72, 0.45)
-TOD = {'hook': (14, 235, 4.2, GOLDEN, 0.32), 'count': (32, 210, 4.2, (1, 0.88, 0.72), 0.4), 'rename': (34, 200, 4.2, (1, 0.9, 0.78), 0.42),
-       'nandakam': (30, 215, 4.2, (1, 0.88, 0.72), 0.4), 'panchajanyam': (30, 215, 4.2, (1, 0.88, 0.72), 0.4), 'kausthubham': (28, 220, 4.2, (1, 0.86, 0.68), 0.4),
-       'vakula': (24, 225, 4.2, (1, 0.82, 0.62), 0.38), 'four': (45, 200, 4.2, (1, 0.9, 0.78), 0.42), 'pac': (26, 225, 4.2, (1, 0.84, 0.66), 0.38), 'gods': (20, 230, 4.2, (1, 0.8, 0.56), 0.36), 'more': (16, 235, 4.2, (1, 0.76, 0.5), 0.34),
-       'hills': (18, 235, 4.2, (1, 0.78, 0.52), 0.34), 'finale': (8, 250, 4.6, (1.0, 0.62, 0.32), 0.3)}
+TOD = {'hook': (14, 235, 3.3, GOLDEN, 0.32), 'count': (32, 210, 3.3, (1, 0.88, 0.72), 0.4), 'rename': (34, 200, 3.3, (1, 0.9, 0.78), 0.42),
+       'nandakam': (30, 215, 3.3, (1, 0.88, 0.72), 0.4), 'panchajanyam': (30, 215, 3.3, (1, 0.88, 0.72), 0.4), 'kausthubham': (28, 220, 3.3, (1, 0.86, 0.68), 0.4),
+       'vakula': (24, 225, 3.3, (1, 0.82, 0.62), 0.38), 'four': (45, 200, 3.3, (1, 0.9, 0.78), 0.42), 'pac': (26, 225, 3.3, (1, 0.84, 0.66), 0.38), 'gods': (20, 230, 3.3, (1, 0.8, 0.56), 0.36), 'more': (16, 235, 3.3, (1, 0.76, 0.5), 0.34),
+       'hills': (18, 235, 3.3, (1, 0.78, 0.52), 0.34), 'finale': (8, 250, 4.6, (1.0, 0.62, 0.32), 0.3)}
 for name, (el, az, en, col, ws) in TOD.items():
     for f in S(name):
         sun.rotation_euler = (math.radians(90 - el), 0, math.radians(az - 90)); sun.keyframe_insert('rotation_euler', frame=f)
