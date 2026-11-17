@@ -402,7 +402,7 @@ def ok(x, y, r):
     return all((V((x, y)) - c).length > rr + r for c, rr in OCC)
 GEN = []
 tries = 0
-while len(GEN) < 110 and tries < 20000:
+while len(GEN) < 170 and tries < 30000:
     tries += 1; x, y = random.uniform(-0.48, 0.48), random.uniform(-0.38, 0.30)
     kind = random.choice(['gen4', 'gen3', 'gen2', 'gen2b', 'gen2', 'gen3']); r = 0.012 if kind in ('gen4', 'gen3') else 0.009
     if not ok(x, y, r): continue
@@ -437,7 +437,7 @@ while n < 1700 and tries < 80000:
     if town(x, y) < 1.05 or any((V((x, y)) - c).length < 0.065 for c in COL.values()): continue
     nm = random.choice(TREES); sz = random.uniform(1.1, 1.9); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz); n += 1
     DRESS.append((o, 0.35 * THT[nm] * TK * sz + 0.003, THT[nm] * TK * sz))
-for k in range(260):        # trees inside the town gaps
+for k in range(700):        # trees inside the town gaps
     x, y = random.uniform(-0.45, 0.45), random.uniform(-0.35, 0.28)
     if not ok(x, y, 0.006): continue
     nm = random.choice(TREES[:5]); sz = random.uniform(0.6, 1.0); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz)
@@ -512,7 +512,7 @@ fill.data.color = (0.8, 0.88, 1.0); fill.data.energy = 9
 # warm glow over the temple in the golden shots
 bpy.ops.object.light_add(type='POINT', location=TPTOP + V((0.03, 0, 0.05))); tglow = bpy.context.object; tglow.data.color = (1, 0.6, 0.2); tglow.data.shadow_soft_size = 0.02
 for name in TOD:
-    for f in S(name): tglow.data.energy = 1.6 if name in ('hook', 'finale', 'gods') else 0.4; tglow.data.keyframe_insert('energy', frame=f)
+    for f in S(name): tglow.data.energy = 0.9 if name in ('hook', 'finale', 'gods') else 0.3; tglow.data.keyframe_insert('energy', frame=f)
 const(tglow.data)
 # ---------------- camera: macro lens with real depth of field ----------------
 cd = bpy.data.cameras.new('cam'); cam = bpy.data.objects.new('cam', cd); sc.collection.objects.link(cam); sc.camera = cam
@@ -546,7 +546,7 @@ a0, b0 = S('hook')
 KK(a0, CA(T3(EP, 0.006), 0, 6, 0.05, 35), T3(EP + V((-0.05, 0)), 0.008), 35, 3.2, T3(EP, 0.005))
 KK(int(a0 + (b0 - a0) * 0.45), CA(T3(TPc + V((0.06, 0)), 0.02), 8, 16, 0.16, 35), T3(TPc + V((0.03, 0)), 0.02), 35, 4.0, T3(TPc + V((0.06, 0)), 0.02))
 KK(b0, CA(T3(TPc + V((0, 0.03)), 0.01), -15, 38, 0.72, 35), T3(TPc + V((0, 0.03)), 0.01), 35, 9.0, T3(TPc + V((0, 0.03)), 0.01))
-SH2('count', T3(V((-0.27, -0.06)), 0.008), T3(V((0.19, -0.06)), 0.008), -100, -80, 34, 30, 0.34, 0.30, 35, 7.0)
+SH2('count', T3(V((0.02, -0.17)), 0.008), T3(V((0.24, 0.03)), 0.008), -100, -80, 34, 30, 0.34, 0.30, 35, 7.0)
 SH2('rename', T3(NB['donor'], 0.008), T3(NB['donor'], 0.009), AZ(NB['donor'], TPc) - 25, AZ(NB['donor'], TPc) - 8, 16, 12, 0.09, 0.06, 40, 4.0)
 for sh, k_, dz in (('nandakam', 'nand', 0.012), ('panchajanyam', 'panch', 0.012), ('kausthubham', 'kaus', 0.01), ('vakula', 'vakula', 0.014)):
     az = AZ(NB[k_], TPc)
@@ -612,7 +612,7 @@ for shn, keys_ in PINS.items():
 json.dump({'step': 2, 'shots': lab}, open('brief/labels.json', 'w'))
 sc.frame_set(1)
 sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
-sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Punchy'
+sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Punchy'; sc.view_settings.exposure = -0.35   # keep the white towers from blowing out
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
 sc.eevee.bokeh_max_size = 140
 os.makedirs('scene', exist_ok=True); bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath('scene/stay.blend'))
