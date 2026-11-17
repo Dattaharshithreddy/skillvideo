@@ -10,7 +10,7 @@ json.dump({'starts': starts, 'durs': durs, 'end': END, 'lines': [{'text': l['tex
           open('brief/timing.json', 'w'), indent=1, ensure_ascii=False)
 os.makedirs('ai/seg', exist_ok=True); lst = []
 for i, l in enumerate(p['lines']):
-    cl = [c['id'] for c in P['clips'] if c['shot'] == l['shot']]
+    cl = [c['id' and os.path.exists(f"ai/clips/{c['id']}.mp4")] for c in P['clips' and os.path.exists(f"ai/clips/{c['id']}.mp4")] if c['shot' and os.path.exists(f"ai/clips/{c['id']}.mp4")] == l['shot' and os.path.exists(f"ai/clips/{c['id']}.mp4")] and os.path.exists(f"ai/clips/{c['id']}.mp4")]
     # frame-exact length per shot so overlays stay in sync
     f0, f1 = round(starts[i] * 30), round((starts[i] + durs[i]) * 30); nfr = f1 - f0
     per = [nfr // len(cl) + (1 if k < nfr % len(cl) else 0) for k in range(len(cl))]
