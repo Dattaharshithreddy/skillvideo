@@ -5,10 +5,13 @@ env = dict(x.split('=', 1) for x in open(f'/proc/{pid}/environ', 'rb').read().de
 TOK = env.get('API_TOKEN') or ''; B = 'http://127.0.0.1:' + env.get('PORT', '8000')
 H = {'Content-Type': 'application/json', **({'Authorization': 'Bearer ' + TOK} if TOK else {})}
 keys = sys.argv[1:] or ['nandakam', 'panchajanyam', 'kausthubham', 'vakulamatha', 'pac5']
+# REFDIR=refs/best uses the Google Maps picks; SUF names the output b_<key><SUF>.glb so both versions can be compared.
+REFDIR = os.environ.get('REFDIR', 'refs'); SUF = os.environ.get('SUF', '')
 tids = {}
-for k in keys:
+for k0 in keys:
+    k = k0 + SUF
     if os.path.exists(f'mf/b_{k}.glb'): continue
-    img = 'data:image/jpeg;base64,' + base64.b64encode(open(f'refs/{k}.jpg', 'rb').read()).decode()
+    img = 'data:image/jpeg;base64,' + base64.b64encode(open(f'{REFDIR}/{k0}.jpg', 'rb').read()).decode()
     body = json.dumps({'mode': 'image', 'image': img, 'texture': True, 'quality': 'high', 'polycount': 60000, 'fresh': True}).encode()
     r = json.load(urllib.request.urlopen(urllib.request.Request(B + '/generate', data=body, headers=H), timeout=60)); tids[k] = r['task_id']; print('queued', k, r, flush=True)
 while tids:
