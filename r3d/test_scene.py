@@ -74,7 +74,7 @@ print('HUMANS', n)
 # light: bright sky + sun, filmic
 w = bpy.data.worlds.new('w'); bpy.context.scene.world = w; w.use_nodes = True
 sky = w.node_tree.nodes.new('ShaderNodeTexSky'); sky.sky_type = 'NISHITA'; sky.sun_elevation = math.radians(38); sky.sun_rotation = math.radians(200)
-w.node_tree.links.new(sky.outputs[0], w.node_tree.nodes['Background'].inputs[0]); w.node_tree.nodes['Background'].inputs[1].default_value = 0.35
+w.node_tree.links.new(sky.outputs[0], w.node_tree.nodes['Background'].inputs[0]); w.node_tree.nodes['Background'].inputs[1].default_value = 0.12; sky.sun_disc = False
 bpy.ops.object.light_add(type='SUN', rotation=(math.radians(52), 0, math.radians(200))); bpy.context.object.data.energy = 4; bpy.context.object.data.angle = math.radians(3)
 bpy.ops.object.camera_add(location=(1.5, -13, 3.2), rotation=(math.radians(84), 0, math.radians(4))); cam = bpy.context.object
 cam.data.lens = 28; cam.data.dof.use_dof = True; cam.data.dof.focus_distance = 11; cam.data.dof.aperture_fstop = 5.6
@@ -83,4 +83,8 @@ s.cycles.use_denoising = True; s.render.resolution_x, s.render.resolution_y = 10
 s.view_settings.view_transform = 'AgX'; s.view_settings.look = 'AgX - Medium High Contrast'
 s.render.filepath = '/opt/r3d/out/test.png'; os.makedirs('/opt/r3d/out', exist_ok=True)
 bpy.ops.wm.save_as_mainfile(filepath='/opt/r3d/out/test.blend')
-bpy.ops.render.render(write_still=True); print('RENDER_DONE')
+print('MESHES', len([o for o in bpy.data.objects if o.type=='MESH']), 'HUMANOBJ', len([o for o in bpy.data.objects if 'human' in o.name.lower()]))
+for ev in [float(e) for e in os.environ.get('EVS', '0').split(',')]:
+    s.view_settings.exposure = ev; s.render.filepath = f'/opt/r3d/out/test_ev{ev:+.0f}.png'
+    bpy.ops.render.render(write_still=True)
+print('RENDER_DONE')
