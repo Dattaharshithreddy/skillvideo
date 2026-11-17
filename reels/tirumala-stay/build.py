@@ -248,6 +248,23 @@ WALK, IDLE = [], []
 for nm, f_, col in PEOPLE:
     U[nm + '_w'] = unit(nm + '_w', GLB + f_, 1.75, 'Walk', col); WALK.append(nm + '_w')
     U[nm + '_i'] = unit(nm + '_i', GLB + f_, 1.75, 'Idle', col); IDLE.append(nm + '_i')
+# Model Forge figurines (static painted miniatures, like a real diorama) replace the game characters when present
+MF = sorted(f for f in os.listdir('mf') if f.startswith('pil_') and f.endswith('.glb')) if os.path.isdir('mf') else []
+MOVE = not MF
+if MF:
+    WALK = []
+    for f_ in MF:
+        nm = 'mf_' + f_[:-4]
+        try: U[nm] = unit(nm, 'mf/' + f_, 1.75); WALK.append(nm)
+        except Exception as ex_: print('mf skipped', f_, ex_)
+    IDLE = WALK
+    MOVE = not WALK
+print('PEOPLE', 'model forge' if not MOVE else 'quaternius', WALK)
+HERO = {}
+for nm in ('sword', 'conch', 'gem', 'lotus'):
+    if os.path.exists(f'mf/{nm}.glb'):
+        try: U['hero_' + nm] = unit('hero_' + nm, f'mf/{nm}.glb', 1.0); HERO[nm] = 'hero_' + nm
+        except Exception as ex_: print('hero skipped', nm, ex_)
 TREES = []; THT = {}
 for nm, hgt in (('CommonTree_1', 9), ('CommonTree_2', 8), ('CommonTree_3', 10), ('CommonTree_4', 9), ('PineTree_1', 11), ('Bush_1', 2.2), ('Bush_2', 2.0)):
     try: U[nm] = glb_unit(nm, GLB + f'nature_pack/{nm}.glb', hgt); TREES.append(nm); THT[nm] = hgt
@@ -356,20 +373,37 @@ def crowd(c, facing, rows, cols, dx, dy, walk=True):
     return out
 # a river of pilgrims on the east road walking up to the Mahadwaram
 east = crowd(TPc + V((0.30, 0.0)), V((-1, 0)), 26, 4, 0.0042, 0.0058)
-march(east, 1, END, V((-0.13, 0)))
+if MOVE: march(east, 1, END, V((-0.13, 0)))
 # waiting near the gopuram, outside the pushkarini, near the PAC
 crowd(TPc + V((0.115, 0.0)), V((-1, 0)), 3, 9, 0.0045, 0.005, walk=False)
 pd = (TPc - NB['pac']).normalized()
 pq = crowd(NB['pac'] + pd * 0.075, -pd, 18, 3, 0.0042, 0.0058)
-march(pq, 1, END, -pd * 0.045)
+if MOVE: march(pq, 1, END, -pd * 0.045)
 crowd(NB['pac'] + pd * 0.035, -pd, 3, 8, 0.0045, 0.005, walk=False)
 for k_ in ('nand', 'panch', 'kaus', 'vakula'):
-    d_ = (TPc - NB[k_]).normalized(); g_ = crowd(NB[k_] + d_ * 0.04, d_, 2, 5, 0.0048, 0.006); march(g_, 1, END, d_ * 0.03)
+    d_ = (TPc - NB[k_]).normalized(); g_ = crowd(NB[k_] + d_ * 0.04, d_, 2, 5, 0.0048, 0.006)
+    if MOVE: march(g_, 1, END, d_ * 0.03)
 # families strolling along the ring road
 for i in range(28):
     a = random.uniform(0, 2 * math.pi); r_ = 0.165
     p = TPc + V((1.25 * r_ * math.cos(a), r_ * math.sin(a))); tg = V((-math.sin(a) * 1.25, math.cos(a))).normalized()
-    g_ = crowd(p, tg, random.randint(1, 3), random.randint(2, 3), 0.0045, 0.006); march(g_, 1, END, tg * random.uniform(0.02, 0.05))
+    g_ = crowd(p, tg, random.randint(1, 3), random.randint(2, 3), 0.0045, 0.006)
+    if MOVE: march(g_, 1, END, tg * random.uniform(0.02, 0.05))
+# ---------------- divine symbols floating over their guest houses ----------------
+M_halo = emis('halo', (1.0, 0.72, 0.25), 3.0)
+for shn, k_, hn in (('nandakam', 'nand', 'sword'), ('panchajanyam', 'panch', 'conch'), ('kausthubham', 'kaus', 'gem'), ('vakula', 'vakula', 'lotus')):
+    if hn not in HERO: continue
+    a_, b_ = S(shn); P_ = TOPS[k_] + V((0, 0, 0.022))
+    o = inst(HERO[hn], P_, 0.0, 0.028); show(o, [(a_, b_ + 1)])
+    for f in (a_, b_):
+        o.rotation_euler.z = 0.0 if f == a_ else math.radians(160); o.keyframe_insert('rotation_euler', frame=f, index=2)
+        o.location = P_ + V((0, 0, 0.0 if f == a_ else 0.004)); o.keyframe_insert('location', frame=f)
+    linear(o, 'rotation_euler'); linear(o, 'location')
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.02, minor_radius=0.0007, location=P_ - V((0, 0, 0.004))); hl = bpy.context.object; hl.data.materials.append(M_halo); show(hl, [(a_, b_ + 1)])
+    bpy.ops.object.light_add(type='POINT', location=P_ + V((0, 0, 0.01))); pl = bpy.context.object; pl.data.color = (1, 0.7, 0.3); pl.data.shadow_soft_size = 0.01
+    pl.data.energy = 0.0; pl.data.keyframe_insert('energy', frame=1); pl.data.energy = 1.2; pl.data.keyframe_insert('energy', frame=a_); pl.data.energy = 0.0; pl.data.keyframe_insert('energy', frame=b_ + 1); const(pl.data)
+    TOPS[k_] = P_ + V((0, 0, 0.022))
+
 # ---------------- light per shot ----------------
 wd = bpy.data.worlds.new('w'); sc.world = wd; wd.use_nodes = True; wn = wd.node_tree
 env = wn.nodes.new('ShaderNodeTexEnvironment'); env.image = bpy.data.images.load('/opt/reel/assets/ph/h/kiara_1_dawn.exr')
