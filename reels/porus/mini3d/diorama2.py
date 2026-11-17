@@ -190,8 +190,24 @@ def horse(name, col=(0.03, 0.025, 0.02)):
     o = join([o, s_], name)
     for p in o.data.polygons: p.use_smooth = True
     return o
-ELE = new_coll('ELE', hide=True); link(elephant('war_ele'), ELE); ROY = new_coll('ROY', hide=True); link(elephant('puru_ele', (0.08, 0.2, 0.55), royal=True), ROY)
-HOR = new_coll('HOR', hide=True); link(horse('bucephalus'), HOR)
+MF = '/opt/reel/mini3d/mf'
+def mf_asset(name, height, rot=0.0):
+    p = f'{MF}/{name}.glb'
+    if not os.path.exists(p): return None
+    before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=p)
+    objs = [o for o in bpy.data.objects if o not in before and o.type == 'MESH']
+    for o in [o for o in bpy.data.objects if o not in before and o.type != 'MESH']: pass
+    o = join(objs, name) if len(objs) > 1 else objs[0]; o.parent = None
+    bpy.context.view_layer.objects.active = o; bpy.ops.object.select_all(action='DESELECT'); o.select_set(True)
+    o.rotation_euler.z += rot; bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    me = o.data; zs = [v.co.z for v in me.vertices]; z0 = min(zs); s_ = height / (max(zs) - z0)
+    cx = sum(v.co.x for v in me.vertices) / len(me.vertices); cy = sum(v.co.y for v in me.vertices) / len(me.vertices)
+    for v in me.vertices: v.co = Vector(((v.co.x - cx) * s_, (v.co.y - cy) * s_, (v.co.z - z0) * s_))
+    o.location = (0, 0, 0); print('MF_ASSET', name, len(me.polygons)); return o
+MFR = float(os.environ.get('MFROT', 0.0))
+_we = mf_asset('war_elephant', 3.0, MFR); _pe = mf_asset('puru_elephant', 3.6, MFR); _hs = mf_asset('horse', 1.7, MFR)
+ELE = new_coll('ELE', hide=True); link(_we or elephant('war_ele'), ELE); ROY = new_coll('ROY', hide=True); link(_pe or elephant('puru_ele', (0.08, 0.2, 0.55), royal=True), ROY)
+HOR = new_coll('HOR', hide=True); link(_hs or horse('bucephalus'), HOR)
 ES = HS / 1.75 * 1.0   # animals modelled in metres; humans are 1.75 m -> HS, so same metre scale
 def army(cols, x0, x1, y0, y1, step, jitter, face, name):
     out = []; x = x0
@@ -209,7 +225,7 @@ army(IND, -16, 16, -22, -13, 0.46, 0.08, math.pi, 'indian')
 for x in [x for x in range(-15, 16, 2) if abs(x) > 1]:
     inst(ELE, (x + random.uniform(-0.15, 0.15), -11.0, ground_z(x, -11)), math.pi + random.uniform(-0.08, 0.08), ES, 'ele')
 inst(ROY, (0, -10.4, ground_z(0, -10.4)), math.pi, ES * 1.12, 'puru_ele')
-inst(V['puru'], (0, -10.4 - 0.05 * ES, ground_z(0, -10.4) + 3.28 * ES * 1.12), math.pi, HS, 'puru')
+inst(V['puru'], (0, -10.4 - 0.05 * ES, ground_z(0, -10.4) + float(os.environ.get('HOWDAH_Z', 3.28)) * ES * 1.12), math.pi, HS, 'puru')
 inst(V['alexander'], (0.6, 9.4, ground_z(0.6, 9.4)), 0.0, HS * 1.03, 'alexander')
 inst(HOR, (-0.4, 9.6, ground_z(-0.4, 9.6)), 0.3, ES, 'bucephalus')
 # Greek camp tents
@@ -235,7 +251,7 @@ def board(text, loc, rot_z=0.0, w=6.0, h=1.4, bg=(0.07, 0.07, 0.09), fg=(0.97, 0
     e.location = loc; e.rotation_euler.z = rot_z; return e
 board('326 BC', (-6, -4.2, 2.6), 0.0, w=4.2, size=0.9)
 board('HYDASPES RIVER', (8, -5.0, 2.3), 0.0, w=7.5, bg=(0.08, 0.2, 0.55), size=0.7)
-board('ALEXANDER', (3.5, 8.6, 2.6), math.pi, w=5.5, bg=(0.5, 0.05, 0.05), size=0.8)
+board('ALEXANDER', (5.5, 7.2, 2.6), 0.0, w=5.5, bg=(0.5, 0.05, 0.05), size=0.8)
 board('200 WAR ELEPHANTS', (-10, -9.0, 2.4), 0.0, w=9.0, bg=(0.07, 0.07, 0.09), size=0.7)
 
 # ---------------- light, render ----------------
@@ -265,9 +281,9 @@ SHOTS = {
   # A: establishing aerial over the valley, slow drift + crane down toward the river, both armies in frame
   'A': [((-9, -52, 32), (0, 2, 0), 1.6), ((5, -30, 11), (0, -3, 0.5), 1.1)],
   # B: low dolly along the Indian front between the elephants, ending in a push-in on Puru in his howdah
-  'B': [((-15, -6.6, 1.3), (-9, -11, 1.0), 0.9), ((0.9, -7.2, 1.75), (0, -10.4, 1.55), 0.55)],
+  'B': [((-15, -6.6, 1.3), (-9, -11, 1.0), 2.0), ((1.2, -7.0, 1.9), (0, -10.4, 1.6), 1.4)],
   # C: low hero orbit around Alexander with the phalanx behind
-  'C': [((4.5, 5.0, 0.8), (0.4, 9.4, 0.55), 0.6), ((-3.5, 5.5, 1.0), (0.4, 9.4, 0.6), 0.6)],
+  'C': [((2.4, 7.3, 0.55), (0.5, 9.4, 0.5), 1.2), ((-1.6, 7.5, 0.7), (0.5, 9.4, 0.55), 1.2)],
 }
 (c0, t0, f0), (c1, t1, f1) = SHOTS.get(SHOT, SHOTS['A'])
 key(cam, 1, c0); key(cam, NF, c1); key(tgt, 1, t0); key(tgt, NF, t1); ease_all(cam); ease_all(tgt)
