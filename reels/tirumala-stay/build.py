@@ -80,7 +80,7 @@ def empty(name, loc=(0, 0, 0)):
 
 K = 1 / 290.0          # pilgrims: 1.75 m -> 6 mm (dioramas exaggerate people so they read)
 TK = 1 / 700.0         # trees, same scale as temple and buildings
-MS = 1 / 1200.0        # temple model (already x1.7 inside temple.py) -> about 1/700 overall
+MS = 1 / 760.0        # temple model (already x1.7 inside temple.py) -> about 1/700 overall
 
 # ---------------- the board: Tirumala plateau ringed by the hills ----------------
 BX, BY = 0.60, 0.40
@@ -101,12 +101,12 @@ def ground(x, y, lift=0.0): return V((x, y, hfun(x, y) + lift))
 def town(x, y): return ((x - TPc.x) / 0.47) ** 2 + ((y - TPc.y + 0.02) / 0.30) ** 2      # <1 inside the town
 def road(x, y):
     """distance to the painted roads: a ring around the temple, four spokes, an outer loop"""
-    dx, dy = x - TPc.x, y - TPc.y; r = math.hypot(dx / 1.25, dy)
-    d = abs(r - 0.165)
-    d = min(d, abs(math.hypot(dx / 1.5, dy / 1.0) - 0.30))
+    dx, dy = x - TPc.x, y - TPc.y - 0.07; r = math.hypot(dx / 1.15, dy)
+    d = abs(r - 0.215)
+    d = min(d, abs(math.hypot(dx / 1.35, dy / 1.0) - 0.33))
     for ang in (0.15, 1.75, 3.3, 4.6):
         ux, uy = math.cos(ang), math.sin(ang); t_ = dx * ux + dy * uy
-        if 0.15 < t_ < 0.42: d = min(d, abs(-dx * uy + dy * ux))
+        if 0.22 < t_ < 0.45: d = min(d, abs(-dx * uy + dy * ux))
     return d
 NXg, NYg = 360, 240
 xs = np.linspace(-BX, BX, NXg); ys = np.linspace(-BY, BY, NYg)
@@ -119,12 +119,13 @@ ca = me.color_attributes.new('paint', 'FLOAT_COLOR', 'POINT')
 gw = terr.vertex_groups.new(name='grass'); gws = []
 for k, (x, y, z) in enumerate(verts):
     n1 = noise.noise(V((x * 14, y * 14, 2.0))); n2 = noise.noise(V((x * 55, y * 55, 5.0)))
-    c = V((0.13, 0.22, 0.07)).lerp(V((0.24, 0.30, 0.10)), 0.5 + 0.5 * n1)             # Seshachalam forest green
+    c = V((0.10, 0.24, 0.06)).lerp(V((0.22, 0.34, 0.09)), 0.5 + 0.5 * n1)             # Seshachalam forest green
     tw = max(0.0, min(1.0, (1.0 - town(x, y)) * 4))
-    c = c.lerp(V((0.62, 0.55, 0.44)).lerp(V((0.55, 0.50, 0.42)), 0.5 + 0.5 * n2), tw)    # paved town
+    town_c = V((0.58, 0.45, 0.30)).lerp(V((0.40, 0.42, 0.22)), max(0.0, n1) * 0.9)     # warm laterite with green patches
+    c = c.lerp(town_c, tw * (0.85 - 0.35 * max(0.0, n1)))
     if z - BASE > 0.05: c = c.lerp(V((0.42, 0.36, 0.28)), min(1, (z - BASE - 0.05) / 0.03) * (0.5 + 0.5 * n2))   # rocky tops
     rd = road(x, y)
-    if rd < 0.008 and tw > 0.3: c = c.lerp(V((0.22, 0.21, 0.20)), min(1, (0.008 - rd) / 0.003))
+    if rd < 0.006 and tw > 0.3: c = c.lerp(V((0.30, 0.26, 0.22)), min(1, (0.006 - rd) / 0.003) * 0.8)
     ca.data[k].color = (c.x, c.y, c.z, 1)
     gws.append(0.0 if tw > 0.2 else 0.4 + 0.6 * max(0, n1))
 for k, wv in enumerate(gws): gw.add([k], wv, 'REPLACE')
@@ -142,10 +143,10 @@ for nm, loc, dims in (('edgeN', (0, BY + 0.004, BASE / 2 - 0.004), (2 * BX + 0.0
     box(nm, loc, dims, M_mdf)
 M_table = bpy.data.materials.new('table'); M_table.use_nodes = True; nt = M_table.node_tree; b = nt.nodes['Principled BSDF']
 wt = nt.nodes.new('ShaderNodeTexWave'); wt.inputs['Scale'].default_value = 6; wt.inputs['Distortion'].default_value = 9; wt.inputs['Detail'].default_value = 4
-cr = nt.nodes.new('ShaderNodeValToRGB'); cr.color_ramp.elements[0].color = (0.10, 0.045, 0.02, 1); cr.color_ramp.elements[1].color = (0.24, 0.12, 0.05, 1)
+cr = nt.nodes.new('ShaderNodeValToRGB'); cr.color_ramp.elements[0].color = (0.07, 0.035, 0.018, 1); cr.color_ramp.elements[1].color = (0.11, 0.055, 0.025, 1)
 nt.links.new(wt.outputs['Fac'], cr.inputs['Fac']); nt.links.new(cr.outputs['Color'], b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.35
 box('table', (0, 0, -0.025), (3.2, 2.2, 0.05), M_table)
-M_wall = pbr('room', (0.05, 0.04, 0.035), 0.9)
+M_wall = emis('room', (0.22, 0.10, 0.03), 0.35)
 bpy.ops.mesh.primitive_cylinder_add(radius=3.5, depth=4, location=(0, 0, 1.0), vertices=48); wall = bpy.context.object; wall.data.materials.append(M_wall)
 wall.visible_shadow = False
 for k in range(14):        # warm room lamps far behind -> bokeh balls
@@ -156,7 +157,7 @@ for k in range(14):        # warm room lamps far behind -> bokeh balls
 
 # ---------------- the temple (same model as the ghat-road reel), shrunk onto the board ----------------
 TP = V((TPc.x, TPc.y, hfun(TPc.x, TPc.y)))
-GZ = max(hfun(TPc.x + dx, TPc.y + dy) for dx in (-0.1, 0, 0.1) for dy in (-0.07, 0, 0.07, 0.14)) - 0.0005
+GZ = max(hfun(TPc.x + dx, TPc.y + dy) for dx in (-0.15, 0, 0.15) for dy in (-0.1, 0, 0.1, 0.2)) - 0.0005
 def principled(name, col, rough): return pbr(name, col, rough)
 TREES_T = None; elev_local = lambda x, y: GZ
 _tg = dict(globals()); _tg['TREES'] = None
@@ -169,7 +170,7 @@ TPTOP = ROOT.matrix_world @ V((_tg['vx'], 0, _tg['VTOP']))
 GOP = ROOT.matrix_world @ V((63, 0, 20))           # Mahadwaram gopuram top (east)
 print('TEMPLE top', tuple(round(c, 4) for c in TPTOP), 'gopuram', tuple(round(c, 4) for c in GOP))
 # temple flat platform so the model never floats
-box('tpl_plinth', (TP.x + 0.0, TP.y + 0.06, GZ - 0.004), (0.20, 0.27, 0.008), pbr('plinth', (0.50, 0.44, 0.36), 0.9))
+box('tpl_plinth', (TP.x + 0.0, TP.y + 0.08, GZ - 0.004), (0.32, 0.40, 0.008), pbr('plinth', (0.50, 0.44, 0.36), 0.9))
 
 # ---------------- assets ----------------
 SRC = coll('sources'); bpy.context.view_layer.layer_collection.children['sources'].exclude = True
@@ -235,8 +236,8 @@ def glb_unit(name, path, height, color=None):
 U = {}
 CREAM, WHITE, MAROON, SAFF, GOLD = (0.93, 0.86, 0.70), (0.95, 0.94, 0.90), (0.55, 0.12, 0.08), (0.95, 0.52, 0.08), (0.95, 0.72, 0.2)
 BLD = {  # name: (file, height m, colour)
- 'gen4': ('4Story_Mat', 0.024, CREAM), 'gen3': ('3Story_Balcony_Mat', 0.019, (0.95, 0.90, 0.78)), 'gen2': ('2Story_Wide_Mat', 0.013, (0.92, 0.84, 0.66)),
- 'gen2b': ('2Story_Balcony_Mat', 0.013, (0.96, 0.92, 0.82)), 'cot': ('1Story_GableRoof_Mat', 0.008, (0.95, 0.88, 0.74)), 'cot2': ('1Story_Mat', 0.007, (0.97, 0.93, 0.85)),
+ 'gen4': ('4Story_Mat', 0.024, (0.98, 0.86, 0.62)), 'gen3': ('3Story_Balcony_Mat', 0.019, (0.98, 0.78, 0.55)), 'gen2': ('2Story_Wide_Mat', 0.013, (0.95, 0.70, 0.50)),
+ 'gen2b': ('2Story_Balcony_Mat', 0.013, (0.98, 0.92, 0.75)), 'cot': ('1Story_GableRoof_Mat', 0.008, (0.95, 0.62, 0.45)), 'cot2': ('1Story_Mat', 0.007, (0.98, 0.88, 0.66)),
  'nand': ('4Story_Wide_2Doors_Roof_Mat', 0.026, (0.95, 0.84, 0.62)), 'panch': ('4Story_Center_Mat', 0.026, (0.86, 0.90, 0.97)),
  'kaus': ('3Story_Balcony_Mat', 0.021, (0.82, 0.93, 0.80)), 'vakula': ('4Story_Wide_2Doors_Mat', 0.030, (0.98, 0.80, 0.66)),
  'pac': ('6Story_Stack_Mat', 0.034, WHITE), 'donor': ('2Story_Columns_Mat', 0.015, (0.96, 0.90, 0.76)),
@@ -302,7 +303,7 @@ def sign(p, yaw, w=0.016, h=0.004, z=0.006):
         c = box('sign_p', (sx * w * 0.4, 0.0, -z / 2), (0.0006, 0.0006, z), M_signf); c.parent = e
     return e
 # named guest houses (positions on the board); facing the nearest road
-NB = {'nand': V((0.24, -0.15)), 'panch': V((0.34, 0.02)), 'kaus': V((0.20, 0.11)), 'vakula': V((-0.27, -0.13)), 'pac': V((-0.17, -0.29)), 'donor': V((0.08, -0.25))}
+NB = {'nand': V((0.27, -0.17)), 'panch': V((0.36, 0.02)), 'kaus': V((0.27, 0.16)), 'vakula': V((-0.29, -0.14)), 'pac': V((-0.17, -0.31)), 'donor': V((0.08, -0.29))}
 def face_to(p, q): return yaw_of((q - p).normalized())       # building fronts face -Y after glTF import, like the figures
 TOPS = {}
 for k_, p in NB.items():
@@ -314,8 +315,8 @@ for k_, p in NB.items():
     sign(p + fwd * (h_ * 0.62), yaw, w=0.014 + 0.004 * n_)
     TOPS[k_] = G2(p, h_ + 0.004)
 # the town: rest houses and cottages fill the plateau
-OCC = [(TPc + V((0, 0.06)), 0.16)] + [(p, 0.03 + 0.012 * (k in ('nand', 'vakula', 'pac'))) for k, p in NB.items()]
-COL = {'seshadri': V((-0.40, 0.11)), 'garudadri': V((0.03, 0.235)), 'anjanadri': V((0.30, 0.20))}
+OCC = [(TPc + V((0, 0.06)), 0.20), (TPc + V((0, 0.17)), 0.14)] + [(p, 0.03 + 0.012 * (k in ('nand', 'vakula', 'pac'))) for k, p in NB.items()]
+COL = {'seshadri': V((-0.40, 0.11)), 'garudadri': V((0.17, 0.27)), 'anjanadri': V((0.30, 0.20))}
 for k, p in COL.items(): OCC.append((p, 0.06))
 def ok(x, y, r):
     if town(x, y) > 1.0 or road(x, y) < 0.012 + r * 0.5: return False
@@ -340,17 +341,17 @@ for k, c in COL.items():
 TOPS['temple'] = TPTOP
 # street lamps along the ring road
 for i in range(36):
-    a = 2 * math.pi * i / 36; p = TPc + V((1.25 * 0.178 * math.cos(a), 0.178 * math.sin(a)))
+    a = 2 * math.pi * i / 36; p = TPc + V((1.15 * 0.215 * math.cos(a), 0.07 + 0.215 * math.sin(a)))
     if ok(p.x, p.y, 0.0) or town(p.x, p.y) < 1: inst('lamp', G2(p), a, TK)
 # forest on the hills
 DRESS = []
 n = 0; tries = 0
-while n < 700 and tries < 40000:
+while n < 1700 and tries < 80000:
     tries += 1; x, y = random.uniform(-BX + 0.02, BX - 0.02), random.uniform(-BY + 0.02, BY - 0.02)
     if town(x, y) < 1.05 or any((V((x, y)) - c).length < 0.065 for c in COL.values()): continue
-    nm = random.choice(TREES); sz = random.uniform(0.75, 1.35); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz); n += 1
+    nm = random.choice(TREES); sz = random.uniform(1.1, 1.9); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz); n += 1
     DRESS.append((o, 0.35 * THT[nm] * TK * sz + 0.003, THT[nm] * TK * sz))
-for k in range(90):        # trees inside the town gaps
+for k in range(260):        # trees inside the town gaps
     x, y = random.uniform(-0.45, 0.45), random.uniform(-0.35, 0.28)
     if not ok(x, y, 0.006): continue
     nm = random.choice(TREES[:5]); sz = random.uniform(0.6, 1.0); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz)
@@ -372,10 +373,10 @@ def crowd(c, facing, rows, cols, dx, dy, walk=True):
             o = inst(random.choice(WALK if walk else IDLE), G2(p), yaw_of(f) + random.uniform(-0.15, 0.15), K * random.uniform(0.9, 1.08)); out.append(o)
     return out
 # a river of pilgrims on the east road walking up to the Mahadwaram
-east = crowd(TPc + V((0.30, 0.0)), V((-1, 0)), 26, 4, 0.0042, 0.0058)
+east = crowd(TPc + V((0.36, 0.0)), V((-1, 0)), 30, 4, 0.0042, 0.0058)
 if MOVE: march(east, 1, END, V((-0.13, 0)))
 # waiting near the gopuram, outside the pushkarini, near the PAC
-crowd(TPc + V((0.115, 0.0)), V((-1, 0)), 3, 9, 0.0045, 0.005, walk=False)
+crowd(TPc + V((0.165, 0.0)), V((-1, 0)), 3, 9, 0.0045, 0.005, walk=False)
 pd = (TPc - NB['pac']).normalized()
 pq = crowd(NB['pac'] + pd * 0.075, -pd, 18, 3, 0.0042, 0.0058)
 if MOVE: march(pq, 1, END, -pd * 0.045)
@@ -385,8 +386,8 @@ for k_ in ('nand', 'panch', 'kaus', 'vakula'):
     if MOVE: march(g_, 1, END, d_ * 0.03)
 # families strolling along the ring road
 for i in range(28):
-    a = random.uniform(0, 2 * math.pi); r_ = 0.165
-    p = TPc + V((1.25 * r_ * math.cos(a), r_ * math.sin(a))); tg = V((-math.sin(a) * 1.25, math.cos(a))).normalized()
+    a = random.uniform(0, 2 * math.pi); r_ = 0.215
+    p = TPc + V((1.15 * r_ * math.cos(a), 0.07 + r_ * math.sin(a))); tg = V((-math.sin(a) * 1.15, math.cos(a))).normalized()
     g_ = crowd(p, tg, random.randint(1, 3), random.randint(2, 3), 0.0045, 0.006)
     if MOVE: march(g_, 1, END, tg * random.uniform(0.02, 0.05))
 # ---------------- divine symbols floating over their guest houses ----------------
@@ -427,7 +428,7 @@ fill.data.color = (0.8, 0.88, 1.0); fill.data.energy = 9
 # warm glow over the temple in the golden shots
 bpy.ops.object.light_add(type='POINT', location=TPTOP + V((0.03, 0, 0.05))); tglow = bpy.context.object; tglow.data.color = (1, 0.6, 0.2); tglow.data.shadow_soft_size = 0.02
 for name in TOD:
-    for f in S(name): tglow.data.energy = 6.0 if name in ('hook', 'finale') else 1.5; tglow.data.keyframe_insert('energy', frame=f)
+    for f in S(name): tglow.data.energy = 1.6 if name in ('hook', 'finale', 'gods') else 0.4; tglow.data.keyframe_insert('energy', frame=f)
 const(tglow.data)
 # ---------------- camera: macro lens with real depth of field ----------------
 cd = bpy.data.cameras.new('cam'); cam = bpy.data.objects.new('cam', cd); sc.collection.objects.link(cam); sc.camera = cam
@@ -456,11 +457,11 @@ def SH2(n, P0, P1, az0, az1, el0, el1, W0, W1, L, fst, mid=None):
     KK(b_, CA(P1, az1, el1, W1, L), P1, L, fst, P1)
 def T3(c, h): return ground(c.x, c.y, h)
 def AZ(p, q): d = q - p; return math.degrees(math.atan2(d.y, d.x))       # azimuth of the camera placed at q, seen from p
-EP = TPc + V((0.16, 0.0))
+EP = TPc + V((0.22, 0.0))
 a0, b0 = S('hook')
 KK(a0, CA(T3(EP, 0.006), 0, 6, 0.05, 35), T3(EP + V((-0.05, 0)), 0.008), 35, 3.2, T3(EP, 0.005))
 KK(int(a0 + (b0 - a0) * 0.45), CA(T3(TPc + V((0.06, 0)), 0.02), 8, 16, 0.16, 35), T3(TPc + V((0.03, 0)), 0.02), 35, 4.0, T3(TPc + V((0.06, 0)), 0.02))
-KK(b0, CA(T3(TPc + V((0, 0.03)), 0.01), -15, 38, 0.62, 35), T3(TPc + V((0, 0.03)), 0.01), 35, 9.0, T3(TPc + V((0, 0.03)), 0.01))
+KK(b0, CA(T3(TPc + V((0, 0.03)), 0.01), -15, 38, 0.72, 35), T3(TPc + V((0, 0.03)), 0.01), 35, 9.0, T3(TPc + V((0, 0.03)), 0.01))
 SH2('count', T3(V((-0.24, -0.10)), 0.008), T3(V((0.22, -0.10)), 0.008), -100, -80, 34, 30, 0.34, 0.30, 35, 7.0)
 SH2('rename', T3(NB['donor'], 0.008), T3(NB['donor'], 0.009), AZ(NB['donor'], TPc) - 25, AZ(NB['donor'], TPc) - 8, 16, 12, 0.09, 0.06, 40, 4.0)
 for sh, k_, dz in (('nandakam', 'nand', 0.012), ('panchajanyam', 'panch', 0.012), ('kausthubham', 'kaus', 0.01), ('vakula', 'vakula', 0.014)):
@@ -469,14 +470,14 @@ for sh, k_, dz in (('nandakam', 'nand', 0.012), ('panchajanyam', 'panch', 0.012)
 SH2('four', T3(V((-0.02, -0.04)), 0.01), T3(V((-0.02, -0.04)), 0.01), -95, -80, 58, 52, 0.80, 0.72, 35, 11.0)
 az = AZ(NB['pac'], TPc)
 SH2('pac', T3(NB['pac'] + (TPc - NB['pac']).normalized() * 0.06, 0.006), T3(NB['pac'], 0.012), az + 30, az + 10, 9, 16, 0.07, 0.12, 35, 4.0)
-SH2('gods', T3(TPc + V((-0.03, 0.10)), 0.01), T3(TPc + V((-0.05, 0.12)), 0.008), 60, 95, 30, 18, 0.26, 0.12, 35, 5.0)
+SH2('gods', T3(TPc + V((-0.03, 0.12)), 0.015), T3(TPc + V((-0.06, 0.17)), 0.01), 60, 95, 30, 18, 0.40, 0.20, 35, 5.0)
 SH2('hills', T3(COL['seshadri'], 0.012), T3(COL['anjanadri'], 0.012), -80, -100, 30, 26, 0.24, 0.24, 35, 6.0,
     mid=(0.5, T3(COL['garudadri'], 0.014), -90, 30, 0.26))
 SH2('more', T3(V((-0.30, -0.02)), 0.008), T3(V((0.30, 0.0)), 0.008), -60, -120, 22, 22, 0.20, 0.20, 35, 5.0)
-a9, b9 = S('finale'); P = T3(TPc + V((0.02, 0.0)), 0.02)
-KK(a9, CA(P, 30, 32, 0.40, 35), P, 35, 6.0, P)
-KK(int(a9 + (b9 - a9) * 0.6), CA(P, 10, 18, 0.20, 35), P, 35, 4.5, P)
-KK(b9, CA(P, 0, 14, 0.15, 35), P, 35, 4.0, P)
+a9, b9 = S('finale'); P = T3(TPc + V((0.0, 0.0)), 0.03)
+KK(a9, CA(P, 30, 32, 0.55, 35), P, 35, 6.0, P)
+KK(int(a9 + (b9 - a9) * 0.6), CA(P, 10, 18, 0.32, 35), P, 35, 4.5, P)
+KK(b9, CA(P, 0, 14, 0.26, 35), P, 35, 4.0, P)
 for f, cpos, tpos, ln, fst, fpos in KEYS:
     cam.location = cpos; cam.keyframe_insert('location', frame=f); tgt.location = tpos; tgt.keyframe_insert('location', frame=f)
     foc.location = fpos; foc.keyframe_insert('location', frame=f)
