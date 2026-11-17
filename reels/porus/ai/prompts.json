@@ -1,125 +1,125 @@
 {
- "neg": "cartoon, anime, 2D, illustration, real people, photograph of real life, modern objects, text, subtitles, watermark, logo, blurry subject, low quality, jpeg artifacts, deformed, extra limbs, distorted faces, static, frozen, flicker",
+ "neg": "cartoon, anime, 2D, illustration, real people, modern objects, text, subtitles, watermark, logo, oversaturated, yellow tint, green tint, color cast, washed out, grey sky, empty sky, tiny distant figures, blurry subject, low quality, jpeg artifacts, deformed, extra limbs, distorted faces, static image, frozen, jerky motion, flicker, morphing",
  "clips": [
   {
    "id": "open_0",
    "shot": "open",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. A long column of tiny Macedonian phalanx soldiers with bronze helmets, round shields and very long upright pikes marches across a dusty plain, slow camera dolly alongside them, golden morning light."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. A column of Macedonian phalanx figurines with bronze helmets, round bronze shields with a star emblem, red tunics and very long sarissa pikes marches toward the camera across a dusty ochre plain, filling the frame; behind them a young clean-shaven Greek king figurine with curly hair, bronze helmet with a tall white plume, red cloak and bronze cuirass, on a black horse. Golden morning light. The soldiers march steadily toward the camera, pikes swaying; slow dolly back."
   },
   {
    "id": "open_1",
    "shot": "open",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. A figurine of a young Greek king on a black horse, red cloak and white crested helmet, at the head of his tiny army, camera slowly pushes in, golden light."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Close-up of a young clean-shaven Greek king figurine with curly hair, bronze helmet with a tall white plume, red cloak and bronze cuirass, on a black horse raising his right hand to command, rows of Macedonian phalanx figurines with bronze helmets, round bronze shields with a star emblem, red tunics and very long sarissa pikes behind him. He slowly raises his hand; his red cloak moves; slow push-in."
   },
   {
    "id": "open_2",
    "shot": "open",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Across a wide miniature river, a long line of Indian war elephants with red and gold caparisons and wooden howdahs stands on the far bank, camera glides low over the water toward them."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Low view across a wide resin river: on the far bank a long line of Indian war elephants with red and gold caparisons and wooden howdahs carrying archers; foreground water ripples. The water ripples and flows; the elephants sway their trunks; slow glide over the water."
   },
   {
    "id": "demand_0",
    "shot": "demand",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. A tiny horseman gallops up to the gate of an ancient Indian mud-brick fort with saffron flags; in front of the gate a regal Indian king figurine with a golden turban sits on a decorated war elephant, guards with long bows around him."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. A tiny Greek messenger on horseback arrives at the gate of an ancient Indian mud-brick fort with saffron flags; in front of the gate a very tall Indian king figurine with dark skin, black beard, golden turban with a jewel, white dhoti, saffron sash, gold armlets and a long sword sits on a richly decorated war elephant, Indian soldier figurines in white tunics and turbans with tall bamboo longbows on guard. The messenger's horse trots up and stops; the king turns his head; slow push-in."
   },
   {
    "id": "ambhi_0",
    "shot": "ambhi",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. The tall wooden gates of an ancient Indian walled city slowly swing open; a king figurine in purple robes and turban bows low to a Greek general on horseback, slow push-in."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. The tall wooden gates of a walled ancient Indian city stand open; a king figurine in a purple robe and purple turban bows low before a young clean-shaven Greek king figurine with curly hair, bronze helmet with a tall white plume, red cloak and bronze cuirass, on a black horse. The gates swing open and the purple-robed king bows low; slow push-in."
   },
   {
    "id": "ambhi_1",
    "shot": "ambhi",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Tiny Indian soldiers in purple turbans and two war elephants march out of the city gate to join rows of Greek soldiers with long pikes, slow pan."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Indian soldier figurines in purple turbans and two war elephants march out of the city gate to join rows of Macedonian phalanx figurines with bronze helmets, round bronze shields with a star emblem, red tunics and very long sarissa pikes. The soldiers and elephants march out steadily; slow pan."
   },
   {
    "id": "river_0",
    "shot": "river",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. A wide swollen muddy river in monsoon flood flows fast through the miniature landscape; on the near bank a Greek camp of small red tents; on the far bank a long line of war elephants and Indian archers in white, slow pan."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. A wide flooded muddy resin river in monsoon; on the near bank a Greek camp of small red tents and Macedonian phalanx figurines with bronze helmets, round bronze shields with a star emblem, red tunics and very long sarissa pikes; on the far bank a long line of Indian war elephants with red and gold caparisons and wooden howdahs carrying archers and Indian soldier figurines in white tunics and turbans with tall bamboo longbows. The brown water flows fast; flags flutter; slow lateral pan."
   },
   {
    "id": "river_1",
    "shot": "river",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Close macro shot of tiny Greek cavalry horses rearing and panicking at the riverbank, war elephants blurred across the water."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Close-up of Greek cavalry horse figurines rearing in panic at the riverbank; blurred war elephants across the water. The horses rear up and toss their heads; handheld feel."
   },
   {
    "id": "feint_0",
    "shot": "feint",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Night on the miniature riverbank: tiny horsemen carrying burning torches gallop back and forth along the bank, torchlight reflecting in the dark water, blue moonlight."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Night scene: Greek horseman figurines carrying burning torches gallop along the riverbank, torchlight reflecting in the dark resin water, blue moonlight. The horsemen gallop past with flickering torches, flames trailing; tracking shot."
   },
   {
    "id": "feint_1",
    "shot": "feint",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Night in a miniature Indian army camp: tiny soldiers in white sit around small campfires, tired, some lying down, the fires slowly dying, blue moonlight."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Night scene in an Indian army camp: Indian soldier figurines in white tunics and turbans with tall bamboo longbows sit tired around small glowing campfires, some lying down, blue moonlight. Firelight flickers, soldiers slowly lie down, smoke drifts; slow push-in."
   },
   {
    "id": "storm_0",
    "shot": "storm",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. A violent thunderstorm at night over the miniature river: heavy rain, flashes of lightning, small wooden boats full of tiny soldiers secretly crossing the dark water."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Night thunderstorm over the miniature river, lightning flash, heavy rain, small wooden boats crowded with Macedonian phalanx figurines with bronze helmets, round bronze shields with a star emblem, red tunics and very long sarissa pikes secretly crossing the dark water. Rain pours, lightning flashes, the boats glide across; slow push-in."
   },
   {
    "id": "storm_1",
    "shot": "storm",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Misty dawn on the miniature river: tiny soldiers wade chest-deep through the water from a small island, holding round shields above their heads."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Misty dawn: Macedonian phalanx figurines with bronze helmets, round bronze shields with a star emblem, red tunics and very long sarissa pikes wade chest-deep through the river from a small island, holding round shields above their heads. The soldiers wade forward slowly through the water, mist drifting; slow tracking."
   },
   {
    "id": "son_0",
    "shot": "son",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Ancient Indian two-horse war chariots stuck in deep brown mud after rain, wheels sinking, tiny drivers whipping the horses, Greek horsemen charging in, a young prince figurine falling, slow push-in."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Indian two-horse war chariot figurines stuck in deep brown mud after rain, wheels sinking, Greek horsemen charging toward them. Wheels spin in the mud, horses strain, horsemen charge in; slow push-in."
   },
   {
    "id": "son_1",
    "shot": "son",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Close macro of a young Indian prince figurine with a small golden turban falling from his stuck chariot into the mud, rain drops, slow motion."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Close-up of a young Indian prince figurine in a small golden turban fallen in the mud beside a stuck chariot wheel, rain puddles. Rain drops hit the puddles; very slow push-in."
   },
   {
    "id": "battle_0",
    "shot": "battle",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Epic miniature battle: armored Indian war elephants with howdahs and archers charge into a dense phalanx of tiny soldiers holding very long pikes, dust rising, low macro tracking shot."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Indian war elephants with red and gold caparisons and wooden howdahs carrying archers charge into a dense block of Macedonian phalanx figurines with bronze helmets, round bronze shields with a star emblem, red tunics and very long sarissa pikes with pikes lowered, dust rising, dramatic low angle. The elephants charge forward, dust billows, pikes thrust; low tracking shot."
   },
   {
    "id": "battle_1",
    "shot": "battle",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Miniature battle chaos: wounded war elephants turn around in panic and trample their own Indian infantry, dust and fallen figurines."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Battle chaos: wounded war elephants turn around and trample Indian soldier figurines in white tunics and turbans with tall bamboo longbows, dust, fallen figurines. Elephants turn and stampede, dust clouds swirl; shaky tracking."
   },
   {
    "id": "battle_2",
    "shot": "battle",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Tiny Greek cavalry gallops around the flank of the Indian army in a wide arc across the miniature plain, dust trails, aerial view."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Elevated view: Greek cavalry figurines sweep in a wide arc around the flank of the Indian army, dust trails across the diorama plain. The cavalry gallops in an arc, dust trails grow; slow aerial drift."
   },
   {
    "id": "king_0",
    "shot": "king",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Close macro of figurines in golden evening light: a very tall wounded Indian king with a golden turban stands proudly, facing a young Greek king seated on a black horse, soldiers with pikes around them, shallow depth of field."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. a very tall Indian king figurine with dark skin, black beard, golden turban with a jewel, white dhoti, saffron sash, gold armlets and a long sword, wounded, stands proudly before a young clean-shaven Greek king figurine with curly hair, bronze helmet with a tall white plume, red cloak and bronze cuirass, on a black horse; Macedonian phalanx figurines with bronze helmets, round bronze shields with a star emblem, red tunics and very long sarissa pikes around them; golden evening light. The tall king lifts his chin; the horse shifts; slow push-in."
   },
   {
    "id": "king_1",
    "shot": "king",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Extreme close-up of the tall Indian king figurine slowly raising his head with dignity, golden light, soft bokeh."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Extreme close-up of a very tall Indian king figurine with dark skin, black beard, golden turban with a jewel, white dhoti, saffron sash, gold armlets and a long sword, head raised with dignity, golden evening light, soft bokeh. He slowly raises his head; very slow push-in, soft bokeh shifts."
   },
   {
    "id": "return_0",
    "shot": "return",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. A miniature diorama landscape seen from above: a kingdom between two rivers glowing in warm golden light, tiny villages and saffron banners, slow aerial drift."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Elevated view of the diorama: a kingdom between two rivers with tiny villages and saffron banners, glowing in golden light. Banners flutter gently, light glows warmer; slow aerial drift."
   },
   {
    "id": "return_1",
    "shot": "return",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Tired tiny Greek soldiers sit on the bank of a river under grey monsoon clouds, banners lowered, pikes lying on the ground, refusing to march on."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Tired Greek soldier figurines sit on a riverbank under grey monsoon clouds, banners lowered, pikes lying on the ground. Soldiers sit still, one lowers his head, clouds drift; slow pan."
   },
   {
    "id": "murder_0",
    "shot": "murder",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Dark miniature scene at night: an Indian king figurine alone by a small fire in front of a red tent; a shadowy figure with a dagger slowly approaches from behind; the fire flickers and goes out."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Night: a very tall Indian king figurine with dark skin, black beard, golden turban with a jewel, white dhoti, saffron sash, gold armlets and a long sword alone by a small fire in front of a red tent; a dark hooded figurine with a dagger approaches from behind. The fire flickers, the hooded figure creeps closer, then the fire dies down; slow push-in."
   },
   {
    "id": "legacy_0",
    "shot": "legacy",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. Close macro of a regal Indian king figurine with a golden turban riding a richly decorated war elephant, golden sunset light, slow push-in, soft bokeh."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. Close-up of a very tall Indian king figurine with dark skin, black beard, golden turban with a jewel, white dhoti, saffron sash, gold armlets and a long sword riding a richly decorated war elephant, warm sunset light. The elephant sways and walks slowly; slow orbit."
   },
   {
    "id": "legacy_1",
    "shot": "legacy",
-   "prompt": "Tilt-shift macro photograph of a handcrafted miniature diorama on a tabletop, tiny hand-painted figurines, model trees and flock grass, resin river, shallow depth of field with soft blurred foreground and background, warm cinematic light, highly detailed, ancient India 326 BC. At sunset a regal Indian king on a richly decorated war elephant stands on a hilltop, silhouetted against a golden sky, the camera slowly pulls back to reveal the whole miniature diorama on a wooden table with warm bokeh lights behind."
+   "prompt": "Vertical 9:16 macro video of a handcrafted museum-quality miniature diorama, tiny hand-painted figurines, macro lens tilt-shift, shallow depth of field, crisp detail on the main figurines, natural rich colors, warm side light, dark studio and table edge far behind, no sky. a very tall Indian king figurine with dark skin, black beard, golden turban with a jewel, white dhoti, saffron sash, gold armlets and a long sword on a decorated war elephant on a hilltop, silhouetted against a golden backdrop; the whole miniature diorama on a wooden table around it. The camera slowly pulls back to reveal the whole diorama on the table."
   }
  ]
 }
