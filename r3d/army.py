@@ -42,12 +42,8 @@ def build(name, x, fn):
     except Exception: traceback.print_exc(limit=5); print('VARIANT', name, 'FAIL'); return None
     new = [o for o in bpy.data.objects if o not in before]
     rigs = [o for o in new if o.type == 'ARMATURE']; meshes = [o for o in new if o.type in ('MESH', 'CURVE')]
-    for o in meshes:   # drop helper geometry left visible
-        if o.hide_render or o.hide_get(): meshes.remove(o)
+    meshes = [o for o in meshes if not o.hide_render]
     m = merge(meshes)
-    for o in new:
-        if o != m and o.name in bpy.data.objects and o.type in ('ARMATURE', 'EMPTY', 'MESH', 'CURVE') and o not in [m]:
-            if o.type != 'MESH' or o.name in bpy.data.objects: pass
     for o in [o for o in new if o.name in bpy.data.objects and o != m]: bpy.data.objects.remove(o)
     m.parent = None
     me = m.data; zmin = min(v.co.z for v in me.vertices); cx = sum(v.co.x for v in me.vertices) / len(me.vertices); cy = sum(v.co.y for v in me.vertices) / len(me.vertices)
