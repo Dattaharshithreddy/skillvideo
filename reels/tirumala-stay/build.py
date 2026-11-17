@@ -146,7 +146,7 @@ for k, (x, y, z) in enumerate(verts):
     c = V((0.10, 0.24, 0.06)).lerp(V((0.22, 0.34, 0.09)), 0.5 + 0.5 * n1)             # Seshachalam forest green
     tw = max(0.0, min(1.0, (1.0 - town(x, y)) * 4))
     town_c = V((0.58, 0.45, 0.30)).lerp(V((0.40, 0.42, 0.22)), max(0.0, n1) * 0.9)     # warm laterite with green patches
-    c = c.lerp(town_c, tw * (0.85 - 0.35 * max(0.0, n1)))
+    c = c.lerp(town_c, tw * (0.55 - 0.35 * max(0.0, n1)))
     if z - BASE > 0.05: c = c.lerp(V((0.42, 0.36, 0.28)), min(1, (z - BASE - 0.05) / 0.03) * (0.5 + 0.5 * n2))   # rocky tops
     rd = road(x, y)
     if rd < 0.006 and tw > 0.3: c = c.lerp(V((0.30, 0.26, 0.22)), min(1, (0.006 - rd) / 0.003) * 0.8)
@@ -293,9 +293,26 @@ M_wood = pbr('shaft', (0.42, 0.30, 0.16), 0.7); M_iron = pbr('iron', (0.55, 0.55
 def cyl(r, d, loc, rot, m):
     bpy.ops.mesh.primitive_cylinder_add(radius=r, depth=d, location=loc, rotation=rot, vertices=8); o = bpy.context.object; o.data.materials.append(m); return o
 B3 = GLB + 'buildings_pack_3/'
+def tint(objs, col, rough=0.75):
+    """keep the model's own texture (windows, doors, ledges) and wash it with the real building's colour"""
+    for o in objs:
+        if o.type != 'MESH': continue
+        for sl in o.material_slots:
+            m = sl.material
+            if not m or not m.use_nodes: continue
+            nm = m.copy(); nm.name = m.name + '_t' + str(col)[:12]; nt_ = nm.node_tree; b = nt_.nodes.get('Principled BSDF')
+            if not b: sl.material = nm; continue
+            mx = nt_.nodes.new('ShaderNodeMixRGB'); mx.blend_type = 'MULTIPLY'; mx.inputs['Fac'].default_value = 1.0
+            mx.inputs['Color2'].default_value = (min(1, col[0] * 1.25), min(1, col[1] * 1.25), min(1, col[2] * 1.25), 1)
+            src = b.inputs['Base Color'].links[0].from_socket if b.inputs['Base Color'].links else None
+            if src: nt_.links.new(src, mx.inputs['Color1'])
+            else: mx.inputs['Color1'].default_value = b.inputs['Base Color'].default_value
+            nt_.links.new(mx.outputs['Color'], b.inputs['Base Color'])
+            b.inputs['Roughness'].default_value = rough; b.inputs['Metallic'].default_value = 0.0
+            sl.material = nm
 def glb_unit(name, path, height, color=None):
     objs = import_glb(path); norm_height(objs, height)
-    if color: paint(objs, color, rough=0.8)
+    if color: tint(objs, color)
     c = bpy.data.collections.new(name); SRC.children.link(c); move_to(objs, c); return c
 U = {}
 CREAM, WHITE, MAROON, SAFF, GOLD = (0.93, 0.86, 0.70), (0.95, 0.94, 0.90), (0.55, 0.12, 0.08), (0.95, 0.52, 0.08), (0.95, 0.72, 0.2)
@@ -380,7 +397,7 @@ def sign(p, yaw, w=0.016, h=0.004, z=0.006):
 # named guest houses (positions on the board); facing the nearest road
 # real bearings from the temple (Google Maps coordinates), distance compressed: r_board = 0.21 + 0.13 * r_m / 800
 NB = {'nand': V((0.25, 0.13)), 'vakula': V((0.22, 0.20)), 'sapth': V((0.233, -0.095)), 'kaus': V((0.26, -0.154)), 'pac': V((0.213, -0.226)),
-      'panch': V((0.165, -0.30)), 'padma': V((-0.131, -0.325)), 'donor': V((0.12, -0.12))}
+      'panch': V((0.165, -0.30)), 'padma': V((-0.131, -0.325)), 'donor': V((0.34, -0.07))}
 def face_to(p, q): return yaw_of((q - p).normalized())       # building fronts face -Y after glTF import, like the figures
 TOPS = {}
 for k_, p in NB.items():
@@ -512,7 +529,7 @@ fill.data.color = (0.8, 0.88, 1.0); fill.data.energy = 9
 # warm glow over the temple in the golden shots
 bpy.ops.object.light_add(type='POINT', location=TPTOP + V((0.03, 0, 0.05))); tglow = bpy.context.object; tglow.data.color = (1, 0.6, 0.2); tglow.data.shadow_soft_size = 0.02
 for name in TOD:
-    for f in S(name): tglow.data.energy = 0.9 if name in ('hook', 'finale', 'gods') else 0.3; tglow.data.keyframe_insert('energy', frame=f)
+    for f in S(name): tglow.data.energy = 0.25 if name in ('hook', 'finale', 'gods') else 0.06; tglow.data.keyframe_insert('energy', frame=f)
 const(tglow.data)
 # ---------------- camera: macro lens with real depth of field ----------------
 cd = bpy.data.cameras.new('cam'); cam = bpy.data.objects.new('cam', cd); sc.collection.objects.link(cam); sc.camera = cam
