@@ -70,13 +70,13 @@ export const Sample: React.FC = () => (
         <Title k="క్రీ.పూ. 326" v="హైడాస్పెస్ యుద్ధం" at={8} />
         <Pin shot="A" k="greek" v="అలెగ్జాండర్ సైన్యం" at={40} lift={120} size={44} />
         <Pin shot="A" k="river" v="జీలం నది" at={58} lift={110} dx={120} size={44} />
-        <Pin shot="A" k="indian" v="పురుషోత్తముడి సైన్యం" at={76} lift={130} size={44} />
+        <Pin shot="A" k="indian" v="పురు సైన్యం" at={76} lift={130} size={44} />
       </Shot>
     </Sequence>
     <Sequence from={SHOT_LEN} durationInFrames={SHOT_LEN}>
       <Shot src="mini/clip_B.mp4">
         <Counter to={200} label="యుద్ధ ఏనుగులు" at={6} />
-        <Pin shot="B" k="puru" v="పురుషోత్తముడు" sub="పౌరవ రాజు" at={84} lift={190} />
+        <Pin shot="B" k="puru" v="పురు" sub="పౌరవ రాజు" at={84} lift={190} />
       </Shot>
     </Sequence>
     <Sequence from={SHOT_LEN * 2} durationInFrames={SHOT_LEN}>
