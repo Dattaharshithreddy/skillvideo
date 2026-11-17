@@ -106,7 +106,7 @@ def join(objs):
 
 jobs = []
 def job(f): jobs.append(f); return f
-ONLY = ONLY or 'ind_pallu,ind_uttariyam'
+ONLY = ONLY or 'ind_uttariya_diag,ind_janeu'
 
 @job
 def ind_dhoti():      # Telugu panche: ankle length, front pleats, pinned at the waist
@@ -154,6 +154,30 @@ def ind_uttariyam():  # angavastram/uttariyam: stole around the back of the neck
         if v.co.z > H * 0.835 and v.co.y > nk[1]: pin.add([v.index], 1.0, 'REPLACE')
     global SKIRT; SKIRT = False
     hug(o, bm, 0.008); simulate(o, bm, frames=8, stiff=6, bend=0.05, mass=0.1); SKIRT = True; save(o, bm, 'ind_uttariyam', 'Angavastram / uttariyam stole')
+
+@job
+def ind_uttariya_diag():   # royal uttariya: right hip -> across chest -> over the left shoulder -> down the back
+    bm, P, H = make_base(1.0)
+    cx, cy, rx, ry = ext(P, H * 0.80, H * 0.82, xmax=0.22)
+    sh = Vector((cx + rx * 0.5, cy, H * 0.83))
+    path = [Vector((cx - rx * 0.85, cy - ry, H * 0.57)), Vector((cx - rx * 0.25, cy - ry - 0.02, H * 0.68)),
+            Vector((cx + rx * 0.3, cy - ry - 0.01, H * 0.78)), sh + Vector((0, 0, 0.02)),
+            Vector((cx + rx * 0.55, cy + ry + 0.02, H * 0.74)), Vector((cx + rx * 0.5, cy + ry + 0.04, H * 0.5))]
+    o = strip('ind_uttariya_diag', path, 0.16, cols=8, rows=56, pin_ends=(False, False))
+    global SKIRT; SKIRT = False
+    hug(o, bm, 0.01); simulate(o, bm, frames=6, stiff=6, bend=0.05, mass=0.1); SKIRT = True
+    save(o, bm, 'ind_uttariya_diag', 'Royal uttariya draped diagonally over the left shoulder')
+@job
+def ind_janeu():           # sacred thread (yajnopavita): left shoulder -> right hip
+    bm, P, H = make_base(1.0)
+    cx, cy, rx, ry = ext(P, H * 0.80, H * 0.82, xmax=0.22)
+    path = [Vector((cx + rx * 0.45, cy + ry, H * 0.72)), Vector((cx + rx * 0.5, cy, H * 0.835)), Vector((cx + rx * 0.2, cy - ry - 0.02, H * 0.76)),
+            Vector((cx - rx * 0.4, cy - ry - 0.02, H * 0.63)), Vector((cx - rx * 0.85, cy - 0.02, H * 0.57)), Vector((cx - rx * 0.4, cy + ry, H * 0.6)), Vector((cx + rx * 0.45, cy + ry, H * 0.72))]
+    o = strip('ind_janeu', path, 0.012, cols=2, rows=60, pin_ends=(False, False))
+    global SKIRT; SKIRT = False
+    hug(o, bm, 0.004); SKIRT = True
+    o.vertex_groups.remove(o.vertex_groups['pin']); gb = o.vertex_groups.new(name='body'); gb.add(list(range(len(o.data.vertices))), 1.0, 'REPLACE')
+    save(o, bm, 'ind_janeu', 'Sacred thread')
 
 for f in jobs:
     if ONLY and f.__name__ not in ONLY.split(','): continue
