@@ -15,7 +15,7 @@ SKINS = find('skins', '*.mhmat')
 SK_M = [s for s in SKINS if any(k in s for k in ('middleage_asian_male', 'young_asian_male'))] or SKINS
 SK_F = [s for s in SKINS if any(k in s.lower() for k in ('indian_female', 'middleage_asian_female', 'young_asian_female'))] or SKINS
 EYES = find('eyes', '*.mhclo'); BROWS = find('eyebrows', '*.mhclo')
-HAIR_F = [h for h in find('hair', '*.mhclo') if any(k in h.lower() for k in ('braid', 'bun', 'ponytail'))] or [h for h in find('hair', '*.mhclo') if 'long' in h.lower()]
+HAIR_F = [h for h in find('hair', '*.mhclo') if any(k in h.lower() for k in ('braid_bun', 'hair_bun', 'french_braid_bun'))] or [h for h in find('hair', '*.mhclo') if any(k in h.lower() for k in ('braid', 'bun', 'ponytail'))] or [h for h in find('hair', '*.mhclo') if 'long' in h.lower()]
 print('HAIR_F', [os.path.basename(h) for h in HAIR_F])
 HAIR_M = [h for h in find('hair', '*.mhclo') if 'short' in h.lower()] or find('hair', '*.mhclo')
 POSES = find('poses', 'standing0*.bvh'); SIT = [p for p in find('poses', '*.bvh') if any(k in p for k in ('sittingdefault', 'sit01', 'sittingnatural'))]
@@ -201,7 +201,7 @@ def person(x, y, rot, male, outfit, sit=False, age=0.5, muscle=0.6, weight=0.5, 
     tint_skin(bm, (0.82, 0.6, 0.45) if male else (0.8, 0.58, 0.44))
     rig = HumanService.add_builtin_rig(bm, 'default')
     add(EYES[0], bm, 'Eyes'); add(BROWS[0], bm, 'Eyebrows')
-    if hair: add(random.choice(HAIR_M if male else HAIR_F), bm, 'Hair')
+    if hair: add(random.choice(HAIR_M if male else HAIR_F), bm, 'Hair'); hair_fix(bm)
     for g, m in outfit: add(G(g), bm, 'Clothes', m)
     pz = pose(rig, bm, sit)
     rig.rotation_euler[2] = rot; rig.location = (x, y, 0); bpy.context.view_layer.update()
@@ -290,3 +290,51 @@ def earrings(P, rig, m=None):
     attach([merge(out)], rig, 'head')
 def pearl_ropes(bm, rig, n=3):
     return necklace(bm, rig, layers=tuple((0.09 + 0.07 * k, 0.09 + 0.012 * k, 40 + 12 * k) for k in range(n)))
+
+def turban_mat(name, base, band=None, fold_scale=34.0, bump=0.9):
+    """Cloth turban: diagonal wave bands give the wrapped-fold relief (bump) and a slight tonal change per fold."""
+    m = bpy.data.materials.get(name)
+    if m: return m
+    m = bpy.data.materials.new(name); m.use_fake_user = True; m.use_nodes = True; nt = m.node_tree; b = nt.nodes['Principled BSDF']
+    b.inputs['Roughness'].default_value = 0.7; b.inputs['Sheen Weight'].default_value = 0.4
+    co = nt.nodes.new('ShaderNodeTexCoord'); mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Rotation'].default_value = (0.0, 0.35, 0.0)
+    nt.links.new(co.outputs['Object'], mp.inputs['Vector'])
+    wv = nt.nodes.new('ShaderNodeTexWave'); wv.wave_type = 'BANDS'; wv.bands_direction = 'Z'; wv.wave_profile = 'SIN'; wv.inputs['Scale'].default_value = fold_scale; wv.inputs['Distortion'].default_value = 2.0
+    wv.inputs['Detail'].default_value = 1.5; nt.links.new(mp.outputs['Vector'], wv.inputs['Vector'])
+    bp = nt.nodes.new('ShaderNodeBump'); bp.inputs['Strength'].default_value = bump; bp.inputs['Distance'].default_value = 0.004
+    nt.links.new(wv.outputs['Fac'], bp.inputs['Height']); nt.links.new(bp.outputs['Normal'], b.inputs['Normal'])
+    mx = nt.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs['A'].default_value = (*[c * 0.62 for c in base], 1); mx.inputs['B'].default_value = (*(band or base), 1)
+    nt.links.new(wv.outputs['Fac'], mx.inputs['Factor']); nt.links.new(mx.outputs['Result'], b.inputs['Base Color'])
+    return m
+def turban2(P, rig, m, style='pagdi', jewel=True, kalgi=True, pearls=True):
+    """One smooth wrapped turban (lathe) instead of stacked rings."""
+    c, r, hd = head_info(P); R = r + 0.014; z0 = c.z - 0.085
+    if style == 'pagdi':      # rounded, slightly swollen, tipped back
+        prof = [(R, 0.0), (R + 0.022, 0.02), (R + 0.04, 0.06), (R + 0.045, 0.1), (R + 0.03, 0.14), (R * 0.75, 0.175), (R * 0.4, 0.192), (0.0, 0.197)]
+    else:                     # mantri / courtier: tall, flat top, slightly flared
+        prof = [(R, 0.0), (R + 0.02, 0.02), (R + 0.03, 0.08), (R + 0.04, 0.16), (R + 0.045, 0.19), (R + 0.02, 0.205), (0.0, 0.208)]
+    t = lathe_obj('turban', prof, m, (c.x, c.y, z0), seg=64); t.scale = (1, 1.13, 1); t.rotation_euler = (math.radians(-6), 0, 0)
+    sub = t.modifiers.new('s', 'SUBSURF'); sub.levels = sub.render_levels = 1
+    parts = [t]
+    front = min(hd, key=lambda p: p.y); fy = front.y - 0.05; fz = z0 + 0.1
+    gold = GOLD(); ruby = solid('k_ruby2', (0.6, 0.01, 0.03), 0.05); emer = solid('k_emer2', (0.0, 0.35, 0.12), 0.05); pearl = solid('k_pearl2', (0.95, 0.92, 0.86), 0.2)
+    if jewel:
+        parts += [ball(0.026, (c.x, fy, fz), gold, (1.0, 0.35, 1.4), 16), ball(0.014, (c.x, fy - 0.007, fz), ruby, (1, 0.6, 1.2))]
+        for dx in (-0.035, 0.035): parts.append(ball(0.007, (c.x + dx, fy + 0.008, fz - 0.012), emer))
+    if kalgi:
+        bpy.ops.curve.primitive_bezier_curve_add(); cu = bpy.context.object; sp = cu.data.splines[0]; sp.bezier_points.add(1)
+        for bp, p in zip(sp.bezier_points, [(c.x, fy + 0.006, fz + 0.03), (c.x + 0.004, fy + 0.02, fz + 0.1), (c.x + 0.03, fy + 0.06, fz + 0.15)]):
+            bp.co = cu.matrix_world.inverted() @ Vector(p); bp.handle_left_type = bp.handle_right_type = 'AUTO'
+        cu.data.bevel_depth = 0.003; cu.data.materials.append(gold); parts.append(cu)
+        for k in range(7):
+            a = k / 6; bpy.ops.mesh.primitive_cone_add(radius1=0.005, radius2=0.0, depth=0.06, location=(c.x + 0.015 + a * 0.025, fy + 0.035 + a * 0.03, fz + 0.13 + a * 0.02), rotation=(0.6 + a * 0.5, 0.3, 0))
+            f = bpy.context.object; f.scale = (1, 0.3, 1); f.data.materials.append(pearl); parts.append(f)
+    if pearls:
+        for k in range(44):
+            a = 2 * math.pi * k / 44; parts.append(ball(0.005, (c.x + (R + 0.043) * math.cos(a), c.y + (R + 0.043) * 1.13 * math.sin(a), z0 + 0.065 + 0.03 * math.sin(a + 1.2)), pearl, (1, 1, 1), 8))
+    o = merge(parts); attach([o], rig, 'head'); return o
+def hair_fix(bm, m=None):
+    m = m or solid('hair_black2', (0.018, 0.012, 0.01), 0.42)
+    for o in bpy.data.objects:
+        if o.type == 'MESH' and o.parent in (bm, bm.parent) and any(k in o.name.lower() for k in ('braid', 'bun', 'ponytail', 'hair', 'bob')):
+            o.data.materials.clear(); o.data.materials.append(m)

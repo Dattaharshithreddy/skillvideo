@@ -4,41 +4,41 @@ sys.path.insert(0, os.path.dirname(__file__))
 for o in list(bpy.data.objects): bpy.data.objects.remove(o)
 from kitlib import *
 random.seed(5)
-SHIRT = G('mindfront_kimono') or G('toigo_fisherman_sweater'); PANTS = G('elvs_disco_pants_skinny') or G('punkduck_female_tight_jeans')
+SHIRT = G('toigo_fisherman_sweater') or G('janexx_old_female_sweater'); PANTS = G('elvs_disco_pants_skinny') or G('punkduck_female_tight_jeans')
 WHITE_ROSE = brocade('kabayi_white', (0.93, 0.91, 0.85), scale=22, dot=0.12)           # Vijayanagara: white silk, gold roses
 RED_JAMA = brocade('jama_red', (0.3, 0.015, 0.025), scale=26, dot=0.12)               # court: red brocade choga
-GREEN_PATKA = brocade('patka_green', (0.03, 0.18, 0.08), scale=40, dot=0.1, hem=0.08, obj_coords=False)
-GOLD_PATKA = brocade('patka_gold', (0.72, 0.52, 0.2), motif=(0.5, 0.03, 0.05), scale=40, dot=0.1, hem=0.08, obj_coords=False)
+GREEN_PATKA = cloth('patka_green2', (0.03, 0.2, 0.09), bw=0.12, sheen=0.4)
+GOLD_PATKA = cloth('patka_gold2', (0.75, 0.55, 0.22), border=(0.5, 0.03, 0.05), bw=0.12, sheen=0.4, metal_border=False)
 CAP = brocade('kullayi_brocade', (0.88, 0.8, 0.6), motif=(1.0, 0.75, 0.35), scale=40, dot=0.12, hem=0)
-PAGDI_SAFF = brocade('pagdi_saffron', (0.85, 0.35, 0.03), motif=(1.0, 0.8, 0.4), scale=60, dot=0.06, hem=0); PAGDI_W = cloth('pagdi_white', (0.95, 0.93, 0.88), bw=0, sheen=0.3)
+PAGDI_SAFF = turban_mat('pagdi_saffron2', (0.85, 0.28, 0.02), band=(0.95, 0.55, 0.08)); PAGDI_W = cloth('pagdi_white', (0.95, 0.93, 0.88), bw=0, sheen=0.3)
 CHURI = cloth('churidar_white', (0.92, 0.9, 0.85), bw=0)
 SILK = cloth('king_silk', (0.16, 0.004, 0.012), bw=0.08); KUTT = cloth('king_utt', (0.95, 0.72, 0.3), mode='edge', sheen=0.4); JN = cloth('janeu', (0.95, 0.94, 0.9), bw=0, metal_border=False)
 QS = brocade('queen_pattu', (0.25, 0.01, 0.06), scale=30, dot=0.1, hem=0.1); QP = cloth('queen_pallu', (0.25, 0.01, 0.06), mode='edge', bw=0.06, sheen=0.3); QB = brocade('queen_blouse', (0.6, 0.38, 0.05), scale=50, dot=0.1, hem=0)
-MW = cloth('mantri_dhoti', (0.92, 0.9, 0.84), bw=0.05); MU = cloth('mantri_utt', (0.9, 0.86, 0.72), mode='edge'); MT = cloth('mantri_turban', (0.95, 0.93, 0.86), bw=0)
+MW = cloth('mantri_dhoti', (0.92, 0.9, 0.84), bw=0.05); MU = cloth('mantri_utt', (0.9, 0.86, 0.72), mode='edge'); MT = turban_mat('mantri_turban2', (0.95, 0.93, 0.86), band=(0.98, 0.96, 0.9), bump=0.6)
 cast = []
 def look(name, fn):
     try: fn(); cast.append(name); print('LOOK', name, 'ok')
     except Exception: traceback.print_exc(limit=4); print('LOOK', name, 'FAIL')
 def vijayanagara():   # Krishnadevaraya style
     bm, rig, P = person(-2.6, 0, 0, True, [('ind_jama_long', WHITE_ROSE), ('ind_patka', GOLD_PATKA)], muscle=0.6, weight=0.6, hair=False)
-    add(SHIRT, bm, 'Clothes', WHITE_ROSE); bpy.context.view_layer.update(); P = body_pts(bm)
+    add(SHIRT, bm, 'Clothes', WHITE_ROSE); add(G('ind_uttariya_diag'), bm, 'Clothes', brocade('flap_white', (0.95, 0.93, 0.87), scale=22, dot=0.12, hem=0)); bpy.context.view_layer.update(); P = body_pts(bm)
     kullayi(P, rig, CAP); pearl_ropes(bm, rig, 2); earrings(P, rig); moustache(bm, rig, P); tilak(P, rig)
     w = bone_pos(rig, 'wrist.L'); attach([merge(kit('sword_khanda', (w.x, w.y - 0.03, w.z - 0.98), 0.95))], rig, 'wrist.L')
 def court_king():     # red brocade jama, patka, churidar, royal pagdi with sarpech + kalgi, pearls
     bm, rig, P = person(-1.3, 0, 0, True, [('ind_jama_skirt', RED_JAMA), ('ind_patka', GREEN_PATKA)], muscle=0.65, hair=False)
-    add(SHIRT, bm, 'Clothes', RED_JAMA); add(PANTS, bm, 'Clothes', CHURI); bpy.context.view_layer.update(); P = body_pts(bm)
-    royal_pagdi(P, rig, PAGDI_SAFF); pearl_ropes(bm, rig, 4); earrings(P, rig); moustache(bm, rig, P, 0.009); armlets(rig)
+    add(SHIRT, bm, 'Clothes', RED_JAMA); add(G('ind_uttariya_diag'), bm, 'Clothes', brocade('flap_red', (0.34, 0.02, 0.03), scale=26, dot=0.12, hem=0)); add(PANTS, bm, 'Clothes', CHURI); bpy.context.view_layer.update(); P = body_pts(bm)
+    turban2(P, rig, PAGDI_SAFF, 'pagdi'); pearl_ropes(bm, rig, 4); earrings(P, rig); moustache(bm, rig, P, 0.009); armlets(rig)
 def ancient_king():   # Chola/ancient: bare chest, silk dhoti, uttariya, kireetam
     bm, rig, P = person(0.0, 0, 0, True, [('ind_kingdhoti', SILK), ('ind_uttariya_diag', KUTT), ('ind_janeu', JN)], muscle=0.75, hair=False)
     top, r, hd = head_info(P); attach([merge(kit('crown_kireetam', (top.x, top.y, top.z - 0.06 - 1.3 * 0.9), 0.9))], rig, 'head')
     necklace(bm, rig); armlets(rig); earrings(P, rig); moustache(bm, rig, P); tilak(P, rig)
 def queen():
     bm, rig, P = person(1.3, 0, 0, False, [('ind_sareeskirt', QS), ('toigo_camisole_top', QB), ('ind_pallu', QP)])
-    top, r, hd = head_info(P); attach([merge(kit('crown_kireetam', (top.x, top.y, top.z - 0.05 - 1.3 * 0.6), 0.6))], rig, 'head')
+    top, r, hd = head_info(P); attach([merge(kit('crown_kireetam', (top.x, top.y, top.z - 0.045 - 1.3 * 0.42), 0.42))], rig, 'head')
     necklace(bm, rig, layers=((0.06, 0.075, 30), (0.12, 0.09, 40), (0.18, 0.1, 48))); armlets(rig); earrings(P, rig); tilak(P, rig)
 def mantri():
     bm, rig, P = person(2.6, 0, 0, True, [('ind_dhoti', MW), ('ind_uttariya_diag', MU), ('ind_janeu', JN)], age=0.75, weight=0.6, hair=False)
-    turban(P, rig, MT, 'mantri'); moustache(bm, rig, P, 0.006); tilak(P, rig, (0.9, 0.9, 0.85))
+    turban2(P, rig, MT, 'mantri', jewel=True, kalgi=False, pearls=False); moustache(bm, rig, P, 0.006); tilak(P, rig, (0.9, 0.9, 0.85))
 for n, f in (('vijayanagara', vijayanagara), ('court_king', court_king), ('ancient_king', ancient_king), ('queen', queen), ('mantri', mantri)): look(n, f)
 print('CAST', cast)
 # backdrop: warm palace wall + floor
