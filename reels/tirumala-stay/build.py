@@ -317,7 +317,13 @@ def tint(objs, col, rough=0.75):
                 ml = nt_.nodes.new('ShaderNodeMath'); ml.operation = 'MULTIPLY'; ml.inputs[1].default_value = 1.55; ml.use_clamp = True
                 nt_.links.new(bw.outputs['Val'], pw.inputs[0]); nt_.links.new(pw.outputs[0], ml.inputs[0])
                 nt_.links.new(ml.outputs[0], mx.inputs['Color1'])
-            else: mx.inputs['Color1'].default_value = b.inputs['Base Color'].default_value
+            else:
+                # flat-colour models (Quaternius buildings): walls take the real colour, trims a shade darker,
+                # windows/glass/black stay as modelled
+                n_ = m.name.split('.')[0].lower(); base = b.inputs['Base Color'].default_value
+                k_ = {'main': 0.80, 'bricks': 0.70, 'white': 0.80, 'dark': 0.38}.get(n_)
+                if k_ is None: sl.material = nm; nt_.nodes.remove(mx); continue
+                mx.inputs['Color1'].default_value = (k_, k_, k_, 1)
             nt_.links.new(mx.outputs['Color'], b.inputs['Base Color'])
             b.inputs['Roughness'].default_value = rough; b.inputs['Metallic'].default_value = 0.0
             sl.material = nm

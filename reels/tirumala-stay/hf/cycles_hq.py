@@ -61,3 +61,4 @@ bpy.context.scene.view_settings.exposure = -0.12   # brighter close-ups in Cycle
 
 bpy.context.scene.render.use_persistent_data = True   # keep the scene on the GPU between frames
 bpy.context.scene.render.use_overwrite = False         # a restarted session skips frames already done
+bpy.context.scene.render.resolution_percentage = int(os.environ.get('RESPCT', '100'))   # CPU runs render smaller; post scales to 1080x1920

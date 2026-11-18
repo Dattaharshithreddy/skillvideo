@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 python3 plan.py >/dev/null 2>&1; mkdir -p audio renders mg/public mg/out /out/final
 cp /out/audio/l*.wav audio/; cp /out/timing.json /out/labels.json brief/
 N=$(python3 -c "import json;print(json.load(open('brief/timing.json'))['end'])"); echo "frames needed $N, have $(ls /out/seq | wc -l)"
-ffmpeg -y -v error -framerate 30 -i /out/seq/f_%05d.jpg -frames:v $N -vf "eq=saturation=1.08:contrast=1.03" -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p mg/public/bg.mp4
+ffmpeg -y -v error -framerate 30 -i /out/seq/f_%05d.jpg -frames:v $N -vf "scale=1080:1920:flags=lanczos,eq=saturation=1.08:contrast=1.03" -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p mg/public/bg.mp4
 python3 - <<'PY'
 # smooth the narration joins without changing any line's length (frames are timed to it): digital-silence gaps get
 # 25 ms fades at both edges and a faint room tone instead of dead air
