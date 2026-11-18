@@ -322,8 +322,9 @@ def glb_unit(name, path, height, color=None):
 U = {}
 CREAM, WHITE, MAROON, SAFF, GOLD = (0.93, 0.86, 0.70), (0.95, 0.94, 0.90), (0.55, 0.12, 0.08), (0.95, 0.52, 0.08), (0.95, 0.72, 0.2)
 BLD = {  # name: (file, height m, colour)
- 'gen4': ('4Story_Mat', 0.024, (0.80, 0.62, 0.38)), 'gen3': ('3Story_Balcony_Mat', 0.019, (0.78, 0.50, 0.32)), 'gen2': ('2Story_Wide_Mat', 0.013, (0.75, 0.42, 0.26)),
- 'gen2b': ('2Story_Balcony_Mat', 0.013, (0.82, 0.70, 0.45)), 'cot': ('1Story_GableRoof_Mat', 0.008, (0.70, 0.30, 0.18)), 'cot2': ('1Story_Mat', 0.007, (0.80, 0.66, 0.42)),
+ # Tirumala's cottages and choultries are whitewashed with cream and pale-pink trims
+ 'gen4': ('4Story_Mat', 0.024, (1.0, 0.97, 0.90)), 'gen3': ('3Story_Balcony_Mat', 0.019, (1.0, 0.93, 0.86)), 'gen2': ('2Story_Wide_Mat', 0.013, (1.0, 0.95, 0.84)),
+ 'gen2b': ('2Story_Balcony_Mat', 0.013, (0.98, 0.98, 0.95)), 'cot': ('1Story_GableRoof_Mat', 0.008, (1.0, 0.86, 0.78)), 'cot2': ('1Story_Mat', 0.007, (1.0, 0.96, 0.88)),
  # colours sampled from the real buildings (Google Maps / YouTube photos)
  'nand': ('4Story_Wide_2Doors_Roof_Mat', 0.026, (0.90, 0.74, 0.68)), 'panch': ('4Story_Center_Mat', 0.026, (0.80, 0.86, 0.94)),
  'kaus': ('4Story_Mat', 0.028, (0.88, 0.86, 0.80)), 'vakula': ('4Story_Wide_2Doors_Mat', 0.030, (0.93, 0.80, 0.78)),
@@ -333,8 +334,9 @@ BLD = {  # name: (file, height m, colour)
 for k_, (f_, h_, c_) in BLD.items(): U[k_] = glb_unit(k_, B3 + f_ + '.glb', h_, c_)
 # real guest houses rebuilt in 3D by Model Forge from photos of the actual buildings
 MFB = set()
-for k_, f_ in (('nand', 'nandakam'), ('panch', 'panchajanyam'), ('kaus', 'kausthubham'), ('vakula', 'vakulamatha'), ('pac', 'pac5'),
-               ('padma', 'padmavathi'), ('sapth', 'sapthagiri')):
+# only the photo-faithful reconstructions; Nandakam/Sapthagiri photos were of other buildings and Panchajanyam/Kausthubham
+# came out broken, so those four stay as hand-built buildings tinted to their real colours
+for k_, f_ in (('vakula', 'vakulamatha'), ('pac', 'pac5'), ('padma', 'padmavathi')):
     p_ = f'mf/b_{f_}_m.glb' if os.path.exists(f'mf/b_{f_}_m.glb') else f'mf/b_{f_}.glb'      # _m = built from the Google Maps photo
     if os.path.exists(p_) and os.environ.get('NOMF') != '1':
         try:
@@ -441,7 +443,8 @@ for k_, p in NB.items():
     sign(p + fwd * (h_ * 0.62), yaw, w=0.014 + 0.004 * n_)
     TOPS[k_] = G2(p, h_ + 0.004)
 # the town: rest houses and cottages fill the plateau
-OCC = [(TPc + V((0, 0.06)), 0.20), (TPc + V((0, 0.17)), 0.14)] + [(p, 0.03 + 0.012 * (k in ('nand', 'vakula', 'pac'))) for k, p in NB.items()]
+OCC = [(TPc + V((0, 0.06)), 0.20), (TPc + V((0, 0.17)), 0.14)] + [(p, 0.03 + 0.012 * (k in ('nand', 'vakula')) + 0.05 * (k == 'pac')) for k, p in NB.items()]
+OCC.append((NB['pac'] + (TPc - NB['pac']).normalized() * 0.07, 0.05))      # keep the PAC-5 close-up's foreground clear
 COL = {'seshadri': V((-0.40, 0.11)), 'garudadri': V((0.10, 0.31)), 'anjanadri': V((0.36, 0.25))}
 for k, p in COL.items(): OCC.append((p, 0.06))
 def ok(x, y, r):

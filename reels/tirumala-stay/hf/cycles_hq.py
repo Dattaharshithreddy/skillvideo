@@ -57,3 +57,4 @@ for ob in s.objects:
             for kp in fc.keyframe_points: kp.co[1] *= 0.04; kp.handle_left[1] *= 0.04; kp.handle_right[1] *= 0.04
         ob.data.energy *= 0.04
 print('CYCLES_HQ ready', c.samples, 'spp')
+bpy.context.scene.view_settings.exposure = -0.12   # brighter close-ups in Cycles
