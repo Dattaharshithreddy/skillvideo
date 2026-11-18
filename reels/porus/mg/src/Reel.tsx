@@ -86,7 +86,7 @@ const groupWords = (words: string[], a: number, b: number, line: number): Ch[] =
 };
 const SENTS = (T as any).sentences as {para: number; start: number; end: number; text: string}[];
 const CH: Ch[] = (SENTS && SENTS.length)
-  ? SENTS.flatMap((s) => groupWords(s.text.replace('క్రీస్తు పూర్వం మూడు వందల ఇరవై ఆరు.', 'క్రీస్తు పూర్వం 326.').split(' ').filter(Boolean), s.start, s.end, s.para))
+  ? SENTS.flatMap((s) => groupWords(s.text.replace('క్రీస్తు పూర్వం మూడు వందల ఇరవై ఆరు.', 'క్రీస్తు పూర్వం 326.').replace('క్రీస్తు పూర్వం… మూడొందల ఇరవై ఆరు.', 'క్రీస్తు పూర్వం 326.').split(' ').filter(Boolean), s.start, s.end, s.para))
   : LINES.flatMap((l, i) => groupWords(l.text.split(' '), T.starts[i] + 0.15, T.starts[i] + T.durs[i] - 0.5, i));
 const Captions: React.FC = () => {
   const f = useCurrentFrame(); const sec = f / FPS;
