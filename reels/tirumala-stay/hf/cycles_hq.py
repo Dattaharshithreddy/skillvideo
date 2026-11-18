@@ -14,7 +14,7 @@ c = s.cycles
 c.device = 'GPU'
 c.samples = int(os.environ.get('SPP', '64')); c.use_adaptive_sampling = True; c.adaptive_threshold = 0.03
 c.use_denoising = True
-try: c.denoiser = 'OPTIX'
+try: c.denoiser = os.environ.get('DENOISER', 'OPENIMAGEDENOISE')
 except Exception: pass
 c.max_bounces = 6; c.diffuse_bounces = 3; c.glossy_bounces = 2; c.transmission_bounces = 4; c.volume_bounces = 0
 c.caustics_reflective = False; c.caustics_refractive = False; c.blur_glossy = 1.0
