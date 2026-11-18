@@ -30,6 +30,11 @@ if [ "$FRAMES" = "auto" ]; then   # one key frame per shot (60% through it)
 import json; t = json.load(open('brief/timing.json'))
 print(','.join(str(round((s + d * 0.6) * 30) + 1) for s, d in zip(t['starts'], t['durs'])))"); echo "stills $FRAMES"
 fi
+case "$START" in part*)   # START=part1of2 -> that share of the whole reel, END computed
+  read START END < <(python3 -c "
+import json, re; t = json.load(open('brief/timing.json')); n = round((t['starts'][-1] + t['durs'][-1]) * 30)
+k, m = map(int, re.findall(r'\d+', '$START')); a = (k - 1) * n // m + 1; b = k * n // m; print(a, b)"); echo "frames $START-$END";;
+esac
 if [ -n "$FRAMES" ]; then
   $BL -b scene/stay.blend -P hf/cycles_hq.py -o "/out/$TAG/f_#####" -f $FRAMES 2>&1 | grep -E "CYCLES|Saved|rror|Time:" | tail -40
 else

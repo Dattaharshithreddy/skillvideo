@@ -58,3 +58,6 @@ for ob in s.objects:
         ob.data.energy *= 0.04
 print('CYCLES_HQ ready', c.samples, 'spp')
 bpy.context.scene.view_settings.exposure = -0.12   # brighter close-ups in Cycles
+
+bpy.context.scene.render.use_persistent_data = True   # keep the scene on the GPU between frames
+bpy.context.scene.render.use_overwrite = False         # a restarted session skips frames already done
