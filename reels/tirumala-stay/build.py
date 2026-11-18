@@ -337,7 +337,19 @@ for k_, f_ in (('nand', 'nandakam'), ('panch', 'panchajanyam'), ('kaus', 'kausth
                ('padma', 'padmavathi'), ('sapth', 'sapthagiri')):
     p_ = f'mf/b_{f_}_m.glb' if os.path.exists(f'mf/b_{f_}_m.glb') else f'mf/b_{f_}.glb'      # _m = built from the Google Maps photo
     if os.path.exists(p_) and os.environ.get('NOMF') != '1':
-        try: U[k_] = glb_unit(k_ + '_mf', p_, BLD[k_][1] * 1.25); MFB.add(k_)
+        try:
+            U[k_] = glb_unit(k_ + '_mf', p_, BLD[k_][1] * 1.25); MFB.add(k_)
+            # Model Forge meshes come centred in a unit cube: centre the footprint on the plot and cap its width
+            # so a wide building can't swallow the close-up camera
+            objs_ = [o for o in U[k_].all_objects]; bpy.context.view_layer.update()
+            pts_ = [o.matrix_world @ V(c) for o in objs_ if o.type == 'MESH' for c in o.bound_box]
+            cx_ = (max(p.x for p in pts_) + min(p.x for p in pts_)) / 2; cy_ = (max(p.y for p in pts_) + min(p.y for p in pts_)) / 2
+            span_ = max(max(p.x for p in pts_) - min(p.x for p in pts_), max(p.y for p in pts_) - min(p.y for p in pts_))
+            f_s = min(1.0, 0.055 / span_) if span_ > 0 else 1.0
+            for r_ in [o for o in objs_ if o.parent is None]:
+                r_.location.x -= cx_; r_.location.y -= cy_
+                if f_s < 1.0: r_.scale = r_.scale * f_s; r_.location = r_.location * f_s
+            print('MF', f_, 'span', round(span_, 3), 'scale', round(f_s, 2))
         except Exception as ex_: print('mf building skipped', f_, ex_)
 print('MF BUILDINGS', sorted(MFB))
 PEOPLE = [('m_cas', 'modular_men/Casual.glb', (0.90, 0.46, 0.14)), ('m_farm', 'modular_men/Farmer.glb', (0.62, 0.16, 0.20)), ('m_cas2', 'modular_men/Casual2.glb', SAFF),
