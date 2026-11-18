@@ -264,22 +264,22 @@ def set_action(objs, key):
     for fc in act_fcurves(act):
         if not any(m.type == 'CYCLES' for m in fc.modifiers): fc.modifiers.new('CYCLES')
 def paint(objs, col, keep=('skin', 'face', 'eye', 'hair'), rough=0.7):
-    """miniature paint job: flat acrylic colour, matte"""
+    """miniature paint job: flat acrylic colour, matte. Builds fresh materials (the imported ones can carry textures or
+    vertex colours that override a recoloured base colour, which left the pilgrims white)."""
+    cache = {}
+    def flat(key, c, r):
+        if key not in cache:
+            m = bpy.data.materials.new(key); m.use_nodes = True; b = m.node_tree.nodes['Principled BSDF']
+            b.inputs['Base Color'].default_value = (c[0], c[1], c[2], 1); b.inputs['Roughness'].default_value = r
+            b.inputs['Metallic'].default_value = 0.0; cache[key] = m
+        return cache[key]
     for o in objs:
         if o.type != 'MESH': continue
         for sl in o.material_slots:
-            m = sl.material
-            if not m: continue
-            nm = m.copy(); nm.name = m.name + '_' + str(col)[:14]; b = nm.node_tree.nodes.get('Principled BSDF') if nm.use_nodes else None
-            if b:
-                if any(k in m.name.lower() for k in keep):
-                    b.inputs['Roughness'].default_value = 0.6
-                else:
-                    for l in list(b.inputs['Base Color'].links): nm.node_tree.links.remove(l)
-                    bc = b.inputs['Base Color'].default_value; lum = 0.3 * bc[0] + 0.59 * bc[1] + 0.11 * bc[2]
-                    k = 0.6 + 0.8 * lum; b.inputs['Base Color'].default_value = (min(1, col[0] * k), min(1, col[1] * k), min(1, col[2] * k), 1)
-                    b.inputs['Roughness'].default_value = rough; b.inputs['Metallic'].default_value = 0.0
-            sl.material = nm
+            nm = (sl.material.name.lower() if sl.material else '')
+            if any(k in nm for k in ('skin', 'face', 'head', 'hand')): sl.material = flat('fig_skin', (0.45, 0.28, 0.18), 0.6)
+            elif any(k in nm for k in ('hair', 'eye', 'brow')): sl.material = flat('fig_hair', (0.04, 0.03, 0.03), 0.5)
+            else: sl.material = flat('fig_' + str(col)[:20], col, rough)
 def unit(name, path, height, action=None, color=None, extra=None):
     objs = import_glb(path); norm_height(objs, height)
     if color: paint(objs, color)
@@ -464,11 +464,11 @@ for k in range(700):        # trees inside the town gaps
     if not ok(x, y, 0.006): continue
     nm = random.choice(TREES[:5]); sz = random.uniform(0.6, 1.0); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz)
     DRESS.append((o, 0.35 * THT[nm] * TK * sz + 0.003, THT[nm] * TK * sz))
-for k in range(9000):        # forest on the outer hills, thinning into the haze
+for k in range(22000):       # forest on the outer hills, thinning into the haze
     x, y = random.uniform(-2.2, 2.2), random.uniform(-2.2, 2.2)
     if abs(x) < BX + 0.01 and abs(y) < BY + 0.01: continue
     d = math.hypot(max(0.0, abs(x) - BX), max(0.0, abs(y) - BY))
-    if random.random() > math.exp(-d / 1.4): continue
+    if random.random() > math.exp(-d / 2.2): continue
     nm = random.choice(TREES[:5]); sz = random.uniform(1.2, 2.0) * (1 + d * 0.6)
     inst(nm, V((x, y, apron_h(x, y) - 0.001)), random.uniform(0, 6.28), TK * sz)
 bpy.ops.mesh.primitive_cone_add(vertices=5, radius1=0.0005, radius2=0.0, depth=0.0018, location=(5, 5, -5)); tuft = bpy.context.object; tuft.name = 'tuft'
