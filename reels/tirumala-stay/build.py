@@ -310,7 +310,13 @@ def tint(objs, col, rough=0.75):
             mx = nt_.nodes.new('ShaderNodeMixRGB'); mx.blend_type = 'MULTIPLY'; mx.inputs['Fac'].default_value = 1.0
             mx.inputs['Color2'].default_value = (min(1, col[0] * 1.25), min(1, col[1] * 1.25), min(1, col[2] * 1.25), 1)
             src = b.inputs['Base Color'].links[0].from_socket if b.inputs['Base Color'].links else None
-            if src: nt_.links.new(src, mx.inputs['Color1'])
+            if src:
+                # use only the texture's light/dark pattern (windows, ledges), lifted, so the real colour shows through
+                bw = nt_.nodes.new('ShaderNodeRGBToBW'); nt_.links.new(src, bw.inputs['Color'])
+                pw = nt_.nodes.new('ShaderNodeMath'); pw.operation = 'POWER'; pw.inputs[1].default_value = 0.45
+                ml = nt_.nodes.new('ShaderNodeMath'); ml.operation = 'MULTIPLY'; ml.inputs[1].default_value = 1.55; ml.use_clamp = True
+                nt_.links.new(bw.outputs['Val'], pw.inputs[0]); nt_.links.new(pw.outputs[0], ml.inputs[0])
+                nt_.links.new(ml.outputs[0], mx.inputs['Color1'])
             else: mx.inputs['Color1'].default_value = b.inputs['Base Color'].default_value
             nt_.links.new(mx.outputs['Color'], b.inputs['Base Color'])
             b.inputs['Roughness'].default_value = rough; b.inputs['Metallic'].default_value = 0.0
