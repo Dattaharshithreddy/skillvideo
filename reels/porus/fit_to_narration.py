@@ -10,16 +10,17 @@ def dur(p):
     with contextlib.closing(wave.open(p)) as w: return w.getnframes() / w.getframerate()
 def run(*a): subprocess.run(list(a), check=True)
 parts = sorted(json.load(open(os.path.join(SRC, 'parts.json'))), key=lambda p: p['i'])
-GAP_IN, GAP_LINE, LEAD = 0.32, 0.7, 0.35
+GAP_IN, GAP_LINE, LEAD = 0.6, 1.1, 0.4   # full stop between sentences, longer breath between paragraphs
 files, sents, t = [], [], LEAD
 run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', str(LEAD), 'narr/lead.wav'); files.append('narr/lead.wav')
 for j, p in enumerate(parts):
     src = os.path.join(SRC, f"part-{p['i']:05d}.wav")
     trimmed = f"narr/s{p['i']:03d}.wav"      # trim leading/trailing silence so pauses are exactly ours
     run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', src, '-af',
-        'silenceremove=start_periods=1:start_threshold=-42dB,areverse,silenceremove=start_periods=1:start_threshold=-42dB,areverse', '-ar', '24000', '-ac', '1', trimmed)
+        'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.06,areverse,silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.15,areverse,afade=t=in:d=0.02', '-ar', '24000', '-ac', '1', trimmed)
+    d0 = dur(trimmed); run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', trimmed, '-af', f'afade=t=out:st={max(0, d0 - 0.08):.3f}:d=0.08', trimmed + '.f.wav'); os.replace(trimmed + '.f.wav', trimmed)
     d = dur(trimmed); sents.append({'para': p['para'], 'start': round(t, 3), 'end': round(t + d, 3), 'text': p['text']}); files.append(trimmed); t += d
-    g = GAP_LINE if j + 1 < len(parts) and parts[j + 1]['para'] != p['para'] else GAP_IN
+    g = (GAP_LINE if j + 1 < len(parts) and parts[j + 1]['para'] != p['para'] else GAP_IN) + (0.15 if p['text'].rstrip()[-1:] in '?!' else 0)
     gp = f'narr/gap{int(g * 100)}.wav'
     if not os.path.exists(gp): run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', str(g), gp)
     files.append(gp); t += g
@@ -27,6 +28,10 @@ open('narr/list.txt', 'w').write(''.join(f"file '{os.path.abspath(f)}'\n" for f 
 run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', 'narr/list.txt', '-af', 'loudnorm=I=-15:TP=-1.5:LRA=11', '-ar', '48000', 'narr/narration.wav')
 json.dump(sents, open('narr/sentences.json', 'w'), ensure_ascii=False, indent=1)
 print('narration', round(t, 1), 's,', len(sents), 'sentences')
+import shutil
+for f in ('timing', 'labels'):                      # keep the pre-fit baseline so the script can be re-run
+    if not os.path.exists(f'narr/{f}.base.json'): shutil.copy(f'mg/src/{f}.json', f'narr/{f}.base.json')
+    shutil.copy(f'narr/{f}.base.json', f'mg/src/{f}.json')
 old = json.load(open('mg/src/timing.json'))
 old_nf = {l['shot']: n for l, n in zip(old['lines'], old['nf'])}
 run('python3', 'build_timing.py', 'narr/sentences.json')
