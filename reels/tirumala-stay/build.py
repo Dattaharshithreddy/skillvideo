@@ -634,7 +634,7 @@ print('hidden occluders', nh)
 # ---------------- screen positions of the named places (for the Remotion pins) ----------------
 from bpy_extras.object_utils import world_to_camera_view
 PINS = {'rename': ['donor'], 'nandakam': ['nand'], 'panchajanyam': ['panch'], 'kausthubham': ['kaus'], 'vakula': ['vakula'],
-        'four': ['nand', 'panch', 'kaus', 'vakula', 'pac', 'temple'], 'pac': ['pac'], 'hills': ['seshadri', 'garudadri', 'anjanadri'], 'gods': ['temple'],
+        'four': ['nand', 'panch', 'kaus', 'vakula', 'pac', 'temple'], 'pac': ['pac'], 'hills': ['seshadri', 'garudadri', 'anjanadri', 'sapth'], 'gods': ['temple', 'padma'],
         'hook': ['temple'], 'finale': ['temple'], 'count': ['temple']}
 TOPS['donor'] = G2(NB['donor'], BLD['donor'][1] + 0.004)
 lab = {}

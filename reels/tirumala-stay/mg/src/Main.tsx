@@ -222,7 +222,7 @@ const Finale: React.FC = () => {
       <div style={{fontSize: 46, color: CREAM, fontWeight: 800, marginTop: 40, fontFamily: SERIF}}>మీరు ఏ అతిథి గృహంలో ఉన్నారు?</div>
       <div style={{fontSize: 36, color: GOLD, fontWeight: 700, marginTop: 14, fontFamily: FONT}}>Follow @charithracheppinakatha</div>
       <div style={{position: 'absolute', bottom: 60, width: '100%', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: 19, padding: '0 60px', lineHeight: 1.4, fontFamily: 'DejaVu Sans, Arial'}}>
-        Sources: TTD (tirumala.org, TTD board note, TTD press 2019 & 2025–26) · Rooms: approx. · Miniature: Blender; figures by Model Forge; buildings & trees Quaternius (CC0); HDRI Poly Haven (CC0)
+        Sources: TTD (tirumala.org, TTD board note, TTD press 2019 & 2025–26) · Rooms: approx. · Miniature: Blender (Cycles); guest houses rebuilt by Model Forge from public photos; buildings, figures & trees Quaternius (CC0)
       </div>
     </AbsoluteFill>
   </AbsoluteFill>;
@@ -251,6 +251,8 @@ export const Main: React.FC<{bg: string; audio: string; preview: boolean}> = ({b
     <Count shot="four" to={1228} at={0.45} label="గదులు · నాలుగింటిలోనే" top={200} size={150} />
     <Pin shot="pac" k="pac" name="వేంకటాద్రి నిలయం" sub="PAC-5 · ఉచితం · 2,500 మంది" icon="hill" at={0.35} />
     <Gods />
+    <Pin shot="gods" k="padma" name="శ్రీ పద్మావతి అతిథి గృహం" sub="అమ్మవారి పేరు" icon="lotus" at={0.15} />
+    <Pin shot="hills" k="sapth" name="సప్తగిరి విశ్రాంతి గృహం" sub="ఏడు కొండలు" icon="hill" at={0.2} />
     <Pin shot="hills" k="seshadri" name="శేషాద్రి నగర్" icon="hill" at={0.35} small />
     <Pin shot="hills" k="garudadri" name="గరుడాద్రి నగర్" icon="hill" at={0.5} small />
     <Pin shot="hills" k="anjanadri" name="అంజనాద్రి నగర్" icon="hill" at={0.65} small />
