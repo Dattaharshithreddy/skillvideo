@@ -191,7 +191,7 @@ def light(preset):
     if preset == 'day':
         el = math.radians(35); sun.data.energy = 3.2; sun.data.color = (1, 0.9, 0.78); bg.inputs[1].default_value = 0.18
     elif preset == 'golden':
-        el = math.radians(14); sun.data.energy = 3.0; sun.data.color = (1, 0.72, 0.45); bg.inputs[1].default_value = 0.16
+        el = math.radians(16); sun.data.energy = 3.0; sun.data.color = (1, 0.74, 0.48); bg.inputs[1].default_value = 0.3
     elif preset == 'sunset':
         el = math.radians(5); sun.data.energy = 2.6; sun.data.color = (1, 0.55, 0.3); bg.inputs[1].default_value = 0.14; az = math.radians(200)
     elif preset in ('night', 'storm'):
@@ -295,13 +295,15 @@ elif SHOT == 'storm':       # storm night, high wide; Greeks cross upstream on r
     light('storm'); base_armies(); lightning([0.12, 0.43, 0.47, 0.78])
     rafts = []
     for i in range(6):
-        x = 30 + i * 1.6; y0 = 7.0
-        rf = cube((x, y0, -0.12), (0.7, 0.45, 0.05), WOOD); rafts.append(rf)
+        x = 29 + i * 1.5; yc = river_y(x); y0 = yc + 1.7 - (i % 2) * 0.4; y1 = yc - 1.7 + (i % 3) * 0.3
+        rf = cube((x, y0, -0.16), (0.55, 0.38, 0.04), WOOD); rafts.append(rf)
         for k in range(6):
-            m_ = inst(random.choice(GRK), (x + (k % 3 - 1) * 0.3, y0 + (k // 3 - 0.5) * 0.35, -0.05), FACE_S, S, 'crosser'); m_.parent = rf
-        key(rf, 1, location=Vector((x, y0 + river_y(x) * 0.0 + 3.5, -0.12))); key(rf, NF, location=Vector((x, river_y(x) - 3.2, -0.12))); linear(rf)
+            m_ = inst(random.choice(GRK), (0, 0, 0), FACE_S, S, 'crosser'); m_.parent = rf
+            m_.location = ((k % 3 - 1) * 0.3 / 0.55, (k // 3 - 0.5) * 0.35 / 0.38, 0.04 / 0.04)
+            m_.scale = (S / 0.55, S / 0.38, S / 0.04)
+        key(rf, 1, location=Vector((x, y0, -0.16))); key(rf, NF, location=Vector((x, y1, -0.16))); linear(rf)
     move([(0, (22, -16, 7.5), (31, 2, 0), 2.2), (1, (27.5, -10.5, 3.6), (33, 0.5, 0), 1.8)])
-    TRACKS = {'crossing': (33.0, river_y(33.0), 0.4)}
+    TRACKS = {'crossing': (32.8, river_y(32.8), 0.5)}
 elif SHOT == 'son':         # tracking beside chariots stuck in the mud; Puru's son
     light('day'); base_armies(elephants=False)
     MUD = mat('mud', (0.17, 0.11, 0.06), 0.25, bump=0.5, bscale=30)
@@ -342,15 +344,15 @@ elif SHOT in ('king', 'return'):   # wounded Puru before Alexander; then an orbi
         RING = mat('ring', (1.0, 0.75, 0.3), 0.3, emit=12.0)
         bpy.ops.mesh.primitive_torus_add(major_radius=1.0, minor_radius=0.03, location=gz(31, -11, 0.03)); rg = bpy.context.object; rg.data.materials.append(RING)
         key(rg, 1, scale=Vector((0.3, 0.3, 1))); key(rg, NF, scale=Vector((9, 9, 1))); ease(rg, 'EASE_OUT')
-        R = 3.1; ks = []
+        R = 2.3; ks = []
         for k in range(6):
             u = k / 5; a = math.radians(200 + 140 * u)
-            ks.append((u, (31 + R * math.cos(a), -11 + R * math.sin(a), 1.0 + 0.8 * u), (31, -11, 0.45), 1.6))
+            ks.append((u, (31 + R * math.cos(a), -11 + R * math.sin(a), 0.85 + 0.5 * u), (31, -11, 0.5), 1.4))
         move(ks, lens=32)
         TRACKS = {'puru': gz(px, py, 0.82), 'kingdom': gz(31, -11, 0.05)}
 elif SHOT == 'murder':      # dark interior, single lamp, Eudemus in shadow
     light('interior')
-    FL = mat('floor', (0.25, 0.16, 0.09), 0.7, bump=0.3, bscale=20); WL = mat('wall', (0.4, 0.3, 0.2), 0.9, bump=0.5, bscale=12)
+    FL = mat('floor', (0.25, 0.16, 0.09), 0.7, bump=0.3, bscale=20); WL = mat('wall', (0.36, 0.27, 0.19), 0.9, bump=0.12, bscale=6)
     cube((0, -80, -0.02), (3, 3, 0.02), FL); cube((0, -78.2, 1.2), (3, 0.05, 1.2), WL); cube((-2.2, -80, 1.2), (0.05, 3, 1.2), WL); cube((2.2, -80, 1.2), (0.05, 3, 1.2), WL)
     cube((0.6, -79.2, 0.25), (0.5, 0.3, 0.25), WOOD)
     torch((0.6, -79.2, 0.62), 35)
@@ -359,15 +361,15 @@ elif SHOT == 'murder':      # dark interior, single lamp, Eudemus in shadow
     move([(0, (-0.2, -82.6, 0.75), (-0.4, -79.5, 0.55), 1.0), (1, (-0.5, -80.9, 0.62), (-0.6, -79.6, 0.6), 0.8)], lens=35)
     TRACKS = {'eudemus': (-0.6, -79.6, 0.8)}
 elif SHOT == 'legacy':      # pull-out from Puru's statue to the whole valley at sunset
-    light('sunset'); base_armies(greek=False, tents_=False, elephants=True)
-    STATUE = mat('statue', (0.55, 0.5, 0.43), 0.75, bump=0.6, bscale=60)
+    light('sunset'); sun.rotation_euler = (math.radians(78), 0, math.radians(-20)); base_armies(greek=False, tents_=False, elephants=True)
+    STATUE = mat('statue', (0.62, 0.42, 0.22), 0.38, 0.85, bump=0.15, bscale=60)
     bpy.ops.import_scene.gltf(filepath=os.path.join(ASSETS, 'soldiers_glb', 'puru.glb'))
     st = [o for o in bpy.context.selected_objects if o.type == 'MESH']
     for o in st:
         o.data.materials.clear(); o.data.materials.append(STATUE)
     stat = st[0]; stat.parent = None; stat.scale = (S * 2.2,) * 3
-    zb = ground_z(0, -37) + 0.55; stat.location = (0, -37, zb); stat.rotation_euler.z = FACE_S
-    cube((0, -37, zb - 0.28), (0.55, 0.55, 0.28), STONE)
+    zb = ground_z(0, -37) + 0.55; stat.location = (0, -37, zb); stat.rotation_euler.z = FACE_N
+    cube((0, -37, zb - 0.28), (0.55, 0.55, 0.28), STONE); cube((0, -37, zb - 0.04), (0.58, 0.58, 0.03), GOLD); cube((0, -37, zb - 0.52), (0.62, 0.62, 0.04), GOLD)
     move([(0, (0.35, -39.2, 1.9), (0, -37, 1.75), 1.0), (0.4, (0.8, -41.5, 2.6), (0, -37, 1.4), 1.6), (1, (-6, -62, 22), (0, -18, 0), 3.0)], lens=35)
     TRACKS = {'statue': (0, -37, zb + 1.6)}
 else:
@@ -402,7 +404,7 @@ sc.view_settings.view_transform = 'AgX'; sc.view_settings.look = 'AgX - Medium H
 sc.view_settings.exposure = {'night': 1.1, 'storm': 1.0, 'interior': 1.2}.get(PRESET[0], 0.0)
 sc.render.use_motion_blur = True; sc.render.motion_blur_shutter = 0.4
 sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 93
-sc.render.filepath = SD + '/'; sc.frame_step = int(os.environ.get('STEP', 1))
+sc.render.filepath = SD + '/'; sc.frame_step = int(os.environ.get('STEP', 1)); sc.render.use_overwrite = False
 if os.environ.get('SAVE'): bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, f'{SHOT}.blend'))
 
 if os.environ.get('TRACK'):

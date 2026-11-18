@@ -225,8 +225,8 @@ const Battle: React.FC = () => {
 const King: React.FC = () => {
   const {t, active, dur} = useShot('king'); if (!active) return null;
   return <Fade t={t} dur={dur}>
-    <Pin shot="king" k="puru" label="పురు" at={8} t={t} up={60} />
-    <Pin shot="king" k="alexander" label="అలెగ్జాండర్" at={Math.round(dur * 0.22)} t={t} c={BLUE} up={150} />
+    <Pin shot="king" k="puru" label="పురు" at={8} t={t} up={60} until={Math.round(dur * 0.4)} />
+    <Pin shot="king" k="alexander" label="అలెగ్జాండర్" at={Math.round(dur * 0.22)} t={t} c={BLUE} up={150} until={Math.round(dur * 0.4)} />
     <Pop at={Math.round(dur * 0.42)} t={t} style={{position: 'absolute', left: 70, right: 70, top: 230}}>
       <div style={{...card, padding: '14px 28px', borderColor: BLUE}}><div style={{fontSize: 28, color: BLUE, fontWeight: 800}}>అలెగ్జాండర్</div>
         <div style={{fontSize: 46, fontWeight: 900}}>“నిన్ను ఎలా చూడాలి?”</div></div></Pop>
