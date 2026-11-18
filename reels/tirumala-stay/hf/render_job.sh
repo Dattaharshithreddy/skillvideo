@@ -17,6 +17,7 @@ BL=/opt/reel/blender/blender; $BL -b --version | head -1
 git clone -q --depth 1 --filter=blob:none --sparse https://github.com/trebeljahr/quaternius-showcase /opt/reel/assets/qs
 cd /opt/reel/assets/qs && git sparse-checkout set public/glb >/dev/null 2>&1; ls public/glb | head -50
 for d in modular_men modular_women; do [ -d public/glb/$d ] || { s=$(ls -d public/glb/${d}* 2>/dev/null | head -1); [ -n "$s" ] && ln -s "$(basename $s)" public/glb/$d; }; done
+[ -n "$MFVIEWS" ] && $BL -b -P "$(dirname "$0")/mf_views.py" 2>&1 | grep MFVIEW
 cd "$(dirname "$0")/.."            # reels/tirumala-stay
 mkdir -p mf && cp -n /out/mf/b_*.glb mf/ 2>/dev/null; ls mf
 [ -d /out/audio ] && mkdir -p audio && cp /out/audio/l*.wav audio/ 2>/dev/null
