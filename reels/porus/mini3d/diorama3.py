@@ -256,7 +256,7 @@ elif SHOT == 'demand':      # a Greek messenger rides across the ford to Puru's 
     for o, dx in ((hr, 0.0), (rd, 0.18)):
         for u, y in ((0, 7.5), (1, -6.2)):
             key(o, T(u), location=Vector((hx + dx, y, ground_z(hx, y) + (0.0 if abs(y - river_y(hx)) > 3 else 0.0))))
-        o.rotation_euler.z = FACE_S; linear(o)
+        o.rotation_euler.z = FACE_N; linear(o)   # rides from the Greek bank (+Y) toward Puru (-Y): face the way it goes
     move([(0, (11, 1.5, 3.2), (hx, 5.0, 0.4), 1.6), (1, (8.0, -9.5, 1.2), (hx, -5.5, 0.35), 1.0)])
     TRACKS = {'messenger': lambda f: tuple(rd.matrix_world.translation + Vector((0, 0, 0.75))), 'puru': gz(0, -10.4, SEAT * S * 1.1 + 0.7)}
 elif SHOT == 'ambhi':       # pull-out from Taxila's gate as Ambhi's men march to the Greek camp
@@ -287,6 +287,13 @@ elif SHOT == 'feint':       # night; torch riders run up and down the far bank; 
             for k in range(5):
                 key(o, T(k / 4), location=p0 + Vector(((amp if k % 2 else -amp) * (1 if i % 2 else -1), 0, 0)))
             ease(o, 'EASE_IN_OUT')
+        sgn = 1 if i % 2 else -1
+        for o in (h, r_):                  # turn round at each end so the horse always runs head first
+            for k in range(4):
+                d = sgn if k % 2 == 0 else -sgn   # direction of travel from key k to key k+1
+                yaw = FACE_N + (math.pi / 2 if d > 0 else -math.pi / 2)
+                if k: key(o, max(1, T(k / 4) - 4), rotation_euler=Vector((0, 0, o.rotation_euler.z)))
+                key(o, T(k / 4) + (4 if k else 0), rotation_euler=Vector((0, 0, yaw)))
     for i in range(14):    # Puru's camp fires along the near bank
         x = -15 + i * 2.3; torch((x, -8.2, ground_z(x, -8.2) + 0.35), 18)
     move([(0, (-16, -2.2, 1.6), (-12, 6.5, 0.45), 1.4), (1, (12, -2.2, 1.6), (16, 6.5, 0.45), 1.4)])
