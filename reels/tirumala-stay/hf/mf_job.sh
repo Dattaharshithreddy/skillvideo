@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Hugging Face Job: rebuild the guest-house 3D models with Model Forge (Hunyuan3D-2mini + texture) from the
 # best Google Maps photos. Output: /out/mf/b_<key>_m.glb  (bucket hf://buckets/HarshithReddy05/tirumala-reel)
-# Run in image pytorch/pytorch:2.4.1-cuda12.4-cudnn9-devel on a10g-large.
+# Run in image pytorch/pytorch:2.6.0-cuda12.4-cudnn9-devel on a10g-large (texture models need torch >= 2.6).
 set -x
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq && apt-get install -y -qq git curl libgl1 libglib2.0-0 libgomp1 libopengl0 libglu1-mesa libegl1 libxrender1 libxext6 libsm6 libxkbcommon0 >/dev/null 2>&1

@@ -17,7 +17,7 @@ H = {'Content-Type': 'application/json'}
 tids = {}
 for k, p in PICS.items():
     out = f'/out/mf/b_{k}_m.glb'
-    if os.path.exists(out): print('have', k); continue
+    if os.path.exists(out) and not os.environ.get('FORCE'): print('have', k); continue
     jpg = urllib.request.urlopen(urllib.request.Request(G + p + SZ, headers=UA), timeout=60).read()
     open(f'/out/mf/ref_{k}.jpg', 'wb').write(jpg)
     body = json.dumps({'mode': 'image', 'image': 'data:image/jpeg;base64,' + base64.b64encode(jpg).decode(),

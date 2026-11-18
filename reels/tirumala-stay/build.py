@@ -343,9 +343,24 @@ print('MF BUILDINGS', sorted(MFB))
 PEOPLE = [('m_cas', 'modular_men/Casual.glb', (0.90, 0.46, 0.14)), ('m_farm', 'modular_men/Farmer.glb', (0.62, 0.16, 0.20)), ('m_cas2', 'modular_men/Casual2.glb', SAFF),
           ('w_cas', 'modular_women/Casual.glb', (0.85, 0.15, 0.35)), ('w_form', 'modular_women/Formal.glb', (0.95, 0.65, 0.1)), ('w_work', 'modular_women/Worker.glb', (0.15, 0.55, 0.35))]
 WALK, IDLE = [], []
-for nm, f_, col in PEOPLE:
-    U[nm + '_w'] = unit(nm + '_w', GLB + f_, 1.75, 'Walk', col); WALK.append(nm + '_w')
-    U[nm + '_i'] = unit(nm + '_i', GLB + f_, 1.75, 'Idle', col); IDLE.append(nm + '_i')
+# Pilgrims as painted miniature figurines (robe + head + hair), like a real diorama: they read clearly as people at this
+# scale, in the colours you see at Tirumala (saffron dhotis, maroon and pink saris, white, green, yellow).
+FIG_COLS = [(0.92, 0.48, 0.10), (0.95, 0.93, 0.86), (0.62, 0.10, 0.16), (0.88, 0.28, 0.48), (0.12, 0.48, 0.30), (0.95, 0.75, 0.15),
+            (0.20, 0.30, 0.65), (0.95, 0.93, 0.86)]
+M_skin = pbr('fig_skin', (0.42, 0.26, 0.16), 0.55); M_hair = pbr('fig_hair', (0.03, 0.025, 0.02), 0.5)
+def figurine(name, col):
+    objs = []
+    bpy.ops.mesh.primitive_cone_add(vertices=12, radius1=0.26, radius2=0.15, depth=1.22, location=(0, 0, 0.61)); objs.append(bpy.context.object)
+    objs[-1].data.materials.append(pbr('robe_' + name, col, 0.75))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=10, radius=0.085, depth=0.16, location=(0, 0, 1.26)); objs.append(bpy.context.object)
+    objs[-1].data.materials.append(M_skin)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=8, radius=0.14, location=(0, 0, 1.45)); objs.append(bpy.context.object)
+    objs[-1].data.materials.append(M_skin)
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=12, ring_count=6, radius=0.145, location=(0, 0.02, 1.5)); h = bpy.context.object
+    h.scale = (1, 1, 0.6); h.data.materials.append(M_hair); objs.append(h)
+    c = bpy.data.collections.new(name); SRC.children.link(c); move_to(objs, c); return c
+for i, col in enumerate(FIG_COLS):
+    nm = f'fig{i}'; U[nm] = figurine(nm, col); WALK.append(nm); IDLE.append(nm)
 # Model Forge figurines (static painted miniatures, like a real diorama) replace the game characters when present
 MF = sorted(f for f in os.listdir('mf') if f.startswith('pil_') and f.endswith('.glb')) if os.path.isdir('mf') else []
 MOVE = not MF
