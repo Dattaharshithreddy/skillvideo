@@ -43,4 +43,17 @@ nt.links.new(rl.outputs['Mist'], mr.inputs['Value'])
 nt.links.new(mr.outputs['Value'], mix.inputs['Fac'])
 nt.links.new(rl.outputs['Image'], mix.inputs[1]); nt.links.new(haze.outputs[0], mix.inputs[2])
 nt.links.new(mix.outputs['Image'], comp.inputs['Image'])
+# small point lights (temple glow, symbol halos) were tuned for EEVEE; in Cycles they burn a hot spot into the ground
+for ob in s.objects:
+    if ob.type == 'LIGHT' and ob.data.type == 'POINT':
+        ad = ob.data.animation_data
+        fcs = []
+        if ad and ad.action:
+            for layer in getattr(ad.action, 'layers', []):
+                for strip in layer.strips:
+                    for cb in strip.channelbags: fcs += list(cb.fcurves)
+            if not fcs and hasattr(ad.action, 'fcurves'): fcs = list(ad.action.fcurves)
+        for fc in fcs:
+            for kp in fc.keyframe_points: kp.co[1] *= 0.04; kp.handle_left[1] *= 0.04; kp.handle_right[1] *= 0.04
+        ob.data.energy *= 0.04
 print('CYCLES_HQ ready', c.samples, 'spp')

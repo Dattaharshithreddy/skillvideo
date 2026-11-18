@@ -143,7 +143,7 @@ ca = me.color_attributes.new('paint', 'FLOAT_COLOR', 'POINT')
 gw = terr.vertex_groups.new(name='grass'); gws = []
 for k, (x, y, z) in enumerate(verts):
     n1 = noise.noise(V((x * 14, y * 14, 2.0))); n2 = noise.noise(V((x * 55, y * 55, 5.0)))
-    c = V((0.10, 0.24, 0.06)).lerp(V((0.22, 0.34, 0.09)), 0.5 + 0.5 * n1)             # Seshachalam forest green
+    c = V((0.07, 0.17, 0.04)).lerp(V((0.16, 0.27, 0.07)), 0.5 + 0.5 * n1)             # Seshachalam forest green
     tw = max(0.0, min(1.0, (1.0 - town(x, y)) * 4))
     town_c = V((0.24, 0.35, 0.12)).lerp(V((0.55, 0.52, 0.44)), max(0.0, n1) * 0.55)    # lawns with paved patches
     c = c.lerp(town_c, tw * 0.9)
@@ -181,7 +181,7 @@ apron = bpy.data.objects.new('apron', am); sc.collection.objects.link(apron)
 aca = am.color_attributes.new('paint', 'FLOAT_COLOR', 'POINT')
 for k, (x, y, z) in enumerate(av):
     n1 = noise.noise(V((x * 3, y * 3, 2.0)))
-    c = V((0.09, 0.21, 0.05)).lerp(V((0.20, 0.31, 0.08)), 0.5 + 0.5 * n1)
+    c = V((0.05, 0.14, 0.035)).lerp(V((0.13, 0.22, 0.06)), 0.5 + 0.5 * n1)   # canopy-dark green
     if z - BASE > 0.22: c = c.lerp(V((0.40, 0.34, 0.26)), min(1, (z - BASE - 0.22) / 0.08) * 0.6)
     aca.data[k].color = (c.x, c.y, c.z, 1)
 apron.data.materials.append(tm)  # same painted-ground material as the board
@@ -340,7 +340,7 @@ for k_, f_ in (('nand', 'nandakam'), ('panch', 'panchajanyam'), ('kaus', 'kausth
         try: U[k_] = glb_unit(k_ + '_mf', p_, BLD[k_][1] * 1.25); MFB.add(k_)
         except Exception as ex_: print('mf building skipped', f_, ex_)
 print('MF BUILDINGS', sorted(MFB))
-PEOPLE = [('m_cas', 'modular_men/Casual.glb', WHITE), ('m_farm', 'modular_men/Farmer.glb', (0.96, 0.95, 0.9)), ('m_cas2', 'modular_men/Casual2.glb', SAFF),
+PEOPLE = [('m_cas', 'modular_men/Casual.glb', (0.90, 0.46, 0.14)), ('m_farm', 'modular_men/Farmer.glb', (0.62, 0.16, 0.20)), ('m_cas2', 'modular_men/Casual2.glb', SAFF),
           ('w_cas', 'modular_women/Casual.glb', (0.85, 0.15, 0.35)), ('w_form', 'modular_women/Formal.glb', (0.95, 0.65, 0.1)), ('w_work', 'modular_women/Worker.glb', (0.15, 0.55, 0.35))]
 WALK, IDLE = [], []
 for nm, f_, col in PEOPLE:
@@ -454,7 +454,7 @@ for i in range(40):
 # forest on the hills
 DRESS = []
 n = 0; tries = 0
-while n < 1700 and tries < 80000:
+while n < 2800 and tries < 120000:
     tries += 1; x, y = random.uniform(-BX + 0.02, BX - 0.02), random.uniform(-BY + 0.02, BY - 0.02)
     if town(x, y) < 1.05 or any((V((x, y)) - c).length < 0.065 for c in COL.values()): continue
     nm = random.choice(TREES); sz = random.uniform(1.1, 1.9); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz); n += 1
@@ -464,11 +464,11 @@ for k in range(700):        # trees inside the town gaps
     if not ok(x, y, 0.006): continue
     nm = random.choice(TREES[:5]); sz = random.uniform(0.6, 1.0); o = inst(nm, ground(x, y), random.uniform(0, 6.28), TK * sz)
     DRESS.append((o, 0.35 * THT[nm] * TK * sz + 0.003, THT[nm] * TK * sz))
-for k in range(2600):        # forest on the outer hills, thinning into the haze
+for k in range(9000):        # forest on the outer hills, thinning into the haze
     x, y = random.uniform(-2.2, 2.2), random.uniform(-2.2, 2.2)
     if abs(x) < BX + 0.01 and abs(y) < BY + 0.01: continue
     d = math.hypot(max(0.0, abs(x) - BX), max(0.0, abs(y) - BY))
-    if random.random() > math.exp(-d / 0.9): continue
+    if random.random() > math.exp(-d / 1.4): continue
     nm = random.choice(TREES[:5]); sz = random.uniform(1.2, 2.0) * (1 + d * 0.6)
     inst(nm, V((x, y, apron_h(x, y) - 0.001)), random.uniform(0, 6.28), TK * sz)
 bpy.ops.mesh.primitive_cone_add(vertices=5, radius1=0.0005, radius2=0.0, depth=0.0018, location=(5, 5, -5)); tuft = bpy.context.object; tuft.name = 'tuft'
