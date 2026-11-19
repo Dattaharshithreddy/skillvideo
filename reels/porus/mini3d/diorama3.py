@@ -399,10 +399,12 @@ else:
     sc.cycles.device = 'CPU'
 sc.cycles.samples = int(os.environ.get('SPP', 48)); sc.cycles.use_denoising = True
 sc.cycles.denoiser = 'OPENIMAGEDENOISE'
-if sc.cycles.device == 'GPU' and prefs.compute_device_type == 'OPTIX':
+# OptiX denoiser only when asked: it fails to start on some cloud GPUs (Kaggle). OpenImageDenoise works everywhere.
+if os.environ.get('DENOISER', 'OIDN') == 'OPTIX' and sc.cycles.device == 'GPU' and prefs.compute_device_type == 'OPTIX':
     try: sc.cycles.denoiser = 'OPTIX'
-    except TypeError: pass
-try: sc.cycles.denoising_use_gpu = sc.cycles.device == 'GPU'
+    except Exception: pass
+try: sc.cycles.denoising_use_gpu = sc.cycles.device == 'GPU' and os.environ.get('OIDN_GPU', '0') == '1'
+except Exception: pass
 except AttributeError: pass
 sc.cycles.max_bounces = 6; sc.cycles.caustics_reflective = sc.cycles.caustics_refractive = False
 sc.render.use_persistent_data = True
