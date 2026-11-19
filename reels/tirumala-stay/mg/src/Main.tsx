@@ -150,11 +150,11 @@ const Captions: React.FC = () => {
   return null;
 };
 // ---------- story cards ----------
-const Count: React.FC<{shot: string; to: number; at: number; label: string; top?: number; size?: number}> = ({shot, to, at, label, top = 250, size = 170}) => {
+const Count: React.FC<{shot: string; to: number; at: number; label: string; top?: number; size?: number; plus?: boolean}> = ({shot, to, at, label, top = 250, size = 170, plus}) => {
   const {t, active, dur} = useShot(shot); if (!active) return null; const a = Math.round(dur * at);
   const v = Math.round(to * interpolate(t, [a, a + 40], [0, 1], {...clamp, easing: ease}));
   return <Fade t={t} dur={dur}><Pop at={a} t={t} style={{position: 'absolute', width: '100%', top, textAlign: 'center'}}>
-    <Big size={size}>{v.toLocaleString('en-IN')}</Big><Sub size={44}>{label}</Sub></Pop></Fade>;
+    <Big size={size}>{v.toLocaleString('en-IN')}{plus && v >= to ? '+' : ''}</Big><Sub size={44}>{label}</Sub></Pop></Fade>;
 };
 const Hook: React.FC = () => {
   const {t, active, dur} = useShot('hook'); if (!active) return null;
@@ -248,7 +248,7 @@ export const Main: React.FC<{bg: string; audio: string; preview: boolean}> = ({b
     <Pin shot="four" k="panch" name="పాంచజన్యం" icon="conch" at={0.12} small />
     <Pin shot="four" k="kaus" name="కౌస్తుభం" icon="gem" at={0.19} small />
     <Pin shot="four" k="vakula" name="వకుళమాత" icon="lotus" at={0.26} small />
-    <Count shot="four" to={1228} at={0.45} label="గదులు · నాలుగింటిలోనే" top={200} size={150} />
+    <Count shot="four" to={1000} plus at={0.45} label="గదులు · ఈ నాలుగింటిలోనే" top={200} size={150} />
     <Pin shot="pac" k="pac" name="వేంకటాద్రి నిలయం" sub="PAC-5 · ఉచితం · 2,500 మంది" icon="hill" at={0.35} />
     <Gods />
     <Pin shot="hills" k="sapth" name="సప్తగిరి విశ్రాంతి గృహం" sub="ఏడు కొండలు" icon="hill" at={0.2} />
