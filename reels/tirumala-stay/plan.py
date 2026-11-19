@@ -2,7 +2,7 @@
 Each line = one shot; parts = (mood, sentence). Moods: story, talk, happy, sad, fear, surprise, anger, disgust (+ slow).
 Facts (Nov 2026): ~7,800 rooms (TTD, May 2026); ~1 lakh pilgrims/day (Deccan Chronicle 2025); no private hotels on the hill;
 45 donor guest houses renamed with divine names (TTD board 2024-25); Nandakam 340, Panchajanyam 386, Vakulamatha 270 rooms (tirumala.org);
-those three + Kausthubham = 1,228 rooms (TTD board note); Vakulamatha accommodates 1,400 (TTD, 2019);
+those three = 996 rooms, so the four together are over 1,000 (Kausthubham's count is unpublished); Vakulamatha accommodates 1,400 (TTD, 2019);
 PAC-5 Venkatadri Nilayam free, 2,500 at a time, more in peak rush (2025); 5 PACs in all; Seshadri/Garudadri/Anjanadri Nagar cottages."""
 import json
 P = [
@@ -21,8 +21,8 @@ P = [
  ("vakula", [("sad", "ఇక ఈ పేరు వింటేనే… మనసు కరిగిపోతుంది."),
              ("story, slow", "వకుళమాత. ఈ కొండ మీద శ్రీనివాసుణ్ణి కన్నతల్లిలా పెంచిన అమ్మ."),
              ("happy", "ఆ అమ్మ ఒడిలో… రెండు వందల డెబ్భై గదులు. ఒకేసారి పద్నాలుగు వందల మంది.")], ["వకుళమాత.", "అమ్మ.", "1,400"]),
- ("four", [("surprise", "ఖడ్గం. శంఖం. మణి. అమ్మ. ఈ నాలుగు పేర్ల కిందే… వెయ్యి రెండు వందల ఇరవై ఎనిమిది గదులు!"),
-           ("talk", "ఒక్కో గదిలో ఒక కుటుంబం.")], ["ఖడ్గం.", "అమ్మ.", "1,228"]),
+ ("four", [("surprise", "ఖడ్గం. శంఖం. మణి. అమ్మ. ఈ నాలుగు పేర్ల కిందే… వెయ్యి గదులు!"),
+           ("talk", "ఒక్కో గదిలో ఒక కుటుంబం.")], ["ఖడ్గం.", "అమ్మ.", "1,000"]),
  ("pac", [("sad", "కానీ… గది దొరకని పేద భక్తుడి సంగతేంటి? జేబులో డబ్బు లేదు. బుకింగ్ లేదు."),
           ("happy", "అతని కోసమే… వేంకటాద్రి నిలయం. స్వామి కొలువైన ఏడో కొండ పేరు. ఇక్కడ ఒక్క రూపాయి కూడా అడగరు."),
           ("surprise", "ఒకేసారి రెండున్నర వేల మంది! ఇలాంటి ఉచిత యాత్రికుల సముదాయాలు… తిరుమలలో ఐదు.")], ["పేద", "వేంకటాద్రి", "2,500!"]),
@@ -37,7 +37,7 @@ P = [
              ("happy", "ఏడుకొండల వాడా… వెంకటరమణా… గోవిందా, గోవిందా!")], ["నామస్మరణ.", "గోవిందా!"]),
 ]
 NUM = {"ఏడు వేల ఎనిమిది వందల": "7,800", "నలభై ఐదు": "45", "మూడు వందల నలభై": "340", "మూడు వందల ఎనభై ఆరు": "386",
-       "రెండు వందల డెబ్భై": "270", "పద్నాలుగు వందల": "1,400", "వెయ్యి రెండు వందల ఇరవై ఎనిమిది": "1,228", "రెండున్నర వేల": "2,500"}
+       "రెండు వందల డెబ్భై": "270", "పద్నాలుగు వందల": "1,400", "వెయ్యి గదులు": "1,000 గదులు", "రెండున్నర వేల": "2,500"}
 def disp(t):
     for k, v in NUM.items(): t = t.replace(k, v)
     return t

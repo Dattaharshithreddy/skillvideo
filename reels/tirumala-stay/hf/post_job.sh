@@ -9,6 +9,15 @@ apt-get update -qq && apt-get install -y -qq git ffmpeg python3 python3-numpy fo
 cd "$(dirname "$0")/.."
 python3 plan.py >/dev/null 2>&1; mkdir -p audio renders mg/public mg/out /out/final
 cp /out/audio/l*.wav audio/; cp /out/timing.json /out/labels.json brief/
+python3 - <<'PY'
+# captions follow the current script (plan.json) even when timing.json came from an earlier build
+import json
+p = json.load(open('brief/plan.json')); t = json.load(open('brief/timing.json'))
+for a, b in zip(t['lines'], p['lines']):
+    for k in ('text', 'tts', 'parts', 'keywords'):
+        if k in b: a[k] = b[k]
+json.dump(t, open('brief/timing.json', 'w'), indent=1, ensure_ascii=False); print('CAPTIONS_FROM_PLAN')
+PY
 N=$(python3 -c "import json;print(json.load(open('brief/timing.json'))['end'])"); echo "frames needed $N, have $(ls /out/seq | wc -l)"
 ffmpeg -y -v error -framerate 30 -i /out/seq/f_%05d.jpg -frames:v $N -vf "scale=1080:1920:flags=lanczos,eq=saturation=1.08:contrast=1.03" -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p mg/public/bg.mp4
 python3 - <<'PY'
