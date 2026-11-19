@@ -10,27 +10,29 @@ def dur(p):
     with contextlib.closing(wave.open(p)) as w: return w.getnframes() / w.getframerate()
 def run(*a): subprocess.run(list(a), check=True)
 if SRC.endswith('.wav'):                            # one finished narration + its sentence times (argv[2])
-    run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', SRC, '-af', 'loudnorm=I=-15:TP=-1.5:LRA=11', '-ar', '48000', '-ac', '1', 'narr/narration.wav')
+    run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', SRC, '-af', 'acompressor=threshold=-26dB:ratio=2.5:attack=8:release=180:makeup=2dB,loudnorm=I=-14:TP=-1.5:LRA=11', '-ar', '48000', '-ac', '1', 'narr/narration.wav')
     sents = json.load(open(sys.argv[2])); t = dur('narr/narration.wav')
     json.dump(sents, open('narr/sentences.json', 'w'), ensure_ascii=False, indent=1)
 else:
     parts = sorted(json.load(open(os.path.join(SRC, 'parts.json'))), key=lambda p: p['i'])
-    GAP_IN, GAP_LINE, LEAD = 0.45, 0.8, 0.35   # same pauses as the server narration
+    GAP_AFTER = {50: 1.7}   # a held beat: the big on-screen 'రాజు' appears here instead of being spoken
+    GAP_IN, GAP_LINE, LEAD = 0.30, 0.35, 0.35   # narration guide: 0.30 s between sentences, 0.35 s at the end of a line
     files, sents, t = [], [], LEAD
     run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', str(LEAD), 'narr/lead.wav'); files.append('narr/lead.wav')
     for j, p in enumerate(parts):
         src = os.path.join(SRC, f"part-{p['i']:05d}.wav")
         trimmed = f"narr/s{p['i']:03d}.wav"      # trim leading/trailing silence so pauses are exactly ours
         run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', src, '-af',
-            'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.06,areverse,silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.15,areverse,afade=t=in:d=0.02', '-ar', '24000', '-ac', '1', trimmed)
-        d0 = dur(trimmed); run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', trimmed, '-af', f'afade=t=out:st={max(0, d0 - 0.08):.3f}:d=0.08', trimmed + '.f.wav'); os.replace(trimmed + '.f.wav', trimmed)
+            'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.06,areverse,silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.15,areverse,afade=t=in:d=0.025', '-ar', '24000', '-ac', '1', trimmed)
+        d0 = dur(trimmed); run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', trimmed, '-af', f'afade=t=out:st={max(0, d0 - 0.025):.3f}:d=0.025', trimmed + '.f.wav'); os.replace(trimmed + '.f.wav', trimmed)
         d = dur(trimmed); sents.append({'para': p['para'], 'start': round(t, 3), 'end': round(t + d, 3), 'text': p['text']}); files.append(trimmed); t += d
-        g = (GAP_LINE if j + 1 < len(parts) and parts[j + 1]['para'] != p['para'] else GAP_IN) + (0.1 if p['text'].rstrip()[-1:] in '?!' else 0)
+        g = (GAP_LINE if j + 1 < len(parts) and parts[j + 1]['para'] != p['para'] else GAP_IN)
+        g = GAP_AFTER.get(p['i'], g) 
         gp = f'narr/gap{int(g * 100)}.wav'
-        if not os.path.exists(gp): run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', str(g), gp)
+        if not os.path.exists(gp): run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-f', 'lavfi', '-i', 'anoisesrc=r=24000:color=brown:amplitude=0.00063', '-t', str(g), gp)
         files.append(gp); t += g
     open('narr/list.txt', 'w').write(''.join(f"file '{os.path.abspath(f)}'\n" for f in files))
-    run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', 'narr/list.txt', '-af', 'loudnorm=I=-15:TP=-1.5:LRA=11', '-ar', '48000', 'narr/narration.wav')
+    run('ffmpeg', '-nostdin', '-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', 'narr/list.txt', '-af', 'acompressor=threshold=-26dB:ratio=2.5:attack=8:release=180:makeup=2dB,loudnorm=I=-14:TP=-1.5:LRA=11', '-ar', '48000', 'narr/narration.wav')
     json.dump(sents, open('narr/sentences.json', 'w'), ensure_ascii=False, indent=1)
 print('narration', round(t, 1), 's,', len(sents), 'sentences')
 import shutil

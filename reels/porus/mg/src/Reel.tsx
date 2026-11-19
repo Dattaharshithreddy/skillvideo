@@ -254,13 +254,19 @@ const Murder: React.FC = () => {
         transform: 'rotate(-3deg)', background: 'rgba(0,0,0,0.6)'}}>మోసంతో హత్య</div></Pop>
   </Fade>;
 };
+// the narration stops after "…గుర్తుంచుకుంది…" and holds a beat: the word appears on screen in that silence
+const rajuAt = (dur: number) => {
+  const S = (T as unknown as {sentences?: {start: number; end: number; text: string}[]}).sentences;
+  const s = S?.find((x) => x.text.startsWith('అయినా చరిత్ర'));
+  return s ? Math.round(s.end * FPS) + 8 - from(idx('legacy')) : Math.round(dur * 0.45);
+};
 const Legacy: React.FC = () => {
   const {t, active, dur} = useShot('legacy'); if (!active) return null;
   return <AbsoluteFill style={{opacity: interpolate(t, [0, 8], [0, 1], clamp)}}>
     <Embers o={0.7} />
     <Pin shot="legacy" k="statue" label="పురు" at={8} t={t} up={60} />
-    <Pop at={Math.round(dur * 0.45)} t={t} style={{position: 'absolute', width: '100%', top: 230, textAlign: 'center'}}>
-      <div style={{fontFamily: SERIF, fontSize: 150, fontWeight: 900, lineHeight: 1.25, ...goldText}}>రాజు.</div></Pop>
+    <Pop at={rajuAt(dur)} t={t} style={{position: 'absolute', width: '100%', top: 520, textAlign: 'center'}}>
+      <div style={{fontFamily: SERIF, fontSize: 260, fontWeight: 900, lineHeight: 1.2, ...goldText, filter: 'drop-shadow(0 0 40px rgba(255,190,80,0.75))'}}>రాజు</div></Pop>
     <Pop at={Math.round(dur * 0.72)} t={t} style={{position: 'absolute', width: '100%', top: 1520, textAlign: 'center'}}>
       <Img src={staticFile('logo.png')} style={{width: 150, height: 150, objectFit: 'contain'}} />
       <div style={{fontFamily: SERIF, fontSize: 44, fontWeight: 900, ...goldText}}>చరిత్ర చెప్పిన కథ</div></Pop>
