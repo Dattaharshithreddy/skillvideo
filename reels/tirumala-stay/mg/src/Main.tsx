@@ -251,7 +251,6 @@ export const Main: React.FC<{bg: string; audio: string; preview: boolean}> = ({b
     <Count shot="four" to={1228} at={0.45} label="గదులు · నాలుగింటిలోనే" top={200} size={150} />
     <Pin shot="pac" k="pac" name="వేంకటాద్రి నిలయం" sub="PAC-5 · ఉచితం · 2,500 మంది" icon="hill" at={0.35} />
     <Gods />
-    <Pin shot="gods" k="padma" name="శ్రీ పద్మావతి అతిథి గృహం" sub="అమ్మవారి పేరు" icon="lotus" at={0.15} />
     <Pin shot="hills" k="sapth" name="సప్తగిరి విశ్రాంతి గృహం" sub="ఏడు కొండలు" icon="hill" at={0.2} />
     <Pin shot="hills" k="seshadri" name="శేషాద్రి నగర్" icon="hill" at={0.35} small />
     <Pin shot="hills" k="garudadri" name="గరుడాద్రి నగర్" icon="hill" at={0.5} small />
