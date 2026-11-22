@@ -1,0 +1,28 @@
+name: URL fetch (signed download links -> HF bucket)
+# tools/forge/fetch_urls.json: { "dest": "varaha/sketchfab", "files": { "name": "https://...", ... } }
+# Downloads each (zip archives are unpacked into <name>/), uploads to the private bucket.
+on:
+  push:
+    branches: [reels/follow-the-sugar]
+    paths: [tools/forge/fetch_urls.json]
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install -q huggingface_hub
+          python3 - <<'PY'
+          import json, os, subprocess, zipfile, urllib.request
+          c = json.load(open('tools/forge/fetch_urls.json')); os.makedirs('/tmp/sf', exist_ok=True)
+          for n, u in c['files'].items():
+              try:
+                  p = f'/tmp/sf/{n}.zip'; urllib.request.urlretrieve(u, p)
+                  zipfile.ZipFile(p).extractall(f'/tmp/sf/{n}'); os.remove(p); print('ok', n, flush=True)
+              except Exception as e: print('FAIL', n, e, flush=True)
+          from huggingface_hub import HfApi
+          HfApi().sync_bucket('/tmp/sf', 'hf://buckets/HarshithReddy05/tirumala-reel/' + c['dest'], quiet=True); print('uploaded')
+          PY
+          du -sh /tmp/sf/*
