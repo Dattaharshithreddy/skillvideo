@@ -1,6 +1,6 @@
 {
  "n": 10,
- "seed": 8,
+ "seed": 9,
  "branch": "mbh-cast",
  "asset_urls": [
   "http://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip"
@@ -14,8 +14,7 @@
    "weight": 0.55,
    "height": 0.7,
    "hair": [
-    "short02",
-    "short04"
+    "long01"
    ],
    "clothes": false
   },
@@ -27,8 +26,7 @@
    "weight": 0.5,
    "height": 0.62,
    "hair": [
-    "short02",
-    "short04"
+    "long01"
    ],
    "clothes": false
   },
@@ -52,8 +50,7 @@
    "weight": 0.5,
    "height": 0.55,
    "hair": [
-    "short02",
-    "short04"
+    "long01"
    ],
    "clothes": false
   },
@@ -65,7 +62,7 @@
    "weight": 0.6,
    "height": 0.6,
    "hair": [
-    "long"
+    "long01"
    ],
    "clothes": false
   },
