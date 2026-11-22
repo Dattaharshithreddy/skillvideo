@@ -18,7 +18,7 @@ rng = random.Random(SEED); manifest = []
 for i in range(N):
     try:
         for o in list(bpy.data.objects): bpy.data.objects.remove(o, do_unlink=True)
-        male = i % 2 == 0
+        male = i % 3 != 2   # 2 men : 1 woman (most women come from the saree models)
         macro = TargetService.get_default_macro_info_dict()
         macro['gender'] = 1.0 if male else 0.0; macro['age'] = rng.uniform(0.45, 0.85); macro['muscle'] = rng.uniform(0.35, 0.6); macro['weight'] = rng.uniform(0.4, 0.75)
         macro['height'] = rng.uniform(0.35, 0.6) if male else rng.uniform(0.25, 0.5)
@@ -31,8 +31,9 @@ for i in range(N):
             if lst: HumanService.add_mhclo_asset(rng.choice(lst), bm, asset_type='Eyes' if lst is eyes else 'Eyebrows', subdiv_levels=0)
         hs = pick(hair, ['short', 'male'] if male else ['long', 'ponytail', 'bob', 'braid']) or hair
         if hs: HumanService.add_mhclo_asset(rng.choice(hs), bm, asset_type='Hair', subdiv_levels=0)
-        if male: cs = pick(clothes, ['shirt', 'tshirt', 'pants', 'trousers', 'jeans', 'casualsuit'])
-        else: cs = pick(clothes, ['dress', 'skirt', 'long', 'casualsuit', 'female'])
+        base = [c for c in clothes if 'shoes' not in c and 'fedora' not in c and 'sport' not in c]
+        if male: cs = [c for c in base if os.path.basename(c).startswith('male_') and ('casualsuit' in c or 'worksuit' in c)]
+        else: cs = [c for c in base if os.path.basename(c).startswith('female_')]
         cs = cs or clothes; chosen = []
         if cs:
             first = rng.choice(cs); chosen.append(first); HumanService.add_mhclo_asset(first, bm, asset_type='Clothes', subdiv_levels=0)
