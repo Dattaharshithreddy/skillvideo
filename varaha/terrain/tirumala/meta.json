@@ -1,0 +1,33 @@
+{
+ "bbox": [
+  13.62,
+  79.28,
+  13.74,
+  79.42
+ ],
+ "attribution": "Sentinel-2 cloudless by EOX IT Services GmbH (contains modified Copernicus Sentinel data) CC BY 4.0;\nterrain: Mapzen/AWS Terrain Tiles (SRTM, NASA); map data (c) OpenStreetMap contributors (ODbL).",
+ "height_z12": {
+  "min_m": 149.0,
+  "max_m": 1151.0,
+  "size": [
+   408,
+   359
+  ]
+ },
+ "height_z13": {
+  "min_m": 148.0,
+  "max_m": 1148.0,
+  "size": [
+   816,
+   719
+  ]
+ },
+ "sat_z14": [
+  1632,
+  1439
+ ],
+ "sat_z15": [
+  3263,
+  2878
+ ]
+}
