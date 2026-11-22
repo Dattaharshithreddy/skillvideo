@@ -1,108 +1,78 @@
 {
  "fps": 24,
- "duration": 110.5,
+ "duration": 92,
  "shots": [
   {
-   "s": 0.0,
-   "e": 4.6,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 0,
+   "e": 7,
+   "page": "mbh.html",
+   "q": "phase=duel"
   },
   {
-   "s": 4.6,
-   "e": 11.13,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 7,
+   "e": 14,
+   "page": "mbh.html",
+   "q": "phase=fallen"
   },
   {
-   "s": 11.13,
-   "e": 19.0,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 14,
+   "e": 21,
+   "page": "mbh.html",
+   "q": "phase=kuru"
   },
   {
-   "s": 19.0,
-   "e": 26.8,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 21,
+   "e": 29,
+   "page": "mbh.html",
+   "q": "phase=bhishma"
   },
   {
-   "s": 26.8,
-   "e": 35.0,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 29,
+   "e": 36,
+   "page": "mbh.html",
+   "q": "phase=arrowbed"
   },
   {
-   "s": 35.0,
-   "e": 43.73,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 36,
+   "e": 44,
+   "page": "mbh.html",
+   "q": "phase=ganga"
   },
   {
-   "s": 43.73,
-   "e": 48.5,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 44,
+   "e": 52,
+   "page": "mbh.html",
+   "q": "phase=naga"
   },
   {
-   "s": 48.5,
-   "e": 54.96,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 52,
+   "e": 59,
+   "page": "mbh.html",
+   "q": "phase=ashva"
   },
   {
-   "s": 54.96,
-   "e": 61.0,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 59,
+   "e": 68,
+   "page": "mbh.html",
+   "q": "phase=welcome"
   },
   {
-   "s": 61.0,
-   "e": 70.2,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 68,
+   "e": 75,
+   "page": "mbh.html",
+   "q": "phase=ulupi"
   },
   {
-   "s": 70.2,
-   "e": 73.95,
-   "page": "black.html",
-   "q": "x=1"
+   "s": 75,
+   "e": 83,
+   "page": "mbh.html",
+   "q": "phase=mani"
   },
   {
-   "s": 73.95,
-   "e": 84.2,
-   "page": "black.html",
-   "q": "x=1"
-  },
-  {
-   "s": 84.2,
-   "e": 90.0,
-   "page": "black.html",
-   "q": "x=1"
-  },
-  {
-   "s": 90.0,
-   "e": 94.07,
-   "page": "black.html",
-   "q": "x=1"
-  },
-  {
-   "s": 94.07,
-   "e": 97.73,
-   "page": "black.html",
-   "q": "x=1"
-  },
-  {
-   "s": 97.73,
-   "e": 104.0,
-   "page": "temple.html",
-   "q": "shot=crowd&fov=40&orbit=-0.12&push=0.25&rise=0.4&cseed=9&sunel=48&sunaz=200&fd=0.0006&exp=0.5&crowd=%5B%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_03_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_04_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_06_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_07_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_09_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_10_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_12_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_13_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_15_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_16_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%5D"
-  },
-  {
-   "s": 104.0,
-   "e": 110.5,
-   "page": "terrain.html",
-   "q": "sunel=40&sunaz=140&nomist=1&fog=%23c9d6e2&exp=0.8&fd=0.00012&shot=hills7&orbit=0"
+   "s": 83,
+   "e": 92,
+   "page": "mbh.html",
+   "q": "phase=embrace"
   }
  ]
 }
