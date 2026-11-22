@@ -1,0 +1,30 @@
+name: People (MakeHuman CC0 via Blender + MPFB2)
+on:
+  push:
+    branches: [reels/follow-the-sugar]
+    paths: [tools/people/run.json]
+permissions:
+  contents: write
+jobs:
+  people:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          set -x
+          sudo apt-get install -y -qq libxi6 libxkbcommon0 libxxf86vm1 libxfixes3 libxrender1 libgl1 libsm6 libegl1 >/dev/null 2>&1
+          curl -sL https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz | tar xJ -C /tmp
+          B=/tmp/blender-4.2.3-linux-x64/blender
+          git clone -q --depth 1 https://github.com/makehumancommunity/mpfb2 /tmp/mpfb2
+          (cd /tmp/mpfb2/src && zip -qr /tmp/mpfb.zip mpfb)
+          $B -b --python-expr "import bpy; bpy.ops.preferences.addon_install(filepath='/tmp/mpfb.zip'); bpy.ops.preferences.addon_enable(module='mpfb'); bpy.ops.wm.save_userpref()" 2>&1 | tail -3
+          # MakeHuman system assets (skins, clothes, hair; CC0)
+          UD=$($B -b --python-expr "import bpy; from mpfb.services.locationservice import LocationService; print('UD=' + LocationService.get_user_data())" 2>/dev/null | grep '^UD=' | cut -d= -f2)
+          echo "user data: $UD"; mkdir -p "$UD"
+          for u in $(jq -r '.asset_urls[]' tools/people/run.json); do curl -sL "$u" -o /tmp/a.zip && unzip -q -o /tmp/a.zip -d "$UD" || echo "asset fail $u"; done
+          find "$UD" -maxdepth 2 | head -30
+          N=$(jq .n tools/people/run.json); S=$(jq .seed tools/people/run.json)
+          $B -b --python-expr "import bpy; bpy.ops.preferences.addon_enable(module='mpfb')" -P tools/people/make_people.py -- /tmp/people $N $S 2>&1 | grep -E "ASSETS|CLOTHES|SKINS|OK |Error|Traceback|rror" | head -60
+          ls -la /tmp/people; du -sh /tmp/people
+          cd /tmp/people && git init -q && git config user.name bot && git config user.email actions@users.noreply.github.com && git add -A && git commit -qm people && git push -q -f https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:varaha-people
