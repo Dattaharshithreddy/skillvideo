@@ -1,0 +1,25 @@
+name: Collect finished frames (no rendering)
+# One-off: the render run 45041223284 finished all frames but its output was too big to push. This only joins its frames into a video (no audio) in two parts under 100 MB.
+on:
+  push:
+    branches: [reels/follow-the-sugar]
+    paths: [.github/workflows/arjuna-collect.yml]
+permissions: { contents: write, actions: read }
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: arts, run-id: 45041223284, github-token: '${{ github.token }}' }
+      - env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          sudo apt-get update -qq >/dev/null; sudo apt-get install -y -qq ffmpeg >/dev/null
+          pip install -q huggingface_hub
+          python3 -c "from huggingface_hub import HfApi;HfApi().sync_bucket('hf://buckets/HarshithReddy05/tirumala-reel/keys','/tmp/keys',quiet=True)"
+          mkdir -p all && for f in arts/*/*.enc; do openssl enc -d -aes-256-cbc -pbkdf2 -in $f -out /tmp/x.tar -pass file:/tmp/keys/asset.key && tar xf /tmp/x.tar -C all; done; rm -rf /tmp/keys arts
+          ls all/frames | wc -l; mkdir -p out
+          ffmpeg -v error -framerate 24 -start_number 0 -i all/frames/f%05d.png -frames:v 1104 -c:v libx264 -crf 17 -preset slow -pix_fmt yuv420p out/a.mp4
+          ffmpeg -v error -framerate 24 -start_number 1104 -i all/frames/f%05d.png -c:v libx264 -crf 17 -preset slow -pix_fmt yuv420p out/b.mp4
+          ls -la out
+          cd out && git init -q && git config user.name bot && git config user.email actions@users.noreply.github.com && git add -A && git commit -qm frames && git push -q -f https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:arjuna-frames
