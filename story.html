@@ -18,10 +18,12 @@ const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true
 const S = new THREE.Scene(); let sd = 5; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
 const gl = new GLTFLoader(); const cam = new THREE.PerspectiveCamera(38, W / H, 0.05, 5000);
 const gold = (e = 0.25) => new THREE.MeshStandardMaterial({ color: 0xffc860, emissive: 0xff9a20, emissiveIntensity: e, metalness: 0.85, roughness: 0.3 });
-async function figure(clip, at, mat, scale = 1, pos = [0, 0, 0], rotY = 0) {   // KinemIQ mannequin posed by a CC0 clip at time `at`
-  const base = await gl.loadAsync('ua/kq/KinemIQ_Mannequin.glb'); const o = SkeletonUtils.clone(base.scene);
-  o.traverse((m) => { if (m.isMesh) { m.material = mat; m.castShadow = true; } });
-  const c = (await gl.loadAsync(`ua/kq/${clip}.glb`)).animations[0]; const mx = new THREE.AnimationMixer(o); mx.clipAction(c).play(); mx.update(at);
+async function figure(clip, at, mat, scale = 1, pos = [0, 0, 0], rotY = 0, female = false) {   // divine light form: clothed MakeHuman silhouette, glowing gold, no facial detail
+  const { devotee } = await import('./attire.js');
+  const pz = /folded/.test(clip) ? 'namaskaram' : 'stand';
+  const files = female ? ['person_5_02_f.glb', 'person_5_05_f.glb'] : ['person_5_00_m.glb', 'person_5_03_m.glb', 'person_5_06_m.glb', 'person_5_09_m.glb'];
+  const o = await devotee('people/' + files[Math.floor(at * 10) % files.length], { female, seed: 1, poseName: pz, light: PH === 'devas' ? 0.35 : (mat && mat.emissiveIntensity ? 0.9 + mat.emissiveIntensity * 2 : 1.2) });
+  const aura = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('255,200,110', 0.55), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false })); aura.position.set(0, 1.0, -0.1); aura.scale.set(1.6, 2.6, 1); if (PH === 'devas') aura.material.opacity = 0.35; o.add(aura);
   o.scale.setScalar(scale); o.position.set(...pos); o.rotation.y = rotY; S.add(o); return o; }
 async function prop(path, h, pos, rotY = 0) { const o = (await gl.loadAsync(path)).scene; const b = new THREE.Box3().setFromObject(o); o.scale.setScalar(h / (b.max.y - b.min.y)); const b2 = new THREE.Box3().setFromObject(o); const c = b2.getCenter(new THREE.Vector3()); o.position.set(pos[0] - c.x, pos[1] - b2.min.y, pos[2] - c.z); o.rotation.y = rotY; o.traverse((m) => { if (m.isMesh) m.castShadow = m.receiveShadow = true; }); S.add(o); return o; }
 function softTex(col = '255,255,255', a = 0.6) { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, `rgba(${col},${a})`); g.addColorStop(1, `rgba(${col},0)`); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); }
@@ -32,8 +34,8 @@ if (PH === 'devas') {   // devas on clouds of light, praying to Varaha (off-scre
   const sun = skyAt(3, 180, 8, 3); S.add(new THREE.HemisphereLight(0xffe0c0, 0x604070, 0.8));
   const key = new THREE.DirectionalLight(0xffd090, 3); key.position.set(0, 6, 10); S.add(key);
   clouds(70, -0.6, 30, 0xffe6d0, 0.55, 5); clouds(40, 3, 40, 0xffc0a0, 0.3, 8);
-  const brahma = await figure('Idle_relaxed', 0.5, gold(0.35), 1.25, [0, -0.2, -3]);
-  for (let i = 0; i < 6; i++) { const s = i < 3 ? -1 : 1, k = i % 3; await figure('Idle_arms_folded_waiting', 0.3 + i * 0.2, gold(0.15), 1.0, [s * (1.3 + k * 1.1), -0.3 - k * 0.1, -3.6 - k * 0.9], -s * 0.35); }
+  const brahma = await figure('Idle_relaxed', 0.5, gold(0.05), 1.15, [0, -0.2, -3]);
+  for (let i = 0; i < 6; i++) { const s = i < 3 ? -1 : 1, k = i % 3; await figure('Idle_arms_folded_waiting', 0.3 + i * 0.2, gold(0.0), 1.0, [s * (1.3 + k * 1.1), -0.3 - k * 0.1, -3.6 - k * 0.9], -s * 0.35); }
   const halo = new THREE.Mesh(new THREE.RingGeometry(0.35, 0.42, 64), new THREE.MeshBasicMaterial({ color: 0xffd070, transparent: true, opacity: 0.8 })); halo.position.set(0, 1.95, -3.15); S.add(halo);
   const glow = new THREE.PointLight(0xffc060, 15, 12, 1.5); glow.position.set(0, 3, -1); S.add(glow);
   cam.position.set(Math.sin(ease * 0.4 - 0.2) * 1.5, 1.2 - ease * 0.2, 4.5 - ease * 1.5); cam.lookAt(0, 0.9, -3.5);
@@ -87,7 +89,7 @@ if (PH === 'devas') {   // devas on clouds of light, praying to Varaha (off-scre
   // distant seven hills silhouette
   for (let i = 0; i < 7; i++) { const m = new THREE.Mesh(new THREE.ConeGeometry(18 + rnd() * 10, 8 + rnd() * 8, 6), new THREE.MeshStandardMaterial({ color: 0x241820, roughness: 1 })); m.position.set(-60 + i * 20, 2, -70 - rnd() * 20); S.add(m); }
   S.fog = new THREE.Fog(0xe08860, 30, 140);
-  cam.position.set(Math.sin(ease * 0.3) * 0.6, 1.4, 6.0 - ease * 1.2); cam.lookAt(0, 1.2, 0); bloom = [0.45, 0.5, 0.88];
+  cam.position.set(Math.sin(ease * 0.3) * 0.5, 1.5, 8.6 - ease * 1.4); cam.lookAt(0, 1.15, 0); bloom = [0.35, 0.5, 0.9];
 }
 const C = new EffectComposer(R); C.setSize(W, H); C.addPass(new RenderPass(S, cam)); C.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), ...bloom)); C.addPass(new OutputPass());
 C.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',

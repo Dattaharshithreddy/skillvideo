@@ -1,4 +1,4 @@
-<!doctype html><html><body style="margin:0;background:#000">
+<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#000">
 <script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
@@ -198,12 +198,57 @@ if (P.get('glb') !== '0') {
     const s = 1.2 + rnd() * 1.6; m.compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rnd() * 6.3, 0)), new THREE.Vector3(s, s * (0.9 + rnd() * 0.4), s));
     im.setMatrixAt(n, m); im.setColorAt(n, c.setHSL(0.24 + rnd() * 0.08, 0.45, 0.16 + rnd() * 0.1)); n++; }
   im.count = n; im.castShadow = im.receiveShadow = true; S.add(im); }
+
+// ---------- GT-style daylight crowd at the Varaha temple front (eye level) ----------
+if (P.has('crowd')) {
+  const { devotee } = await import('./attire.js');
+  const files = JSON.parse(P.get('crowd')); let rs = +(P.get('cseed') || 3); const r2 = () => (rs = (rs * 16807) % 2147483647) / 2147483647;
+  const face = (o, dx, dz) => { o.rotation.y = Math.atan2(dx, dz); };
+  const HX = -TL / 2 - 4 + 3.5 + 0.6 + 8 * 0.5;   // foot of the hall steps (x)
+  // metal queue railings (two lanes) leading to the hall steps
+  const railM = new THREE.MeshStandardMaterial({ color: 0xb9bec4, metalness: 0.9, roughness: 0.35 });
+  const rail = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), a = Math.atan2(z1 - z0, x1 - x0);
+    for (const h of [0.55, 1.0]) { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, L, 8), railM); p.rotation.z = Math.PI / 2; p.rotation.y = -a; p.position.set((x0 + x1) / 2, h, (z0 + z1) / 2); p.castShadow = true; S.add(p); }
+    for (let i = 0; i <= Math.round(L / 2); i++) { const f = i / Math.round(L / 2); const q = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.05, 8), railM); q.position.set(x0 + (x1 - x0) * f, 0.525, z0 + (z1 - z0) * f); q.castShadow = true; S.add(q); } };
+  for (const z of [-44.6, -42.6, -40.6]) rail(HX + 1.5, z, HX + 20, z);
+  // TTD-style signboard over the hall
+  { const ff = new FontFace('NotoTe', 'url(fonts/NotoSansTelugu.ttf)'); await ff.load(); document.fonts.add(ff);
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const x = c.getContext('2d');
+    x.fillStyle = '#123d7a'; x.fillRect(0, 0, 1024, 256); x.strokeStyle = '#f3c74a'; x.lineWidth = 10; x.strokeRect(12, 12, 1000, 232);
+    x.fillStyle = '#ffd54a'; x.textAlign = 'center'; x.font = 'bold 96px NotoTe'; x.fillText('శ్రీ వరాహస్వామి ఆలయం', 512, 120);
+    x.fillStyle = '#ffffff'; x.font = 'bold 56px sans-serif'; x.fillText('SRI VARAHA SWAMY TEMPLE', 512, 210);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+    const b = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 1.8), new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.15 })); b.position.set(HX + 2.2, 4.3, -42.6); b.rotation.y = Math.PI / 2; S.add(b);
+    for (const dz of [-3.3, 3.3]) { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 5.2, 10), railM); p.position.set(HX + 2.1, 2.6, -42.6 + dz); p.castShadow = true; S.add(p); }
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.9, 7.3), new THREE.MeshStandardMaterial({ color: 0x0c2a55 })); back.position.set(HX + 2.14, 4.3, -42.6); S.add(back); }
+  // people: queue lanes, walkers on the open pavement, a few in namaskaram at the steps
+  const spots = []; const tankSet = P.get('cset') === 'tank';
+  if (tankSet) { for (let i = 0; i < 26; i++) { const st = Math.floor(r2() * 6); const x = -12 + r2() * 34; const z = -TW / 2 + st * ST + ST * 0.5; const p = r2();
+      spots.push({ x, z, y: -st * SD, f: p < 0.5 ? [0.05, 1] : (p < 0.75 ? [-1, 0.1] : [1, 0.1]), pose: p < 0.3 ? 'namaskaram' : (p < 0.5 ? 'stand' : 'walk'), ph: r2() }); }
+    for (let i = 0; i < 14; i++) { const x = -40 + r2() * 62, z = -TW / 2 - 1.5 - r2() * 5; spots.push({ x, z, y: 0, f: r2() < 0.5 ? [-1, 0] : [1, 0], pose: 'walk', ph: r2() }); } }
+  else {
+  for (let i = 0; i < 14; i++) spots.push({ x: HX + 2.5 + i * 0.95 + r2() * 0.2, z: -43.6 + (r2() - 0.5) * 0.25, f: [-1, 0], pose: i < 2 ? 'namaskaram' : (i % 4 === 3 ? 'folded' : 'stand') });
+  for (let i = 0; i < 13; i++) spots.push({ x: HX + 3 + i * 0.95 + r2() * 0.2, z: -41.6 + (r2() - 0.5) * 0.25, f: [-1, 0], pose: i === 0 ? 'namaskaram' : 'stand' });
+  for (let i = 0; i < 16; i++) { const out = i % 2 === 0; spots.push({ x: HX + 3 + r2() * 15, z: -39 + r2() * 6.5, f: out ? [1, 0.15 * (r2() - 0.5)] : [-1, 0.2 * (r2() - 0.5)], pose: 'walk', ph: r2() }); }
+  for (let i = 0; i < 4; i++) spots.push({ x: HX + 0.6 + r2() * 0.8, z: -47 + i * 1.2 + r2() * 0.3, f: [-1, 0], pose: 'namaskaram' });
+  }
+  const cam0 = tankSet ? new THREE.Vector3(24, 2.4, -33.5) : new THREE.Vector3(HX + 23, 1.65, -35.2); const cs = [];
+  const TT = +(P.get('t') || 0); for (const sp of spots) if (sp.pose === 'walk') { const L = Math.hypot(sp.f[0], sp.f[1]); sp.x += sp.f[0] / L * 1.05 * TT; sp.z += sp.f[1] / L * 1.05 * TT; sp.ph = ((sp.ph || 0) + TT * 0.95) % 1; }
+  for (let i = 0; i < spots.length; i++) { const sp = spots[i]; const f = files[i % files.length];
+    try { const o = await devotee('people/' + f, { female: /_f\.glb$/.test(f), seed: i + rs, poseName: sp.pose, phase: sp.ph || 0 });
+      o.position.set(sp.x, sp.y || 0, sp.z); face(o, sp.f[0], sp.f[1]); S.add(o); cs.push(o); } catch (e) { console.log('crowd ERR ' + f + ' ' + e.message); } }
+  // tighter sun shadow around the crowd for crisp contact shadows
+  dl.shadow.camera.left = -30; dl.shadow.camera.right = 30; dl.shadow.camera.top = 30; dl.shadow.camera.bottom = -30;
+  dl.target.position.set(HX + 8, 0, -40); S.add(dl.target); dl.position.copy(sun).multiplyScalar(300).add(dl.target.position); dl.shadow.camera.updateProjectionMatrix();
+  globalThis.CROWD_CAM = cam0;
+}
 // ---------- cameras ----------
 const shot = P.get('shot') || 'hero';
 const cam = new THREE.PerspectiveCamera(+(P.get('fov') || 40), W / H, 0.3, 5000);
 const vp = new THREE.Vector3(-TL / 2 - 16, 6, -TW / 2 - 14);
 if (shot === 'hero') { cam.position.set(-5, 1.7, TW / 2 + 3); cam.lookAt(vp.x + 10, 6, vp.z); }            // eye level, across the water toward the Varaha temple
 else if (shot === 'drone') { cam.position.set(70, 55, 90); cam.lookAt(-15, 0, 10); }
+else if (shot === 'crowd') { const c0 = globalThis.CROWD_CAM; cam.position.copy(c0); if (P.get('cset') === 'tank') cam.lookAt(-30, -1.2, -22); else cam.lookAt(c0.x - 22, 2.2, -42.5); }
 else if (shot === 'gate') { cam.position.set(vp.x + 40, 1.6, vp.z + 6); cam.lookAt(vp.x + 6, 7, vp.z); }
 { const T_ = +(P.get('t') || 0), DUR_ = +(P.get('dur') || 6), q = Math.min(1, T_ / DUR_), e_ = q * q * (3 - 2 * q);
   const tgt = new THREE.Vector3(); cam.getWorldDirection(tgt); const look = cam.position.clone().add(tgt.multiplyScalar(10));
@@ -211,7 +256,7 @@ else if (shot === 'gate') { cam.position.set(vp.x + 40, 1.6, vp.z + 6); cam.look
   const off = cam.position.clone().sub(look); off.applyAxisAngle(new THREE.Vector3(0, 1, 0), orb); off.multiplyScalar(1 - push); cam.position.copy(look).add(off); cam.position.y += +(P.get('rise') || 0) * e_; cam.lookAt(look); }
 const C = new EffectComposer(R); C.setSize(W, H); C.addPass(new RenderPass(S, cam));
 const ao = new GTAOPass(S, cam, W, H); ao.updateGtaoMaterial({ radius: 1.2, distanceExponent: 1.5, thickness: 2, scale: 1.2 }); ao.blendIntensity = 0.9; C.addPass(ao);
-C.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.35, 0.6, 0.85));
+C.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), P.has('crowd') ? 0.08 : 0.35, 0.6, 0.9));
 C.addPass(new OutputPass());
 C.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null }, t: { value: 1.7 } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float t; varying vec2 vUv; float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }

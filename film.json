@@ -1,18 +1,108 @@
-{ "fps": 24, "duration": 110.5,
-  "shots": [
-  { "s": 0.0,   "e": 5.6,   "page": "terrain.html", "q": "shot=aerial&push=0.35&orbit=0.25" },
-  { "s": 5.6,   "e": 11.13, "page": "temple.html",  "q": "shot=hero&push=0.15&orbit=0.1" },
-  { "s": 11.13, "e": 19.0,  "page": "ocean.html",   "q": "phase=sink" },
-  { "s": 19.0,  "e": 26.8,  "page": "ocean.html",   "q": "phase=lift" },
-  { "s": 26.8,  "e": 33.4,  "page": "story.html",   "q": "phase=devas" },
-  { "s": 33.4,  "e": 43.73, "page": "terrain.html", "q": "shot=dawn&sunel=4&push=0.3&orbit=0.3" },
-  { "s": 43.73, "e": 54.96, "page": "story.html",   "q": "phase=anthill" },
-  { "s": 54.96, "e": 61.0,  "page": "story.html",   "q": "phase=promise&ph2=ask" },
-  { "s": 61.0,  "e": 70.2,  "page": "story.html",   "q": "phase=vakula" },
-  { "s": 70.2,  "e": 73.95, "page": "temple.html",  "q": "shot=drone&hdri=golden_bay&push=0.2" },
-  { "s": 73.95, "e": 84.2,  "page": "story.html",   "q": "phase=promise" },
-  { "s": 84.2,  "e": 90.0,  "page": "idol.html",    "q": "img=priv/ref_varaha_full.png&dep=priv/ref_varaha_full_depth.png&aarti=1" },
-  { "s": 90.0,  "e": 94.07, "page": "temple.html",  "q": "shot=gate&push=0.25&orbit=0.2" },
-  { "s": 94.07, "e": 97.73, "page": "idol.html",    "q": "img=priv/ref_varaha_full.png&dep=priv/ref_varaha_full_depth.png&aarti=0" },
-  { "s": 97.73, "e": 104.0, "page": "view3d.html",  "q": "f=priv/glb/ref_varaha_photo_3d.glb" },
-  { "s": 104.0, "e": 110.5, "page": "terrain.html", "q": "shot=aerial&push=-0.4&rise=40&orbit=-0.3" } ] }
+{
+ "fps": 24,
+ "duration": 110.5,
+ "shots": [
+  {
+   "s": 0.0,
+   "e": 4.6,
+   "page": "black.html",
+   "q": "es=zoom"
+  },
+  {
+   "s": 4.6,
+   "e": 11.13,
+   "page": "temple.html",
+   "q": "shot=crowd&fov=46&orbit=0.06&push=0.16&sunel=48&sunaz=200&fd=0.0006&exp=0.5&crowd=%5B%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_03_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_04_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_06_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_07_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_09_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_10_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_12_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_13_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_15_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_16_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%5D"
+  },
+  {
+   "s": 11.13,
+   "e": 19.0,
+   "page": "ocean.html",
+   "q": "phase=sink"
+  },
+  {
+   "s": 19.0,
+   "e": 26.8,
+   "page": "ocean.html",
+   "q": "phase=lift"
+  },
+  {
+   "s": 26.8,
+   "e": 35.0,
+   "page": "black.html",
+   "q": "es=hills"
+  },
+  {
+   "s": 35.0,
+   "e": 43.73,
+   "page": "black.html",
+   "q": "es=tank"
+  },
+  {
+   "s": 43.73,
+   "e": 48.5,
+   "page": "terrain.html",
+   "q": "shot=dawn&sunel=4&push=0.3&orbit=0.3"
+  },
+  {
+   "s": 48.5,
+   "e": 54.96,
+   "page": "story.html",
+   "q": "phase=anthill"
+  },
+  {
+   "s": 54.96,
+   "e": 61.0,
+   "page": "story.html",
+   "q": "phase=promise&ph2=ask"
+  },
+  {
+   "s": 61.0,
+   "e": 70.2,
+   "page": "story.html",
+   "q": "phase=vakula"
+  },
+  {
+   "s": 70.2,
+   "e": 73.95,
+   "page": "temple.html",
+   "q": "shot=drone&hdri=golden_bay&push=0.2"
+  },
+  {
+   "s": 73.95,
+   "e": 84.2,
+   "page": "story.html",
+   "q": "phase=promise"
+  },
+  {
+   "s": 84.2,
+   "e": 90.0,
+   "page": "idol.html",
+   "q": "img=priv/ref_varaha_full.png&dep=priv/ref_varaha_full_depth.png&aarti=1"
+  },
+  {
+   "s": 90.0,
+   "e": 94.07,
+   "page": "temple.html",
+   "q": "shot=crowd&cset=tank&fov=55&orbit=0.08&push=0.1&sunel=48&sunaz=200&fd=0.0006&exp=0.5&crowd=%5B%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_03_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_04_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_06_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_07_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_09_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_10_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_12_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_13_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_15_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_16_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%5D"
+  },
+  {
+   "s": 94.07,
+   "e": 97.73,
+   "page": "idol.html",
+   "q": "img=priv/ref_varaha_full.png&dep=priv/ref_varaha_full_depth.png&aarti=0"
+  },
+  {
+   "s": 97.73,
+   "e": 104.0,
+   "page": "temple.html",
+   "q": "shot=crowd&fov=40&orbit=-0.12&push=0.25&rise=0.4&cseed=9&sunel=48&sunaz=200&fd=0.0006&exp=0.5&crowd=%5B%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_03_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_04_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_06_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_07_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_09_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_10_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_12_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_13_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_15_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_16_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%5D"
+  },
+  {
+   "s": 104.0,
+   "e": 110.5,
+   "page": "black.html",
+   "q": "es=tankout"
+  }
+ ]
+}
