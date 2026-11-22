@@ -2,11 +2,9 @@
 Run: blender -b -P make_people.py -- OUT N SEED"""
 import bpy, sys, os, random, glob, json, traceback
 argv = sys.argv[sys.argv.index('--') + 1:]; OUT, N, SEED = argv[0], int(argv[1]), int(argv[2]); os.makedirs(OUT, exist_ok=True)
-from mpfb.services.humanservice import HumanService
-from mpfb.services.targetservice import TargetService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
+import importlib
+M = lambda n: importlib.import_module('bl_ext.user_default.mpfb.services.' + n)
+HumanService = M('humanservice').HumanService; TargetService = M('targetservice').TargetService; LocationService = M('locationservice').LocationService
 roots = [LocationService.get_user_data(), LocationService.get_mpfb_data()]
 def assets(kind, ext):
     out = []
