@@ -23,7 +23,7 @@ mat.onBeforeCompile = (s) => {   // lift the satellite greens a little and deepe
   s.vertexShader = s.vertexShader.replace('#include <common>', '#include <common>\nvarying float vH;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvH = position.y;');
   s.fragmentShader = s.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vH;\nuniform vec3 mistCol; uniform float mistTop;')
     .replace('#include <fog_fragment>', `#include <fog_fragment>
-    float mist = smoothstep(mistTop, mistTop * 0.35, vH) * 0.78;
+    float mist = smoothstep(mistTop, mistTop * 0.35, vH) * ${P.has("nomist") ? "0.0" : "0.78"};
     gl_FragColor.rgb = mix(gl_FragColor.rgb, mistCol, mist);`);
   s.uniforms.mistCol = { value: new THREE.Color(P.get('mist') || '#e9d6bf') }; s.uniforms.mistTop = { value: +(P.get('mt') || 48) };
 };
@@ -50,17 +50,23 @@ S.fog = new THREE.FogExp2(new THREE.Color(P.get('fog') || '#d9c2a4'), +(P.get('f
 // camera: temple at lat 13.6833 lon 79.3474 (bbox 13.62..13.74, 79.28..79.42)
 const tx = ((79.3474 - 79.28) / 0.14 - 0.5) * SX, tz = ((13.74 - 13.6833) / 0.12 - 0.5) * SZ;
 const shot = P.get('shot') || 'aerial';
-const cam = new THREE.PerspectiveCamera(+(P.get('fov') || 38), W / H, 1, 90000);
+const cam = new THREE.PerspectiveCamera(+(P.get('fov') || 38), W / H, 1, 200000);
 const target = new THREE.Vector3(tx, hAt(tx, tz), tz);
 if (shot === 'aerial') cam.position.set(tx + 380, 520, tz + 900);
 else if (shot === 'ridge') { cam.position.set(tx - 60, hAt(tx - 60, tz + 420) + 22, tz + 420); }
 else if (shot === 'top') { cam.position.set(tx, 2300, tz + 30); }
 else if (shot === 'range') { cam.position.set(tx + 150, hAt(tx + 150, tz + 520) + 30, tz + 520); target.set(tx - 120, hAt(tx, tz) - 10, tz - 400); }
 else if (shot === 'dawn') { cam.position.set(tx + 900, 320, tz + 1900); target.set(tx - 300, 50, tz - 300); }
-cam.lookAt(target);
+if (shot === 'zoom' || shot === 'hills7') {   // explicit camera paths (no generic orbit/push below)
+  const T_ = +(P.get('t') || 0), DUR_ = +(P.get('dur') || 6), q = Math.min(1, T_ / DUR_), e = q * q * (3 - 2 * q);
+  if (shot === 'zoom') { const alt = Math.exp(THREE.MathUtils.lerp(Math.log(7000), Math.log(260), 1 - Math.pow(1 - q, 2.2))); const a = 0.9 - 1.1 * e; const dist = alt * THREE.MathUtils.lerp(0.05, 1.6, e);
+    cam.position.set(tx + Math.sin(a) * dist, hAt(tx, tz) + alt, tz + Math.cos(a) * dist); }
+  else { const a = -0.6 + 1.0 * e; cam.position.set(tx + Math.sin(a) * 1700, 1250, tz + Math.cos(a) * 1700); target.y -= 40; }
+  cam.up.set(0, 1, 0); cam.lookAt(target); window.NOMOVE = true; }
+else cam.lookAt(target);
 window.marker = (on) => { if (!on) return; const s = new THREE.Mesh(new THREE.SphereGeometry(4), new THREE.MeshBasicMaterial({ color: 0xffd700 })); s.position.copy(target).add(new THREE.Vector3(0, 6, 0)); S.add(s); };
 if (P.get('marker')) marker(true);
-{ const T_ = +(P.get('t') || 0), DUR_ = +(P.get('dur') || 6), q = Math.min(1, T_ / DUR_), e_ = q * q * (3 - 2 * q);
+if (!window.NOMOVE) { const T_ = +(P.get('t') || 0), DUR_ = +(P.get('dur') || 6), q = Math.min(1, T_ / DUR_), e_ = q * q * (3 - 2 * q);
   const tgt = new THREE.Vector3(); cam.getWorldDirection(tgt); const look = cam.position.clone().add(tgt.multiplyScalar(10));
   const orb = +(P.get('orbit') || 0.15) * (e_ - 0.5), push = +(P.get('push') || 0.18) * e_;
   const off = cam.position.clone().sub(look); off.applyAxisAngle(new THREE.Vector3(0, 1, 0), orb); off.multiplyScalar(1 - push); cam.position.copy(look).add(off); cam.position.y += +(P.get('rise') || 0) * e_; cam.lookAt(look); }
