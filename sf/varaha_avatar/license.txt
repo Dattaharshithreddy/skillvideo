@@ -1,0 +1,11 @@
+Model Information:
+* title:	Varaha Avatar
+* source:	https://sketchfab.com/3d-models/varaha-avatar-0a0858f6083b47aea10fa633b4b2ad86
+* author:	pathaku509 (https://sketchfab.com/pathaku509)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Varaha Avatar" (https://sketchfab.com/3d-models/varaha-avatar-0a0858f6083b47aea10fa633b4b2ad86) by pathaku509 (https://sketchfab.com/pathaku509) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

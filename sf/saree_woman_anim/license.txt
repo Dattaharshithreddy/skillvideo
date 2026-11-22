@@ -1,0 +1,11 @@
+Model Information:
+* title:	Sareewoman
+* source:	https://sketchfab.com/3d-models/sareewoman-c28105203127478b8e26ad0474083367
+* author:	dk8026854 (https://sketchfab.com/dk8026854)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Sareewoman" (https://sketchfab.com/3d-models/sareewoman-c28105203127478b8e26ad0474083367) by dk8026854 (https://sketchfab.com/dk8026854) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

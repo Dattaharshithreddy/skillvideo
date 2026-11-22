@@ -1,0 +1,96 @@
+<!doctype html><html><body style="margin:0;background:#000">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { Sky } from 'three/addons/objects/Sky.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+// Story scenes: phase = devas | anthill | vakula | promise
+const P = new URLSearchParams(location.search); const W = +P.get('w') || 1080, H = +P.get('h') || 1920, T = +(P.get('t') || 0), PH = P.get('phase') || 'devas', DUR = +(P.get('dur') || 6);
+const p = Math.min(1, Math.max(0, T / DUR)), ease = p * p * (3 - 2 * p);
+const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setSize(W, H); R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = +(P.get('exp') || 0.9); R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; document.body.appendChild(R.domElement);
+const S = new THREE.Scene(); let sd = 5; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+const gl = new GLTFLoader(); const cam = new THREE.PerspectiveCamera(38, W / H, 0.05, 5000);
+const gold = (e = 0.25) => new THREE.MeshStandardMaterial({ color: 0xffc860, emissive: 0xff9a20, emissiveIntensity: e, metalness: 0.85, roughness: 0.3 });
+async function figure(clip, at, mat, scale = 1, pos = [0, 0, 0], rotY = 0) {   // KinemIQ mannequin posed by a CC0 clip at time `at`
+  const base = await gl.loadAsync('ua/kq/KinemIQ_Mannequin.glb'); const o = SkeletonUtils.clone(base.scene);
+  o.traverse((m) => { if (m.isMesh) { m.material = mat; m.castShadow = true; } });
+  const c = (await gl.loadAsync(`ua/kq/${clip}.glb`)).animations[0]; const mx = new THREE.AnimationMixer(o); mx.clipAction(c).play(); mx.update(at);
+  o.scale.setScalar(scale); o.position.set(...pos); o.rotation.y = rotY; S.add(o); return o; }
+async function prop(path, h, pos, rotY = 0) { const o = (await gl.loadAsync(path)).scene; const b = new THREE.Box3().setFromObject(o); o.scale.setScalar(h / (b.max.y - b.min.y)); const b2 = new THREE.Box3().setFromObject(o); const c = b2.getCenter(new THREE.Vector3()); o.position.set(pos[0] - c.x, pos[1] - b2.min.y, pos[2] - c.z); o.rotation.y = rotY; o.traverse((m) => { if (m.isMesh) m.castShadow = m.receiveShadow = true; }); S.add(o); return o; }
+function softTex(col = '255,255,255', a = 0.6) { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, `rgba(${col},${a})`); g.addColorStop(1, `rgba(${col},0)`); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); }
+function clouds(n, y, spread, col, op, size = 6) { const t = softTex(); for (let i = 0; i < n; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, color: col, transparent: true, depthWrite: false, opacity: op * (0.5 + rnd() * 0.5) })); s.position.set((rnd() - 0.5) * spread, y + (rnd() - 0.5) * 2, -rnd() * spread * 0.6 - 2); const k = size * (0.6 + rnd()); s.scale.set(k * 1.6, k, 1); S.add(s); } }
+function skyAt(el, az, tb = 4, ray = 1.5) { const sky = new Sky(); sky.scale.setScalar(4000); const u = sky.material.uniforms; u.turbidity.value = tb; u.rayleigh.value = ray; u.mieCoefficient.value = 0.008; u.mieDirectionalG.value = 0.85; const sun = new THREE.Vector3().setFromSphericalCoords(1, THREE.MathUtils.degToRad(90 - el), THREE.MathUtils.degToRad(az)); u.sunPosition.value.copy(sun); S.add(sky); const pm = new THREE.PMREMGenerator(R); const sc = new THREE.Scene(); sc.add(sky.clone()); S.environment = pm.fromScene(sc).texture; return sun; }
+let bloom = [0.5, 0.5, 0.85];
+if (PH === 'devas') {   // devas on clouds of light, praying to Varaha (off-screen glow), Brahma at the centre
+  const sun = skyAt(3, 180, 8, 3); S.add(new THREE.HemisphereLight(0xffe0c0, 0x604070, 0.8));
+  const key = new THREE.DirectionalLight(0xffd090, 3); key.position.set(0, 6, 10); S.add(key);
+  clouds(70, -0.6, 30, 0xffe6d0, 0.55, 5); clouds(40, 3, 40, 0xffc0a0, 0.3, 8);
+  const brahma = await figure('Idle_relaxed', 0.5, gold(0.35), 1.25, [0, -0.2, -3]);
+  for (let i = 0; i < 6; i++) { const s = i < 3 ? -1 : 1, k = i % 3; await figure('Idle_arms_folded_waiting', 0.3 + i * 0.2, gold(0.15), 1.0, [s * (1.3 + k * 1.1), -0.3 - k * 0.1, -3.6 - k * 0.9], -s * 0.35); }
+  const halo = new THREE.Mesh(new THREE.RingGeometry(0.35, 0.42, 64), new THREE.MeshBasicMaterial({ color: 0xffd070, transparent: true, opacity: 0.8 })); halo.position.set(0, 1.95, -3.15); S.add(halo);
+  const glow = new THREE.PointLight(0xffc060, 15, 12, 1.5); glow.position.set(0, 3, -1); S.add(glow);
+  cam.position.set(Math.sin(ease * 0.4 - 0.2) * 1.5, 1.2 - ease * 0.2, 4.5 - ease * 1.5); cam.lookAt(0, 0.9, -3.5);
+} else if (PH === 'anthill') {   // dusk on the hill; a tall anthill glowing from within (Srinivasa in tapas)
+  const sun = skyAt(+(P.get('el') || 2), 250, 6, 2.5);
+  S.add(new THREE.HemisphereLight(0xffb080, 0x203018, 0.6)); const key = new THREE.DirectionalLight(0xffa060, 2.5); key.position.copy(sun).multiplyScalar(40); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10 }); S.add(key);
+  const tl = new THREE.TextureLoader(); const rt = await tl.loadAsync('ph/tex/rock_pitted_mossy/Diffuse.jpg'); rt.colorSpace = THREE.SRGBColorSpace; rt.wrapS = rt.wrapT = THREE.RepeatWrapping; rt.repeat.set(3, 3);
+  const gnd = new THREE.Mesh(new THREE.PlaneGeometry(200, 200, 100, 100), new THREE.MeshStandardMaterial({ color: 0x8a6a48, map: rt, roughness: 1 })); const gp = gnd.geometry.attributes.position;
+  for (let i = 0; i < gp.count; i++) { const x = gp.getX(i), y = gp.getY(i); gp.setZ(i, Math.sin(x * 0.15) * 0.6 + Math.cos(y * 0.12) * 0.8 - Math.max(0, (Math.hypot(x, y) - 12)) * 0.2); } gnd.geometry.computeVertexNormals(); gnd.rotation.x = -Math.PI / 2; gnd.receiveShadow = true; S.add(gnd);
+  // anthill: lathe profile with bumps and a few openings that glow gold
+  const prof = []; for (let i = 0; i <= 40; i++) { const t = i / 40; prof.push(new THREE.Vector2(1.5 * Math.pow(1 - t, 0.8) * (1 + 0.08 * Math.sin(t * 30)) + 0.05, t * 3.6)); }
+  const lg = new THREE.LatheGeometry(prof, 96); const lp = lg.attributes.position; for (let i = 0; i < lp.count; i++) { const x = lp.getX(i), y = lp.getY(i), z = lp.getZ(i); const n = 1 + 0.12 * Math.sin(y * 7 + Math.atan2(z, x) * 5) + 0.06 * Math.sin(y * 19 + x * 9); lp.setX(i, x * n); lp.setZ(i, z * n); } lg.computeVertexNormals();
+  const at = rt.clone(); at.repeat.set(4, 2); const ant = new THREE.Mesh(lg, new THREE.MeshStandardMaterial({ color: 0xb07a50, map: at, roughness: 1 })); ant.castShadow = ant.receiveShadow = true; S.add(ant);
+  const glowT = softTex('255,200,90', 1); for (const [a, h] of [[0.3, 0.6], [1.9, 1.3], [-0.9, 2.1], [0.8, 2.8]]) { const r = 1.5 * Math.pow(1 - h / 3.6, 0.8) + 0.1; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowT, color: 0xffc060, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false })); s.position.set(Math.cos(a) * r, h, Math.sin(a) * r); s.scale.set(0.5 + ease * 0.4, 0.5 + ease * 0.4, 1); S.add(s); }
+  const inner = new THREE.PointLight(0xffb040, 6 + ease * 8, 8, 1.6); inner.position.set(0, 1.8, 1.2); S.add(inner);
+  // forest around: Quaternius-style trees from the CC0 pack fallback = simple cones/blobs, darkened for dusk silhouette
+  for (let i = 0; i < 80; i++) { const a = rnd() * 6.28, d = 11 + rnd() * 40; const tr = new THREE.Group(); const h = 3 + rnd() * 5; const tk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, h, 6), new THREE.MeshStandardMaterial({ color: 0x2a1c12 })); tk.position.y = h / 2; tr.add(tk);
+    for (let k = 0; k < 4; k++) { const bl = new THREE.Mesh(new THREE.IcosahedronGeometry(1 + rnd() * 0.8, 1), new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(0.25 + rnd() * 0.05, 0.4, 0.08 + rnd() * 0.06), flatShading: true })); bl.position.set((rnd() - 0.5) * 1.5, h + (rnd() - 0.3) * 1.2, (rnd() - 0.5) * 1.5); tr.add(bl); }
+    tr.position.set(Math.cos(a) * d, 0, Math.sin(a) * d - 6); tr.traverse((m) => { if (m.isMesh) m.castShadow = true; }); S.add(tr); }
+  // fireflies of light rising
+  const ft = softTex('255,220,140', 1); for (let i = 0; i < 40; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: ft, color: 0xffd080, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false })); const l = (T * 0.15 + rnd()) % 1; s.position.set((rnd() - 0.5) * 3, 0.5 + l * 5, (rnd() - 0.5) * 3); const k = 0.06 + rnd() * 0.06; s.scale.set(k, k, 1); S.add(s); }
+  S.fog = new THREE.FogExp2(0xc08a70, 0.02);
+  cam.position.set(Math.sin(-0.3 + ease * 0.5) * (9.5 - ease * 3), 1.1 + ease * 0.5, Math.cos(-0.3 + ease * 0.5) * (9.5 - ease * 3)); cam.lookAt(0, 1.9, 0); bloom = [0.55, 0.5, 0.85];
+} else if (PH === 'vakula') {   // Vakula Devi at the hermitage at dusk, a brass lamp in her hand
+  const sun = skyAt(4, 260, 5, 2); S.add(new THREE.HemisphereLight(0xffd0a0, 0x302010, 0.7));
+  const key = new THREE.DirectionalLight(0xffb070, 2.2); key.position.copy(sun).multiplyScalar(30); key.castShadow = true; S.add(key);
+  const gnd = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0x6b5236, roughness: 1 })); gnd.rotation.x = -Math.PI / 2; gnd.receiveShadow = true; S.add(gnd);
+  const w = await prop('sf/saree_woman_anim/scene.gltf', 1.6, [0, 0, 0], 0.25);
+  w.traverse((b) => { if (b.isBone) { const n = b.name; const ax = P.get('ax') || 'x'; if (/LeftArm_/.test(n)) { b.rotation[ax] -= +(P.get('la') || -1.15); } if (/RightArm_/.test(n)) { b.rotation[ax] += +(P.get('ra') || 0.75); } if (/RightForeArm_/.test(n)) { b.rotation.z += +(P.get('rf') || -1.3); } if (/LeftForeArm_/.test(n)) { b.rotation.x -= +(P.get('lf') || 0); } if (/Spine1/.test(n)) b.rotation.x += 0.08; }
+    if (b.isMesh && b.material && b.material.color) { b.material = b.material.clone(); } });
+  w.traverse((m) => { if (m.isMesh && /hair/i.test(m.material.name || m.name)) m.material.color.set(0xbdb6ad); });
+  const lampHand = w.getObjectByProperty('name', 'mixamorig:RightHand_034') || null;
+  w.updateMatrixWorld(true); let hp = new THREE.Vector3(0.32, 1.1, 0.38); w.traverse((b) => { if (b.isBone && /RightHand_/.test(b.name)) b.getWorldPosition(hp); }); console.log('hand ' + hp.toArray().map((v) => v.toFixed(2)));
+  const lamp = await prop('sf/diya/scene.gltf', 0.22, [hp.x, hp.y - 0.12, hp.z + 0.04]);
+  const fl = new THREE.PointLight(0xffa040, 2.5 * (0.85 + 0.15 * Math.sin(T * 12)), 5, 1.6); fl.position.set(hp.x, hp.y + 0.16, hp.z + 0.06); S.add(fl);
+  const flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('255,190,80', 1), color: 0xffd080, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false })); flame.position.set(hp.x, hp.y + 0.11, hp.z + 0.05); flame.scale.set(0.07, 0.12, 1); S.add(flame);
+  // hermitage: thatched hut + tulasi platform behind
+  const hut = new THREE.Group(); const wall = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 2.2, 24), new THREE.MeshStandardMaterial({ color: 0xa07850, roughness: 1 })); wall.position.y = 1.1; hut.add(wall);
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(3, 2.2, 24), new THREE.MeshStandardMaterial({ color: 0x8a7040, roughness: 1 })); roof.position.y = 3.2; hut.add(roof); hut.position.set(-3.5, 0, -6); S.add(hut);
+  const tp = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), new THREE.MeshStandardMaterial({ color: 0xd8c8a8 })); tp.position.set(2.2, 0.45, -3); S.add(tp);
+  S.fog = new THREE.FogExp2(0xd0a080, 0.03);
+  cam.position.set(+(P.get('cx') || 1.2) - ease * 0.6, 1.35, +(P.get('cz') || 3.2) - ease * 1.0); cam.lookAt(0.1, 1.25, 0);
+} else if (PH === 'promise') {   // the golden promise: Srinivasa (golden form) gives his word to Varaha, light between them
+  const sun = skyAt(1.5, 270, 9, 3); S.add(new THREE.HemisphereLight(0xffb080, 0x302040, 0.5));
+  const gnd = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 1 })); gnd.rotation.x = -Math.PI / 2; S.add(gnd);
+  const v = (await gl.loadAsync('sf/varaha_avatar/scene.gltf')).scene; v.traverse((o) => { if (o.isMesh) o.material = gold(0.15); }); const b = new THREE.Box3().setFromObject(v); v.scale.setScalar(2.1 / (b.max.y - b.min.y)); const b2 = new THREE.Box3().setFromObject(v); v.position.set(-1.0 - (b2.min.x + b2.max.x) / 2, -b2.min.y, -(b2.min.z + b2.max.z) / 2); v.rotation.y = 0.9; S.add(v);
+  await figure('Idle_talking', 1.2, gold(0.2), 1.05, [1.0, 0, 0], -1.1);
+  const orb = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('255,215,120', 1), color: 0xffe0a0, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false })); const k = 0.25 + ease * 0.6; orb.scale.set(k, k, 1); orb.position.set(0, 1.35, 0.1); S.add(orb);
+  const ol = new THREE.PointLight(0xffc060, 2 + ease * 5, 8, 1.5); ol.position.set(0, 1.35, 0.4); S.add(ol);
+  for (let i = 0; i < 60; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('255,220,140', 1), color: 0xffd080, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0.6 * ease })); const a = rnd() * 6.28, r = 0.2 + rnd() * 1.6 * ease; s.position.set(Math.cos(a) * r, 1.35 + Math.sin(a) * r * 0.7, 0.1 + (rnd() - 0.5)); const q = 0.04 + rnd() * 0.05; s.scale.set(q, q, 1); S.add(s); }
+  // distant seven hills silhouette
+  for (let i = 0; i < 7; i++) { const m = new THREE.Mesh(new THREE.ConeGeometry(18 + rnd() * 10, 8 + rnd() * 8, 6), new THREE.MeshStandardMaterial({ color: 0x241820, roughness: 1 })); m.position.set(-60 + i * 20, 2, -70 - rnd() * 20); S.add(m); }
+  S.fog = new THREE.Fog(0xe08860, 30, 140);
+  cam.position.set(Math.sin(ease * 0.3) * 0.6, 1.4, 6.0 - ease * 1.2); cam.lookAt(0, 1.2, 0); bloom = [0.45, 0.5, 0.88];
+}
+const C = new EffectComposer(R); C.setSize(W, H); C.addPass(new RenderPass(S, cam)); C.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), ...bloom)); C.addPass(new OutputPass());
+C.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
+  fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec3 c = texture2D(tDiffuse, vUv).rgb; c *= mix(0.65, 1.0, smoothstep(0.9, 0.35, length(vUv - 0.5))); gl_FragColor = vec4(c, 1.); }' }));
+C.render(); window.DONE = true;
+</script></body></html>

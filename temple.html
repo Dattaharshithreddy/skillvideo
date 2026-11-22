@@ -1,0 +1,226 @@
+<!doctype html><html><body style="margin:0;background:#000">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { Sky } from 'three/addons/objects/Sky.js';
+import { Water } from 'three/addons/objects/Water.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+const P = new URLSearchParams(location.search); const W = +P.get('w') || 1080, H = +P.get('h') || 1920;
+const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+R.setSize(W, H); R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = +(P.get('exp') || 0.85);
+R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(R.domElement);
+const S = new THREE.Scene(); let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+// ---------- procedural textures ----------
+function noiseCanvas(n, base, vary, speck) {
+  const c = document.createElement('canvas'); c.width = c.height = n; const x = c.getContext('2d');
+  x.fillStyle = base; x.fillRect(0, 0, n, n);
+  for (let i = 0; i < n * n / 18; i++) { const v = (rnd() - 0.5) * vary; x.fillStyle = `rgba(${v > 0 ? 255 : 0},${v > 0 ? 255 : 0},${v > 0 ? 245 : 0},${Math.abs(v)})`; const s = 1 + rnd() * speck; x.fillRect(rnd() * n, rnd() * n, s, s); }
+  return c;
+}
+function blockTex(n, cols, rows, base) {   // dressed granite blocks with mortar joints
+  const c = noiseCanvas(n, base, 0.22, 3); const x = c.getContext('2d'); x.strokeStyle = 'rgba(40,34,28,0.55)'; x.lineWidth = 2;
+  for (let r = 0; r < rows; r++) { const y = r * n / rows; x.beginPath(); x.moveTo(0, y); x.lineTo(n, y); x.stroke();
+    const off = (r % 2) * n / cols / 2; for (let k = 0; k <= cols; k++) { x.beginPath(); x.moveTo(off + k * n / cols, y); x.lineTo(off + k * n / cols, y + n / rows); x.stroke(); } }
+  for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(30,25,20,${0.05 + rnd() * 0.08})`; x.beginPath(); x.ellipse(rnd() * n, rnd() * n, 10 + rnd() * 60, 5 + rnd() * 30, rnd() * 3, 0, 7); x.fill(); }   // weathering stains
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; return t;
+}
+const TL_ = new THREE.TextureLoader();
+async function pbr(id, rx, ry, tint) {
+  const ld = async (f, srgb) => { try { const t = await TL_.loadAsync(`ph/tex/${id}/${f}.jpg`); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); t.anisotropy = 16; if (srgb) t.colorSpace = THREE.SRGBColorSpace; return t; } catch { return null; } };
+  const [map, normalMap, arm, rough] = await Promise.all([ld('Diffuse', true), ld('nor_gl'), ld('arm'), ld('Rough')]);
+  return new THREE.MeshStandardMaterial({ map, normalMap, roughnessMap: rough || arm, aoMap: arm, roughness: 1, color: tint ?? 0xffffff });
+}
+const _gr = await pbr('granite_tile_04', 1, 1, 0xd8cfc0), _sb = await pbr('sandstone_blocks_05', 1, 1, 0xe6dccb), _fl = await pbr('rock_tile_floor', 1, 1, 0xd9d0c2);
+const _pl = await pbr('painted_plaster_wall', 1, 1, 0xfff6e6);
+function rep(m, rx, ry) { const c = m.clone(); for (const k of ['map', 'normalMap', 'roughnessMap', 'aoMap']) if (c[k]) { c[k] = c[k].clone(); c[k].repeat.set(rx, ry); c[k].needsUpdate = true; } return c; }
+const granite = (rx, ry) => rep(_sb, rx, ry);
+const granite_old = (rx, ry) => { const t = blockTex(512, 4, 6, '#9a8f80'); t.repeat.set(rx, ry); return new THREE.MeshStandardMaterial({ map: t, roughness: 0.92 }); };
+const plaster = rep(_pl, 0.5, 0.5);
+const gold = new THREE.MeshStandardMaterial({ color: 0xffc35a, metalness: 1, roughness: 0.22 });
+const redOchre = new THREE.MeshStandardMaterial({ color: 0xb0482f, roughness: 0.9 });
+// ---------- sky / light ----------
+const sky = new Sky(); sky.scale.setScalar(20000); S.add(sky);
+const elev = +(P.get('sunel') || 9), azi = +(P.get('sunaz') || 250);
+const sun = new THREE.Vector3().setFromSphericalCoords(1, THREE.MathUtils.degToRad(90 - elev), THREE.MathUtils.degToRad(azi));
+Object.assign(sky.material.uniforms, {}); const u = sky.material.uniforms; u.turbidity.value = 5; u.rayleigh.value = 1.8; u.mieCoefficient.value = 0.008; u.mieDirectionalG.value = 0.86; u.sunPosition.value.copy(sun);
+const hdr = await new RGBELoader().loadAsync(`ph/hdri/${P.get('hdri') || 'spruit_sunrise'}.hdr`); hdr.mapping = THREE.EquirectangularReflectionMapping;
+S.environment = hdr; S.environmentIntensity = +(P.get('envi') || 0.8); if (P.get('bg') !== 'sky') { S.background = hdr; S.backgroundIntensity = +(P.get('bgi') || 0.9); S.backgroundBlurriness = 0.02; sky.visible = false; }
+S.environmentRotation = new THREE.Euler(0, +(P.get('hrot') || 0), 0); S.backgroundRotation = S.environmentRotation;
+const dl = new THREE.DirectionalLight(0xffc88c, 4.5); dl.position.copy(sun).multiplyScalar(300); dl.castShadow = true; dl.shadow.mapSize.set(4096, 4096);
+Object.assign(dl.shadow.camera, { left: -140, right: 140, top: 140, bottom: -140, far: 800 }); dl.shadow.bias = -0.0004; dl.shadow.normalBias = 0.03; S.add(dl);
+S.add(new THREE.HemisphereLight(0xaac4ff, 0x5a4630, 0.45));
+S.fog = new THREE.FogExp2(0xd8b894, +(P.get('fd') || 0.0016));
+// ---------- ground ----------
+const gnd = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), rep(_fl, 1, 1)); gnd.rotation.x = -Math.PI / 2; gnd.receiveShadow = true; S.add(gnd);
+// ---------- Swami Pushkarini: stepped tank 100 x 60 m, 6 m deep ----------
+const TL = 100, TW = 60, STEPS = 14, SD = 0.42, ST = 0.55;
+const stepMat = new THREE.MeshStandardMaterial({ color: 0xe8d9a8, roughness: 0.85 }); const stepRed = new THREE.MeshStandardMaterial({ color: 0xa8322a, roughness: 0.8 });
+const tank = new THREE.Group(); S.add(tank);
+for (let i = 0; i < STEPS; i++) {
+  const l = TL - 2 * i * ST, w = TW - 2 * i * ST, y = -i * SD;
+  for (const [sx, sz, len, rot] of [[0, -w / 2 + ST / 2, l, 0], [0, w / 2 - ST / 2, l, 0], [-l / 2 + ST / 2, 0, w, Math.PI / 2], [l / 2 - ST / 2, 0, w, Math.PI / 2]]) {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(len, SD, ST), i % 3 === 0 ? stepRed : stepMat); b.position.set(sx, y - SD / 2, sz); b.rotation.y = rot; b.castShadow = b.receiveShadow = true; tank.add(b);
+  }
+}
+// hole in the ground: four border slabs instead of full plane under the tank
+gnd.geometry = new THREE.PlaneGeometry(2000, 2000);
+{ const shape = new THREE.Shape(); shape.moveTo(-1000, -1000); shape.lineTo(1000, -1000); shape.lineTo(1000, 1000); shape.lineTo(-1000, 1000);
+  const hole = new THREE.Path(); hole.moveTo(-TL / 2, -TW / 2); hole.lineTo(-TL / 2, TW / 2); hole.lineTo(TL / 2, TW / 2); hole.lineTo(TL / 2, -TW / 2); shape.holes.push(hole);
+  gnd.geometry = new THREE.ShapeGeometry(shape); const uv = gnd.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 8, uv.getY(i) / 8); gnd.material.map.repeat.set(1, 1); }
+// water with procedural normal map
+const nc = document.createElement('canvas'); nc.width = nc.height = 512; { const x = nc.getContext('2d'); const im = x.createImageData(512, 512);
+  for (let j = 0; j < 512; j++) for (let i = 0; i < 512; i++) { let dx = 0, dy = 0; for (let k = 1; k < 6; k++) { const f = k * 2 * Math.PI / 512 * (k * 3); dx += Math.cos(i * f + k * 1.7 + Math.sin(j * f * 0.7)) / k; dy += Math.cos(j * f + k * 2.3 + Math.sin(i * f * 0.6)) / k; }
+    const p = (j * 512 + i) * 4; im.data[p] = 128 + dx * 30; im.data[p + 1] = 128 + dy * 30; im.data[p + 2] = 255; im.data[p + 3] = 255; } x.putImageData(im, 0, 0); }
+const wn = new THREE.CanvasTexture(nc); wn.wrapS = wn.wrapT = THREE.RepeatWrapping;
+const water = new Water(new THREE.PlaneGeometry(TL, TW), { textureWidth: 1024, textureHeight: 1024, waterNormals: wn, sunDirection: sun.clone().normalize(), sunColor: 0xffd9a0, waterColor: 0x2a8f8a, distortionScale: 0.5, fog: true });
+water.rotation.x = -Math.PI / 2; water.position.y = -3.4; water.material.uniforms.size.value = 6; S.add(water);
+// central Neerazhi mandapam: four-pillared pavilion on a plinth
+function mandapam(sc) {
+  const g = new THREE.Group(); const base = new THREE.Mesh(new THREE.BoxGeometry(8, 1.2, 8), granite(2, 1)); base.position.y = 0.6; g.add(base);
+  for (const [x, z] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.6, 5, 0.6), granite(0.3, 2)); p.position.set(x, 3.7, z); g.add(p); }
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(9, 0.7, 9), plaster); roof.position.y = 6.5; g.add(roof);
+  for (let i = 0; i < 3; i++) { const t = new THREE.Mesh(new THREE.BoxGeometry(6 - i * 1.7, 1, 6 - i * 1.7), plaster); t.position.y = 7.3 + i; g.add(t); }
+  const k = new THREE.Mesh(new THREE.SphereGeometry(0.7, 20, 14), gold); k.position.y = 10.3; k.scale.y = 1.4; g.add(k);
+  g.traverse((o) => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }); g.scale.setScalar(sc); return g;
+}
+const mdp = mandapam(1); mdp.position.set(0, -3.6, 0); S.add(mdp);
+// ---------- Dravidian vimana / gopuram builder ----------
+function kuduRow(len, y, depth, n, g, mat) {   // row of small arched niches (kudus) along a tier face
+  for (let i = 0; i < n; i++) { const a = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.25, 12, 1, false, 0, Math.PI), mat); a.rotation.set(Math.PI / 2, 0, Math.PI / 2); a.position.set(-len / 2 + (i + 0.5) * len / n, y, depth); g.add(a); }
+}
+function tower({ w, d, tiers, th, shrink, mat, topMat, shala }) {
+  const g = new THREE.Group(); let y = 0, cw = w, cd = d;
+  for (let i = 0; i < tiers; i++) {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(cw, th, cd), mat); b.position.y = y + th / 2; g.add(b);
+    const cornice = new THREE.Mesh(new THREE.BoxGeometry(cw + 0.5, 0.35, cd + 0.5), mat); cornice.position.y = y + th; g.add(cornice);
+    for (const s of [1, -1]) { const row = new THREE.Group(); kuduRow(cw, 0, 0, Math.max(2, Math.round(cw / 1.4)), row, mat); row.position.set(0, y + th * 0.55, s * (cd / 2 + 0.05)); g.add(row);
+      const r2 = new THREE.Group(); kuduRow(cd, 0, 0, Math.max(2, Math.round(cd / 1.4)), r2, mat); r2.rotation.y = Math.PI / 2; r2.position.set(s * (cw / 2 + 0.05), y + th * 0.55, 0); g.add(r2); }
+    y += th + 0.35; cw *= shrink; cd *= shrink;
+  }
+  if (shala) {   // barrel-vault crown of a gopuram
+    const v = new THREE.Mesh(new THREE.CylinderGeometry(cd * 0.75, cd * 0.75, cw * 1.05, 24, 1, false, 0, Math.PI), topMat); v.rotation.set(0, 0, Math.PI / 2); v.rotation.x = Math.PI / 2; v.rotation.z = Math.PI / 2; v.position.y = y; g.add(v);
+    const vv = new THREE.Mesh(new THREE.CylinderGeometry(cd * 0.75, cd * 0.75, cw * 1.05, 24, 1, false, -Math.PI / 2, Math.PI), topMat); vv.rotation.z = Math.PI / 2; vv.position.y = y; g.add(vv); g.remove(v);
+    const n = Math.max(3, Math.round(cw / 1.6)); for (let i = 0; i < n; i++) { const k = new THREE.Mesh(new THREE.SphereGeometry(0.35, 14, 10), gold); k.scale.y = 1.6; k.position.set(-cw * 0.45 + i * cw * 0.9 / (n - 1), y + cd * 0.78, 0); g.add(k); }
+  } else {   // octagonal/round shikhara with a single kalasha
+    const sh = new THREE.Mesh(new THREE.SphereGeometry(cw * 0.62, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), topMat); sh.position.y = y; sh.scale.y = 1.15; g.add(sh);
+    const k = new THREE.Mesh(new THREE.SphereGeometry(cw * 0.16, 18, 12), gold); k.scale.y = 1.7; k.position.y = y + cw * 0.78; g.add(k);
+    const sp = new THREE.Mesh(new THREE.ConeGeometry(cw * 0.05, cw * 0.35, 10), gold); sp.position.y = y + cw * 1.0; g.add(sp);
+  }
+  g.traverse((o) => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }); return g;
+}
+// Sri Varaha Swamy temple: NW corner of the tank, facing east
+const varaha = new THREE.Group(); S.add(varaha);
+{ const wallM = granite(6, 1);
+  const cw = 26, cd = 22, wh = 4.5; const walls = [[0, -cd / 2, cw, 0.8], [0, cd / 2, cw, 0.8], [-cw / 2, 0, 0.8, cd]];
+  for (const [x, z, a, b] of walls) { const m = new THREE.Mesh(new THREE.BoxGeometry(a, wh, b), wallM); m.position.set(x, wh / 2, z); m.castShadow = m.receiveShadow = true; varaha.add(m); }
+  for (const z of [-cd / 4 - 2.2, cd / 4 + 2.2]) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.8, wh, cd / 2 - 4.4), wallM); m.position.set(cw / 2, wh / 2, z * 1.0); varaha.add(m); }
+  // red-and-white stripes typical of temple walls
+  for (const [x, z, a, b] of walls) for (let s = 0; s < 6; s++) { const st = new THREE.Mesh(new THREE.BoxGeometry(a + 0.02, 0.35, b + 0.02), s % 2 ? plaster : redOchre); st.position.set(x, 1.2 + s * 0.4, z); varaha.add(st); }
+  const gop = tower({ w: 9, d: 5, tiers: 4, th: 2.4, shrink: 0.82, mat: plaster, topMat: plaster, shala: true }); gop.position.set(cw / 2, 0, 0); gop.rotation.y = Math.PI / 2; varaha.add(gop);
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.9, 3.4, 2.4), new THREE.MeshStandardMaterial({ color: 0x2a1a10, roughness: 0.6 })); door.position.set(cw / 2 + 0.1, 1.7, 0); varaha.add(door);
+  const sanctum = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 8), plaster); sanctum.position.set(-5, 3, 0); sanctum.castShadow = sanctum.receiveShadow = true; varaha.add(sanctum);
+  const vim = tower({ w: 7.5, d: 7.5, tiers: 3, th: 2, shrink: 0.78, mat: plaster, topMat: gold }); vim.position.set(-5, 6, 0); varaha.add(vim);
+  const mand = new THREE.Mesh(new THREE.BoxGeometry(9, 4.6, 9), plaster); mand.position.set(4.5, 2.3, 0); mand.castShadow = mand.receiveShadow = true; varaha.add(mand);
+  const flag = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.25, 14, 12), gold); flag.position.set(9, 7, 0); flag.castShadow = true; varaha.add(flag);
+}
+varaha.position.set(-TL / 2 - 16, 0, -TW / 2 - 14);
+// Ananda Nilayam (golden vimana) inside the main temple, south of the tank, with the big east gopuram
+const main = new THREE.Group(); S.add(main);
+{ const wallM = granite(30, 1); for (const [x, z, a, b] of [[0, -55, 170, 1.5], [0, 55, 170, 1.5], [-85, 0, 1.5, 110], [85, 0, 1.5, 110]]) { const m = new THREE.Mesh(new THREE.BoxGeometry(a, 9, b), wallM); m.position.set(x, 4.5, z); m.castShadow = m.receiveShadow = true; main.add(m); }
+  const an = tower({ w: 13, d: 13, tiers: 3, th: 3.2, shrink: 0.8, mat: gold, topMat: gold }); an.position.set(0, 9, 0); main.add(an);
+  const ab = new THREE.Mesh(new THREE.BoxGeometry(14, 9, 14), plaster); ab.position.y = 4.5; main.add(ab);
+  const mg = tower({ w: 26, d: 13, tiers: 7, th: 4, shrink: 0.88, mat: plaster, topMat: plaster, shala: true }); mg.position.set(85, 0, 0); mg.rotation.y = Math.PI / 2; main.add(mg);
+}
+main.position.set(-10, 0, TW / 2 + 95);
+// ---- CC0 Innerscene gopuram complex replaces the blockout temples ----
+if (P.get('glb') !== '0') {
+  const gl = await new GLTFLoader().loadAsync('ua/gopuram.glb'); const base = gl.scene;
+  base.traverse((o) => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; if (o.material.map) o.material.map.anisotropy = 16; } });
+  // which way does the gopuram face? (vector from complex centre to the gopuram base)
+  const ctr = new THREE.Box3().setFromObject(base).getCenter(new THREE.Vector3());
+  const gc = new THREE.Box3().setFromObject(base.getObjectByName('Gopuram_base')).getCenter(new THREE.Vector3());
+  const face = Math.atan2(gc.x - ctr.x, gc.z - ctr.z);   // yaw of the gopuram direction
+  const place = (obj, pos, scale, yawTo) => { const w = new THREE.Group(); obj.position.sub(new THREE.Vector3(ctr.x, 0, ctr.z)); w.add(obj); w.scale.setScalar(scale); w.rotation.y = yawTo - face; w.position.copy(pos); S.add(w); w.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(w); console.log('placed ' + JSON.stringify([bb.min, bb.max])); return w; };
+  varaha.visible = false; main.visible = false;
+  // Varaha Swamy temple: NW corner of the tank, gopuram facing east (+x)
+  { // Real Varaha temple (from YouTube reference): white flat-roofed pillared front hall with a sculpted parapet,
+  // compact golden vimana behind, red-and-white striped steps down to the tank. No tall gopuram.
+  const v1 = base.clone(true); const g1 = gold.clone(); g1.color.set(0xffcf5a);
+  for (const n of ['Gopuram_base', 'Gopuram_tiers', 'Crown', 'Tier_cornices', 'Tier_ornament', 'Tier_shrines', 'Lattices', 'Doors', 'Door_fittings', 'Kalashas', 'Flagstaff']) { const o = v1.getObjectByName(n); if (o) o.visible = false; }
+  for (const n of ['Vimana', 'Vimana_dome', 'Vimana_tiers']) { const o = v1.getObjectByName(n); if (o) o.traverse((q) => { if (q.isMesh) q.material = g1; }); }
+  const white = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.8 });
+  for (const n of ['Mandapa', 'Mandapa_pillars', 'Enclosure_walls', 'Base_mouldings']) { const o = v1.getObjectByName(n); if (o) o.traverse((q) => { if (q.isMesh) q.material = white; }); }
+  const w = place(v1, new THREE.Vector3(-TL / 2 - 14, 0, -TW / 2 - 12), +(P.get('vs') || 0.75), Math.PI / 2);
+  // front hall facing the tank: pillars, flat roof, blue canopy, parapet of small niches
+  const hall = new THREE.Group(); const hw = 22, hd = 7, hh = 4.2;
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(hd, 0.5, hw), white); roof.position.y = hh; hall.add(roof);
+  const can = new THREE.Mesh(new THREE.BoxGeometry(hd + 2.5, 0.12, hw + 1), new THREE.MeshStandardMaterial({ color: 0x2f6fc0, roughness: 0.5 })); can.position.set(1.2, hh - 0.35, 0); can.rotation.z = -0.08; hall.add(can);
+  for (let i = 0; i < 8; i++) for (const x of [-hd / 2 + 0.4, hd / 2 - 0.4]) { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, hh, 12), white); p.position.set(x, hh / 2, -hw / 2 + 0.6 + i * (hw - 1.2) / 7); hall.add(p); }
+  const par = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.3, hw), white); par.position.set(-hd / 2 + 0.3, hh + 0.9, 0); hall.add(par);
+  for (let i = 0; i < 12; i++) { const n = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.3, 16, 1, false, 0, Math.PI), new THREE.MeshStandardMaterial({ color: 0x6fa8dc, roughness: 0.6 })); n.rotation.set(0, Math.PI / 2, Math.PI / 2); n.rotation.order = 'YXZ'; n.position.set(hd / 2 + 0.05, hh + 1.0, -hw / 2 + 1 + i * (hw - 2) / 11); n.rotation.set(Math.PI / 2, 0, 0); n.rotation.y = Math.PI / 2; hall.add(n);
+    const fig = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.45, 4, 8), new THREE.MeshStandardMaterial({ color: 0xf2efe6 })); fig.position.set(hd / 2 + 0.12, hh + 0.95, -hw / 2 + 1 + i * (hw - 2) / 11); hall.add(fig); }
+  for (let s = 0; s < 8; s++) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.25, hw), s % 2 ? white : redOchre); st.position.set(hd / 2 + 0.6 + s * 0.5, 0.125 - s * 0.25, 0); hall.add(st); }
+  hall.traverse((o) => { if (o.isMesh) o.castShadow = o.receiveShadow = true; });
+  hall.position.set(-TL / 2 - 4, 0, -TW / 2 - 12); S.add(hall); }
+// main temple far south: same complex, vimana gilded -> Ananda Nilayam stand-in
+  const m2 = base.clone(true); const gold2 = gold.clone();
+  for (const n of ['Vimana', 'Vimana_dome', 'Vimana_tiers']) { const o = m2.getObjectByName(n); if (o) o.traverse((q) => { if (q.isMesh) q.material = gold2; }); }
+  place(m2, new THREE.Vector3(-10, 0, TW / 2 + 95), 1.5, Math.PI / 2);
+  // Pushkarini mandapam: CC0 pillared porch
+  try { const pg = await new GLTFLoader().loadAsync('ua/017_Pillared_Porch_Indian_Bazaar_Street_and_Temple.glb'); pg.scene.traverse((o) => { if (o.isMesh) o.castShadow = o.receiveShadow = true; });
+    mdp.visible = false; pg.scene.scale.setScalar(3.6); pg.scene.position.set(0, -3.6, 0); S.add(pg.scene);
+    pg.scene.updateMatrixWorld(true); const top = new THREE.Box3().setFromObject(pg.scene).max.y; console.log('porch top ' + top); const g3 = gold.clone(); g3.color.set(0xffcf5a);
+    for (let i = 0; i < 4; i++) { const t = new THREE.Mesh(new THREE.BoxGeometry(6.4 - i * 1.4, 0.9, 6.4 - i * 1.4), g3); t.position.set(0, top + 0.45 + i * 0.9, 0); t.castShadow = true; S.add(t); }
+    const dm = new THREE.Mesh(new THREE.SphereGeometry(1.1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), g3); dm.position.set(0, top + 3.6, 0); dm.scale.y = 1.3; S.add(dm);
+    const k = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 12), g3); k.scale.y = 1.6; k.position.set(0, top + 5.2, 0); S.add(k);
+    for (let i = 0; i < 6; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(9.2, 0.35, 9.2), i % 2 ? new THREE.MeshStandardMaterial({ color: 0xf4f1ea }) : redOchre); b.position.set(0, -3.6 - 0.175 - i * 0.35 + 0.1, 0); S.add(b); } } catch (e) { console.log('porch', e); }
+}
+// distant hills ring (silhouette)
+{ const hg = new THREE.CylinderGeometry(900, 900, 1, 128, 1, true); const pp = hg.attributes.position; for (let i = 0; i < pp.count; i++) if (pp.getY(i) > 0) pp.setY(i, 40 + 60 * Math.abs(Math.sin(i * 0.21) * Math.cos(i * 0.07)) + 30 * Math.sin(i * 0.9) ** 2); hg.computeVertexNormals();
+  const hl = new THREE.Mesh(hg, new THREE.MeshStandardMaterial({ color: 0x3d4a32, roughness: 1, side: THREE.BackSide })); S.add(hl); }
+// trees around the precinct (instanced: trunk + 3 blobs)
+{ const blob = new THREE.IcosahedronGeometry(1, 1); const parts = [];
+  const tr = new THREE.CylinderGeometry(0.18, 0.28, 3, 6); tr.translate(0, 1.5, 0); parts.push(tr);
+  for (const [x, y, z, s] of [[0, 3.6, 0, 1.6], [0.9, 3.1, 0.3, 1.1], [-0.8, 3.3, -0.4, 1.2], [0.2, 4.6, 0.1, 1.0]]) { const b = blob.clone(); b.scale(s, s * 0.85, s); b.translate(x, y, z); parts.push(b); }
+  const tg = mergeGeometries(parts.map((p) => p.toNonIndexed()));
+  const im = new THREE.InstancedMesh(tg, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, flatShading: true }), 1400); const m = new THREE.Matrix4(); const c = new THREE.Color(); let n = 0;
+  for (let i = 0; i < 6000 && n < 1400; i++) { const x = (rnd() - 0.5) * 900, z = (rnd() - 0.5) * 900;
+    if (Math.abs(x) < TL / 2 + 40 && Math.abs(z) < TW / 2 + 30) continue; if (Math.abs(x + 10) < 95 && z > TW / 2 + 30 && z < TW / 2 + 160) continue; if (Math.abs(x + 66) < 22 && Math.abs(z + 44) < 18) continue;
+    const s = 1.2 + rnd() * 1.6; m.compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rnd() * 6.3, 0)), new THREE.Vector3(s, s * (0.9 + rnd() * 0.4), s));
+    im.setMatrixAt(n, m); im.setColorAt(n, c.setHSL(0.24 + rnd() * 0.08, 0.45, 0.16 + rnd() * 0.1)); n++; }
+  im.count = n; im.castShadow = im.receiveShadow = true; S.add(im); }
+// ---------- cameras ----------
+const shot = P.get('shot') || 'hero';
+const cam = new THREE.PerspectiveCamera(+(P.get('fov') || 40), W / H, 0.3, 5000);
+const vp = new THREE.Vector3(-TL / 2 - 16, 6, -TW / 2 - 14);
+if (shot === 'hero') { cam.position.set(-5, 1.7, TW / 2 + 3); cam.lookAt(vp.x + 10, 6, vp.z); }            // eye level, across the water toward the Varaha temple
+else if (shot === 'drone') { cam.position.set(70, 55, 90); cam.lookAt(-15, 0, 10); }
+else if (shot === 'gate') { cam.position.set(vp.x + 40, 1.6, vp.z + 6); cam.lookAt(vp.x + 6, 7, vp.z); }
+{ const T_ = +(P.get('t') || 0), DUR_ = +(P.get('dur') || 6), q = Math.min(1, T_ / DUR_), e_ = q * q * (3 - 2 * q);
+  const tgt = new THREE.Vector3(); cam.getWorldDirection(tgt); const look = cam.position.clone().add(tgt.multiplyScalar(10));
+  const orb = +(P.get('orbit') || 0.15) * (e_ - 0.5), push = +(P.get('push') || 0.18) * e_;
+  const off = cam.position.clone().sub(look); off.applyAxisAngle(new THREE.Vector3(0, 1, 0), orb); off.multiplyScalar(1 - push); cam.position.copy(look).add(off); cam.position.y += +(P.get('rise') || 0) * e_; cam.lookAt(look); }
+const C = new EffectComposer(R); C.setSize(W, H); C.addPass(new RenderPass(S, cam));
+const ao = new GTAOPass(S, cam, W, H); ao.updateGtaoMaterial({ radius: 1.2, distanceExponent: 1.5, thickness: 2, scale: 1.2 }); ao.blendIntensity = 0.9; C.addPass(ao);
+C.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.35, 0.6, 0.85));
+C.addPass(new OutputPass());
+C.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null }, t: { value: 1.7 } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float t; varying vec2 vUv; float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+  void main(){ vec3 c = texture2D(tDiffuse, vUv).rgb;
+    c = mix(c, c * vec3(1.06, 1.0, 0.9), 0.6);                       // warm grade
+    vec3 l = vec3(dot(c, vec3(0.299,0.587,0.114))); c = mix(l, c, 1.12); // a touch more saturation
+    c = pow(c, vec3(1.04));
+    float v = smoothstep(0.95, 0.35, length(vUv - 0.5)); c *= mix(0.72, 1.0, v); // vignette
+    c += (h(vUv * 1000. + t) - 0.5) * 0.018;                          // film grain
+    gl_FragColor = vec4(c, 1.); }` }));
+C.render(); window.DONE = true;
+</script></body></html>

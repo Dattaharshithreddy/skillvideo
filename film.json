@@ -1,0 +1,18 @@
+{ "fps": 24, "duration": 110.5,
+  "shots": [
+  { "s": 0.0,   "e": 5.6,   "page": "terrain.html", "q": "shot=aerial&push=0.35&orbit=0.25" },
+  { "s": 5.6,   "e": 11.13, "page": "temple.html",  "q": "shot=hero&push=0.15&orbit=0.1" },
+  { "s": 11.13, "e": 19.0,  "page": "ocean.html",   "q": "phase=sink" },
+  { "s": 19.0,  "e": 26.8,  "page": "ocean.html",   "q": "phase=lift" },
+  { "s": 26.8,  "e": 33.4,  "page": "story.html",   "q": "phase=devas" },
+  { "s": 33.4,  "e": 43.73, "page": "terrain.html", "q": "shot=dawn&sunel=4&push=0.3&orbit=0.3" },
+  { "s": 43.73, "e": 54.96, "page": "story.html",   "q": "phase=anthill" },
+  { "s": 54.96, "e": 61.0,  "page": "story.html",   "q": "phase=promise&ph2=ask" },
+  { "s": 61.0,  "e": 70.2,  "page": "story.html",   "q": "phase=vakula" },
+  { "s": 70.2,  "e": 73.95, "page": "temple.html",  "q": "shot=drone&hdri=golden_bay&push=0.2" },
+  { "s": 73.95, "e": 84.2,  "page": "story.html",   "q": "phase=promise" },
+  { "s": 84.2,  "e": 90.0,  "page": "idol.html",    "q": "img=priv/ref_varaha_full.png&dep=priv/ref_varaha_full_depth.png&aarti=1" },
+  { "s": 90.0,  "e": 94.07, "page": "temple.html",  "q": "shot=gate&push=0.25&orbit=0.2" },
+  { "s": 94.07, "e": 97.73, "page": "idol.html",    "q": "img=priv/ref_varaha_full.png&dep=priv/ref_varaha_full_depth.png&aarti=0" },
+  { "s": 97.73, "e": 104.0, "page": "view3d.html",  "q": "f=priv/glb/ref_varaha_photo_3d.glb" },
+  { "s": 104.0, "e": 110.5, "page": "terrain.html", "q": "shot=aerial&push=-0.4&rise=40&orbit=-0.3" } ] }

@@ -1,0 +1,18 @@
+<!doctype html><html><body style="margin:0;background:#000">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+const P = new URLSearchParams(location.search); const W = +P.get('w') || 512, H = +P.get('h') || 512;
+const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setSize(W, H);
+R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.0; R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; document.body.appendChild(R.domElement);
+const S = new THREE.Scene(); const hdr = await new RGBELoader().loadAsync('ph/hdri/spruit_sunrise.hdr'); hdr.mapping = THREE.EquirectangularReflectionMapping; S.environment = hdr; S.background = new THREE.Color(0x080503); R.toneMappingExposure = 0.9;
+const d = new THREE.DirectionalLight(0xffc890, 1.6); d.position.set(2, 3, 6); S.add(d); const l1 = new THREE.PointLight(0xffa040, 3, 6, 1.5); l1.position.set(-0.9, 0.4, 1.2); S.add(l1); const l2 = new THREE.PointLight(0xffa040, 3, 6, 1.5); l2.position.set(0.9, 0.4, 1.2); S.add(l2); S.environmentIntensity = 0.35;
+const g = await new GLTFLoader().loadAsync(P.get('f')); const o = g.scene; S.add(o);
+if (g.animations.length) { const mx = new THREE.AnimationMixer(o); const ai = +(P.get('anim') || 0); mx.clipAction(g.animations[Math.min(ai, g.animations.length - 1)]).play(); mx.update(+(P.get('at') || 1.0)); }
+const b = new THREE.Box3().setFromObject(o); const sz = b.getSize(new THREE.Vector3()); const c = b.getCenter(new THREE.Vector3());
+const cam = new THREE.PerspectiveCamera(35, W / H, 0.01, 1e6); const r = Math.max(sz.x, sz.y, sz.z);
+const T_ = +(P.get('t') || 0), D_ = +(P.get('dur') || 6), q_ = Math.min(1, T_ / D_); const ang = -0.45 + q_ * 0.9; cam.position.set(c.x + Math.sin(ang) * r * 1.25, c.y + r * 0.12, c.z + Math.cos(ang) * r * 1.25); cam.lookAt(c); R.render(S, cam);
+console.log(P.get('f'), 'size', sz.x.toFixed(2), sz.y.toFixed(2), sz.z.toFixed(2), 'anims', g.animations.map(a => a.name + ':' + a.duration.toFixed(1)).join(',')); window.DONE = true;
+</script></body></html>

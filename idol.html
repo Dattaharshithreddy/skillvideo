@@ -1,0 +1,58 @@
+<!doctype html><html><body style="margin:0;background:#000">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+// Sanctum: the real idol photo as a 2.5D relief (depth map), brass lamps with flickering flames, aarti plate, smoke.
+const P = new URLSearchParams(location.search); const W = +P.get('w') || 1080, H = +P.get('h') || 1920; const T = +(P.get('t') || 0);
+const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setSize(W, H);
+R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = +(P.get('exp') || 0.8); R.outputColorSpace = THREE.SRGBColorSpace; document.body.appendChild(R.domElement);
+const S = new THREE.Scene(); S.background = new THREE.Color(0x050302);
+// --- idol relief ---
+const tl = new THREE.TextureLoader();
+const photo = await tl.loadAsync(P.get('img') || 'priv/varaha_full.png'); photo.colorSpace = THREE.SRGBColorSpace; photo.anisotropy = 16;
+const depth = await tl.loadAsync(P.get('dep') || 'priv/varaha_full_depth.png');
+const asp = photo.image.width / photo.image.height, IH = 2.2, IW = IH * asp;
+const g = new THREE.PlaneGeometry(IW, IH, 400, Math.round(400 / asp));
+const mat = new THREE.MeshStandardMaterial({ map: photo, displacementMap: depth, displacementScale: +(P.get('ds') || 0.35), roughness: 0.6, metalness: 0.1, emissive: 0xffffff, emissiveMap: photo, emissiveIntensity: 0.06 });
+const idol = new THREE.Mesh(g, mat); idol.position.set(0, IH / 2, -0.2); S.add(idol);
+// --- lighting: warm lamp light from below-front, flicker ---
+const flick = (k) => 0.85 + 0.15 * Math.sin(T * 11.3 + k) * Math.sin(T * 7.1 + 2 * k);
+S.add(new THREE.AmbientLight(0x3a2614, 0.5));
+const lamps = [];
+for (const [x, k] of [[-1.05, 1], [1.05, 2]]) { const l = new THREE.PointLight(0xffa040, 1.6 * flick(k), 4, 1.6); l.position.set(x, 0.55, 0.45); S.add(l); lamps.push([x, k]); }
+const key = new THREE.SpotLight(0xffd29a, 2.2, 6, 0.55, 0.9, 1.2); key.position.set(0, 0.25, 1.6); key.target = idol; S.add(key);
+// --- props from Sketchfab (CC-BY) ---
+const gl = new GLTFLoader();
+async function prop(path, h, pos, rotY = 0) { try { const o = (await gl.loadAsync(path)).scene; const b = new THREE.Box3().setFromObject(o); const s = h / (b.max.y - b.min.y); o.scale.setScalar(s); const b2 = new THREE.Box3().setFromObject(o); const c = b2.getCenter(new THREE.Vector3()); o.position.set(pos[0] - c.x, pos[1] - b2.min.y, pos[2] - c.z); o.rotation.y = rotY; S.add(o); return o; } catch (e) { console.log('prop', path, e.message); } }
+await prop('sf/diya/scene.gltf', 1.0, [-1.05, -0.02, 0.45]); await prop('sf/diya/scene.gltf', 1.0, [1.05, -0.02, 0.45]);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.MeshStandardMaterial({ color: 0x2a1c12, roughness: 0.35, metalness: 0.2 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -0.02; S.add(floor);
+// flames: additive glowing sprites on the lamp cups + aarti flame
+function flameTex() { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d'); const gr = x.createRadialGradient(32, 90, 2, 32, 80, 60); gr.addColorStop(0, 'rgba(255,255,230,1)'); gr.addColorStop(0.25, 'rgba(255,200,80,0.95)'); gr.addColorStop(0.6, 'rgba(255,110,20,0.5)'); gr.addColorStop(1, 'rgba(255,60,0,0)'); x.fillStyle = gr; x.beginPath(); x.moveTo(32, 4); x.quadraticCurveTo(64, 80, 32, 124); x.quadraticCurveTo(0, 80, 32, 4); x.fill(); return new THREE.CanvasTexture(c); }
+const ft = flameTex(); const flames = [];
+for (const [x, k] of lamps) for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: ft, color: 0xffd080, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); const fl = flick(k + i); sp.scale.set(0.035, 0.07 * fl, 1); sp.position.set(x + Math.cos(a) * 0.11, 1.0, 0.45 + Math.sin(a) * 0.11); S.add(sp); }
+// aarti: camphor flame circling in front of the idol (clockwise, as in temple aarti)
+if (P.get('aarti') !== '0') {
+  const ph = T * 1.4; const ax = Math.sin(ph) * 0.32, ay = 1.05 + Math.cos(ph) * 0.32;
+  const plate = await prop('sf/aarti_thali/scene.gltf', 0.06, [ax, ay - 0.06, 0.55]);
+  const big = new THREE.Sprite(new THREE.SpriteMaterial({ map: ft, color: 0xfff0c0, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); big.scale.set(0.09, 0.2 * flick(9), 1); big.position.set(ax, ay + 0.06, 0.6); S.add(big);
+  const al = new THREE.PointLight(0xffb060, 1.5 * flick(5), 2.5, 1.5); al.position.set(ax, ay + 0.1, 0.7); S.add(al);
+}
+// smoke: soft drifting sprites
+{ const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); const gr = x.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,0.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128); const st = new THREE.CanvasTexture(c);
+  let s = 3; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 26; i++) { const life = (T * 0.12 + r()) % 1; const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: st, color: 0xd8c8b8, transparent: true, depthWrite: false, opacity: 0.10 * Math.sin(life * Math.PI) })); const z = 0.3 + r() * 0.5; sp.position.set((r() - 0.5) * 1.6 + Math.sin(T * 0.3 + i) * 0.1, 0.4 + life * 1.8, z); const sc = 0.4 + life * 0.9; sp.scale.set(sc, sc, 1); S.add(sp); } }
+// camera: slow push-in toward the faces
+const cam = new THREE.PerspectiveCamera(+(P.get('fov') || 32), W / H, 0.05, 50);
+const p = Math.min(1, T / +(P.get('dur') || 6)); const e = p * p * (3 - 2 * p);
+cam.position.set(Math.sin(e * 0.6 - 0.3) * 0.3, 1.0 + e * 0.2, 4.4 - e * 1.6); cam.lookAt(0, 1.2 + e * 0.25, 0);
+const C = new EffectComposer(R); C.setSize(W, H); C.addPass(new RenderPass(S, cam)); C.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.4, 0.45, 0.92)); C.addPass(new OutputPass());
+C.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
+  fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec3 c = texture2D(tDiffuse, vUv).rgb; c *= vec3(1.05,0.98,0.88); c *= mix(0.55, 1.0, smoothstep(0.9, 0.3, length(vUv - 0.5))); gl_FragColor = vec4(c, 1.); }' }));
+C.render(); window.DONE = true;
+</script></body></html>
