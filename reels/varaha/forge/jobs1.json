@@ -1,0 +1,276 @@
+{
+ "jobs": [
+  {
+   "name": "varaha_bhudevi_s11",
+   "mode": "2d",
+   "prompt": "Lord Adi Varaha, boar-headed four-armed Hindu god with blue skin, golden kireetam crown, holding goddess Bhudevi seated on his left lap, conch and discus in upper hands, temple sanctum, oil lamps, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "varaha_bhudevi_s23",
+   "mode": "2d",
+   "prompt": "Lord Adi Varaha, boar-headed four-armed Hindu god with blue skin, golden kireetam crown, holding goddess Bhudevi seated on his left lap, conch and discus in upper hands, temple sanctum, oil lamps, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "varaha_lift_s11",
+   "mode": "2d",
+   "prompt": "giant Lord Varaha boar avatar of Vishnu rising out of a dark cosmic ocean, lifting planet earth on his white tusks, huge waves, stars, epic scale, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "varaha_lift_s23",
+   "mode": "2d",
+   "prompt": "giant Lord Varaha boar avatar of Vishnu rising out of a dark cosmic ocean, lifting planet earth on his white tusks, huge waves, stars, epic scale, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "ocean_earth_s11",
+   "mode": "2d",
+   "prompt": "planet earth sinking into a dark endless cosmic ocean, ominous deep blue water, faint starlight, epic scale, no people, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "ocean_earth_s23",
+   "mode": "2d",
+   "prompt": "planet earth sinking into a dark endless cosmic ocean, ominous deep blue water, faint starlight, epic scale, no people, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "brahma_devas_s11",
+   "mode": "2d",
+   "prompt": "four-faced Lord Brahma on a pink lotus with devas praying with folded hands, clouds of heaven, soft golden light, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "brahma_devas_s23",
+   "mode": "2d",
+   "prompt": "four-faced Lord Brahma on a pink lotus with devas praying with folded hands, clouds of heaven, soft golden light, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "srinivasa_s11",
+   "mode": "2d",
+   "prompt": "Lord Srinivasa, young handsome blue-skinned prince form of Vishnu, simple yellow silk dhoti, tilak on forehead, walking on forest hills, gentle smile, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "srinivasa_s23",
+   "mode": "2d",
+   "prompt": "Lord Srinivasa, young handsome blue-skinned prince form of Vishnu, simple yellow silk dhoti, tilak on forehead, walking on forest hills, gentle smile, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "vakula_s11",
+   "mode": "2d",
+   "prompt": "Vakula Devi, kind elderly Indian mother in a simple saree, holding a brass lamp, devotional, gentle loving face, ancient forest hermitage, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "vakula_s23",
+   "mode": "2d",
+   "prompt": "Vakula Devi, kind elderly Indian mother in a simple saree, holding a brass lamp, devotional, gentle loving face, ancient forest hermitage, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "anthill_s11",
+   "mode": "2d",
+   "prompt": "a tall sacred anthill on a forested hilltop at dawn, soft divine light rays, ancient South Indian hills, no people, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "anthill_s23",
+   "mode": "2d",
+   "prompt": "a tall sacred anthill on a forested hilltop at dawn, soft divine light rays, ancient South Indian hills, no people, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "hiranyaksha_s11",
+   "mode": "2d",
+   "prompt": "demon king Hiranyaksha, dark-skinned asura with fierce face and golden armour, deep underwater palace, menacing but not gory, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "hiranyaksha_s23",
+   "mode": "2d",
+   "prompt": "demon king Hiranyaksha, dark-skinned asura with fierce face and golden armour, deep underwater palace, menacing but not gory, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "promise_s11",
+   "mode": "2d",
+   "prompt": "Lord Srinivasa and Lord Varaha facing each other, golden light between their hands as a sacred promise, temple hill at sunset, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "promise_s23",
+   "mode": "2d",
+   "prompt": "Lord Srinivasa and Lord Varaha facing each other, golden light between their hands as a sacred promise, temple hill at sunset, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "portrait",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "seven_hills_s11",
+   "mode": "2d",
+   "prompt": "the seven hills of Tirumala, Seshachalam forest ranges at sunrise, mist in valleys, aerial view, photoreal, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "landscape",
+   "seed": 11,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "seven_hills_s23",
+   "mode": "2d",
+   "prompt": "the seven hills of Tirumala, Seshachalam forest ranges at sunrise, mist in valleys, aerial view, photoreal, Hindu devotional art, divine golden glow, ornate gold jewellery, cinematic lighting, ultra detailed, masterpiece",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw",
+   "aspect": "landscape",
+   "seed": 23,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "fig_varaha_ref",
+   "mode": "2d",
+   "prompt": "Lord Adi Varaha, boar-headed four-armed Hindu god, blue skin, golden crown, holding goddess Bhudevi on his left arm, conch and discus, full body, standing, front view, plain white background, single figure, 3D sculpture render, painted bronze and gold",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw, background scenery, cropped",
+   "aspect": "portrait",
+   "seed": 7,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "fig_srinivasa_ref",
+   "mode": "2d",
+   "prompt": "Lord Srinivasa, young blue-skinned prince form of Vishnu, yellow silk dhoti, tilak, folded hands, full body, standing, front view, plain white background, single figure, 3D sculpture render, painted bronze and gold",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw, background scenery, cropped",
+   "aspect": "portrait",
+   "seed": 7,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "fig_vakula_ref",
+   "mode": "2d",
+   "prompt": "Vakula Devi, elderly Indian mother in simple saree holding a brass lamp, full body, standing, front view, plain white background, single figure, 3D sculpture render, painted bronze and gold",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw, background scenery, cropped",
+   "aspect": "portrait",
+   "seed": 7,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "fig_brahma_ref",
+   "mode": "2d",
+   "prompt": "four-faced Lord Brahma in red robes holding a palm-leaf book and water pot, full body, standing, front view, plain white background, single figure, 3D sculpture render, painted bronze and gold",
+   "negative": "ugly, deformed, extra limbs, bad anatomy, blurry, lowres, text, watermark, cartoon, gore, blood, nsfw, background scenery, cropped",
+   "aspect": "portrait",
+   "seed": 7,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "fig_varaha_3d",
+   "mode": "image",
+   "image_from": "fig_varaha_ref",
+   "texture": true,
+   "quality": "high",
+   "polycount": 60000
+  },
+  {
+   "name": "fig_srinivasa_3d",
+   "mode": "image",
+   "image_from": "fig_srinivasa_ref",
+   "texture": true,
+   "quality": "high",
+   "polycount": 60000
+  },
+  {
+   "name": "fig_vakula_3d",
+   "mode": "image",
+   "image_from": "fig_vakula_ref",
+   "texture": true,
+   "quality": "high",
+   "polycount": 60000
+  },
+  {
+   "name": "fig_brahma_3d",
+   "mode": "image",
+   "image_from": "fig_brahma_ref",
+   "texture": true,
+   "quality": "high",
+   "polycount": 60000
+  }
+ ]
+}
