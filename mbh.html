@@ -1,0 +1,215 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#000">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+// Mahabharata reel scenes: ?phase=<name>&t=<sec>&dur=<sec>&w&h
+import * as THREE from 'three';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { character, arrow } from './epic.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+const P = new URLSearchParams(location.search); const W = +P.get('w') || 720, H = +P.get('h') || 1280;
+const PH = P.get('phase') || 'kuru', T = +(P.get('t') || 0), DUR = +(P.get('dur') || 6), q = Math.min(1, T / DUR), ease = q * q * (3 - 2 * q);
+const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setSize(W, H); R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = +(P.get('exp') || 0.72);
+R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; document.body.appendChild(R.domElement);
+const S = new THREE.Scene(); const cam = new THREE.PerspectiveCamera(+(P.get('fov') || 40), W / H, 0.05, 3000);
+const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z); const lerp = THREE.MathUtils.lerp; const gl = new GLTFLoader();
+let rs = +(P.get('seed') || 7); const rnd = () => (rs = (rs * 16807) % 2147483647) / 2147483647;
+const texL = new THREE.TextureLoader(); const tex = (p, rep = 1, srgb = true) => { const t = texL.load(p); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep, rep); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
+const tryTex = async (p, rep, srgb) => { try { const r = await fetch(p, { method: 'HEAD' }); return r.ok ? tex(p, rep, srgb) : null; } catch { return null; } };
+let bloom = [0.35, 0.5, 0.85]; let focus = 0, aperture = 0.012; let grade = { warm: 1.0, teal: 1.0, sat: 1.12, con: 1.12 };
+
+// ---------- common builders ----------
+async function hdri(name, intensity = 0.8, bg = false) { const h = await new RGBELoader().loadAsync(`ph/hdri/${name}.hdr`); h.mapping = THREE.EquirectangularReflectionMapping; S.environment = h; S.environmentIntensity = intensity; if (bg) { S.background = h; S.backgroundIntensity = bg; } return h; }
+function sun(dir, col, I, box = 18, target = V()) { const l = new THREE.DirectionalLight(col, I); l.position.copy(target).add(dir.clone().normalize().multiplyScalar(60)); l.target.position.copy(target); S.add(l.target);
+  l.castShadow = true; l.shadow.mapSize.set(2048, 2048); l.shadow.bias = -0.0004; l.shadow.normalBias = 0.03; Object.assign(l.shadow.camera, { left: -box, right: box, top: box, bottom: -box, far: 200 }); S.add(l); return l; }
+function skyDome(top, mid, bot, sunDir, sunCol, sunSize = 0.03, clouds = 0) { // gradient sky, soft sun, optional fbm cloud deck lit by the sun
+  const m = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, uniforms: { t: { value: new THREE.Color(top) }, m: { value: new THREE.Color(mid) }, b: { value: new THREE.Color(bot) }, sd: { value: sunDir.clone().normalize() }, sc: { value: new THREE.Color(sunCol) }, ss: { value: sunSize }, cl: { value: clouds }, tm: { value: T } },
+    vertexShader: 'varying vec3 vd; void main(){ vd = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+    fragmentShader: `uniform vec3 t,m,b,sc,sd; uniform float ss, cl, tm; varying vec3 vd;
+      float hs(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+      float ns(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f); return mix(mix(hs(i), hs(i+vec2(1,0)), f.x), mix(hs(i+vec2(0,1)), hs(i+vec2(1,1)), f.x), f.y); }
+      float fbm(vec2 p){ float v = 0., a = 0.5; for (int i = 0; i < 6; i++) { v += a * ns(p); p *= 2.03; a *= 0.5; } return v; }
+      void main(){ float y = vd.y; vec3 c = y > 0. ? mix(m, t, pow(clamp(y,0.,1.),0.55)) : mix(m, b, clamp(-y*4.,0.,1.)); float d = max(dot(vd, sd), 0.);
+        c += sc * (smoothstep(1.-ss, 1.-ss*0.3, d) * 3. + pow(d, 60.) * 0.7 + pow(d, 6.) * 0.3);
+        if (cl > 0. && y > 0.0) { vec2 uv = vd.xz / (y + 0.12) * 1.6 + vec2(tm * 0.01, 0.);
+          float n = fbm(uv) * 0.75 + fbm(uv * 3.1 + 7.) * 0.35; float k = smoothstep(0.48, 0.85, n) * smoothstep(0.0, 0.12, y) * cl;
+          vec3 lit = mix(vec3(0.18, 0.09, 0.12), sc * 1.1, pow(d, 3.) * 0.9 + 0.12) ; lit += sc * pow(d, 16.) * 1.2 * (1. - smoothstep(0.6, 0.9, n));   // silver lining near the sun
+          c = mix(c, lit, k); }
+        gl_FragColor = vec4(c, 1.); }` });
+  const s = new THREE.Mesh(new THREE.SphereGeometry(1500, 48, 24), m); S.add(s); return s; }
+function embers(n, box, col = 0xffa040, size = 0.06) { const g = new THREE.BufferGeometry(); const p = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { const x = (rnd() - 0.5) * box.x, y = rnd() * box.y, z = (rnd() - 0.5) * box.z, sp = 0.3 + rnd() * 0.8; p.set([x + Math.sin(T * 0.7 + i) * 0.4, (y + T * sp) % box.y, z], i * 3); }
+  g.setAttribute('position', new THREE.BufferAttribute(p, 3)); const c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d'); const gr = x.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,200,120,0.8)'); gr.addColorStop(1, 'rgba(255,120,0,0)'); x.fillStyle = gr; x.fillRect(0, 0, 32, 32);
+  const pts = new THREE.Points(g, new THREE.PointsMaterial({ map: new THREE.CanvasTexture(c), color: col, size, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); S.add(pts); return pts; }
+function softTex(rgb, a = 1) { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(1, `rgba(${rgb},0)`); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); }
+function dustBank(n, area, col, op = 0.18, size = [8, 4]) { const t = softTex('255,255,255', 1); for (let i = 0; i < n; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, color: col, transparent: true, opacity: op * (0.5 + rnd() * 0.5), depthWrite: false }));
+    s.position.set((rnd() - 0.5) * area.x, size[1] * 0.35 + rnd() * 1.5, (rnd() - 0.5) * area.z + area.cz); s.scale.set(size[0] * (0.7 + rnd()), size[1] * (0.7 + rnd()), 1); s.material.rotation = rnd() * 6; S.add(s); } }
+function ground(map, rep, col = 0xffffff, size = 600) { const m = new THREE.MeshStandardMaterial({ color: col, roughness: 0.95 }); if (map) m.map = map; const g = new THREE.Mesh(new THREE.PlaneGeometry(size, size, 1, 1), m); g.rotation.x = -Math.PI / 2; g.receiveShadow = true; S.add(g); return g; }
+function flagTex(col, emblem) { const c = document.createElement('canvas'); c.width = 256; c.height = 160; const x = c.getContext('2d'); x.fillStyle = col; x.beginPath(); x.moveTo(0, 0); x.lineTo(256, 20); x.lineTo(200, 80); x.lineTo(256, 140); x.lineTo(0, 160); x.fill();
+  x.fillStyle = 'rgba(255,230,140,0.9)'; x.fillRect(0, 0, 256, 6); x.fillRect(0, 154, 256, 6);
+  if (emblem === 'hanuman') { x.font = 'bold 96px serif'; x.fillStyle = '#7a1010'; x.textAlign = 'center'; x.fillText('ॐ', 100, 112); } else if (emblem) { x.fillStyle = 'rgba(255,240,200,0.85)'; x.beginPath(); x.arc(96, 80, 34, 0, 6.3); x.fill(); x.fillStyle = col; x.beginPath(); x.arc(96, 80, 20, 0, 6.3); x.fill(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+function flag(col, h = 5, emblem = true, w = 1.6) { const g = new THREE.Group(); const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, h, 8), new THREE.MeshStandardMaterial({ color: 0x5a3a1e, roughness: 0.6 })); pole.position.y = h / 2; pole.castShadow = true; g.add(pole);
+  const geo = new THREE.PlaneGeometry(w, w * 0.62, 16, 4); const pos = geo.attributes.position; const ph = rnd() * 6;
+  for (let i = 0; i < pos.count; i++) { const x = pos.getX(i) + w / 2; pos.setZ(i, Math.sin(x * 3.2 - T * 6 + ph) * 0.12 * (x / w)); } geo.computeVertexNormals();
+  const f = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: flagTex(col, emblem), side: THREE.DoubleSide, roughness: 0.8 })); f.position.set(w / 2, h - w * 0.31 - 0.05, 0); f.castShadow = true; g.add(f);
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.25, 8), new THREE.MeshStandardMaterial({ color: 0xffc44a, metalness: 1, roughness: 0.3 })); tip.position.y = h + 0.12; g.add(tip); return g; }
+const goldM = (c = 0xffc54a, r = 0.3) => new THREE.MeshStandardMaterial({ color: c, metalness: 1, roughness: r });
+function chariot(flagCol = '#d65a1a', emblem = 'hanuman', umbrella = true) { // ornate two-wheeled war chariot, faces +Z
+  const g = new THREE.Group(); const wood = new THREE.MeshStandardMaterial({ color: 0x6a3a1a, roughness: 0.6 }), gold = goldM(), red = new THREE.MeshStandardMaterial({ color: 0x8e1b1b, roughness: 0.6 });
+  const deck = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.12, 1.5), wood); deck.position.y = 0.95; g.add(deck);
+  // carved front shield (curved), side rails
+  const front = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 1.0, 24, 1, true, -0.9, 1.8), gold); front.position.set(0, 1.5, -0.25); front.scale.set(0.9, 1, 0.9); g.add(front);
+  const fr2 = new THREE.Mesh(new THREE.CylinderGeometry(0.98, 0.98, 0.7, 24, 1, true, -0.9, 1.8), red); fr2.position.set(0, 1.5, -0.27); fr2.scale.set(0.9, 1, 0.9); fr2.material.side = THREE.BackSide; g.add(fr2);
+  for (const sx of [-0.85, 0.85]) { const r = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.6, 1.4), gold); r.position.set(sx, 1.3, -0.05); g.add(r); }
+  for (const sx of [-1.0, 1.0]) { const wh = new THREE.Group(); const rim = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.06, 8, 32), gold); wh.add(rim);
+    for (let k = 0; k < 12; k++) { const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.5, 6), wood); sp.rotation.z = k / 12 * Math.PI; wh.add(sp); }
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.22, 12), gold); hub.rotation.z = Math.PI / 2; wh.add(hub); wh.rotation.y = Math.PI / 2; wh.position.set(sx, 0.78, 0); g.add(wh); g.userData.wheels = (g.userData.wheels || []).concat(wh); }
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.2, 8), wood); pole.rotation.x = Math.PI / 2 - 0.12; pole.position.set(0, 0.9, 1.9); g.add(pole);
+  const fl = flag(flagCol, 4.2, emblem, 1.4); fl.position.set(0.55, 1.0, -0.6); g.add(fl);
+  if (umbrella) { const u = new THREE.Mesh(new THREE.ConeGeometry(1.1, 0.5, 24, 1, true), new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide, roughness: 0.7 })); u.position.set(-0.4, 3.6, -0.2); g.add(u);
+    const ur = new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.03, 6, 32), gold); ur.rotation.x = Math.PI / 2; ur.position.set(-0.4, 3.35, -0.2); g.add(ur);
+    const up = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.7, 6), gold); up.position.set(-0.4, 2.2, -0.2); g.add(up); }
+  g.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); return g; }
+async function horse(col = 0xf2efe8, gallop = true, ph = 0) { // realistic rigged horse (Henry S, CC-BY); white coat, no saddle
+  const gg = await (globalThis.__horse ??= gl.loadAsync('sf/horse/horse.glb')); const o = SkeletonUtils.clone(gg.scene);
+  const bb = new THREE.Box3().setFromObject(gg.scene); const s = 1.65 / Math.max(0.01, bb.max.y - bb.min.y); o.scale.setScalar(s); const holder = new THREE.Group(); holder.add(o); o.position.y = -bb.min.y * s;
+  o.traverse((m) => { if (!m.isMesh) return; m.castShadow = true; m.frustumCulled = false; const n = (m.material.name || '').toLowerCase();
+    if (n.includes('saddle')) m.visible = false; else if (n.includes('horse') || n.includes('hair')) { m.material = m.material.clone(); if (n.includes('horse')) { m.material.map = null; m.material.color = new THREE.Color(col); m.material.roughness = 0.55; } else m.material.color = new THREE.Color(col).multiplyScalar(1.4); } });
+  const clip = gg.animations.find((c) => /Gallop$/.test(c.name)) || gg.animations[0]; const idle = gg.animations.find((c) => /1 Ilde/.test(c.name));
+  const mx = new THREE.AnimationMixer(o); const c = gallop ? clip : (idle || clip); mx.clipAction(c).play(); mx.update(((T * (gallop ? 1.0 : 0.5) + ph) % c.duration));
+  // face +Z: find forward from head bone vs root
+  return holder; }
+// distant army: instanced soldiers (simple silhouettes) with spears and flags, in the haze
+function army(n, cx, cz, w, d, face = 0, col = 0x3a2a1c) { const body = new THREE.CapsuleGeometry(0.22, 1.0, 4, 8), spear = new THREE.CylinderGeometry(0.015, 0.015, 2.6, 4);
+  const mb = new THREE.InstancedMesh(body, new THREE.MeshStandardMaterial({ color: col, roughness: 0.8, metalness: 0.3 }), n), ms = new THREE.InstancedMesh(spear, new THREE.MeshStandardMaterial({ color: 0x8a7a5a }), n);
+  const m4 = new THREE.Matrix4(); for (let i = 0; i < n; i++) { const x = cx + (rnd() - 0.5) * w, z = cz + (rnd() - 0.5) * d, s = 0.9 + rnd() * 0.25;
+    m4.compose(V(x, 0.85 * s, z), new THREE.Quaternion(), V(s, s, s)); mb.setMatrixAt(i, m4); m4.compose(V(x + 0.3, 1.4, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0.12 * (rnd() - 0.5), 0, 0.1)), V(1, 1, 1)); ms.setMatrixAt(i, m4); }
+  mb.castShadow = true; S.add(mb, ms);
+  for (let i = 0; i < n / 25; i++) { const f = flag(['#d65a1a', '#6a2a8a', '#e0b020', '#b01818'][i % 4], 4 + rnd() * 2, true, 1.2); f.position.set(cx + (rnd() - 0.5) * w, 0, cz + (rnd() - 0.5) * d); f.rotation.y = face + 1.4 + (rnd() - 0.5) * 0.4; S.add(f); } }
+function arrowsFly(n, from, to, t0, col = 0xffb040, glow = true) { // a volley along an arc; returns group
+  const g = new THREE.Group(); for (let i = 0; i < n; i++) { const a = arrow(); const k = ((T - t0) * 0.8 + i / n * 0.5) % 1; if (T < t0) continue; const jitter = V((rnd() - 0.5) * 3, 0, (rnd() - 0.5) * 3);
+    const p0 = from.clone().add(jitter), p1 = to.clone().add(jitter.multiplyScalar(1.5)); const p = p0.clone().lerp(p1, k); p.y += Math.sin(k * Math.PI) * p0.distanceTo(p1) * 0.18;
+    const k2 = Math.min(1, k + 0.02); const pn = p0.clone().lerp(p1, k2); pn.y += Math.sin(k2 * Math.PI) * p0.distanceTo(p1) * 0.18; a.position.copy(p); a.lookAt(pn); a.scale.setScalar(1.4); g.add(a);
+    if (glow) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('255,190,90'), color: col, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false })); s.position.copy(p); s.scale.set(0.1, 0.1, 1); s.material.opacity = 0.5; g.add(s); } }
+  S.add(g); return g; }
+function glowSprite(pos, rgb, sc, op = 1) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex(rgb), transparent: true, opacity: op, blending: THREE.AdditiveBlending, depthWrite: false })); s.position.copy(pos); s.scale.set(sc, sc, 1); S.add(s); return s; }
+const place = (o, x, y, z, ry = 0) => { o.position.set(x, y, z); o.rotation.y = ry; S.add(o); return o; };
+const C = (n, pose, opt = {}) => character(n, { poseName: pose, ...opt });
+
+// ---------- scenes ----------
+async function warWorld(variant = 'dusk') { // Kurukshetra: dusty orange plain, haze, embers, flags, distant armies
+  const hs = await hdri('the_sky_is_on_fire', 0.55); const sd = V(-0.6, 0.18, -0.75);
+  skyDome(variant === 'dusk' ? '#1e1626' : '#40587a', variant === 'dusk' ? '#e0703a' : '#e8a870', '#6a4a32', sd, '#ffc070', 0.02, 1.0);   // fiery cloud deck like the epic's sunsets
+  S.fog = new THREE.FogExp2(variant === 'dusk' ? 0xc07848 : 0xcfa07a, 0.006);
+  const gm = (await tryTex('ph/tex/dry_ground_01/Diffuse.jpg', 90)); const gr = ground(gm, 90, gm ? 0xd0b090 : 0x9a7a56);
+  const gn = await tryTex('ph/tex/dry_ground_01/nor_gl.jpg', 90, false); if (gn) { gr.material.normalMap = gn; gr.material.normalScale.set(1.2, 1.2); }
+  { const rk = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(0.12, 0), new THREE.MeshStandardMaterial({ color: 0x7a6248, roughness: 1 }), 500); const m4 = new THREE.Matrix4();   // pebbles + dry grass tufts
+    for (let i = 0; i < 500; i++) { const r = 2 + rnd() * 30, a = rnd() * 6.283, sc = 0.3 + rnd() * 1.2; m4.compose(V(Math.cos(a) * r, 0.02, Math.sin(a) * r), new THREE.Quaternion().setFromEuler(new THREE.Euler(rnd() * 3, rnd() * 3, 0)), V(sc, sc * 0.6, sc)); rk.setMatrixAt(i, m4); } rk.castShadow = rk.receiveShadow = true; S.add(rk);
+}
+  sun(sd.clone().setY(0.4), 0xffb070, 4.6, 20); S.add(new THREE.HemisphereLight(0xffc890, 0x30303c, 0.28)); S.environmentIntensity = 0.32; { const fill = new THREE.DirectionalLight(0x6f90d8, 0.9); fill.position.set(8, 4, 9); S.add(fill); }
+  army(500, 0, -70, 120, 30, 0, 0x3a2a1c); army(300, -45, -45, 40, 50, 0.8, 0x2a2020);
+  embers(400, V(30, 10, 30), 0xffa040, 0.045); dustBank(18, { x: 90, z: 50, cz: -45 }, 0xd9a070, 0.14, [16, 6]); bloom = [0.3, 0.5, 0.88]; }
+
+async function warriors(n, cx, cz, w, d, face) { // midground MakeHuman soldiers (archers + standing) for scale
+  for (let i = 0; i < n; i++) { const o = await C(i % 2 ? 'soldier_a' : 'soldier_b', i % 3 === 0 ? 'stand' : 'bowdraw'); place(o, cx + (rnd() - 0.5) * w, 0, cz + (rnd() - 0.5) * d, face + (rnd() - 0.5) * 0.4); } }
+const shots = {
+  // hook: son's arrow strikes the father; slow push on Babhruvahana drawing
+  async duel() { focus = 1.4; await warWorld('dusk');
+    const b = place(await C('babhru', 'bowdraw'), 0, 0, 0, Math.PI / 2 + 0.25); const a = place(await C('arjuna', 'bowdraw'), 0, 0, -16, -Math.PI / 2 - 0.25);
+    place(chariot('#d65a1a', 'hanuman', true), 1.4, 0, -17.5, 0.1);
+    await warriors(6, -5, -9, 6, 8, Math.PI / 2); await warriors(5, 5, -8, 5, 8, -Math.PI / 2);
+    arrowsFly(14, V(0, 1.6, -1), V(0, 1.6, -15), 0.0); arrowsFly(14, V(0, 1.6, -15), V(0, 1.6, -1), 0.4);
+    cam.position.set(lerp(-0.55, -0.35, ease), lerp(1.35, 1.3, ease), lerp(2.4, 1.7, ease)); cam.lookAt(0.1, 1.9, -9); },
+  async fallen() { focus = 3.0; await warWorld('dusk');
+    const a = place(await C('arjuna', 'fallen'), 0, 0.18, 0, 0); a.rotation.set(-Math.PI / 2, 0, 0.2); a.updateMatrixWorld(true);
+    const chest = a.userData.B.Spine2.getWorldPosition(V()); const ar = arrow(); ar.scale.setScalar(1.3); ar.position.copy(chest).add(V(0.02, 0.32, 0.05)); ar.rotation.set(-1.25, 0.15, 0); S.add(ar);
+    place(await C('babhru', 'kneel'), chest.x + 1.0, 0, chest.z - 0.2, -Math.PI / 2);
+    cam.position.set(lerp(-2.9, -2.4, ease), lerp(1.15, 0.95, ease), chest.z + lerp(1.6, 1.1, ease)); cam.lookAt(chest.x + 0.3, 0.55, chest.z - 0.1); },
+  async kuru() { await warWorld('day');   // wide establishing: two armies, conch dawn
+    for (let i = 0; i < 6; i++) place(chariot(['#d65a1a', '#6a2a8a', '#e0b020'][i % 3], i === 2 ? 'hanuman' : true, i % 2 === 0), -10 + i * 4, 0, -18 - (i % 2) * 3, 0);
+    for (let i = 0; i < 6; i++) place(await horse(i % 2 ? 0xf2efe8 : 0x6a4a30, false), -10 + i * 4 - 0.4, 0, -15.6 - (i % 2) * 3, 0);
+    cam.position.set(lerp(-5, 5, ease), lerp(2.2, 1.8, ease), lerp(-4, -7, ease)); cam.lookAt(0, 3.5, -30); },
+  async bhishma() { focus = 3.2; await warWorld('dusk');   // Shikhandi in front, Arjuna behind him, arrows at Bhishma (who lowers his bow)
+    { const ch0 = place(chariot('#d65a1a', 'hanuman', false), 0, 0, 0, -Math.PI / 2); ch0.children.forEach((c) => { if (c.type === 'Group' && c.children.length === 3) c.position.x = -0.55; }); } place(await C('shikhandi', 'stand'), -0.45, 1.0, 0.25, -Math.PI / 2); place(await C('arjuna', 'bowdraw'), 0.35, 1.0, -0.15, 0.1);
+    place(await C('bhishma', 'bowrest'), -11, 0, -0.5, Math.PI / 2); place(chariot('#f2f2f2', true, true), -12.6, 0, 0.1, Math.PI / 2);
+    await warriors(6, -6, -6, 6, 4, 0); arrowsFly(24, V(-0.6, 2.5, -0.2), V(-11, 1.6, -0.5), 0.0, 0xffc060);
+    cam.fov = 42; cam.updateProjectionMatrix(); cam.position.set(lerp(3.4, 2.9, ease), lerp(1.9, 2.0, ease), lerp(0.9, 0.6, ease)); cam.lookAt(-8, 2.6, -0.3); },
+  async arrowbed() { focus = 3.4; await warWorld('dusk');   // Bhishma on the bed of arrows
+    const b = place(await C('bhishma', 'fallen'), 0, 0.95, 0, 0); b.rotation.set(-Math.PI / 2, 0, 0);
+    for (let i = 0; i < 46; i++) { const a = arrow(); a.position.set((rnd() - 0.5) * 0.55, 0.5, (rnd() - 0.5) * 1.7 - 0.85); a.rotation.set(-Math.PI / 2 + (rnd() - 0.5) * 0.35, 0, (rnd() - 0.5) * 0.3); a.scale.set(1, 1, 1.25); S.add(a); }
+    for (let i = 0; i < 8; i++) { const a = arrow(); a.position.set((rnd() - 0.5) * 0.45, 1.1, (rnd() - 0.5) * 1.4 - 0.8); a.rotation.set(-Math.PI / 2 + (rnd() - 0.5) * 0.4, 0, (rnd() - 0.5) * 0.3); S.add(a); }
+    cam.fov = 48; cam.updateProjectionMatrix(); cam.position.set(lerp(4.6, 3.9, ease), lerp(0.8, 1.0, ease), lerp(-1.6, -0.6, ease)); cam.lookAt(0, 0.95, -0.85); },
+  async ganga() { focus = 8; // dusk river; Ganga and the eight Vasus as light forms; curse
+    await hdri('qwantani_dusk_2_puresky', 0.5).catch(() => hdri('spruit_sunrise', 0.5)); const sd = V(0.3, 0.06, -1); skyDome('#141a34', '#d8683a', '#2a2030', sd, '#ffb070', 0.02, 0.9); S.fog = new THREE.FogExp2(0x6a5a6a, 0.006);
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), new THREE.MeshPhysicalMaterial({ color: 0x1a2a3a, roughness: 0.08, metalness: 0.6, envMapIntensity: 1.2 })); water.rotation.x = -Math.PI / 2; S.add(water);
+    const bank = new THREE.Mesh(new THREE.BoxGeometry(60, 0.6, 6), new THREE.MeshStandardMaterial({ color: 0x8a7a62, roughness: 0.95 })); bank.position.set(0, 0.1, 8.5); bank.receiveShadow = true; S.add(bank);
+    S.add(new THREE.HemisphereLight(0xffb080, 0x203040, 0.5)); sun(sd.clone().setY(0.3), 0xffb070, 1.6, 20);
+    const g = place(await C('ganga', 'raise', { light: 0.45 }), 0, lerp(-1.6, 0.05, Math.min(1, q * 1.6)), -4, 0); glowSprite(V(0, 1.2, -4.4), '160,210,255', 4, 0.35);
+    for (let i = 0; i < 8; i++) { const a = -0.9 + i / 7 * 1.8; const v = place(await C(i % 2 ? 'soldier_a' : 'soldier_b', i === 3 ? 'angry' : 'namaskaram', { light: 0.35 }), Math.sin(a) * 6, 0.05, -4 + Math.cos(a) * 5 - 5.5, Math.PI - a); glowSprite(V(v.position.x, 1.1, v.position.z - 0.2), '255,200,120', 2.2, 0.25); }
+    embers(200, V(20, 8, 20), 0xffd090, 0.04); bloom = [0.35, 0.5, 0.85];
+    cam.position.set(lerp(-0.6, 0.8, ease), lerp(0.9, 1.1, ease), lerp(5.5, 3.8, ease)); cam.lookAt(0, 1.7, -6); },
+  async naga() { focus = 4.6; // underwater Naga loka: teal haze, light shafts, palace pillars, Ulupi + Kauravya
+    S.background = new THREE.Color(0x02222a); S.fog = new THREE.FogExp2(0x063a44, 0.07); await hdri('golden_bay', 0.25);
+    const fl = ground(await tryTex('ph/tex/marble_01/Diffuse.jpg', 20), 20, 0x5aa0a0); fl.material.color.set(0x4a9a9a);
+    S.add(new THREE.HemisphereLight(0x5ef0e0, 0x0a2a2a, 0.9)); const l = sun(V(0.2, 1, 0.3), 0x8affee, 1.4, 12);
+    for (let i = 0; i < 10; i++) { const s = (i % 2 ? 1 : -1); const pl = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 7, 16), new THREE.MeshStandardMaterial({ color: 0x2a8a80, roughness: 0.4, metalness: 0.4, emissive: 0x053a34 })); pl.position.set(s * 3.2, 3.5, -2 - Math.floor(i / 2) * 3.2); pl.castShadow = true; S.add(pl);
+      const cap = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.12, 8, 20), goldM(0x40e0c0)); cap.rotation.x = Math.PI / 2; cap.position.copy(pl.position).setY(6.9); S.add(cap); }
+    for (let i = 0; i < 8; i++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 1.4, 14, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0x80fff0, transparent: true, opacity: 0.05, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })); b.position.set((rnd() - 0.5) * 12, 7, -4 - rnd() * 10); b.rotation.z = 0.2; S.add(b); }
+    embers(400, V(16, 9, 16), 0x90fff0, 0.05);
+    place(await C('ulupi', 'stand'), -0.7, 0, 0, 0.3); place(await C('kauravya', 'namaskaram'), 0.8, 0, -0.6, -0.2); bloom = [0.6, 0.6, 0.6];
+    cam.position.set(lerp(-1.2, 0.4, ease), lerp(1.5, 1.6, ease), lerp(5.2, 4.0, ease)); cam.lookAt(0, 1.4, -0.5); },
+  async ashva() { await warWorld('day');   // the yajna horse runs, Arjuna follows on chariot
+    const h = place(await horse(0xf6f3ec, true, 0), 0, 0, lerp(0, 18, q), 0); 
+    const ch = place(chariot('#d65a1a', 'hanuman', false), 0.5, 0, lerp(-9, 8, q), 0); place(await C('arjuna', 'bowrest'), 0.5, 1.0, ch.position.z - 0.1, 0);
+    for (let i = 0; i < 2; i++) place(await horse(0xf2efe8, true, 0.3 * i), 0.5 + (i - 0.5) * 0.9, 0, ch.position.z + 2.6, 0);
+    cam.fov = 46; cam.updateProjectionMatrix(); const hz = 18 * q; cam.position.set(4.2, 0.85, hz - 3.5); cam.lookAt(0.2, 1.5, hz + 0.5); },
+  async welcome() { focus = 3.5; // Manipura court: Babhruvahana offers gifts; Arjuna angry
+    await hdri('golden_bay', 0.7); skyDome('#3a6aa8', '#f0c890', '#a0886a', V(0.5, 0.25, -0.6), '#fff0c0', 0.02, 0.7); S.fog = new THREE.FogExp2(0xe6caa0, 0.01);
+    ground(await tryTex('ph/tex/granite_tile_04/Diffuse.jpg', 30), 30, 0xe8dccc); sun(V(0.6, 0.8, 0.5), 0xfff0d8, 2.8, 14); S.add(new THREE.HemisphereLight(0xfff0e0, 0x8a6a50, 0.5));
+    const porch = (await gl.loadAsync('ua/017_Pillared_Porch_Indian_Bazaar_Street_and_Temple.glb')).scene; const bb = new THREE.Box3().setFromObject(porch); const s = 6.5 / (bb.max.y - bb.min.y); porch.scale.setScalar(s); porch.position.set(0, -bb.min.y * s, -7); porch.traverse((m) => { if (m.isMesh) { m.castShadow = m.receiveShadow = true; } }); S.add(porch);
+    for (let i = 0; i < 6; i++) place(flag(['#b01818', '#e0b020'][i % 2], 4, true, 1.1), -6 + i * 2.4, 0, -4.5, 0);
+    place(await C('babhru', q < 0.5 ? 'offer' : 'namaskaram', {}), 0, 0, -1.2, 0); place(await C('arjuna', q < 0.55 ? 'bowrest' : 'angry'), 0, 0, 2.2, Math.PI);
+    for (let i = 0; i < 4; i++) place(await C(i % 2 ? 'soldier_a' : 'soldier_b', 'stand'), -3 + i * 2, 0, -3.2, 0);
+    try { const th = (await gl.loadAsync('sf/aarti_thali/scene.gltf')).scene; const tb = new THREE.Box3().setFromObject(th); th.scale.setScalar(0.4 / Math.max(tb.max.x - tb.min.x, 0.01)); th.position.set(0, 1.05, -0.75); S.add(th); } catch (e) {}
+    cam.position.set(lerp(2.4, 1.7, ease), 1.65, lerp(3.6, 2.9, ease)); cam.lookAt(0, 1.4, -1.0); },
+  async ulupi() { focus = 4.8; await warWorld('dusk');   // the earth splits, Ulupi rises in teal light
+    const crack = new THREE.Mesh(new THREE.CircleGeometry(1.0, 48), new THREE.MeshBasicMaterial({ color: 0x30c0a8, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false })); crack.rotation.x = -Math.PI / 2; crack.position.y = 0.02; S.add(crack);
+    place(await C('ulupi', 'raise'), 0, lerp(-1.7, 0, Math.min(1, q * 1.4)), 0, 0); glowSprite(V(0, 1.0, -0.3), '90,255,220', 3, 0.3); embers(200, V(6, 6, 6), 0x80ffe0, 0.04);
+    place(await C('babhru', 'stand'), 2.2, 0, 1.2, -1.2);
+    cam.position.set(lerp(0.5, 1.4, ease), lerp(0.7, 0.9, ease), lerp(5.2, 4.0, ease)); cam.lookAt(0.3, 1.6, 0); },
+  async mani() { focus = 2.8; await warWorld('dusk');   // the Sanjeevani gem on the father's chest
+    const a = place(await C('arjuna', 'fallen'), 0, 0.18, 0, 0); a.rotation.set(-Math.PI / 2, 0, 0.2); a.updateMatrixWorld(true); const chest = a.userData.B.Spine2.getWorldPosition(V());
+    place(await C('babhru', 'kneel'), chest.x + 0.95, 0, chest.z - 0.15, -Math.PI / 2); place(await C('ulupi', 'stand'), chest.x + 0.6, 0, chest.z - 2.4, -0.2); place(await C('chitrangada', 'namaskaram'), chest.x + 2.2, 0, chest.z - 1.6, -0.9);
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.06), new THREE.MeshPhysicalMaterial({ color: 0x40ffe0, emissive: 0x20ffd0, emissiveIntensity: 2.5, roughness: 0.05 })); gem.position.copy(chest).add(V(0, lerp(0.45, 0.12, Math.min(1, q * 1.5)), 0)); S.add(gem);
+    glowSprite(gem.position.clone(), '90,255,220', lerp(0.4, 1.4, q), 0.6); const pl = new THREE.PointLight(0x60ffe0, lerp(0.5, 3, q), 4); pl.position.copy(gem.position).add(V(0, 0.2, 0)); S.add(pl); bloom = [0.45, 0.5, 0.85];
+    cam.position.set(lerp(-2.6, -2.1, ease), lerp(1.3, 1.05, ease), chest.z + lerp(1.4, 0.9, ease)); cam.lookAt(chest.x + 0.4, 0.6, chest.z - 0.3); },
+  async embrace() { focus = 5.0; await warWorld('dusk');   // father and son
+    place(await C('arjuna', 'embrace'), 0, 0, 0, 0); place(await C('babhru', 'embrace'), 0, 0, 0.42, Math.PI);
+    place(await C('ulupi', 'namaskaram'), -2.0, 0, -1.5, 0.6); place(await C('chitrangada', 'namaskaram'), 2.0, 0, -1.4, -0.6); embers(400, V(12, 8, 12), 0xffd090, 0.06); bloom = [0.55, 0.6, 0.7];
+    cam.position.set(Math.sin(lerp(-0.9, -0.3, ease)) * 4.6, lerp(0.9, 1.0, ease), Math.cos(lerp(-0.9, -0.3, ease)) * 4.6); cam.lookAt(0, 1.55, -0.3); },
+};
+try { await (shots[PH] || shots.kuru)(); } catch (e) { console.log('ERR scene ' + e.stack); }
+const C2 = new EffectComposer(R); C2.addPass(new RenderPass(S, cam));
+if (focus > 0) C2.addPass(new BokehPass(S, cam, { focus, aperture, maxblur: 0.014 }));   // shallow depth of field on the subject
+C2.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), ...bloom)); C2.addPass(new OutputPass());
+C2.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null }, seed: { value: T * 13.7 }, warm: { value: grade.warm }, teal: { value: grade.teal }, sat: { value: grade.sat }, con: { value: grade.con }, asp: { value: W / H } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float seed, warm, teal, sat, con, asp; varying vec2 vUv;
+    float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)) + seed) * 43758.5453); }
+    void main(){ vec3 c = texture2D(tDiffuse, vUv).rgb; float l = dot(c, vec3(0.2126,0.7152,0.0722));
+      c = mix(vec3(l), c, sat);                                             // saturation
+      c = (c - 0.5) * con + 0.5;                                            // contrast
+      c += vec3(-0.02, 0.012, 0.035) * teal * (1.0 - smoothstep(0.0, 0.45, l));   // teal shadows
+      c += vec3(0.04, 0.015, -0.03) * warm * smoothstep(0.45, 1.0, l);            // warm highlights
+      vec2 q = (vUv - 0.5) * vec2(asp, 1.0); c *= 1.0 - 0.55 * smoothstep(0.35, 0.95, length(q) * 1.25);   // vignette
+      c += (h(vUv * 1000.0) - 0.5) * 0.035;                                  // film grain
+      gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0); }` }));
+C2.render(); window.DONE = true;
+</script></body></html>

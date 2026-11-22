@@ -8,7 +8,7 @@ const load = (p) => (cache[p] ??= gl.loadAsync(p));
 const strip = (n) => n.replace(/_\d+$/, '').replace(/^mixamorig:?/, '');
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 
-function clothTex(base, border, border2, stripes = false, pleats = false) {
+export function clothTex(base, border, border2, stripes = false, pleats = false) {
   const c = document.createElement('canvas'); c.width = 64; c.height = 512; const x = c.getContext('2d');
   x.fillStyle = base; x.fillRect(0, 0, 64, 512);
   if (stripes) for (let i = 0; i < 512; i += 6) { x.fillStyle = 'rgba(0,0,0,0.035)'; x.fillRect(0, i, 64, 2); }
@@ -19,23 +19,23 @@ function clothTex(base, border, border2, stripes = false, pleats = false) {
 }
 const plain = (col, rough = 0.85, sheen = 0) => new THREE.MeshPhysicalMaterial({ color: col, roughness: rough, sheen, sheenColor: new THREE.Color(col), side: THREE.DoubleSide });
 
-function restVerts(o) { // world-space rest positions of every skinned mesh vertex
+export function restVerts(o) { // world-space rest positions of every skinned mesh vertex
   const pts = []; o.updateMatrixWorld(true);
   o.traverse((m) => { if (!m.isMesh || m.userData.wrap) return; const p = m.geometry.attributes.position; const v = V();
     for (let i = 0; i < p.count; i += 2) { m.getVertexPosition(i, v); pts.push(v.clone().applyMatrix4(m.matrixWorld)); } });
   return pts;
 }
-function hullRing(pts, y0, y1, n, margin, center) { // support-function ring of points between heights
+export function hullRing(pts, y0, y1, n, margin, center) { // support-function ring of points between heights
   const sel = pts.filter((p) => p.y >= y0 && p.y < y1 && (!center || Math.hypot(p.x - center.x, p.z - center.z) < 0.27)); const c = center || sel.reduce((a, p) => a.add(p), V()).multiplyScalar(1 / Math.max(1, sel.length));
   const ring = []; for (let k = 0; k < n; k++) { const a = (k / n) * Math.PI * 2, d = V(Math.cos(a), 0, Math.sin(a));
     let r = 0.05; for (const p of sel) r = Math.max(r, (p.x - c.x) * d.x + (p.z - c.z) * d.z); ring.push(r + margin); }
   return { c, ring };
 }
-function boneMap(o) { const m = {}; o.traverse((b) => { if (b.isBone) m[strip(b.name)] = b; }); return m; }
+export function boneMap(o) { const m = {}; o.traverse((b) => { if (b.isBone) m[strip(b.name)] = b; }); return m; }
 const wpos = (b) => b.getWorldPosition(V());
 
 // Builds a skinned wrap from waist (yTop) to hem (yBot). kind: 'dhoti' | 'saree'
-function wrap(o, B, target, kind, mat) {
+export function wrap(o, B, target, kind, mat) {
   const pts = restVerts(o); const yTop = wpos(B.Hips).y + (kind === 'saree' ? 0.04 : 0.02);
   const yAnk = wpos(B.LeftFoot).y; const yBot = kind === 'saree' ? yAnk - 0.06 : yAnk + 0.02;
   const N = 40, H = 18; const pos = [], uv = [], si = [], sw = [], idx = [];
@@ -50,7 +50,7 @@ function wrap(o, B, target, kind, mat) {
     for (let k = 0; k <= N; k++) { const a = (k / N) * Math.PI * 2, r = ring[k % N];
       const x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r; pos.push(x, y, z); uv.push(k / N, 1 - t);
       const side = THREE.MathUtils.smoothstep((x - cx) * lx, -0.05, 0.05); // 1 = left leg
-      const up = y > kneeY ? 1 : 0; const legW = THREE.MathUtils.smoothstep(t, 0.05, 0.45) * (kind === 'saree' ? 0.3 : 1);
+      const up = y > kneeY ? 1 : 0; const legW = THREE.MathUtils.smoothstep(t, 0.05, 0.45) * (kind === 'saree' ? 0.12 : 1);
       const hipW = 1 - legW; const L = up ? lu : ll, R = up ? ru : rl;
       si.push(hips, L, R, sp); sw.push(hipW, legW * side, legW * (1 - side), 0); } }
   for (let h = 0; h < H; h++) for (let k = 0; k < N; k++) { const a = h * (N + 1) + k, b = a + N + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
@@ -62,7 +62,7 @@ function wrap(o, B, target, kind, mat) {
   m.position.copy(target.position); m.quaternion.copy(target.quaternion); m.scale.copy(target.scale); m.bind(target.skeleton, target.bindMatrix); return m;
 }
 // pallu: a ribbon from right hip, across the chest, over the left shoulder, down the back
-function pallu(o, B, target, mat) {
+export function pallu(o, B, target, mat) {
   const pts = restVerts(o); const L = wpos(B.LeftArm), R = wpos(B.RightArm), hip = wpos(B.Hips); const c = V((L.x + R.x) / 2, 0, (L.z + R.z) / 2);
   const lat = R.clone().sub(L).setY(0).normalize(); const fwd = V(0, 1, 0).cross(lat).normalize(); // forward
   const surf = (y, dir, off) => { const sel = pts.filter((p) => Math.abs(p.y - y) < 0.03 && Math.abs((p.x - c.x) * -dir.z + (p.z - c.z) * dir.x) < 0.06);
@@ -91,7 +91,7 @@ function pallu(o, B, target, mat) {
 }
 
 // --- poses (aim bones at world directions in the body frame) ---
-function aim(bone, child, dir) {
+export function aim(bone, child, dir) {
   const a = wpos(bone), b = wpos(child); const cur = b.sub(a).normalize();
   const q = new THREE.Quaternion().setFromUnitVectors(cur, dir.clone().normalize());
   const w = q.multiply(bone.getWorldQuaternion(new THREE.Quaternion()));
