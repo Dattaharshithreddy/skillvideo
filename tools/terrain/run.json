@@ -1,1 +1,1 @@
-{ "configs": ["tirumala.json", "tirumala_core.json"], "dest": "hf://buckets/HarshithReddy05/tirumala-reel/varaha/terrain" }
+{ "configs": ["tirumala_wide.json", "tirumala_core.json"], "dest": "hf://buckets/HarshithReddy05/tirumala-reel/varaha/terrain", "v": 2 }

@@ -36,6 +36,6 @@ for z in cfg['sat_z']:
     im.save(f'{OUT}/sat_z{z}.jpg', quality=93); meta[f'sat_z{z}'] = list(im.size); print('sat', z, im.size)
 q = f'[out:json][timeout:120];(way["natural"="water"]({S},{W},{N},{E});way["amenity"="place_of_worship"]({S},{W},{N},{E});way["building"]({S},{W},{N},{E});way["highway"~"primary|secondary|tertiary|trunk"]({S},{W},{N},{E});node["amenity"="place_of_worship"]({S},{W},{N},{E}););out geom;'
 try:
-    d = get('https://overpass-api.de/api/interpreter?data=' + urllib.parse.quote(q)); open(f'{OUT}/osm.json', 'wb').write(d); print('osm', len(d))
+    d = get('https://overpass.kumi.systems/api/interpreter?data=' + urllib.parse.quote(q)); open(f'{OUT}/osm.json', 'wb').write(d); print('osm', len(d))
 except Exception as e: print('osm fail', e)
 json.dump(meta, open(f'{OUT}/meta.json', 'w'), indent=1)
