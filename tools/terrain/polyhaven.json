@@ -1,1 +1,1 @@
-{"ids": ["textures:dry_ground_01", "textures:brown_mud_leaves_01", "textures:aerial_beach_01", "hdris:kloppenheim_06_puresky", "hdris:qwantani_dusk_2_puresky", "textures:marble_01", "textures:wood_planks_dirt"]}
+{"hdris": ["sunset_puresky", "dusk_puresky", "evening_puresky"], "ids": ["hdri:qwantani_dusk_2_puresky", "hdri:kloppenheim_06_puresky", "hdri:belfast_sunset_puresky", "hdri:qwantani_sunset_puresky"]}
