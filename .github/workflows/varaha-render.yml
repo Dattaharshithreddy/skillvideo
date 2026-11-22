@@ -1,0 +1,87 @@
+name: Varaha film render (three.js, parallel CPU)
+# Renders the film defined in film.json on branch varaha-render across N runners, then joins the frames with the narration.
+# Settings: tools/varaha/render.json { "w": 720, "h": 1280, "fps": 24, "n": 20, "tag": "rough1" }
+on:
+  push:
+    branches: [reels/follow-the-sugar]
+    paths: [tools/varaha/render.json]
+permissions:
+  contents: write
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      slices: ${{ steps.s.outputs.slices }}
+      cfg: ${{ steps.s.outputs.cfg }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: s
+        run: |
+          echo "cfg=$(jq -c . tools/varaha/render.json)" >> $GITHUB_OUTPUT
+          echo "slices=$(jq -c '[range(0; .n)]' tools/varaha/render.json)" >> $GITHUB_OUTPUT
+  frames:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        k: ${{ fromJson(needs.setup.outputs.slices) }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: varaha-render }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          npm i -q --no-audit --no-fund >/dev/null 2>&1
+          pip install -q huggingface_hub
+          python3 -c "from huggingface_hub import HfApi;HfApi().sync_bucket('hf://buckets/HarshithReddy05/tirumala-reel/keys','/tmp/keys',quiet=True)"
+          openssl enc -d -aes-256-cbc -pbkdf2 -in priv.tgz.enc -out /tmp/p.tgz -pass file:/tmp/keys/asset.key && tar xzf /tmp/p.tgz && rm -rf /tmp/keys /tmp/p.tgz narration.mp3
+          C='${{ needs.setup.outputs.cfg }}'
+          W=$(echo "$C" | jq .w); H=$(echo "$C" | jq .h); F=$(echo "$C" | jq .fps); N=$(echo "$C" | jq .n)
+          CHROME=$(which google-chrome || which chromium) node render_film.mjs film.json $W $H $F ${{ matrix.k }} $N frames 2>&1 | grep -vE "^pg" | tail -40
+          ls frames | wc -l
+          # frames come from the private idol photo in some shots: encrypt before they leave the runner
+          python3 -c "from huggingface_hub import HfApi;HfApi().sync_bucket('hf://buckets/HarshithReddy05/tirumala-reel/keys','/tmp/keys',quiet=True)"
+          tar cf /tmp/f.tar frames && openssl enc -aes-256-cbc -pbkdf2 -salt -in /tmp/f.tar -out frames_${{ matrix.k }}.tar.enc -pass file:/tmp/keys/asset.key && rm -rf /tmp/keys
+      - uses: actions/upload-artifact@v4
+        with: { name: "frames-${{ matrix.k }}", path: "frames_${{ matrix.k }}.tar.enc", retention-days: 2 }
+  join:
+    needs: [setup, frames]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: varaha-render }
+      - uses: actions/download-artifact@v4
+        with: { path: arts }
+      - env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          sudo apt-get update -qq >/dev/null; sudo apt-get install -y -qq ffmpeg >/dev/null
+          pip install -q huggingface_hub
+          python3 -c "from huggingface_hub import HfApi;HfApi().sync_bucket('hf://buckets/HarshithReddy05/tirumala-reel/keys','/tmp/keys',quiet=True)"
+          openssl enc -d -aes-256-cbc -pbkdf2 -in priv.tgz.enc -out /tmp/p.tgz -pass file:/tmp/keys/asset.key && tar xzf /tmp/p.tgz narration.mp3
+          mkdir -p all && for f in arts/*/*.enc; do openssl enc -d -aes-256-cbc -pbkdf2 -in $f -out /tmp/x.tar -pass file:/tmp/keys/asset.key && tar xf /tmp/x.tar -C all; done
+          ls all/frames | wc -l
+          C='${{ needs.setup.outputs.cfg }}'; F=$(echo "$C" | jq .fps); TAG=$(echo "$C" | jq -r .tag)
+          # fill any missing frame with the previous one so timing never drifts
+          python3 - <<'PY'
+          import os, shutil, math, json
+          fps = json.loads(os.environ.get('C', '{}') or '{}').get('fps', 24) if False else None
+          PY
+          python3 -c "
+          import os, shutil, json
+          c = json.loads('''$C'''); film = json.load(open('film.json')); n = round(film['duration'] * c['fps']); prev = None; miss = 0
+          for i in range(n):
+              f = f'all/frames/f{i:05d}.png'
+              if os.path.exists(f): prev = f
+              elif prev: shutil.copy(prev, f); miss += 1
+          print('filled', miss, 'missing frames of', n)"
+          ffmpeg -v error -y -framerate $F -i all/frames/f%05d.png -i narration.mp3 -vf "scale=1080:1920:flags=lanczos,format=yuv420p" -c:v libx264 -preset slow -crf 18 -c:a aac -b:a 192k -shortest /tmp/varaha_$TAG.mp4
+          ls -la /tmp/varaha_$TAG.mp4
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in /tmp/varaha_$TAG.mp4 -out /tmp/out.enc -pass file:/tmp/keys/asset.key && rm -rf /tmp/keys
+          git config user.name bot && git config user.email actions@users.noreply.github.com
+          git checkout -q --orphan out-tmp && git rm -rf -q . && cp /tmp/out.enc varaha_$TAG.mp4.enc && git add varaha_$TAG.mp4.enc && git commit -qm "film $TAG" && git push -q -f origin HEAD:varaha-out
