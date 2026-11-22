@@ -27,6 +27,7 @@ for i in range(N):
         sk = pick(skins, ['middleage', 'young']) or skins
         dark = [s for s in sk if any(k in s.lower() for k in ['dark', 'african', 'brown', 'indian'])] or sk
         if dark: HumanService.set_character_skin(rng.choice(dark), bm)
+        HumanService.add_builtin_rig(bm, 'mixamo')   # rig BEFORE clothes/hair so they get armature weights and follow poses
         for lst in (eyes, brows): 
             if lst: HumanService.add_mhclo_asset(rng.choice(lst), bm, asset_type='Eyes' if lst is eyes else 'Eyebrows', subdiv_levels=0)
         hs = pick(hair, ['short', 'male'] if male else ['long', 'ponytail', 'bob', 'braid']) or hair
@@ -37,7 +38,6 @@ for i in range(N):
         cs = cs or clothes; chosen = []
         if cs:
             first = rng.choice(cs); chosen.append(first); HumanService.add_mhclo_asset(first, bm, asset_type='Clothes', subdiv_levels=0)
-        HumanService.add_builtin_rig(bm, 'mixamo')
         bpy.ops.object.select_all(action='SELECT')
         p = os.path.join(OUT, f'person_{SEED}_{i:02d}_{"m" if male else "f"}.glb')
         bpy.ops.export_scene.gltf(filepath=p, export_format='GLB', use_selection=True, export_apply=True, export_animations=False, export_skins=True)
