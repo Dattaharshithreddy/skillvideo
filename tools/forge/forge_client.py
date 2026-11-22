@@ -11,6 +11,7 @@ for j in jobs:
     name = j.pop('name'); ext = 'png' if j.get('mode') == '2d' else 'glb'; dst = f'{OUT}/{name}.{ext}'
     if os.path.exists(dst): print('have', name); continue
     if 'image_from' in j:
+        if not os.path.exists(f"{OUT}/{j['image_from']}.png"): print('SKIP', name, 'missing', j['image_from'], flush=True); continue
         j['image'] = 'data:image/png;base64,' + base64.b64encode(open(f"{OUT}/{j.pop('image_from')}.png", 'rb').read()).decode()
     j.setdefault('fresh', True); t0 = time.time()
     try:

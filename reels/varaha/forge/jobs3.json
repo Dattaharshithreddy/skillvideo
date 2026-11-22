@@ -1,0 +1,52 @@
+{
+ "jobs": [
+  {
+   "name": "ref_varaha_photo_3d",
+   "mode": "image",
+   "image_from": "ref_varaha_photo",
+   "texture": true,
+   "quality": "high",
+   "polycount": 80000
+  },
+  {
+   "name": "varaha_idol_white_3d",
+   "mode": "image",
+   "image_from": "varaha_idol_white",
+   "texture": true,
+   "quality": "high",
+   "polycount": 80000
+  },
+  {
+   "name": "srinivasa_idol_ref_3d",
+   "mode": "image",
+   "image_from": "srinivasa_idol_ref",
+   "texture": true,
+   "quality": "high",
+   "polycount": 80000
+  },
+  {
+   "name": "brahma_idol_ref_3d",
+   "mode": "image",
+   "image_from": "brahma_idol_ref",
+   "texture": true,
+   "quality": "high",
+   "polycount": 80000
+  },
+  {
+   "name": "bhudevi_idol_ref_3d",
+   "mode": "image",
+   "image_from": "bhudevi_idol_ref",
+   "texture": true,
+   "quality": "high",
+   "polycount": 80000
+  },
+  {
+   "name": "fig_vakula_ref_3d",
+   "mode": "image",
+   "image_from": "fig_vakula_ref",
+   "texture": true,
+   "quality": "high",
+   "polycount": 80000
+  }
+ ]
+}
