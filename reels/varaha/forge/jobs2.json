@@ -1,0 +1,56 @@
+{
+ "jobs": [
+  {
+   "name": "varaha_idol_clean_s5",
+   "mode": "2d",
+   "image_from": "ref_varaha_photo",
+   "strength": 0.42,
+   "prompt": "black stone temple idol of Lord Adi Varaha, boar-headed four-armed Vishnu standing, tall golden kireetam crown, holding goddess Bhudevi on his left arm, golden chakra and conch in upper hands, white and gold silk dhoti, flower garlands, Bhudevi in green silk saree with gold crown, temple sanctum, oil lamps, ultra detailed, sharp, cinematic lighting",
+   "negative": "blurry, deformed, extra limbs, text, watermark",
+   "aspect": "portrait",
+   "seed": 5,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "varaha_idol_clean_s9",
+   "mode": "2d",
+   "image_from": "ref_varaha_photo",
+   "strength": 0.5,
+   "prompt": "black stone temple idol of Lord Adi Varaha, boar-headed four-armed Vishnu standing, tall golden kireetam crown, holding goddess Bhudevi on his left arm, golden chakra and conch in upper hands, white and gold silk dhoti, flower garlands, Bhudevi in green silk saree with gold crown, temple sanctum, oil lamps, ultra detailed, sharp, cinematic lighting",
+   "negative": "blurry, deformed, extra limbs, text, watermark",
+   "aspect": "portrait",
+   "seed": 9,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "varaha_idol_aarti",
+   "mode": "2d",
+   "image_from": "ref_varaha_photo",
+   "strength": 0.6,
+   "prompt": "black stone temple idol of Lord Adi Varaha, boar-headed four-armed Vishnu standing, tall golden kireetam crown, holding goddess Bhudevi on his left arm, golden chakra and conch in upper hands, white and gold silk dhoti, flower garlands, Bhudevi in green silk saree with gold crown, priest's hand waving a brass camphor aarti plate with bright flame in front of the idol, smoke, warm glow, devotional",
+   "negative": "blurry, deformed, text, watermark",
+   "aspect": "portrait",
+   "seed": 3,
+   "quality": "ultra",
+   "style": ""
+  },
+  {
+   "name": "varaha_idol_3d",
+   "mode": "image",
+   "image_from": "ref_varaha_photo",
+   "texture": true,
+   "quality": "high",
+   "polycount": 80000
+  },
+  {
+   "name": "varaha_idol_clean_3d",
+   "mode": "image",
+   "image_from": "varaha_idol_clean_s5",
+   "texture": true,
+   "quality": "high",
+   "polycount": 80000
+  }
+ ]
+}
