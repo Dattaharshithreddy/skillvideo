@@ -1,0 +1,198 @@
+<!doctype html><html><body style="margin:0;background:#000">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+// Arjuna & Babruvahana reel — one page, phase = kuru | bhishma | arrowbed | ganga | naga | ashva | welcome | ulupi | duel | fallen | mani | embrace
+// Query: phase, t (s into shot), dur, w, h. Renders one frame and sets window.DONE.
+import * as THREE from 'three';
+import { Sky } from 'three/addons/objects/Sky.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+const P = new URLSearchParams(location.search); const W = +P.get('w') || 1080, H = +P.get('h') || 1920, T = +(P.get('t') || 0), PH = P.get('phase') || 'kuru', DUR = +(P.get('dur') || 6);
+const p = Math.min(1, Math.max(0, T / DUR)), ease = p * p * (3 - 2 * p);
+const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setSize(W, H); R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = +(P.get('exp') || 1.0); R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; document.body.appendChild(R.domElement);
+const S = new THREE.Scene(); let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+const gl = new GLTFLoader(); const cam = new THREE.PerspectiveCamera(36, W / H, 0.05, 6000); const tl = new THREE.TextureLoader();
+const cache = {}; const glb = async (f) => (cache[f] ||= await gl.loadAsync(f));
+let bloom = [0.35, 0.4, 0.9]; const GR = ['ashva','welcome','ulupi','duel','fallen','mani','embrace'].includes(PH) ? 1 : 0;
+
+// ---------- helpers ----------
+function softTex(col = '255,255,255', a = 0.6) { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, `rgba(${col},${a})`); g.addColorStop(1, `rgba(${col},0)`); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); }
+const glow = (col, pos, k, op = 1) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('255,255,255', 1), color: col, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: op })); s.position.set(...pos); s.scale.set(k, k, 1); S.add(s); return s; };
+function sky(el, az, tb = 3, ray = 1.2) { const s = new Sky(); s.scale.setScalar(5000); const u = s.material.uniforms; u.turbidity.value = tb; u.rayleigh.value = ray; u.mieCoefficient.value = 0.005; u.mieDirectionalG.value = 0.8; const v = new THREE.Vector3().setFromSphericalCoords(1, THREE.MathUtils.degToRad(90 - el), THREE.MathUtils.degToRad(az)); u.sunPosition.value.copy(v); S.add(s); return v; }
+async function hdri(f, bg = false) { const t = await new RGBELoader().loadAsync(f); t.mapping = THREE.EquirectangularReflectionMapping; S.environment = t; S.environmentIntensity = 0.7; if (bg) S.background = t; }
+function sunLight(dir, col = 0xfff2dd, k = 3.2, span = 40) { const l = new THREE.DirectionalLight(col, k); l.position.copy(dir).multiplyScalar(100); l.castShadow = true; l.shadow.mapSize.set(4096, 4096); Object.assign(l.shadow.camera, { left: -span, right: span, top: span, bottom: -span, near: 1, far: 400 }); l.shadow.bias = -0.0004; l.shadow.normalBias = 0.02; S.add(l); S.add(new THREE.HemisphereLight(0xcfe4ff, 0x8a6a40, 0.6)); return l; }
+function soilTex(grass = 0) { const c = document.createElement('canvas'); c.width = c.height = 1024; const x = c.getContext('2d'); x.fillStyle = '#b89a72'; x.fillRect(0, 0, 1024, 1024);
+  for (let i = 0; i < 9000; i++) { const r = 2 + rnd() * 26, l = 40 + rnd() * 30; x.fillStyle = `hsla(${30 + rnd() * 12 - grass * 40 * rnd()},${25 + rnd() * 20 + grass * 15}%,${l}%,${0.05 + rnd() * 0.12})`; x.beginPath(); x.arc(rnd() * 1024, rnd() * 1024, r, 0, 6.28); x.fill(); }
+  for (let i = 0; i < 30000; i++) { x.fillStyle = `rgba(${rnd() < 0.5 ? '60,45,30' : '230,215,190'},${0.15 + rnd() * 0.3})`; x.fillRect(rnd() * 1024, rnd() * 1024, 1 + rnd() * 2, 1 + rnd() * 2); }
+  if (grass) for (let i = 0; i < 4000 * grass; i++) { x.strokeStyle = `hsla(${80 + rnd() * 30},40%,${25 + rnd() * 20}%,0.5)`; const a = rnd() * 1024, b = rnd() * 1024; x.beginPath(); x.moveTo(a, b); x.lineTo(a + (rnd() - 0.5) * 6, b - 4 - rnd() * 8); x.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+async function ground(tex = 'soil', rep = 60, col = 0xffffff, size = 600, bump = 0, grass = 0) {
+  const d = soilTex(grass); const n = await tl.loadAsync(`ph/tex/rock_tile_floor/nor_gl.jpg`); for (const t of [d, n]) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep, rep); t.anisotropy = 8; } n.repeat.set(rep * 3, rep * 3);
+  const g = new THREE.PlaneGeometry(size, size, 200, 200); const gp = g.attributes.position; for (let i = 0; i < gp.count; i++) { const x = gp.getX(i), y = gp.getY(i); gp.setZ(i, bump * (Math.sin(x * 0.05) * Math.cos(y * 0.04) + 0.4 * Math.sin(x * 0.13 + y * 0.09)) + Math.max(0, Math.hypot(x, y) - 140) * 0.12); } g.computeVertexNormals();
+  const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: d, normalMap: n, normalScale: new THREE.Vector2(0.25, 0.25), color: col, roughness: 1 })); m.rotation.x = -Math.PI / 2; m.receiveShadow = true; S.add(m); return m; }
+// load a GLB as a normalised template: feet at origin, height h, facing +z
+async function tmpl(f, h, hide = null) { const o = (await glb(f)).scene.clone(true); if (hide) o.traverse((m) => { if (m.isMesh && hide.test(m.material.name)) m.visible = false; }); const b = new THREE.Box3().setFromObject(o); const k = h / (b.max.y - b.min.y); o.scale.setScalar(k); const b2 = new THREE.Box3().setFromObject(o); o.position.set(-(b2.min.x + b2.max.x) / 2, -b2.min.y, -(b2.min.z + b2.max.z) / 2); const g = new THREE.Group(); g.add(o); g.traverse((m) => { if (m.isMesh) { m.castShadow = m.receiveShadow = true; } }); return g; }
+async function place(f, h, pos, rotY = 0, tint = null, hide = null) { const g = await tmpl(f, h, hide); g.position.set(...pos); g.rotation.y = rotY; if (tint) g.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.multiply(new THREE.Color(tint)); } }); S.add(g); return g; }
+// instanced crowd: one InstancedMesh per sub-mesh of the template
+async function crowd(f, h, xs) { const g = await tmpl(f, h); g.updateMatrixWorld(true); const meshes = []; g.traverse((m) => { if (m.isMesh) meshes.push(m); });
+  const M = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
+  for (const m of meshes) { const im = new THREE.InstancedMesh(m.geometry, m.material, xs.length); im.castShadow = im.receiveShadow = true;
+    xs.forEach(([x, z, ry, s = 1], i) => { e.set(0, ry, 0); q.setFromEuler(e); M.compose(new THREE.Vector3(x, 0, z), q, new THREE.Vector3(s, s, s)); im.setMatrixAt(i, M.clone().multiply(m.matrixWorld)); }); S.add(im); } }
+function armyBlock(cx, cz, cols, rows, gap, face, jit = 0.25) { const xs = []; for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) xs.push([cx + (c - cols / 2) * gap + (rnd() - 0.5) * jit, cz + (r - rows / 2) * gap * 1.1 + (rnd() - 0.5) * jit, face + (rnd() - 0.5) * 0.25, 0.95 + rnd() * 0.1]); return xs; }
+function arrow(from, to, col = 0x5a3a1e) { const a = new THREE.Vector3(...from), b = new THREE.Vector3(...to); const L = a.distanceTo(b); const g = new THREE.Group();
+  const sh = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, L, 5), new THREE.MeshStandardMaterial({ color: col, roughness: 0.8 })); sh.position.y = L / 2; g.add(sh);
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.07, 6), new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.9, roughness: 0.3 })); tip.position.y = L; g.add(tip);
+  for (let k = 0; k < 3; k++) { const f = new THREE.Mesh(new THREE.PlaneGeometry(0.035, 0.12), new THREE.MeshStandardMaterial({ color: 0xe8e0d0, side: THREE.DoubleSide })); f.position.y = 0.07; f.rotation.y = k * 2.09; f.position.x = Math.cos(k * 2.09) * 0.017; f.position.z = -Math.sin(k * 2.09) * 0.017; g.add(f); }
+  g.position.copy(a); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize()); g.traverse((m) => { if (m.isMesh) m.castShadow = true; }); S.add(g); return g; }
+function bow(pos, rotY = 0, h = 1.5) { const pts = []; for (let i = 0; i <= 24; i++) { const t = i / 24 - 0.5; pts.push(new THREE.Vector3(Math.cos(t * 2.2) * 0.25 - 0.25 + Math.abs(t) * 0.12 * Math.sign(t) * 0, t * h, 0).setX(-(1 - Math.cos(t * 2.4)) * 0.0 + Math.sin(Math.abs(t) * 3) * -0.06 + 0.18 * Math.cos(t * Math.PI))); }
+  const g = new THREE.Group(); g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.02, 6), new THREE.MeshStandardMaterial({ color: 0x6b3d1c, roughness: 0.5, metalness: 0.2 })));
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, h * 0.98, 4), new THREE.MeshBasicMaterial({ color: 0xeeeeee })); st.position.x = pts[0].x; g.add(st); g.position.set(...pos); g.rotation.y = rotY; g.traverse((m) => { if (m.isMesh) m.castShadow = true; }); S.add(g); return g; }
+function dust(n, cx, cz, spread, y0, col = 0xd8c09a, op = 0.35, size = 8) { const t = softTex(); for (let i = 0; i < n; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, color: col, transparent: true, depthWrite: false, opacity: op * (0.4 + rnd() * 0.6) })); s.position.set(cx + (rnd() - 0.5) * spread, y0 + rnd() * size * 0.4, cz + (rnd() - 0.5) * spread); const k = size * (0.6 + rnd()); s.scale.set(k * 1.5, k, 1); S.add(s); } }
+function flag(pos, col, h = 6) { const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, h, 6), new THREE.MeshStandardMaterial({ color: 0x5a3a1e })); pole.position.set(pos[0], h / 2, pos[2]); pole.castShadow = true; S.add(pole);
+  const fg = new THREE.PlaneGeometry(1.6, 0.9, 12, 4); const fp = fg.attributes.position; for (let i = 0; i < fp.count; i++) fp.setZ(i, Math.sin(fp.getX(i) * 3 + T * 4 + pos[0]) * 0.12); fg.computeVertexNormals(); const f = new THREE.Mesh(fg, new THREE.MeshStandardMaterial({ color: col, side: THREE.DoubleSide, roughness: 0.9 })); f.position.set(pos[0] + 0.8, h - 0.5, pos[2]); f.castShadow = true; S.add(f); }
+function chariot(pos, rotY, col = 0xc89a40) { const g = new THREE.Group(); const gold = new THREE.MeshStandardMaterial({ color: col, metalness: 0.7, roughness: 0.35 }); const wood = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.8 });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.7, 1.1), gold); body.position.y = 1.0; g.add(body); const floor = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 1.2), wood); floor.position.y = 0.66; g.add(floor);
+  for (const s of [-1, 1]) { const w = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.06, 8, 28), wood); w.position.set(s * 0.82, 0.64, 0); w.rotation.y = Math.PI / 2; g.add(w); for (let k = 0; k < 8; k++) { const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.2, 4), wood); sp.position.copy(w.position); sp.rotation.x = k * Math.PI / 8; g.add(sp); } }
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3, 6), wood); pole.rotation.x = Math.PI / 2; pole.position.set(0, 0.75, 2.0); g.add(pole);
+  const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 3, 6), wood); mast.position.set(-0.6, 2.2, -0.45); g.add(mast); const fl = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.6), new THREE.MeshStandardMaterial({ color: 0xff8a1a, side: THREE.DoubleSide })); fl.position.set(-0.15, 3.35, -0.45); g.add(fl);
+  g.position.set(...pos); g.rotation.y = rotY; g.traverse((m) => { if (m.isMesh) m.castShadow = m.receiveShadow = true; }); S.add(g); horseQ.push(...[-0.45, 0.45].map((dx) => { const v = new THREE.Vector3(dx, 0, 3.0).applyAxisAngle(new THREE.Vector3(0, 1, 0), rotY); return [pos[0] + v.x, pos[2] + v.z, rotY]; })); return g; }
+const horseQ = [];
+function hills(n, r0, r1, col = 0x6d7a55, hmin = 20, hmax = 60) { for (let i = 0; i < n; i++) { const a = rnd() * 6.28, d = r0 + rnd() * (r1 - r0); const m = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 10), new THREE.MeshStandardMaterial({ color: new THREE.Color(col).offsetHSL(0, 0, (rnd() - 0.5) * 0.06), roughness: 1 })); const h = (hmin + rnd() * (hmax - hmin)) * 0.6; m.scale.set(h * (2.5 + rnd() * 2), h, h * (2.5 + rnd() * 2)); m.position.set(Math.cos(a) * d * 2, -h * 0.35, Math.sin(a) * d * 2); S.add(m); } }
+function trees(n, r0, r1, cx = 0, cz = 0) { const tk = new THREE.MeshStandardMaterial({ color: 0x4a3520 }); for (let i = 0; i < n; i++) { const a = rnd() * 6.28, d = r0 + rnd() * (r1 - r0); const tr = new THREE.Group(); const h = 2.5 + rnd() * 3; const t = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.18, h, 6), tk); t.position.y = h / 2; tr.add(t);
+  for (let k = 0; k < 4; k++) { const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.9 + rnd() * 0.7, 1), new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(0.24 + rnd() * 0.06, 0.45, 0.22 + rnd() * 0.1), flatShading: true, roughness: 1 })); b.position.set((rnd() - 0.5) * 1.4, h + (rnd() - 0.3) * 1.0, (rnd() - 0.5) * 1.4); tr.add(b); }
+  tr.position.set(cx + Math.cos(a) * d, 0, cz + Math.sin(a) * d); tr.traverse((m) => { if (m.isMesh) m.castShadow = m.receiveShadow = true; }); S.add(tr); } }
+function lookCam(from, to, fov = 36) { cam.fov = fov; cam.updateProjectionMatrix(); cam.position.set(...from); cam.lookAt(...to); }
+const lerp3 = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);
+// palace / city gate of Manipura
+async function gate(z) { const st = await tl.loadAsync('ph/tex/sandstone_blocks_05/Diffuse.jpg'); st.colorSpace = THREE.SRGBColorSpace; st.wrapS = st.wrapT = THREE.RepeatWrapping; st.repeat.set(4, 3);
+  const m = new THREE.MeshStandardMaterial({ map: st, color: 0xf0d8b8, roughness: 0.9 }); const g = new THREE.Group();
+  for (const s of [-1, 1]) { const tw = new THREE.Mesh(new THREE.BoxGeometry(4, 10, 4), m); tw.position.set(s * 5, 5, 0); g.add(tw); const cap = new THREE.Mesh(new THREE.ConeGeometry(2.6, 3, 4), new THREE.MeshStandardMaterial({ color: 0xb04a2a })); cap.position.set(s * 5, 11.5, 0); cap.rotation.y = Math.PI / 4; g.add(cap);
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(40, 6, 2), m); wall.position.set(s * 27, 3, 0); g.add(wall); for (let k = 0; k < 16; k++) { const c = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 2.2), m); c.position.set(s * (8 + k * 2.4), 6.5, 0); g.add(c); } }
+  const lintel = new THREE.Mesh(new THREE.BoxGeometry(6.5, 2.5, 3.5), m); lintel.position.set(0, 8.5, 0); g.add(lintel); const dome = new THREE.Mesh(new THREE.SphereGeometry(2, 20, 12, 0, 6.28, 0, 1.6), new THREE.MeshStandardMaterial({ color: 0xd8a040, metalness: 0.6, roughness: 0.35 })); dome.position.set(0, 9.7, 0); g.add(dome);
+  for (const s of [-1, 1]) for (let k = 0; k < 3; k++) { const pal = new THREE.Mesh(new THREE.BoxGeometry(6, 8 + k * 3, 6), m); pal.position.set(s * (6 + k * 7), (8 + k * 3) / 2, -14 - k * 6); g.add(pal); const d2 = new THREE.Mesh(new THREE.SphereGeometry(2.4, 16, 10, 0, 6.28, 0, 1.6), new THREE.MeshStandardMaterial({ color: 0xd8a040, metalness: 0.6, roughness: 0.35 })); d2.position.set(s * (6 + k * 7), 8 + k * 3, -14 - k * 6); g.add(d2); }
+  g.position.z = z; g.traverse((o) => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }); S.add(g); }
+let WP = { la: 1, ra: 1 };
+async function woman(pos, rotY, h = 1.62, tint = null, at = 1.0) { const src = await glb('sf/saree_woman_anim/scene.gltf'); const o = SkeletonUtils.clone(src.scene); const mx = new THREE.AnimationMixer(o); mx.clipAction(src.animations[0]).play(); mx.update(at);
+  const AX = P.get('ax') || 'x', LA = +(P.get('la') ?? 1.2), RA = +(P.get('ra') ?? 1.2);
+  o.traverse((b) => { if (!b.isBone) return; if (/LeftArm_/.test(b.name)) b.rotation[AX] += LA * WP.la; if (/RightArm_/.test(b.name)) b.rotation[AX] += RA * WP.ra; }); o.updateMatrixWorld(true);
+  const b = new THREE.Box3().setFromObject(o, true); const k = h / (b.max.y - b.min.y); o.scale.multiplyScalar(k); o.updateMatrixWorld(true); const b2 = new THREE.Box3().setFromObject(o, true); o.position.set(-(b2.min.x + b2.max.x) / 2, -b2.min.y, -(b2.min.z + b2.max.z) / 2);
+  const g = new THREE.Group(); g.add(o); o.traverse((m) => { if (m.isMesh) { m.castShadow = m.receiveShadow = true; m.frustumCulled = false; if (tint) { m.material = m.material.clone(); m.material.color.multiply(new THREE.Color(tint)); } } }); g.position.set(...pos); g.rotation.y = rotY; S.add(g); return g; }
+
+// ---------- scenes ----------
+if (PH === 'test') { const sun = sky(30, 140); sunLight(sun); await ground('soil', 40, 0xffffff, 100, 0, 0);
+  for (const [i, re] of [[0, null], [1, /k_leather.004|k_gold.004/], [2, /k_leather/], [3, /k_gold/]].entries()) await place('kit/ind_sword.glb', 1.8, [i * 1.5 - 2.2, 0, 0], 0, null, re[1]);
+  for (const [i, v] of [[1, 1], [1, -1], [-1, 1], [-1, -1]].entries()) { WP = { la: v[0], ra: v[1] }; await woman([i * 1.5 - 2.2, 0, -2], 0, 1.62, null, 1); }
+  lookCam([0, 1.6, 7], [0, 1.0, -1], 40);
+} else if (PH === 'kuru') {   // aerial: two armies facing across the dusty plain, elephants, chariots, flags
+  const sun = sky(28, 120, 4, 1.4); await hdri('ph/hdri/golden_bay.hdr'); sunLight(sun, 0xfff0d8, 3.2, 70); await ground('soil', 40, 0xffffff, 700, 0.6, GR);
+  await crowd('kit/ind_spear_saffron.glb', 1.75, [...armyBlock(-18, -16, 22, 6, 1.3, 0), ...armyBlock(18, -16, 22, 6, 1.3, 0)]);
+  await crowd('kit/ind_spear_white.glb', 1.75, [...armyBlock(-18, 16, 22, 6, 1.3, Math.PI), ...armyBlock(18, 16, 22, 6, 1.3, Math.PI)]);
+  await crowd('kit/ind_spear_red.glb', 1.75, armyBlock(0, -26, 34, 5, 1.3, 0)); await crowd('kit/ind_sword.glb', 1.75, armyBlock(0, 26, 34, 5, 1.3, Math.PI));
+  await crowd('kit/war_elephant.glb', 3.2, [...[-30, -20, -10, 10, 20, 30].map((x) => [x, -8.5, 0]), ...[-30, -20, -10, 10, 20, 30].map((x) => [x, 8.5, Math.PI])]);
+  for (const x of [-6, 0, 6]) { chariot([x, 0, -6], 0); chariot([x, 0, 6], Math.PI, 0xd8d8d0); }
+  for (let i = -4; i <= 4; i++) { flag([i * 9, 0, -20], 0xff8a1a); flag([i * 9, 0, 20], 0xf2f2f2); }
+  dust(60, 0, 0, 90, 0.5, 0xdcc6a0, 0.22, 10); hills(30, 220, 420, 0x8a8a70, 25, 70);
+  const a = [-60, 30, 75], b = [-28, 14, 42]; lookCam(lerp3(a, b, ease), [0, 2, -40], 34);
+} else if (PH === 'bhishma') {   // eye level behind Arjuna's chariot: Shikhandi in front, Bhishma ahead with bow lowered, arrows in flight
+  const sun = sky(24, 200, 4, 1.4); await hdri('ph/hdri/golden_bay.hdr'); sunLight(sun, 0xfff0d8, 3.0, 25); await ground('soil', 40, 0xffffff, 700, 0.3, GR);
+  chariot([0, 0, 0], 0); await place('kit/puru.glb', 1.8, [0.25, 0.7, -0.2], 0);   // Arjuna on the chariot
+  await place('kit/ind_sword.glb', 1.75, [1.8, 0, 3.2], 0.1, 0xffd0d0);   // Shikhandi in front
+  const bh = await place('kit/ind_sword.glb', 1.8, [0.5, 0, 16], Math.PI, 0xe8e8ff, /k_leather.004|k_gold.004/); chariot([0.5, 0, 17.5], Math.PI, 0xd8d8d0);   // Bhishma (white) facing us, weapon down
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 8), new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: 1 })); hair.scale.set(1, 1.2, 1.1); hair.position.set(0.5, 1.62, 15.95); S.add(hair);
+  const beard = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.28, 10), new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: 1 })); beard.rotation.x = Math.PI; beard.position.set(0.5, 1.4, 15.88); S.add(beard);
+  for (let i = 0; i < 26; i++) { const k = (ease * 1.2 + i / 26) % 1; const s = [0.3 + (rnd() - 0.5) * 0.6, 1.6, 0.3]; const e = [0.5 + (rnd() - 0.5) * 0.8, 1.0 + rnd() * 0.8, 15.9]; const a = lerp3(s, e, k), b = lerp3(s, e, Math.min(1, k + 0.05)); a[1] += Math.sin(k * Math.PI) * 1.2; b[1] += Math.sin(Math.min(1, k + 0.05) * Math.PI) * 1.2; arrow(a, b); }
+  await crowd('kit/ind_spear_white.glb', 1.75, armyBlock(0.5, 26, 16, 4, 1.3, Math.PI)); await crowd('kit/ind_spear_saffron.glb', 1.75, [...armyBlock(-9, 2, 6, 6, 1.3, 0), ...armyBlock(10, 2, 6, 6, 1.3, 0)]);
+  dust(30, 0, 12, 30, 0.3, 0xdcc6a0, 0.2, 5); hills(20, 220, 400, 0x8a8a70);
+  lookCam(lerp3([-2.6, 3.4, -4.5], [-2.0, 3.1, -3.0], ease), [0.8, 1.2, 12], 34);
+} else if (PH === 'arrowbed') {   // Bhishma lying on the bed of arrows at golden hour, soldiers standing around with heads bowed
+  const sun = sky(6, 250, 6, 2.2); await hdri('ph/hdri/the_sky_is_on_fire.hdr'); sunLight(sun, 0xffb070, 2.6, 15); await ground('soil', 40, 0xffffff, 700, 0.2, GR);
+  const bh = await tmpl('kit/ind_sword.glb', 1.8, /k_leather.004|k_gold.004/); bh.rotation.set(-Math.PI / 2, 0, 0); bh.position.set(0, 0.95, 0.9); bh.updateMatrixWorld(true); { const bb = new THREE.Box3().setFromObject(bh); bh.position.y += 0.8 - bb.min.y; } bh.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.multiply(new THREE.Color(0xe8e8ff)); } }); S.add(bh);
+  
+  for (let i = 0; i < 70; i++) { const x = (rnd() - 0.5) * 0.5, z = -0.9 + rnd() * 1.9; arrow([x + (rnd() - 0.5) * 0.12, 0, z + (rnd() - 0.5) * 0.12], [x, 0.78 + rnd() * 0.05, z]); }
+  for (let i = 0; i < 10; i++) { const a = -0.4 + i * 0.36; await place(i % 3 ? 'kit/ind_spear_white.glb' : 'kit/ind_spear_saffron.glb', 1.75, [Math.cos(a) * 4.5, 0, Math.sin(a) * 4.5 + 1], -a - Math.PI / 2); }
+  dust(20, 0, 0, 20, 0.2, 0xffb080, 0.15, 4); hills(20, 150, 350, 0x5a4a40);
+  lookCam(lerp3([4.6, 2.2, 3.4], [3.6, 1.8, 2.6], ease), [0, 0.9, 0], 36); bloom = [0.4, 0.5, 0.85];
+} else if (PH === 'ganga') {   // dusk on the Ganga bank: eight Vasus as pillars of light, the river glowing (Ganga as light, no face)
+  const sun = sky(2, 260, 8, 2.6); S.add(new THREE.HemisphereLight(0xffb090, 0x302040, 0.5)); sunLight(sun, 0xff9a60, 1.6, 20);
+  await ground('soil', 40, 0xffffff, 600, 0.1, GR);
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(800, 300, 1, 1), new THREE.MeshStandardMaterial({ color: 0x1a3a4a, roughness: 0.05, metalness: 0.9, envMapIntensity: 1 })); water.rotation.x = -Math.PI / 2; water.position.set(0, 0.05, -155); S.add(water);
+  { const pm = new THREE.PMREMGenerator(R); const sc = new THREE.Scene(); const s2 = new Sky(); s2.scale.setScalar(5000); s2.material.uniforms.sunPosition.value.copy(sun); s2.material.uniforms.turbidity.value = 8; s2.material.uniforms.rayleigh.value = 2.6; sc.add(s2); S.environment = pm.fromScene(sc).texture; }
+  for (let i = 0; i < 8; i++) { const x = (i - 3.5) * 2.2, z = -6 - Math.abs(i - 3.5) * 0.6; for (let k = 0; k < 8; k++) { const sp = glow(0xffd8a0, [x, 0.2 + k * 0.32, z], 0.9 - k * 0.06, 0.22); sp.scale.set(0.7 - k * 0.04, 0.9, 1); } glow(0xffd080, [x, 1.4, z], 1.2, 0.35); glow(0xffffff, [x, 1.6, z], 0.3, 0.7); const l = new THREE.PointLight(0xffc070, 1.2, 6, 1.6); l.position.set(x, 1.2, z + 0.5); S.add(l); }
+  glow(0x80d0ff, [0, 4, -60], 30 + ease * 10, 0.18); glow(0xffffff, [0, 4, -60], 6, 0.3);   // Ganga as light over the water
+  for (let i = 0; i < 40; i++) glow(0xffe0a0, [(rnd() - 0.5) * 20, 0.3 + rnd() * 4, -4 - rnd() * 8], 0.08 + rnd() * 0.08, 0.8);
+  trees(40, 18, 50, 0, 14); S.fog = new THREE.FogExp2(0xd09070, 0.004);
+  lookCam(lerp3([0, 1.4, 6], [0, 1.6, 3.5], ease), [0, 1.6, -8], 40); bloom = [0.45, 0.5, 0.85];
+} else if (PH === 'naga') {   // Naga realm under the earth: blue-green cavern, glowing water, Ulupi and her father Kauravya (cobra hood) listening
+  S.background = new THREE.Color(0x02080c); S.add(new THREE.HemisphereLight(0x40a0a0, 0x050a10, 0.6));
+  const cav = new THREE.Mesh(new THREE.SphereGeometry(30, 64, 32), new THREE.MeshStandardMaterial({ color: 0x1c3a3a, roughness: 1, side: THREE.BackSide })); const cp = cav.geometry.attributes.position; for (let i = 0; i < cp.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(cp, i); v.multiplyScalar(1 + 0.12 * Math.sin(v.x * 0.4) * Math.cos(v.y * 0.5) + 0.06 * Math.sin(v.z * 1.1)); cp.setXYZ(i, v.x, v.y * 0.5, v.z); } cav.geometry.computeVertexNormals(); S.add(cav);
+  const fl = new THREE.Mesh(new THREE.CircleGeometry(30, 64), new THREE.MeshStandardMaterial({ color: 0x0a2a30, roughness: 0.1, metalness: 0.8 })); fl.rotation.x = -Math.PI / 2; S.add(fl);
+  const plat = new THREE.Mesh(new THREE.CylinderGeometry(3, 3.4, 0.5, 48), new THREE.MeshStandardMaterial({ color: 0xb8a070, metalness: 0.5, roughness: 0.4 })); plat.position.y = 0.25; plat.receiveShadow = true; S.add(plat);
+  const k = new THREE.PointLight(0x60ffe0, 30, 30, 1.4); k.position.set(2, 6, 4); k.castShadow = true; S.add(k); const k2 = new THREE.PointLight(0xffc070, 12, 12, 1.5); k2.position.set(-2, 3, 3); S.add(k2);
+  await woman([-0.7, 0.5, 0], 0.35, 1.62, 0xc0ffe8);   // Ulupi
+  const kv = await place('kit/puru.glb', 1.85, [0.9, 0.5, -0.6], -0.3, 0xd0f0ff);   // Kauravya, the Naga king
+  const hood = new THREE.Mesh(new THREE.SphereGeometry(0.5, 24, 16, 0, Math.PI), new THREE.MeshStandardMaterial({ color: 0x2a6a50, roughness: 0.4, metalness: 0.3, side: THREE.DoubleSide })); hood.scale.set(1, 1.3, 0.25); hood.position.set(0.95, 2.25, -0.95); hood.rotation.y = -0.3; S.add(hood);
+  
+  for (let i = 0; i < 60; i++) glow(i % 3 ? 0x60ffe0 : 0xffd080, [(rnd() - 0.5) * 30, rnd() * 10, -rnd() * 25], 0.1 + rnd() * 0.25, 0.7);
+  for (let i = 0; i < 14; i++) { const a = rnd() * 6.28; const c = new THREE.Mesh(new THREE.ConeGeometry(0.5 + rnd(), 4 + rnd() * 6, 7), new THREE.MeshStandardMaterial({ color: 0x1a3030, roughness: 1 })); c.rotation.x = Math.PI; c.position.set(Math.cos(a) * (8 + rnd() * 12), 12 - rnd() * 2, Math.sin(a) * (8 + rnd() * 12) - 5); S.add(c); }
+  S.fog = new THREE.FogExp2(0x062028, 0.035);
+  lookCam(lerp3([0.6, 1.8, 5.5], [0.3, 1.7, 4.0], ease), [0.1, 1.5, -0.2], 36); bloom = [0.45, 0.5, 0.8];
+} else if (PH === 'ashva' || PH === 'welcome') {   // the sacrificial horse arrives at Manipura's gate, Arjuna's army behind; welcome = Babruvahana with gifts and brahmanas
+  const sun = sky(30, 140, 3, 1.2); await hdri('ph/hdri/golden_bay.hdr'); sunLight(sun, 0xfff2dd, 3.2, 35); await ground('soil', 40, 0xffffff, 700, 0.3, GR);
+  await gate(-22); hills(26, 120, 300, 0x4f7040, 30, 80); trees(60, 30, 90, 0, -10);
+  const hx = PH === 'ashva' ? -2 + ease * 3 : 1; const horse = await place('kit/horse.glb', 1.65, [hx, 0, -6], Math.PI, 0xffffff);
+  horse.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.set(0xf2efe8); } });   // the yajna horse is white
+  const cloth = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.05, 1.1), new THREE.MeshStandardMaterial({ color: 0xd02a2a, roughness: 0.8 })); cloth.position.set(hx, 1.25, -6); S.add(cloth);
+  if (PH === 'ashva') { await place('kit/puru.glb', 1.85, [0, 0, 1.5], Math.PI); await crowd('kit/ind_spear_saffron.glb', 1.75, armyBlock(0, 10, 14, 6, 1.3, Math.PI)); chariot([4, 0, 5], Math.PI);
+    lookCam(lerp3([-6, 2.6, 6], [-4.5, 2.2, 3.5], ease), [0, 2.5, -14], 40); }
+  else { await place('kit/puru.glb', 1.85, [0, 0, 2], Math.PI);   // Arjuna, back to camera
+    const bv = await place('kit/puru.glb', 1.8, [0, 0, -2.6], 0, 0xfff0c0);   // Babruvahana, young king
+    for (let i = 0; i < 6; i++) await place('kit/ind_sword.glb', 1.72, [-3.2 + i * 1.3, 0, -4.6 - Math.abs(i - 2.5) * 0.3], 0, 0xfff8f0, /k_leather|k_gold|k_steel/);   // brahmanas
+    for (const s of [-1, 1]) { const tray = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.35, 0.08, 24), new THREE.MeshStandardMaterial({ color: 0xffc860, metalness: 0.9, roughness: 0.25 })); tray.position.set(s * 1.1, 1.05, -3.0); S.add(tray); for (let k = 0; k < 6; k++) { const g = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), new THREE.MeshStandardMaterial({ color: k % 2 ? 0xffd060 : 0xffffff, metalness: 0.8, roughness: 0.2 })); g.position.set(s * 1.1 + (rnd() - 0.5) * 0.4, 1.13, -3 + (rnd() - 0.5) * 0.4); S.add(g); } }
+    await crowd('kit/ind_spear_red.glb', 1.75, [...armyBlock(-8, -8, 4, 6, 1.3, 0.3), ...armyBlock(8, -8, 4, 6, 1.3, -0.3)]);
+    lookCam(lerp3([1.6, 1.9, 5.8], [1.1, 1.75, 4.6], ease), [0, 1.5, -2.6], 34); }
+  dust(15, 0, 0, 40, 0.2, 0xdcc6a0, 0.12, 5);
+} else if (PH === 'ulupi') {   // the earth splits and Ulupi rises in green-gold light between father and son
+  const sun = sky(20, 140, 6, 2); await hdri('ph/hdri/golden_bay.hdr'); sunLight(sun, 0xffe0c0, 2.0, 25); await ground('soil', 40, 0xffffff, 700, 0.3, GR);
+  await gate(-26); hills(20, 120, 300, 0x4f7040, 30, 80);
+  for (let i = 0; i < 9; i++) { const a = i * 0.7, L = 2 + rnd() * 3; const c = new THREE.Mesh(new THREE.BoxGeometry(L, 0.02, 0.12 + rnd() * 0.1), new THREE.MeshBasicMaterial({ color: 0x80ffd0 })); c.position.set(Math.cos(a) * L / 2, 0.02, Math.sin(a) * L / 2 - 1); c.rotation.y = -a; S.add(c); }
+  const rise = ease * 1.0; await woman([0, -1.0 + rise, -1], 0, 1.62, 0xd8fff0); glow(0x60ffd0, [0, 0.3, -1], 2.5 + ease, 0.35); glow(0xffffff, [0, 0.1, -1], 0.8, 0.5); const l = new THREE.PointLight(0x80ffd0, 8, 10, 1.5); l.position.set(0, 0.5, 0); S.add(l);
+  await place('kit/puru.glb', 1.85, [-3.5, 0, 0.5], 1.2); await place('kit/puru.glb', 1.8, [3.5, 0, -1.5], -1.4, 0xfff0c0);
+  await crowd('kit/ind_spear_red.glb', 1.75, armyBlock(6, -9, 6, 4, 1.3, -0.4)); await crowd('kit/ind_spear_saffron.glb', 1.75, armyBlock(-7, 5, 6, 4, 1.3, 2.4));
+  for (let i = 0; i < 50; i++) glow(0xa0ffe0, [(rnd() - 0.5) * 3, rnd() * 3.5, -1 + (rnd() - 0.5) * 2], 0.05 + rnd() * 0.07, 0.9);
+  lookCam(lerp3([0, 1.0, 8], [0, 1.3, 5.5], ease), [0, 1.2, -1], 38); bloom = [0.45, 0.5, 0.8];
+} else if (PH === 'duel') {   // father vs son, chariots, arrows criss-crossing, low hero angle
+  const sun = sky(16, 220, 5, 1.8); await hdri('ph/hdri/golden_bay.hdr'); sunLight(sun, 0xffe8cc, 3.0, 30); await ground('soil', 40, 0xffffff, 700, 0.3, GR);
+  chariot([0, 0, 6], Math.PI); await place('kit/puru.glb', 1.8, [0.2, 0.7, 6.2], Math.PI); bow([0.5, 1.9, 5.7], Math.PI, 1.55);
+  chariot([0.5, 0, -6], 0, 0xe8c060); await place('kit/puru.glb', 1.75, [0.3, 0.7, -6.2], 0, 0xfff0c0); bow([0.0, 1.9, -5.7], 0, 1.5);
+  for (let i = 0; i < 30; i++) { const k = (ease * 1.5 + i / 30) % 1; const dir = i % 2 ? 1 : -1; const s = [(rnd() - 0.5) * 1.5, 2, dir * 5.5], e = [(rnd() - 0.5) * 1.5, 1.2 + rnd(), -dir * 5.5]; const a = lerp3(s, e, k), b = lerp3(s, e, Math.min(1, k + 0.04)); a[1] += Math.sin(k * Math.PI) * 1.5; b[1] += Math.sin(Math.min(1, k + 0.04) * Math.PI) * 1.5; arrow(a, b); }
+  await gate(-30); await crowd('kit/ind_spear_red.glb', 1.75, armyBlock(14, -12, 8, 5, 1.3, -0.6)); await crowd('kit/ind_spear_saffron.glb', 1.75, armyBlock(-14, -12, 8, 5, 1.3, 0.6));
+  dust(40, 0, 0, 30, 0.2, 0xdcc6a0, 0.22, 5); hills(20, 120, 300, 0x4f7040, 30, 80);
+  lookCam(lerp3([-2.4, 2.6, 10.5], [-1.6, 2.4, 9.2], ease), [0.3, 1.6, -6], 36);
+} else if (PH === 'fallen' || PH === 'mani' || PH === 'embrace') {   // Arjuna struck down; Chitrangada grieving; Babruvahana sitting in vow; the Nagamani on his chest; revival and embrace
+  const dusk = PH !== 'embrace'; const sun = sky(dusk ? 5 : 18, 250, 7, 2.2); await hdri(dusk ? 'ph/hdri/the_sky_is_on_fire.hdr' : 'ph/hdri/golden_bay.hdr'); sunLight(sun, dusk ? 0xffa060 : 0xffe8cc, dusk ? 2.0 : 3.0, 15); await ground('soil', 40, 0xffffff, 700, 0.2, GR);
+  await gate(-30); hills(20, 120, 300, 0x4f6040, 30, 80); trees(30, 20, 60, 0, -10);
+  if (PH !== 'embrace') { const ar = await tmpl('kit/puru.glb', 1.85); ar.rotation.set(-Math.PI / 2, 0, Math.PI / 2); ar.position.set(0, 0, 0); ar.updateMatrixWorld(true); { const bb = new THREE.Box3().setFromObject(ar); ar.position.y -= bb.min.y; console.log('arj box ' + bb.min.toArray().map((v) => v.toFixed(2)) + ' / ' + bb.max.toArray().map((v) => v.toFixed(2))); } S.add(ar);
+    arrow([-1.25, 0.75, 0.15], [-1.4, 0.26, 0.0]);
+    await woman([-1.6, 0, -1.0], 0.2, 1.6, 0xffe8e8);   // Chitrangada
+    const bv = await place('kit/puru.glb', 1.8, [2.0, 0, -1.8], -0.7, 0xfff0c0);   // Babruvahana seated (sunk to sitting height) beside him
+    if (PH === 'mani') { const g = new THREE.Mesh(new THREE.OctahedronGeometry(0.07, 0), new THREE.MeshStandardMaterial({ color: 0x80ffd0, emissive: 0x40ffc0, emissiveIntensity: 2 + ease * 4, metalness: 0.2, roughness: 0.1 })); g.position.set(-1.4, 0.36, 0.05); g.rotation.y = T; S.add(g);
+      glow(0x60ffd0, [-1.4, 0.4, 0.05], 0.4 + ease * 0.8, 0.5); glow(0xffffff, [-1.4, 0.4, 0.05], 0.12 + ease * 0.15, 0.8); const l = new THREE.PointLight(0x80ffd0, 2 + ease * 6, 6, 1.5); l.position.set(-1.4, 0.7, 0.3); S.add(l);
+      for (let i = 0; i < 50; i++) { const a = rnd() * 6.28, r = 0.1 + rnd() * 1.5 * ease; glow(0xa0ffe0, [-1.4 + Math.cos(a) * r, 0.45 + rnd() * 1.5 * ease, Math.sin(a) * r], 0.04 + rnd() * 0.05, 0.8); } bloom = [0.5, 0.45, 0.8]; }
+    await crowd('kit/ind_spear_red.glb', 1.75, Array.from({ length: 18 }, (_, i) => { const a = 0.6 + i * 0.28; return [Math.cos(a) * 6, Math.sin(a) * 6 - 1, -a - Math.PI / 2]; }));
+    lookCam(PH === 'mani' ? lerp3([-0.4, 1.3, 2.0], [-0.8, 1.0, 1.4], ease) : lerp3([0.6, 2.4, 4.4], [0.3, 2.0, 3.6], ease), PH === 'mani' ? [-1.4, 0.35, 0] : [-0.9, 0.7, -0.6], 38); }
+  else { await place('kit/puru.glb', 1.85, [-0.35, 0, 0], 1.3); await place('kit/puru.glb', 1.8, [0.35, 0, 0.05], -1.6, 0xfff0c0); await woman([-1.3, 0, -1.6], 0.5, 1.6, 0xffe8e8); await woman([1.4, 0, -1.7], -0.4, 1.62, 0xd8fff0);
+    await crowd('kit/ind_spear_red.glb', 1.75, armyBlock(0, -8, 12, 3, 1.3, 0)); for (let i = 0; i < 30; i++) glow(0xffe0a0, [(rnd() - 0.5) * 5, rnd() * 4, (rnd() - 0.5) * 3], 0.04 + rnd() * 0.05, 0.7);
+    lookCam(lerp3([2.6, 1.6, 4.5], [1.8, 1.55, 3.4], ease), [0, 1.4, 0], 34); }
+}
+if (horseQ.length) await crowd('kit/horse.glb', 1.6, horseQ);
+const C = new EffectComposer(R); C.setSize(W, H); C.addPass(new RenderPass(S, cam)); C.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), ...bloom)); C.addPass(new OutputPass());
+C.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }',
+  fragmentShader: 'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec3 c = texture2D(tDiffuse, vUv).rgb; c *= mix(0.75, 1.0, smoothstep(0.95, 0.4, length(vUv - 0.5))); gl_FragColor = vec4(c, 1.); }' }));
+C.render(); window.DONE = true;
+</script></body></html>

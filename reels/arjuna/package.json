@@ -1,0 +1,1 @@
+{ "name": "arjuna-render", "type": "module", "private": true, "dependencies": { "three": "0.170.0", "puppeteer-core": "*" } }
