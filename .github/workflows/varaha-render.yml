@@ -36,6 +36,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           npm i -q --no-audit --no-fund >/dev/null 2>&1
+          git clone -q --depth 1 -b varaha-people https://github.com/${{ github.repository }} people && rm -rf people/.git
           pip install -q huggingface_hub
           python3 -c "from huggingface_hub import HfApi;HfApi().sync_bucket('hf://buckets/HarshithReddy05/tirumala-reel/keys','/tmp/keys',quiet=True)"
           openssl enc -d -aes-256-cbc -pbkdf2 -in priv.tgz.enc -out /tmp/p.tgz -pass file:/tmp/keys/asset.key && tar xzf /tmp/p.tgz && rm -rf /tmp/keys /tmp/p.tgz narration.mp3
