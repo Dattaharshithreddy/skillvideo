@@ -1,1 +1,130 @@
-{"n": 18, "seed": 5, "asset_urls": ["http://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip"]}
+{
+ "n": 10,
+ "seed": 7,
+ "branch": "mbh-cast",
+ "asset_urls": [
+  "http://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip"
+ ],
+ "cast": [
+  {
+   "name": "arjuna",
+   "male": true,
+   "age": 0.55,
+   "muscle": 0.85,
+   "weight": 0.55,
+   "height": 0.7,
+   "hair": [
+    "long"
+   ],
+   "clothes": false
+  },
+  {
+   "name": "babhru",
+   "male": true,
+   "age": 0.42,
+   "muscle": 0.75,
+   "weight": 0.5,
+   "height": 0.62,
+   "hair": [
+    "long"
+   ],
+   "clothes": false
+  },
+  {
+   "name": "bhishma",
+   "male": true,
+   "age": 0.98,
+   "muscle": 0.55,
+   "weight": 0.5,
+   "height": 0.72,
+   "hair": [
+    "long"
+   ],
+   "clothes": false
+  },
+  {
+   "name": "shikhandi",
+   "male": true,
+   "age": 0.5,
+   "muscle": 0.6,
+   "weight": 0.5,
+   "height": 0.55,
+   "hair": [
+    "long"
+   ],
+   "clothes": false
+  },
+  {
+   "name": "kauravya",
+   "male": true,
+   "age": 0.85,
+   "muscle": 0.5,
+   "weight": 0.6,
+   "height": 0.6,
+   "hair": [
+    "long"
+   ],
+   "clothes": false
+  },
+  {
+   "name": "soldier_a",
+   "male": true,
+   "age": 0.5,
+   "muscle": 0.7,
+   "weight": 0.55,
+   "height": 0.55,
+   "hair": [
+    "short"
+   ],
+   "clothes": false
+  },
+  {
+   "name": "soldier_b",
+   "male": true,
+   "age": 0.6,
+   "muscle": 0.65,
+   "weight": 0.6,
+   "height": 0.5,
+   "hair": [
+    "short"
+   ],
+   "clothes": false
+  },
+  {
+   "name": "ulupi",
+   "male": false,
+   "age": 0.45,
+   "muscle": 0.4,
+   "weight": 0.45,
+   "height": 0.5,
+   "hair": [
+    "long",
+    "braid"
+   ]
+  },
+  {
+   "name": "chitrangada",
+   "male": false,
+   "age": 0.6,
+   "muscle": 0.45,
+   "weight": 0.5,
+   "height": 0.45,
+   "hair": [
+    "bob",
+    "ponytail",
+    "braid"
+   ]
+  },
+  {
+   "name": "ganga",
+   "male": false,
+   "age": 0.45,
+   "muscle": 0.35,
+   "weight": 0.4,
+   "height": 0.55,
+   "hair": [
+    "long"
+   ]
+  }
+ ]
+}
