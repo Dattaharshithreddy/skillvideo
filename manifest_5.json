@@ -1,0 +1,128 @@
+[
+ {
+  "file": "person_5_00_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_01_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit03.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_02_f.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_03_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit05.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_04_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit03.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_05_f.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_06_m.glb",
+  "male": true,
+  "clothes": [
+   "male_worksuit01.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_07_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_08_f.glb",
+  "male": false,
+  "clothes": [
+   "female_elegantsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_09_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit04.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_10_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit02.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_11_f.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_12_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit05.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_13_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit03.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_14_f.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_15_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit02.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_16_m.glb",
+  "male": true,
+  "clothes": [
+   "male_casualsuit02.mhclo"
+  ]
+ },
+ {
+  "file": "person_5_17_f.glb",
+  "male": false,
+  "clothes": [
+   "female_elegantsuit01.mhclo"
+  ]
+ }
+]
