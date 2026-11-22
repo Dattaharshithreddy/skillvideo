@@ -1,0 +1,30 @@
+name: Assets mirror (bucket -> branch, non-private only)
+# Copies listed bucket folders (terrain, concept art, models — NEVER audio) to branch varaha-assets so they can be previewed.
+on:
+  push:
+    branches: [reels/follow-the-sugar]
+    paths: [tools/forge/mirror.json]
+permissions:
+  contents: write
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install -q huggingface_hub
+          python3 - <<'PY'
+          import json, os
+          from huggingface_hub import HfApi
+          cfg = json.load(open('tools/forge/mirror.json')); api = HfApi()
+          for sub in cfg['folders']:
+              assert 'audio' not in sub and 'voice' not in sub, 'never mirror voice'
+              os.makedirs('/tmp/m/' + sub, exist_ok=True)
+              api.sync_bucket('hf://buckets/HarshithReddy05/tirumala-reel/' + sub, '/tmp/m/' + sub, exclude=['*.wav', '*.mp3', '_logs/*'], quiet=True)
+          PY
+          find /tmp/m -type f | head -80; du -sh /tmp/m
+          cd /tmp/m && git init -q && git config user.name bot && git config user.email actions@users.noreply.github.com
+          git add -A && git commit -qm mirror && git push -q -f https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:varaha-assets
