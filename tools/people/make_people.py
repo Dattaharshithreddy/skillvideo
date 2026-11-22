@@ -5,6 +5,7 @@ argv = sys.argv[sys.argv.index('--') + 1:]; OUT, N, SEED = argv[0], int(argv[1])
 import importlib
 M = lambda n: importlib.import_module('bl_ext.user_default.mpfb.services.' + n)
 HumanService = M('humanservice').HumanService; TargetService = M('targetservice').TargetService; LocationService = M('locationservice').LocationService
+ClothesService = M('clothesservice').ClothesService; Mhclo = importlib.import_module('bl_ext.user_default.mpfb.entities.clothes.mhclo').Mhclo
 roots = [LocationService.get_user_data(), LocationService.get_mpfb_data()]
 def assets(kind, ext):
     out = []
@@ -23,21 +24,23 @@ for i in range(N):
         macro['gender'] = 1.0 if male else 0.0; macro['age'] = rng.uniform(0.45, 0.85); macro['muscle'] = rng.uniform(0.35, 0.6); macro['weight'] = rng.uniform(0.4, 0.75)
         macro['height'] = rng.uniform(0.35, 0.6) if male else rng.uniform(0.25, 0.5)
         if 'race' in macro: macro['race'] = {'african': rng.uniform(0.25, 0.45), 'asian': rng.uniform(0.2, 0.35), 'caucasian': rng.uniform(0.25, 0.45)}
-        bm = HumanService.create_human(macro_detail_dict=macro)
+        bm = HumanService.create_human(macro_detail_dict=macro); added = []
         sk = pick(skins, ['middleage', 'young']) or skins
         dark = [s for s in sk if any(k in s.lower() for k in ['dark', 'african', 'brown', 'indian'])] or sk
         if dark: HumanService.set_character_skin(rng.choice(dark), bm)
-        HumanService.add_builtin_rig(bm, 'mixamo')   # rig BEFORE clothes/hair so they get armature weights and follow poses
         for lst in (eyes, brows): 
-            if lst: HumanService.add_mhclo_asset(rng.choice(lst), bm, asset_type='Eyes' if lst is eyes else 'Eyebrows', subdiv_levels=0)
+            if lst: a = rng.choice(lst); added.append((a, HumanService.add_mhclo_asset(a, bm, asset_type='Eyes' if lst is eyes else 'Eyebrows', subdiv_levels=0)))
         hs = pick(hair, ['short', 'male'] if male else ['long', 'ponytail', 'bob', 'braid']) or hair
-        if hs: HumanService.add_mhclo_asset(rng.choice(hs), bm, asset_type='Hair', subdiv_levels=0)
+        if hs: a = rng.choice(hs); added.append((a, HumanService.add_mhclo_asset(a, bm, asset_type='Hair', subdiv_levels=0)))
         base = [c for c in clothes if 'shoes' not in c and 'fedora' not in c and 'sport' not in c]
         if male: cs = [c for c in base if os.path.basename(c).startswith('male_') and ('casualsuit' in c or 'worksuit' in c)]
         else: cs = [c for c in base if os.path.basename(c).startswith('female_')]
         cs = cs or clothes; chosen = []
         if cs:
-            first = rng.choice(cs); chosen.append(first); HumanService.add_mhclo_asset(first, bm, asset_type='Clothes', subdiv_levels=0)
+            first = rng.choice(cs); chosen.append(first); added.append((first, HumanService.add_mhclo_asset(first, bm, asset_type='Clothes', subdiv_levels=0)))
+        rig = HumanService.add_builtin_rig(bm, 'mixamo')
+        for path, obj in added:   # skin every proxy (clothes, hair, brows, eyes) to the rig so they follow poses
+            mh = Mhclo(); mh.load(path); ClothesService.set_up_rigging(bm, obj, rig, mh, interpolate_weights=True, import_subrig=False, import_weights=True)
         bpy.ops.object.select_all(action='SELECT')
         p = os.path.join(OUT, f'person_{SEED}_{i:02d}_{"m" if male else "f"}.glb')
         bpy.ops.export_scene.gltf(filepath=p, export_format='GLB', use_selection=True, export_apply=True, export_animations=False, export_skins=True)
