@@ -1,0 +1,22 @@
+name: Terrain fetch (SRTM + Sentinel-2 + OSM)
+on:
+  push:
+    branches: [reels/follow-the-sugar]
+    paths: [tools/terrain/run.json]
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch and upload
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install -q numpy pillow huggingface_hub
+          dest=$(python3 -c "import json;print(json.load(open('tools/terrain/run.json'))['dest'])")
+          for c in $(python3 -c "import json;print(' '.join(json.load(open('tools/terrain/run.json'))['configs']))"); do
+            n=$(basename $c .json); python3 tools/terrain/fetch_terrain.py tools/terrain/$c /tmp/terrain/$n 2>&1 | tail -20
+          done
+          ls -la /tmp/terrain/*
+          python3 -c "from huggingface_hub import HfApi;HfApi().sync_bucket('/tmp/terrain','$dest',quiet=True);print('uploaded')"
