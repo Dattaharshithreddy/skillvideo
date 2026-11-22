@@ -1,0 +1,26 @@
+name: Depth map (private photo -> encrypted result)
+on:
+  push:
+    branches: [reels/follow-the-sugar]
+    paths: [tools/depth/run.json]
+permissions:
+  contents: write
+jobs:
+  depth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install -q huggingface_hub transformers pillow numpy torch --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+          python3 -c "from huggingface_hub import HfApi;HfApi().sync_bucket('hf://buckets/HarshithReddy05/tirumala-reel/keys','/tmp/keys',quiet=True)"
+          mkdir -p /tmp/d
+          for f in $(python3 -c "import json;print(' '.join(json.load(open('tools/depth/run.json'))['files']))"); do
+            n=$(basename "$f" .enc); openssl enc -d -aes-256-cbc -pbkdf2 -in "$f" -out "/tmp/d/$n" -pass file:/tmp/keys/asset.key
+            python3 tools/depth/depth.py "/tmp/d/$n" "/tmp/d/${n%.*}_depth.png"
+          done
+          cd /tmp && tar czf d.tgz d && openssl enc -aes-256-cbc -pbkdf2 -salt -in d.tgz -out d.tgz.enc -pass file:/tmp/keys/asset.key && rm -rf /tmp/keys
+          cd $GITHUB_WORKSPACE && git config user.name bot && git config user.email actions@users.noreply.github.com
+          git checkout -q --orphan depth-tmp && git rm -rf -q . && cp /tmp/d.tgz.enc . && git add d.tgz.enc && git commit -qm depth && git push -q -f origin HEAD:depth-out
