@@ -10,7 +10,17 @@ mkdir -p "$OUT/_logs"
 # private reference images: encrypted in git, key only in the private bucket (KEYFILE)
 if [ -n "$KEYFILE" ] && [ -f "$KEYFILE" ]; then for f in "$(dirname "$JOBS")"/private/*.enc; do [ -f "$f" ] && openssl enc -d -aes-256-cbc -pbkdf2 -in "$f" -out "$OUT/$(basename "$f" .enc)" -pass file:"$KEYFILE"; done; fi
 cd /w/3dmodel/server && PYTHON=python bash setup.sh > "$OUT/_logs/setup.log" 2>&1; tail -5 "$OUT/_logs/setup.log"
-PORT=8000 LOW_VRAM=1 OUTPUT_DIR=/w/forge_out nohup python server.py > "$OUT/_logs/server.log" 2>&1 &
-for i in $(seq 1 180); do curl -sf http://127.0.0.1:8000/health && break; sleep 10; done; echo
-python "$(dirname "$0")/forge_client.py" "$JOBS" "$OUT" 2>&1 | tee "$OUT/_logs/client.log"
+# one fresh server per job: the texture model leaks memory and the server dies after one textured job on 30 GB RAM
+python - "$JOBS" > /tmp/jobsplit.txt <<'PY'
+import json, sys
+for i, j in enumerate(json.load(open(sys.argv[1]))['jobs']):
+    p = f'/tmp/job_{i:02d}.json'; json.dump({'jobs': [j]}, open(p, 'w')); print(p)
+PY
+for jf in $(cat /tmp/jobsplit.txt); do
+  PORT=8000 LOW_VRAM=1 OUTPUT_DIR=/w/forge_out nohup python server.py >> "$OUT/_logs/server.log" 2>&1 &
+  SP=$!
+  for i in $(seq 1 180); do curl -sf http://127.0.0.1:8000/health >/dev/null && break; sleep 5; done
+  python "$(dirname "$0")/forge_client.py" "$jf" "$OUT" 2>&1 | tee -a "$OUT/_logs/client.log"
+  kill $SP 2>/dev/null; sleep 5; kill -9 $SP 2>/dev/null; sleep 3
+done
 tail -40 "$OUT/_logs/server.log"
