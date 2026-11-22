@@ -5,92 +5,92 @@
   {
    "s": 0.0,
    "e": 4.6,
-   "page": "terrain.html",
-   "q": "sunel=40&sunaz=140&nomist=1&fog=%23c9d6e2&exp=0.8&fd=0.00004&shot=zoom"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 4.6,
    "e": 11.13,
-   "page": "temple.html",
-   "q": "shot=crowd&fov=46&orbit=0.06&push=0.16&sunel=48&sunaz=200&fd=0.0006&exp=0.5&crowd=%5B%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_03_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_04_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_06_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_07_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_09_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_10_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_12_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_13_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_15_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_16_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%5D"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 11.13,
    "e": 19.0,
-   "page": "ocean.html",
-   "q": "phase=sink"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 19.0,
    "e": 26.8,
-   "page": "ocean.html",
-   "q": "phase=lift"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 26.8,
    "e": 35.0,
-   "page": "terrain.html",
-   "q": "sunel=40&sunaz=140&nomist=1&fog=%23c9d6e2&exp=0.8&fd=0.00012&shot=hills7"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 35.0,
    "e": 43.73,
-   "page": "temple.html",
-   "q": "shot=drone&hdri=golden_bay&orbit=0.45&push=0.25&sunel=48&sunaz=200&fd=0.0006&exp=0.55&cset=tank&crowd=%5B%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_03_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_04_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_06_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_07_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_09_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_10_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_12_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_13_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_15_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_16_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%5D"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 43.73,
    "e": 48.5,
-   "page": "terrain.html",
-   "q": "shot=dawn&sunel=4&push=0.3&orbit=0.3"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 48.5,
    "e": 54.96,
-   "page": "story.html",
-   "q": "phase=anthill"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 54.96,
    "e": 61.0,
-   "page": "story.html",
-   "q": "phase=promise&ph2=ask"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 61.0,
    "e": 70.2,
-   "page": "story.html",
-   "q": "phase=vakula"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 70.2,
    "e": 73.95,
-   "page": "temple.html",
-   "q": "shot=drone&hdri=golden_bay&push=0.2"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 73.95,
    "e": 84.2,
-   "page": "story.html",
-   "q": "phase=promise"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 84.2,
    "e": 90.0,
-   "page": "idol.html",
-   "q": "img=priv/ref_varaha_full.png&dep=priv/ref_varaha_full_depth.png&aarti=1"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 90.0,
    "e": 94.07,
-   "page": "temple.html",
-   "q": "shot=crowd&cset=tank&fov=55&orbit=0.08&push=0.1&sunel=48&sunaz=200&fd=0.0006&exp=0.5&crowd=%5B%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_03_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_04_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_06_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_07_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_09_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_10_m.glb%22%2C%20%22person_5_05_f.glb%22%2C%20%22person_5_12_m.glb%22%2C%20%22person_5_08_f.glb%22%2C%20%22person_5_13_m.glb%22%2C%20%22person_5_11_f.glb%22%2C%20%22person_5_15_m.glb%22%2C%20%22person_5_14_f.glb%22%2C%20%22person_5_16_m.glb%22%2C%20%22person_5_17_f.glb%22%2C%20%22person_5_00_m.glb%22%2C%20%22person_5_02_f.glb%22%2C%20%22person_5_01_m.glb%22%2C%20%22person_5_05_f.glb%22%5D"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 94.07,
    "e": 97.73,
-   "page": "idol.html",
-   "q": "img=priv/ref_varaha_full.png&dep=priv/ref_varaha_full_depth.png&aarti=0"
+   "page": "black.html",
+   "q": "x=1"
   },
   {
    "s": 97.73,
@@ -102,7 +102,7 @@
    "s": 104.0,
    "e": 110.5,
    "page": "terrain.html",
-   "q": "sunel=40&sunaz=140&nomist=1&fog=%23c9d6e2&exp=0.8&fd=0.00012&shot=aerial&push=-0.45&rise=60&orbit=-0.3"
+   "q": "sunel=40&sunaz=140&nomist=1&fog=%23c9d6e2&exp=0.8&fd=0.00012&shot=hills7&orbit=0"
   }
  ]
 }

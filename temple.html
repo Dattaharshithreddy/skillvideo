@@ -233,7 +233,10 @@ if (P.has('crowd')) {
   for (let i = 0; i < 4; i++) spots.push({ x: HX + 0.6 + r2() * 0.8, z: -47 + i * 1.2 + r2() * 0.3, f: [-1, 0], pose: 'namaskaram' });
   }
   const cam0 = tankSet ? new THREE.Vector3(24, 2.4, -33.5) : new THREE.Vector3(HX + 23, 1.65, -35.2); const cs = [];
-  const TT = +(P.get('t') || 0); for (const sp of spots) if (sp.pose === 'walk') { const L = Math.hypot(sp.f[0], sp.f[1]); sp.x += sp.f[0] / L * 1.05 * TT; sp.z += sp.f[1] / L * 1.05 * TT; sp.ph = ((sp.ph || 0) + TT * 0.95) % 1; }
+  const TT = +(P.get('t') || 0), DD = +(P.get('dur') || 6); const camX = tankSet ? 24 : HX + 23, camZ = tankSet ? -33.5 : -35.2;
+  for (let i = spots.length - 1; i >= 0; i--) { const sp = spots[i]; if (sp.pose !== 'walk') continue; const L = Math.hypot(sp.f[0], sp.f[1]);   // drop walkers that would brush the camera during the shot
+    for (let k = 0; k <= 10; k++) { const tt = DD * k / 10; if (Math.hypot(sp.x + sp.f[0] / L * 1.05 * tt - camX, sp.z + sp.f[1] / L * 1.05 * tt - camZ) < 4) { spots.splice(i, 1); break; } } }
+  for (const sp of spots) if (sp.pose === 'walk') { const L = Math.hypot(sp.f[0], sp.f[1]); sp.x += sp.f[0] / L * 1.05 * TT; sp.z += sp.f[1] / L * 1.05 * TT; sp.ph = ((sp.ph || 0) + TT * 0.95) % 1; }
   for (let i = 0; i < spots.length; i++) { const sp = spots[i]; const f = files[i % files.length];
     try { const o = await devotee('people/' + f, { female: /_f\.glb$/.test(f), seed: i + rs, poseName: sp.pose, phase: sp.ph || 0 });
       o.position.set(sp.x, sp.y || 0, sp.z); face(o, sp.f[0], sp.f[1]); S.add(o); cs.push(o); } catch (e) { console.log('crowd ERR ' + f + ' ' + e.message); } }
