@@ -1,0 +1,58 @@
+[
+ {
+  "file": "arjuna.glb",
+  "male": true,
+  "clothes": []
+ },
+ {
+  "file": "babhru.glb",
+  "male": true,
+  "clothes": []
+ },
+ {
+  "file": "bhishma.glb",
+  "male": true,
+  "clothes": []
+ },
+ {
+  "file": "shikhandi.glb",
+  "male": true,
+  "clothes": []
+ },
+ {
+  "file": "kauravya.glb",
+  "male": true,
+  "clothes": []
+ },
+ {
+  "file": "soldier_a.glb",
+  "male": true,
+  "clothes": []
+ },
+ {
+  "file": "soldier_b.glb",
+  "male": true,
+  "clothes": []
+ },
+ {
+  "file": "ulupi.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "chitrangada.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "ganga.glb",
+  "male": false,
+  "clothes": [
+   "female_elegantsuit01.mhclo"
+  ]
+ }
+]
