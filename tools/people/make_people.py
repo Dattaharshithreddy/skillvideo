@@ -28,6 +28,10 @@ for i in range(N):
         macro['height'] = C.get('height', rng.uniform(0.35, 0.6) if male else rng.uniform(0.25, 0.5))
         if 'race' in macro: macro['race'] = C.get('race') or {'african': rng.uniform(0.25, 0.45), 'asian': rng.uniform(0.2, 0.35), 'caucasian': rng.uniform(0.25, 0.45)}
         bm = HumanService.create_human(macro_detail_dict=macro); added = []
+        for tn, tw in (C.get('targets') or {}).items():   # face shaping (before proxies so lashes/teeth fit the new face); '$t-' so the face rig leaves them alone
+            fp = os.path.join(LocationService.get_mpfb_data('targets'), tn + '.target.gz')
+            try: TargetService.load_target(bm, fp, weight=tw, name='$t-' + tn.split('/')[-1])
+            except Exception as e: print('TARGET FAIL', tn, e, flush=True)
         sk = pick(skins, ['middleage', 'young']) or skins
         dark = [s for s in sk if any(k in s.lower() for k in ['dark', 'african', 'brown', 'indian'])] or sk
         if C.get('skin'): dark = pick(skins, [C['skin']]) or dark
