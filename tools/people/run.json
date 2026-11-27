@@ -1,14 +1,21 @@
 {
- "n": 10,
- "seed": 9,
- "branch": "mbh-cast",
- "asset_urls": [
-  "http://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip"
- ],
+ "n": 13,
+ "seed": 11,
+ "branch": "mbh-cast2",
  "cast": [
   {
-   "name": "arjuna",
    "male": true,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "toigo_light_skin_male_bronze",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
    "age": 0.55,
    "muscle": 0.85,
    "weight": 0.55,
@@ -16,11 +23,22 @@
    "hair": [
     "long01"
    ],
-   "clothes": false
+   "brows": "eyebrow001",
+   "name": "arjuna"
   },
   {
-   "name": "babhru",
    "male": true,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "toigo_light_skin_male_bronze",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
    "age": 0.42,
    "muscle": 0.75,
    "weight": 0.5,
@@ -28,11 +46,68 @@
    "hair": [
     "long01"
    ],
-   "clothes": false
+   "brows": "eyebrow003",
+   "name": "babhru"
   },
   {
-   "name": "bhishma",
    "male": true,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "toigo_light_skin_male_bronze",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
+   "age": 0.5,
+   "muscle": 0.8,
+   "weight": 0.55,
+   "height": 0.72,
+   "hair": [
+    "long01"
+   ],
+   "brows": "eyebrow001",
+   "name": "karna"
+  },
+  {
+   "male": true,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "toigo_light_skin_male_bronze",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
+   "age": 0.58,
+   "muscle": 0.55,
+   "weight": 0.55,
+   "height": 0.62,
+   "hair": [
+    "long01"
+   ],
+   "brows": "eyebrow006",
+   "name": "yudhi"
+  },
+  {
+   "male": true,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "onlytheghosts_old_eurasian_male",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
    "age": 0.98,
    "muscle": 0.55,
    "weight": 0.5,
@@ -40,11 +115,22 @@
    "hair": [
     "long01"
    ],
-   "clothes": false
+   "brows": "eyebrow006",
+   "name": "bhishma"
   },
   {
-   "name": "shikhandi",
    "male": true,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "toigo_light_skin_male_bronze",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
    "age": 0.5,
    "muscle": 0.6,
    "weight": 0.5,
@@ -52,11 +138,22 @@
    "hair": [
     "long01"
    ],
-   "clothes": false
+   "brows": "eyebrow001",
+   "name": "shikhandi"
   },
   {
-   "name": "kauravya",
    "male": true,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "onlytheghosts_old_eurasian_male",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
    "age": 0.85,
    "muscle": 0.5,
    "weight": 0.6,
@@ -64,69 +161,161 @@
    "hair": [
     "long01"
    ],
-   "clothes": false
+   "brows": "eyebrow005",
+   "name": "kauravya"
   },
   {
-   "name": "soldier_a",
    "male": true,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "toigo_light_skin_male_bronze",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
    "age": 0.5,
    "muscle": 0.7,
    "weight": 0.55,
    "height": 0.55,
    "hair": [
-    "short02",
-    "short04"
+    "short02"
    ],
-   "clothes": false
+   "brows": "eyebrow010",
+   "name": "soldier_a"
   },
   {
-   "name": "soldier_b",
    "male": true,
-   "age": 0.6,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "toigo_light_skin_male_bronze",
+   "clothes": false,
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes01",
+   "age": 0.45,
    "muscle": 0.65,
    "weight": 0.6,
    "height": 0.5,
    "hair": [
-    "short02",
-    "short04"
+    "short02"
    ],
-   "clothes": false
+   "brows": "eyebrow001",
+   "name": "soldier_b"
   },
   {
-   "name": "ulupi",
    "male": false,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "cutoff3d_indian_female_enhanced",
+   "clothes": [
+    "female_casualsuit01"
+   ],
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes02",
    "age": 0.45,
    "muscle": 0.4,
    "weight": 0.45,
    "height": 0.5,
    "hair": [
-    "long",
-    "braid"
-   ]
+    "long01"
+   ],
+   "brows": "eyebrow009",
+   "name": "ulupi"
   },
   {
-   "name": "chitrangada",
    "male": false,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "cutoff3d_indian_female_enhanced",
+   "clothes": [
+    "female_casualsuit01"
+   ],
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes02",
    "age": 0.6,
    "muscle": 0.45,
    "weight": 0.5,
    "height": 0.45,
    "hair": [
-    "bob",
-    "ponytail",
-    "braid"
-   ]
+    "braid01"
+   ],
+   "brows": "eyebrow009",
+   "name": "chitrangada"
   },
   {
-   "name": "ganga",
    "male": false,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "cutoff3d_indian_female_enhanced",
+   "clothes": [
+    "female_casualsuit01"
+   ],
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes02",
    "age": 0.45,
    "muscle": 0.35,
    "weight": 0.4,
    "height": 0.55,
    "hair": [
-    "long"
-   ]
+    "long01"
+   ],
+   "brows": "eyebrow004",
+   "name": "ganga"
+  },
+  {
+   "male": false,
+   "race": {
+    "caucasian": 0.65,
+    "african": 0.2,
+    "asian": 0.15
+   },
+   "skin": "cutoff3d_indian_female_enhanced",
+   "clothes": [
+    "female_casualsuit01"
+   ],
+   "face": true,
+   "teeth": "teeth_base",
+   "tongue": "tongue01",
+   "lashes": "eyelashes02",
+   "age": 0.55,
+   "muscle": 0.4,
+   "weight": 0.5,
+   "height": 0.48,
+   "hair": [
+    "braid01"
+   ],
+   "brows": "eyebrow009",
+   "name": "kunti"
   }
+ ],
+ "asset_urls": [
+  "http://files.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip",
+  "https://files.makehumancommunity.org/asset_packs/skins01/skins01_cc0.zip",
+  "https://files.makehumancommunity.org/asset_packs/skins02/skins02_cc0.zip",
+  "https://files.makehumancommunity.org/functional/faceunits01.zip",
+  "https://files.makehumancommunity.org/asset_packs/eyelashes01/eyelashes01_cc0.zip"
  ]
 }

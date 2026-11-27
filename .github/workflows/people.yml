@@ -23,9 +23,10 @@ jobs:
           UD=$($B -b --python-expr "import bpy, importlib; LS = importlib.import_module('bl_ext.user_default.mpfb.services.locationservice'); LocationService = LS.LocationService; print('UD=' + LocationService.get_user_data())" 2>/dev/null | grep '^UD=' | cut -d= -f2)
           echo "user data: $UD"; mkdir -p "$UD"
           for u in $(jq -r '.asset_urls[]' tools/people/run.json); do curl -sL "$u" -o /tmp/a.zip && unzip -q -o /tmp/a.zip -d "$UD" || echo "asset fail $u"; done
+          find "$UD" -maxdepth 3 -iname "*faceunit*" | head; find "$UD" -iname "cheekPuff*" | head -2
           find "$UD" -maxdepth 2 | head -30
           N=$(jq .n tools/people/run.json); S=$(jq .seed tools/people/run.json)
           jq '.cast // empty' tools/people/run.json > /tmp/cast.json; BR=$(jq -r '.branch // "varaha-people"' tools/people/run.json)
-          $B -b -P tools/people/make_people.py -- /tmp/people $N $S /tmp/cast.json 2>&1 | grep -E "ASSETS|CLOTHES|SKINS|HAIR|OK |Error|Traceback|rror" | head -60
+          $B -b -P tools/people/make_people.py -- /tmp/people $N $S /tmp/cast.json 2>&1 | grep -E "ASSETS|SKIN|HAIR|SHAPEKEYS|OK |Error|Traceback|rror" | head -60
           ls -la /tmp/people; du -sh /tmp/people
           cd /tmp/people && git init -q && git config user.name bot && git config user.email actions@users.noreply.github.com && git add -A && git commit -qm people && git push -q -f https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} HEAD:$BR
