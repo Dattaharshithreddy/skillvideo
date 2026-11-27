@@ -1,0 +1,23 @@
+[
+ {
+  "file": "kunti_bronze.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "kunti_plain.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ },
+ {
+  "file": "kunti_natural.glb",
+  "male": false,
+  "clothes": [
+   "female_casualsuit01.mhclo"
+  ]
+ }
+]
